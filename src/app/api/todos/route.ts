@@ -1,11 +1,13 @@
-import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
+import { supabaseAdmin } from '@/lib/supabaseAdmin';
 
 // Obter todas as tarefas do usuário
 export async function GET() {
   try {
-    const session = await getServerSession();
+    const session = await getServerSession(authOptions);
     
     if (!session?.user?.id) {
       return NextResponse.json(
@@ -14,7 +16,8 @@ export async function GET() {
       );
     }
 
-    const { data, error } = await supabase
+    // Use supabaseAdmin for GET requests too, to bypass RLS consistently
+    const { data, error } = await supabaseAdmin
       .from('todos')
       .select('*')
       .eq('user_id', session.user.id)
@@ -22,7 +25,7 @@ export async function GET() {
 
     if (error) throw error;
 
-    return NextResponse.json(data, { status: 200 });
+    return NextResponse.json(data || [], { status: 200 });
   } catch (error: any) {
     console.error('Erro ao buscar tarefas:', error);
     return NextResponse.json(
@@ -35,7 +38,7 @@ export async function GET() {
 // Criar nova tarefa
 export async function POST(req: Request) {
   try {
-    const session = await getServerSession();
+    const session = await getServerSession(authOptions);
     
     if (!session?.user?.id) {
       return NextResponse.json(
@@ -44,6 +47,7 @@ export async function POST(req: Request) {
       );
     }
 
+    // Correct syntax for parsing request body
     const { title, description, priority, due_date } = await req.json();
 
     // Validar dados
@@ -54,7 +58,8 @@ export async function POST(req: Request) {
       );
     }
 
-    const { data, error } = await supabase
+    // Use supabaseAdmin to bypass RLS
+    const { data, error } = await supabaseAdmin
       .from('todos')
       .insert([
         {

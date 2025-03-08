@@ -1,11 +1,13 @@
 import NextAuth from 'next-auth';
+import type { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import GitHubProvider from 'next-auth/providers/github';
 import GoogleProvider from 'next-auth/providers/google';
 import { getUserByEmail, verifyPassword } from '@/lib/auth';
 import { supabase } from '@/lib/supabase';
 
-const handler = NextAuth({
+// Export auth options with the correct type
+export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
       name: 'Credentials',
@@ -113,10 +115,13 @@ const handler = NextAuth({
     newUser: '/auth/register',
   },
   session: {
-    strategy: 'jwt',
+    strategy: 'jwt' as const, // Add 'as const' to ensure type safety
     maxAge: 30 * 24 * 60 * 60, // 30 dias
   },
   secret: process.env.NEXTAUTH_SECRET,
-});
+};
+
+// Create the handler with the authOptions
+const handler = NextAuth(authOptions);
 
 export { handler as GET, handler as POST };

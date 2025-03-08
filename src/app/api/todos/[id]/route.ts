@@ -1,14 +1,15 @@
-import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
-import { supabase } from '@/lib/supabase';
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { NextResponse } from 'next/server';
+import { supabaseAdmin } from '@/lib/supabaseAdmin';
 
-// Obter uma tarefa específica
+// Get a specific task
 export async function GET(
-  req: Request,
+  request: Request,
   { params }: { params: { id: string } }
 ) {
   try {
-    const session = await getServerSession();
+    const session = await getServerSession(authOptions);
     
     if (!session?.user?.id) {
       return NextResponse.json(
@@ -17,26 +18,27 @@ export async function GET(
       );
     }
 
-    const { data, error } = await supabase
+    // Extract the task ID from URL parameters
+    const taskId = params.id;
+    
+    // Log for debugging
+    console.log(`Fetching task with ID: ${taskId} for user: ${session.user.id}`);
+
+    const { data, error } = await supabaseAdmin
       .from('todos')
       .select('*')
-      .eq('id', params.id)
+      .eq('id', taskId)
       .eq('user_id', session.user.id)
       .single();
 
     if (error) {
-      if (error.code === 'PGRST116') {
-        return NextResponse.json(
-          { message: 'Tarefa não encontrada' },
-          { status: 404 }
-        );
-      }
+      console.error('Supabase error:', error);
       throw error;
     }
 
     return NextResponse.json(data, { status: 200 });
   } catch (error: any) {
-    console.error('Erro ao buscar tarefa:', error);
+    console.error('Error fetching task:', error);
     return NextResponse.json(
       { message: error.message || 'Erro ao buscar tarefa' },
       { status: 500 }
@@ -44,13 +46,13 @@ export async function GET(
   }
 }
 
-// Atualizar uma tarefa
+// Update a task
 export async function PUT(
-  req: Request,
+  request: Request,
   { params }: { params: { id: string } }
 ) {
   try {
-    const session = await getServerSession();
+    const session = await getServerSession(authOptions);
     
     if (!session?.user?.id) {
       return NextResponse.json(
@@ -59,50 +61,46 @@ export async function PUT(
       );
     }
 
-    const { title, description, is_completed, priority, due_date } = await req.json();
+    // Extract the task ID from URL parameters
+    const taskId = params.id;
+    
+    // Parse the request body
+    const updateData = await request.json();
+    
+    // Log for debugging
+    console.log(`Updating task with ID: ${taskId}`, updateData);
 
-    // Validar dados
-    if (!title) {
-      return NextResponse.json(
-        { message: 'Título é obrigatório' },
-        { status: 400 }
-      );
-    }
-
-    // Verificar se a tarefa pertence ao usuário
-    const { data: todo, error: fetchError } = await supabase
+    // Verify task belongs to user first
+    const { data: existingTask, error: checkError } = await supabaseAdmin
       .from('todos')
       .select('id')
-      .eq('id', params.id)
+      .eq('id', taskId)
       .eq('user_id', session.user.id)
       .single();
 
-    if (fetchError || !todo) {
+    if (checkError || !existingTask) {
       return NextResponse.json(
         { message: 'Tarefa não encontrada' },
         { status: 404 }
       );
     }
 
-    const { data, error } = await supabase
+    // Update the task
+    const { data, error } = await supabaseAdmin
       .from('todos')
-      .update({
-        title,
-        description,
-        is_completed: is_completed !== undefined ? is_completed : false,
-        priority: priority || 1,
-        due_date: due_date || null,
-      })
-      .eq('id', params.id)
-      .eq('user_id', session.user.id)
+      .update(updateData)
+      .eq('id', taskId)
       .select()
       .single();
 
-    if (error) throw error;
+    if (error) {
+      console.error('Supabase update error:', error);
+      throw error;
+    }
 
     return NextResponse.json(data, { status: 200 });
   } catch (error: any) {
-    console.error('Erro ao atualizar tarefa:', error);
+    console.error('Error updating task:', error);
     return NextResponse.json(
       { message: error.message || 'Erro ao atualizar tarefa' },
       { status: 500 }
@@ -110,13 +108,13 @@ export async function PUT(
   }
 }
 
-// Excluir uma tarefa
+// Delete a task
 export async function DELETE(
-  req: Request,
+  request: Request,
   { params }: { params: { id: string } }
 ) {
   try {
-    const session = await getServerSession();
+    const session = await getServerSession(authOptions);
     
     if (!session?.user?.id) {
       return NextResponse.json(
@@ -125,35 +123,44 @@ export async function DELETE(
       );
     }
 
-    // Verificar se a tarefa pertence ao usuário
-    const { data: todo, error: fetchError } = await supabase
+    // Extract the task ID from URL parameters
+    const taskId = params.id;
+    
+    // Log for debugging
+    console.log(`Deleting task with ID: ${taskId} for user: ${session.user.id}`);
+
+    // Verify task belongs to user first
+    const { data: existingTask, error: checkError } = await supabaseAdmin
       .from('todos')
       .select('id')
-      .eq('id', params.id)
+      .eq('id', taskId)
       .eq('user_id', session.user.id)
       .single();
 
-    if (fetchError || !todo) {
+    if (checkError || !existingTask) {
       return NextResponse.json(
         { message: 'Tarefa não encontrada' },
         { status: 404 }
       );
     }
 
-    const { error } = await supabase
+    // Delete the task
+    const { error } = await supabaseAdmin
       .from('todos')
       .delete()
-      .eq('id', params.id)
-      .eq('user_id', session.user.id);
+      .eq('id', taskId);
 
-    if (error) throw error;
+    if (error) {
+      console.error('Supabase delete error:', error);
+      throw error;
+    }
 
     return NextResponse.json(
       { message: 'Tarefa excluída com sucesso' },
       { status: 200 }
     );
   } catch (error: any) {
-    console.error('Erro ao excluir tarefa:', error);
+    console.error('Error deleting task:', error);
     return NextResponse.json(
       { message: error.message || 'Erro ao excluir tarefa' },
       { status: 500 }

@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import TodoItem from "./TodoItem";
 import TodoForm from "./TodoForm";
 import TodoFilters from "./TodoFilters";
@@ -30,22 +29,44 @@ export default function TodoList() {
     priority: "all",
     search: "",
   });
-  const router = useRouter();
+
 
   // Carregar tarefas
   const fetchTodos = async () => {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await fetch("/api/todos");
+      console.log("Fetching todos from API...");
+      
+      const response = await fetch('/api/todos', {
+        // Include credentials to send session cookies
+        credentials: 'include'
+      });
+      
+      console.log("API response status:", response.status);
+      
       if (!response.ok) {
-        throw new Error("Falha ao carregar tarefas");
+        // Try to get detailed error message
+        let errorMessage = 'Falha ao carregar tarefas';
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.message || errorMessage;
+        } catch (e) {
+          // If we can't parse JSON, use status text
+          errorMessage = `${response.status}: ${response.statusText}`;
+        }
+        
+        console.error("Error response:", errorMessage);
+        throw new Error(errorMessage);
       }
+      
       const data = await response.json();
+      console.log("Todos fetched successfully:", data.length);
+      
       setTodos(data);
     } catch (err: any) {
-      setError(err.message || "Ocorreu um erro ao carregar as tarefas");
-      console.error("Erro ao carregar tarefas:", err);
+      console.error("Error in fetchTodos:", err);
+      setError(err.message || 'Ocorreu um erro ao carregar as tarefas');
     } finally {
       setIsLoading(false);
     }
@@ -119,28 +140,37 @@ export default function TodoList() {
   };
 
   // Adicionar nova tarefa
-  const handleAddTodo = async (
-    todoData: Omit<Todo, "id" | "created_at" | "updated_at">
-  ) => {
+  const handleAddTodo = async (todoData: Omit<Todo, 'id' | 'created_at' | 'updated_at'> & { description?: string | null }) => {
     try {
-      const response = await fetch("/api/todos", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      console.log("Attempting to create task with data:", todoData);
+      
+      const response = await fetch('/api/todos', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(todoData),
+        // Ensure credentials are included to send cookies/session
+        credentials: 'include'
       });
-
+      
+      console.log("API response status:", response.status);
+      
+      // If the response is not OK, try to get the error details
       if (!response.ok) {
-        throw new Error("Falha ao criar tarefa");
+        const errorData = await response.json().catch(e => ({ message: "Could not parse error response" }));
+        console.error("Error response from API:", errorData);
+        throw new Error(errorData.message || 'Falha ao criar tarefa');
       }
-
+      
       const newTodo = await response.json();
-      setTodos((prevTodos) => [newTodo, ...prevTodos]);
+      console.log("Successfully created task:", newTodo);
+      
+      setTodos(prevTodos => [newTodo, ...prevTodos]);
       setShowForm(false);
-
-      toast.success("Tarefa criada com sucesso!");
+      
+      toast.success('Tarefa criada com sucesso!');
     } catch (err: any) {
-      toast.error(err.message || "Ocorreu um erro ao criar a tarefa");
-      console.error("Erro ao criar tarefa:", err);
+      console.error("Error in handleAddTodo:", err);
+      toast.error(err.message || 'Ocorreu um erro ao criar a tarefa');
     }
   };
 
