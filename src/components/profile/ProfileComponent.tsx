@@ -11,6 +11,9 @@ import {
   FaPencilAlt,
   FaSave,
   FaTimes,
+  FaClipboardList,
+  FaClipboardCheck,
+  FaClock
 } from "react-icons/fa";
 
 interface ProfileData {
@@ -21,7 +24,14 @@ interface ProfileData {
   provider: string | null;
 }
 
+interface UserStats {
+  total: number;
+  completed: number;
+  pending: number;
+}
+
 export default function ProfileComponent() {
+  const [userStats, setUserStats] = useState<UserStats | null>(null);
   const { data: session, update } = useSession();
   const [isLoading, setIsLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
@@ -50,6 +60,9 @@ export default function ProfileComponent() {
         setFormData({
           name: data.name || "",
         });
+
+        // After loading profile, fetch the user statistics
+        await fetchUserStats();
       } catch (error) {
         console.error("Error fetching profile:", error);
         toast.error("Não foi possível carregar seu perfil");
@@ -62,6 +75,25 @@ export default function ProfileComponent() {
       fetchProfileData();
     }
   }, [session]);
+
+  // Function to fetch user task statistics
+  const fetchUserStats = async () => {
+    try {
+      const response = await fetch("/api/stats", {
+        credentials: "include",
+      });
+
+      if (!response.ok) {
+        throw new Error("Falha ao carregar estatísticas");
+      }
+
+      const data = await response.json();
+      setUserStats(data);
+    } catch (error) {
+      console.error("Error fetching user stats:", error);
+      toast.error("Não foi possível carregar suas estatísticas");
+    }
+  };
 
   // Handle form input changes
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -252,25 +284,28 @@ export default function ProfileComponent() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="bg-blue-50 dark:bg-blue-900/30 p-4 rounded-lg">
             <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-              --
+              {userStats ? userStats.total : '--'}
             </div>
-            <div className="text-sm text-gray-600 dark:text-gray-400">
+            <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
+              <FaClipboardList className="mr-1" />
               Tarefas Criadas
             </div>
           </div>
           <div className="bg-green-50 dark:bg-green-900/30 p-4 rounded-lg">
             <div className="text-2xl font-bold text-green-600 dark:text-green-400">
-              --
+              {userStats ? userStats.completed : '--'}
             </div>
-            <div className="text-sm text-gray-600 dark:text-gray-400">
+            <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
+              <FaClipboardCheck className="mr-1" />
               Tarefas Concluídas
             </div>
           </div>
           <div className="bg-yellow-50 dark:bg-yellow-900/30 p-4 rounded-lg">
             <div className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">
-              --
+              {userStats ? userStats.pending : '--'}
             </div>
-            <div className="text-sm text-gray-600 dark:text-gray-400">
+            <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
+              <FaClock className="mr-1" />
               Pendentes
             </div>
           </div>
