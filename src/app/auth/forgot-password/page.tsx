@@ -1,8 +1,10 @@
+// src/app/auth/forgot-password/page.tsx
 import ForgotPasswordForm from '@/components/auth/ForgotPasswordForm';
+import { Metadata } from 'next';
 
-export const metadata = {
-  title: 'Recuperar Senha | Tarevity',
-  description: 'Recupere sua senha do Tarevity',
+export const metadata: Metadata = {
+  title: 'Esqueci a Senha | Tarevity',
+  description: 'Recupere o acesso à sua conta Tarevity',
 };
 
 export default function ForgotPasswordPage() {

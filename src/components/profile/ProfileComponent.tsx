@@ -1,11 +1,17 @@
 // src/components/profile/ProfileComponent.tsx
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { useSession } from 'next-auth/react';
-import { toast } from 'react-hot-toast';
-import Image from 'next/image';
-import { FaUser, FaEnvelope, FaPencilAlt, FaSave, FaTimes } from 'react-icons/fa';
+import { useState, useEffect } from "react";
+import { useSession } from "next-auth/react";
+import { toast } from "react-hot-toast";
+import Image from "next/image";
+import {
+  FaUser,
+  FaEnvelope,
+  FaPencilAlt,
+  FaSave,
+  FaTimes,
+} from "react-icons/fa";
 
 interface ProfileData {
   id: string;
@@ -21,7 +27,7 @@ export default function ProfileComponent() {
   const [isEditing, setIsEditing] = useState(false);
   const [profileData, setProfileData] = useState<ProfileData | null>(null);
   const [formData, setFormData] = useState({
-    name: '',
+    name: "",
   });
 
   // Fetch profile data
@@ -31,22 +37,22 @@ export default function ProfileComponent() {
 
       setIsLoading(true);
       try {
-        const response = await fetch('/api/profile', {
-          credentials: 'include',
+        const response = await fetch("/api/profile", {
+          credentials: "include",
         });
 
         if (!response.ok) {
-          throw new Error('Falha ao carregar dados do perfil');
+          throw new Error("Falha ao carregar dados do perfil");
         }
 
         const data = await response.json();
         setProfileData(data);
         setFormData({
-          name: data.name || '',
+          name: data.name || "",
         });
       } catch (error) {
-        console.error('Error fetching profile:', error);
-        toast.error('Não foi possível carregar seu perfil');
+        console.error("Error fetching profile:", error);
+        toast.error("Não foi possível carregar seu perfil");
       } finally {
         setIsLoading(false);
       }
@@ -60,34 +66,34 @@ export default function ProfileComponent() {
   // Handle form input changes
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
   // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     try {
       setIsLoading(true);
-      const response = await fetch('/api/profile', {
-        method: 'PUT',
+      const response = await fetch("/api/profile", {
+        method: "PUT",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(formData),
-        credentials: 'include',
+        credentials: "include",
       });
 
       if (!response.ok) {
-        throw new Error('Falha ao atualizar perfil');
+        throw new Error("Falha ao atualizar perfil");
       }
 
       const updatedProfile = await response.json();
       setProfileData(updatedProfile);
-      
+
       // Update session data to reflect changes
       if (update) {
         await update({
@@ -95,15 +101,15 @@ export default function ProfileComponent() {
           user: {
             ...session?.user,
             name: updatedProfile.name,
-          }
+          },
         });
       }
 
-      toast.success('Perfil atualizado com sucesso!');
+      toast.success("Perfil atualizado com sucesso!");
       setIsEditing(false);
     } catch (error) {
-      console.error('Error updating profile:', error);
-      toast.error('Erro ao atualizar perfil');
+      console.error("Error updating profile:", error);
+      toast.error("Erro ao atualizar perfil");
     } finally {
       setIsLoading(false);
     }
@@ -112,7 +118,7 @@ export default function ProfileComponent() {
   // Handle cancel edit
   const handleCancelEdit = () => {
     setFormData({
-      name: profileData?.name || '',
+      name: profileData?.name || "",
     });
     setIsEditing(false);
   };
@@ -139,18 +145,18 @@ export default function ProfileComponent() {
     <div className="bg-white dark:bg-gray-800 shadow rounded-lg overflow-hidden">
       {/* Profile Header */}
       <div className="bg-blue-600 dark:bg-blue-700 h-32"></div>
-      
+
       <div className="px-6 py-8">
         <div className="flex flex-col md:flex-row items-center">
           {/* Profile Image */}
           <div className="relative -mt-16 mb-4 md:mb-0 md:mr-6">
             <div className="h-24 w-24 rounded-full overflow-hidden bg-gray-200 border-4 border-white dark:border-gray-800">
               {profileData.image ? (
-                <Image 
-                  src={profileData.image} 
-                  alt={profileData.name || 'Profile Picture'} 
-                  width={96} 
-                  height={96} 
+                <Image
+                  src={profileData.image}
+                  alt={profileData.name || "Profile Picture"}
+                  width={96}
+                  height={96}
                   className="h-full w-full object-cover"
                 />
               ) : (
@@ -166,7 +172,10 @@ export default function ProfileComponent() {
             {isEditing ? (
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                  <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  <label
+                    htmlFor="name"
+                    className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                  >
                     Nome
                   </label>
                   <input
@@ -204,7 +213,7 @@ export default function ProfileComponent() {
               <div>
                 <div className="flex justify-between items-center">
                   <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-                    {profileData.name || 'Usuário'}
+                    {profileData.name || "Usuário"}
                   </h2>
                   <button
                     onClick={() => setIsEditing(true)}
@@ -220,7 +229,13 @@ export default function ProfileComponent() {
                 </div>
                 <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
                   <div className="text-sm text-gray-500 dark:text-gray-400">
-                    <p>Método de login: {profileData.provider === 'email' ? 'Email/Senha' : profileData.provider || 'Email/Senha'}</p>
+                    <p>
+                      Método de login:{" "}
+                      {profileData.provider
+                        ? profileData.provider.charAt(0).toUpperCase() +
+                          profileData.provider.slice(1)
+                        : "Email/Senha"}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -231,19 +246,33 @@ export default function ProfileComponent() {
 
       {/* Profile Sections */}
       <div className="border-t border-gray-200 dark:border-gray-700 px-6 py-6">
-        <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Estatísticas de Tarefas</h3>
+        <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
+          Estatísticas de Tarefas
+        </h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="bg-blue-50 dark:bg-blue-900/30 p-4 rounded-lg">
-            <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">--</div>
-            <div className="text-sm text-gray-600 dark:text-gray-400">Tarefas Criadas</div>
+            <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+              --
+            </div>
+            <div className="text-sm text-gray-600 dark:text-gray-400">
+              Tarefas Criadas
+            </div>
           </div>
           <div className="bg-green-50 dark:bg-green-900/30 p-4 rounded-lg">
-            <div className="text-2xl font-bold text-green-600 dark:text-green-400">--</div>
-            <div className="text-sm text-gray-600 dark:text-gray-400">Tarefas Concluídas</div>
+            <div className="text-2xl font-bold text-green-600 dark:text-green-400">
+              --
+            </div>
+            <div className="text-sm text-gray-600 dark:text-gray-400">
+              Tarefas Concluídas
+            </div>
           </div>
           <div className="bg-yellow-50 dark:bg-yellow-900/30 p-4 rounded-lg">
-            <div className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">--</div>
-            <div className="text-sm text-gray-600 dark:text-gray-400">Pendentes</div>
+            <div className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">
+              --
+            </div>
+            <div className="text-sm text-gray-600 dark:text-gray-400">
+              Pendentes
+            </div>
           </div>
         </div>
       </div>

@@ -23,7 +23,7 @@ export default function ThemeToggle() {
       className=" px-3 py-2.5 rounded-md text-gray-700 bg-gray-100 hover:bg-gray-200 dark:text-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600"
       aria-label="Alternar tema"
     >
-      {theme === 'dark' ? <FaSun /> : <FaMoon />}
+      {theme === 'dark' ? <FaMoon /> : <FaSun />}
     </button>
   );
 }

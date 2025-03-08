@@ -2,20 +2,68 @@
 'use client';
 
 import { useState } from 'react';
-import { useSession } from 'next-auth/react';
+import { useSession, signOut } from 'next-auth/react';
 import { useTheme } from 'next-themes';
 import { toast } from 'react-hot-toast';
 import { FaMoon, FaSun, FaDesktop, FaUserCircle } from 'react-icons/fa';
+import { useRouter } from 'next/navigation';
 
 export default function SettingsComponent() {
   const { data: session } = useSession();
   const { theme, setTheme } = useTheme();
   const [activeTab, setActiveTab] = useState('appearance');
+  const [isDeleting, setIsDeleting] = useState(false);
+  const router = useRouter();
   
   // Function to handle theme change
   const handleThemeChange = (newTheme: string) => {
     setTheme(newTheme);
     toast.success(`Tema alterado para ${newTheme === 'dark' ? 'escuro' : newTheme === 'light' ? 'claro' : 'sistema'}`);
+  };
+
+  // Function to handle account deletion
+  const handleDeleteAccount = async () => {
+    // Show a confirmation dialog to prevent accidental deletions
+    if (!confirm('Tem certeza que deseja excluir sua conta? Esta ação não pode ser desfeita e todos os seus dados serão removidos permanentemente.')) {
+      return;
+    }
+    
+    // Double-check with a more serious warning
+    if (!confirm('ATENÇÃO: Esta é uma ação permanente. Todas as suas tarefas e dados serão perdidos. Deseja continuar?')) {
+      return;
+    }
+    
+    try {
+      setIsDeleting(true);
+      
+      // Make an API call to delete the user account
+      const response = await fetch('/api/account/delete', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include'
+      });
+      
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.message || 'Erro ao excluir a conta');
+      }
+      
+      // Show success message
+      toast.success('Sua conta foi excluída com sucesso');
+      
+      // Sign out the user
+      await signOut({ redirect: false });
+      
+      // Redirect to home page
+      router.push('/');
+    } catch (error) {
+      console.error('Error deleting account:', error);
+      toast.error(error instanceof Error ? error.message : 'Ocorreu um erro ao excluir sua conta');
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   if (!session) {
@@ -148,36 +196,26 @@ export default function SettingsComponent() {
                       className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 text-sm font-medium flex items-center"
                       onClick={() => {
                         toast.success('Redirecionando para página de perfil');
-                        window.location.href = '/profile';
+                        router.push('/profile');
                       }}
                     >
                       Editar perfil
                     </button>
                     
                     <button 
-                      className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 text-sm font-medium"
-                      onClick={() => {
-                        if (confirm('Tem certeza que deseja excluir sua conta? Esta ação não pode ser desfeita.')) {
-                          toast.success('Funcionalidade em desenvolvimento');
-                        }
-                      }}
+                      className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 text-sm font-medium flex items-center"
+                      onClick={handleDeleteAccount}
+                      disabled={isDeleting}
                     >
-                      Excluir minha conta
+                      {isDeleting ? 'Excluindo...' : 'Excluir minha conta'}
                     </button>
+                    
+                    {isDeleting && (
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                        Estamos processando sua solicitação. Isso pode levar alguns momentos.
+                      </p>
+                    )}
                   </div>
-                </div>
-                
-                <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
-                  <h3 className="text-base font-medium text-gray-800 dark:text-gray-200 mb-4">Dados e Privacidade</h3>
-                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-                    O Tarevity armazena suas tarefas e preferências de forma segura. Somente você pode acessar seus dados. Não compartilhamos suas informações com terceiros.
-                  </p>
-                  <button 
-                    className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 text-sm font-medium"
-                    onClick={() => toast.success('Funcionalidade em desenvolvimento')}
-                  >
-                    Solicitar cópia dos meus dados
-                  </button>
                 </div>
               </div>
             </div>

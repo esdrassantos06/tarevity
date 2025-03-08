@@ -9,6 +9,20 @@ export async function verifyPassword(password: string, hashedPassword: string): 
   return await compare(password, hashedPassword);
 }
 
+export async function emailExists(email: string): Promise<boolean> {
+  const { data, error } = await supabase
+    .from('users')
+    .select('id')
+    .eq('email', email)
+    .single();
+    
+  if (error && error.code !== 'PGRST116') { // PGRST116 is the "no rows returned" error
+    console.error('Error checking if email exists:', error);
+  }
+  
+  return !!data;
+}
+
 export async function getUserByEmail(email: string) {
   const { data, error } = await supabase
     .from('users')
