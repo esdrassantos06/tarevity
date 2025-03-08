@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { NextAuthProvider } from "@/components/auth/NextAuthProvider";
 import ToastProvider from "@/components/common/ToastProvider";
+import { ThemeProvider } from "@/components/common/ThemeProvider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -20,9 +21,11 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={`${inter.className}`} suppressHydrationWarning>
         <NextAuthProvider>
-          {children}
-          <ToastProvider />
-          </NextAuthProvider>
+          <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+            {children}
+            <ToastProvider />
+          </ThemeProvider>
+        </NextAuthProvider>
       </body>
     </html>
   );
