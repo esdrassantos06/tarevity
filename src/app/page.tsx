@@ -25,7 +25,7 @@ export default function HomePage() {
                   href="/auth/register"
                   className="flex w-full items-center justify-center rounded-md border border-transparent bg-blue-600 px-8 py-3 text-base font-medium text-white hover:bg-blue-700 md:px-10 md:py-4 md:text-lg"
                 >
-                  Start Now - It's Free!
+                  Start Now - It&apos;s Free!
                 </Link>
               </div>
               <div className="ml-3 rounded-md shadow">
