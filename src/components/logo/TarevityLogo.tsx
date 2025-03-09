@@ -7,7 +7,7 @@ interface LogoProps {
 
 export default function Logo({
   className,
-  width = 'auto',
+  width = '100%',
   height = 'auto',
 }: LogoProps) {
 
