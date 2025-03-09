@@ -158,14 +158,14 @@ export default function ProfileComponent() {
   if (isLoading && !profileData) {
     return (
       <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+        <div className="animate-spin rounded-full h-12 w-12"></div>
       </div>
     );
   }
 
   if (!session?.user || !profileData) {
     return (
-      <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
+      <div className="bg-cardLightMode dark:bg-cardDarkMode shadow rounded-lg p-6">
         <p className="text-gray-600 dark:text-gray-400">
           Por favor, faça login para visualizar seu perfil.
         </p>
@@ -174,15 +174,15 @@ export default function ProfileComponent() {
   }
 
   return (
-    <div className="bg-white dark:bg-gray-800 shadow rounded-lg overflow-hidden">
+    <div className="bg-cardLightMode dark:bg-cardDarkMode shadow rounded-lg overflow-hidden">
       {/* Profile Header */}
-      <div className="bg-blue-600 dark:bg-blue-700 h-32"></div>
+      <div className="bg-secondary h-32"></div>
 
       <div className="px-6 py-8">
         <div className="flex flex-col md:flex-row items-center">
           {/* Profile Image */}
           <div className="relative -mt-16 mb-4 md:mb-0 md:mr-6">
-            <div className="h-24 w-24 rounded-full overflow-hidden bg-gray-200 border-4 border-white dark:border-gray-800">
+            <div className="h-24 w-24 rounded-full overflow-hidden bg-backgroundLight border-4 border-borderLight dark:border-borderDark">
               {profileData.image ? (
                 <Image
                   src={profileData.image}
@@ -216,7 +216,7 @@ export default function ProfileComponent() {
                     name="name"
                     value={formData.name}
                     onChange={handleChange}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                    className="mt-1 p-2 outline-none block w-full rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-zinc-700 dark:text-white"
                     disabled={isLoading}
                     required
                   />
@@ -226,7 +226,7 @@ export default function ProfileComponent() {
                   <button
                     type="submit"
                     disabled={isLoading}
-                    className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:bg-blue-500 dark:hover:bg-blue-600"
+                    className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-primaryHover outline-none"
                   >
                     <FaSave className="mr-2 -ml-1 h-4 w-4" />
                     Salvar
@@ -234,7 +234,7 @@ export default function ProfileComponent() {
                   <button
                     type="button"
                     onClick={handleCancelEdit}
-                    className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:bg-gray-600 dark:text-gray-200 dark:border-gray-500 dark:hover:bg-gray-700"
+                    className="inline-flex items-center px-4 py-2 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 outline-none dark:bg-zinc-600 dark:text-gray-200 dark:hover:bg-zinc-700"
                   >
                     <FaTimes className="mr-2 -ml-1 h-4 w-4" />
                     Cancelar

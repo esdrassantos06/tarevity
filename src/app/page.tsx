@@ -1,8 +1,9 @@
-import Link from 'next/link';
-import { FaCheckCircle, FaBell, FaLock, FaMobileAlt } from 'react-icons/fa';
-import Layout from '@/components/layout/Layout';
+import Link from "next/link";
+import { FaCheckCircle, FaBell, FaLock, FaMobileAlt } from "react-icons/fa";
+import Layout from "@/components/layout/Layout";
 
 export default function HomePage() {
+
   return (
     <Layout>
       <div className="py-12">
@@ -11,10 +12,14 @@ export default function HomePage() {
           <div className="lg:text-center">
             <h1 className="text-4xl font-extrabold tracking-tight text-gray-900 dark:text-white sm:text-5xl md:text-6xl">
               <span className="block">Tarevity</span>
-              <span className="block text-blue-600 dark:text-blue-400">Gerencie suas tarefas com eficiência</span>
+              <span className="block text-blue-600 dark:text-blue-400">
+                Gerencie suas tarefas com eficiência
+              </span>
             </h1>
             <p className="mt-3 max-w-md mx-auto text-lg text-gray-600 dark:text-gray-300 sm:text-xl md:mt-5 md:max-w-3xl">
-              Organize suas tarefas, defina prioridades e nunca mais esqueça de prazos importantes. Uma maneira simples e eficiente de aumentar sua produtividade.
+              Organize suas tarefas, defina prioridades e nunca mais esqueça de
+              prazos importantes. Uma maneira simples e eficiente de aumentar
+              sua produtividade.
             </p>
             <div className="mt-10 flex justify-center">
               <div className="rounded-md shadow">
@@ -38,10 +43,12 @@ export default function HomePage() {
         </div>
 
         {/* Features Section */}
-        <div className="py-12 bg-white dark:bg-gray-800 mt-10 rounded-lg shadow-lg">
+        <div className="py-12 bg-cardLightMode dark:bg-cardDarkMode mt-10 rounded-lg shadow-lg">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="lg:text-center">
-              <h2 className="text-base text-blue-600 dark:text-blue-400 font-semibold tracking-wide uppercase">Recursos</h2>
+              <h2 className="text-base text-blue-600 dark:text-blue-400 font-semibold tracking-wide uppercase">
+                Recursos
+              </h2>
               <p className="mt-2 text-3xl leading-8 font-extrabold tracking-tight text-gray-900 dark:text-white sm:text-4xl">
                 Tudo que você precisa para se manter organizado
               </p>
@@ -57,9 +64,12 @@ export default function HomePage() {
                     </div>
                   </div>
                   <div className="ml-4">
-                    <h3 className="text-lg leading-6 font-medium text-gray-900 dark:text-white">Gerenciamento de tarefas simples</h3>
+                    <h3 className="text-lg leading-6 font-medium text-gray-900 dark:text-white">
+                      Gerenciamento de tarefas simples
+                    </h3>
                     <p className="mt-2 text-base text-gray-600 dark:text-gray-300">
-                      Adicione, edite e marque tarefas como concluídas com facilidade. Interface intuitiva e fácil de usar.
+                      Adicione, edite e marque tarefas como concluídas com
+                      facilidade. Interface intuitiva e fácil de usar.
                     </p>
                   </div>
                 </div>
@@ -72,9 +82,12 @@ export default function HomePage() {
                     </div>
                   </div>
                   <div className="ml-4">
-                    <h3 className="text-lg leading-6 font-medium text-gray-900 dark:text-white">Nunca perca um prazo</h3>
+                    <h3 className="text-lg leading-6 font-medium text-gray-900 dark:text-white">
+                      Nunca perca um prazo
+                    </h3>
                     <p className="mt-2 text-base text-gray-600 dark:text-gray-300">
-                      Defina datas de vencimento para suas tarefas e mantenha-se no controle de seus compromissos.
+                      Defina datas de vencimento para suas tarefas e mantenha-se
+                      no controle de seus compromissos.
                     </p>
                   </div>
                 </div>
@@ -87,9 +100,12 @@ export default function HomePage() {
                     </div>
                   </div>
                   <div className="ml-4">
-                    <h3 className="text-lg leading-6 font-medium text-gray-900 dark:text-white">Seguro e privado</h3>
+                    <h3 className="text-lg leading-6 font-medium text-gray-900 dark:text-white">
+                      Seguro e privado
+                    </h3>
                     <p className="mt-2 text-base text-gray-600 dark:text-gray-300">
-                      Suas tarefas são armazenadas com segurança. Login com GitHub e Google para maior conveniência.
+                      Suas tarefas são armazenadas com segurança. Login com
+                      GitHub e Google para maior conveniência.
                     </p>
                   </div>
                 </div>
@@ -102,9 +118,12 @@ export default function HomePage() {
                     </div>
                   </div>
                   <div className="ml-4">
-                    <h3 className="text-lg leading-6 font-medium text-gray-900 dark:text-white">Acesse de qualquer lugar</h3>
+                    <h3 className="text-lg leading-6 font-medium text-gray-900 dark:text-white">
+                      Acesse de qualquer lugar
+                    </h3>
                     <p className="mt-2 text-base text-gray-600 dark:text-gray-300">
-                      Design responsivo que funciona em todos os dispositivos. Suas tarefas estão sempre ao seu alcance.
+                      Design responsivo que funciona em todos os dispositivos.
+                      Suas tarefas estão sempre ao seu alcance.
                     </p>
                   </div>
                 </div>
@@ -121,7 +140,8 @@ export default function HomePage() {
               <span className="block">Comece a usar o Tarevity hoje.</span>
             </h2>
             <p className="mt-4 text-lg leading-6 text-blue-100">
-              Cadastre-se gratuitamente e experimente todos os recursos do Tarevity.
+              Cadastre-se gratuitamente e experimente todos os recursos do
+              Tarevity.
             </p>
             <Link
               href="/auth/register"
