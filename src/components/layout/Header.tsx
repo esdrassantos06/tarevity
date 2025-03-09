@@ -39,21 +39,21 @@ export default function Header() {
                     className="flex items-center text-gray-700 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white"
                   >
                     <FaUser className="mr-1 inline" />
-                    Perfil
+                    Profile
                   </Link>
                   <Link
                     href="/settings"
                     className="flex items-center text-gray-700 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white"
                   >
                     <FaCog className="mr-1 inline" />
-                    Configurações
+                    Settings
                   </Link>
                   <button
                     onClick={() => signOut({ callbackUrl: '/' })}
                     className="flex cursor-pointer items-center text-gray-700 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white"
                   >
                     <FaSignOutAlt className="mr-1 inline" />
-                    Sair
+                    Logout
                   </button>
                 </div>
               </div>
@@ -64,13 +64,13 @@ export default function Header() {
                 href="/auth/login"
                 className="inline-flex items-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
               >
-                Entrar
+                Login
               </Link>
               <Link
                 href="/auth/register"
                 className="inline-flex items-center rounded-md border border-transparent bg-white px-4 py-2 text-sm font-medium text-blue-600 hover:bg-gray-50 dark:bg-gray-700 dark:text-blue-400 dark:hover:bg-gray-600"
               >
-                Registrar
+                Register
               </Link>
               <ThemeToggle />
             </div>
@@ -83,7 +83,7 @@ export default function Header() {
               className="inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-500 dark:hover:bg-gray-700 dark:hover:text-white"
               aria-expanded="false"
             >
-              <span className="sr-only">Abrir menu principal</span>
+              <span className="sr-only">Open main menu</span>
               {isMenuOpen ? <FaTimes /> : <FaBars />}
             </button>
           </div>
@@ -106,21 +106,21 @@ export default function Header() {
                   className="block px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
                 >
                   <FaUser className="mr-1 inline" />
-                  Perfil
+                  Profile
                 </Link>
                 <Link
                   href="/settings"
                   className="block px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
                 >
                   <FaCog className="mr-1 inline" />
-                  Configurações
+                  Settings
                 </Link>
                 <button
                   onClick={() => signOut({ callbackUrl: '/' })}
                   className="block w-full px-3 py-2 text-left text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
                 >
                   <FaSignOutAlt className="mr-1 inline" />
-                  Sair
+                  Logout
                 </button>
               </>
             ) : (
@@ -129,13 +129,13 @@ export default function Header() {
                   href="/auth/login"
                   className="block px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
                 >
-                  Entrar
+                  Login
                 </Link>
                 <Link
                   href="/auth/register"
                   className="block px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
                 >
-                  Registrar
+                  Register
                 </Link>
               </>
             )}

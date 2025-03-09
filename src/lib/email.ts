@@ -10,30 +10,30 @@ export async function sendPasswordResetEmail(email: string, token: string) {
     const { data, error } = await resend.emails.send({
       from: fromEmail,
       to: email,
-      subject: 'Redefinir sua senha do Tarevity',
+      subject: 'Reset Your Tarevity Password',
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h2 style="color: #3b82f6;">Tarevity - Redefinição de Senha</h2>
-          <p>Olá,</p>
-          <p>Recebemos uma solicitação para redefinir sua senha. Se você não fez esta solicitação, ignore este email.</p>
-          <p>Para redefinir sua senha, clique no botão abaixo:</p>
+          <h2 style="color: #3b82f6;">Tarevity - Password Reset</h2>
+          <p>Hello,</p>
+          <p>We received a request to reset your password. If you did not make this request, please ignore this email.</p>
+          <p>To reset your password, click the button below:</p>
           <p style="text-align: center; margin: 30px 0;">
             <a href="${resetUrl}" 
                style="background-color: #3b82f6; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold;">
-               Redefinir Senha
+               Reset Password
             </a>
           </p>
-          <p>Ou copie e cole este link no seu navegador:</p>
+          <p>Or copy and paste this link into your browser:</p>
           <p style="word-break: break-all;">${resetUrl}</p>
-          <p>Este link expirará em 1 hora por motivos de segurança.</p>
-          <p>Atenciosamente,<br>Equipe Tarevity</p>
+          <p>This link will expire in 1 hour for security reasons.</p>
+          <p>Best regards,<br>The Tarevity Team</p>
         </div>
       `,
     })
 
     if (error) {
       console.error('Error sending email:', error)
-      throw new Error('Falha ao enviar o email de redefinição de senha')
+      throw new Error('Failed to send the password reset email')
     }
 
     return { success: true, messageId: data?.id }

@@ -51,17 +51,17 @@ export default function TodoItem({
   const getPriorityLabel = (priority: number) => {
     switch (priority) {
       case 3:
-        return 'Alta'
+        return 'High'
       case 2:
-        return 'Média'
+        return 'Medium'
       case 1:
       default:
-        return 'Baixa'
+        return 'Low'
     }
   }
 
   const formattedDueDate = todo.due_date
-    ? format(new Date(todo.due_date), "d 'de' MMMM", { locale: ptBR })
+    ? format(new Date(todo.due_date), "d 'of' MMMM", { locale: ptBR })
     : null
 
   return (
@@ -97,14 +97,14 @@ export default function TodoItem({
               <button
                 onClick={() => onEdit(todo.id)}
                 className="text-blue-500 hover:text-blue-700 dark:text-blue-400"
-                aria-label="Editar tarefa"
+                aria-label="Edit task"
               >
                 <FaEdit />
               </button>
               <button
                 onClick={() => onDelete(todo.id)}
                 className="text-red-500 hover:text-red-700 dark:text-red-400"
-                aria-label="Excluir tarefa"
+                aria-label="Delete task"
               >
                 <FaTrash />
               </button>
@@ -128,13 +128,13 @@ export default function TodoItem({
               className={`flex items-center ${getPriorityColor(todo.priority)}`}
             >
               <FaFlag className="mr-1" />
-              <span>Prioridade: {getPriorityLabel(todo.priority)}</span>
+              <span>Priority: {getPriorityLabel(todo.priority)}</span>
             </div>
 
             {formattedDueDate && (
               <div className="flex items-center text-gray-600 dark:text-gray-400">
                 <FaClock className="mr-1" />
-                <span>Prazo: {formattedDueDate}</span>
+                <span>Due date: {formattedDueDate}</span>
               </div>
             )}
           </div>

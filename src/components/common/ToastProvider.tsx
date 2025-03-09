@@ -1,29 +1,23 @@
 'use client'
 
-import { Toaster } from 'react-hot-toast'
+import { ToastContainer } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 
 export default function ToastProvider() {
   return (
-    <Toaster
+    <ToastContainer
       position="top-right"
-      toastOptions={{
-        duration: 3000,
-        style: {
-          background: '#333',
-          color: '#fff',
-        },
-        success: {
-          duration: 3000,
-          style: {
-            background: '#48BB78',
-          },
-        },
-        error: {
-          duration: 5000,
-          style: {
-            background: '#F56565',
-          },
-        },
+      autoClose={3000}
+      hideProgressBar={false}
+      newestOnTop={true}
+      closeOnClick
+      rtl={false}
+      pauseOnFocusLoss
+      draggable
+      pauseOnHover
+      theme="colored"
+      toastStyle={{
+        borderRadius: '0.375rem',
       }}
     />
   )

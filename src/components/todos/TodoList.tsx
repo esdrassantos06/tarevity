@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import TodoItem from './TodoItem'
 import TodoForm from './TodoForm'
 import TodoFilters from './TodoFilters'
-import { toast } from 'react-hot-toast'
+import { toast } from 'react-toastify'
 
 interface Todo {
   id: string

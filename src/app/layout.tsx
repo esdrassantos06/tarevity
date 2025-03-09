@@ -2,8 +2,8 @@ import './globals.css'
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import { NextAuthProvider } from '@/components/auth/NextAuthProvider'
-import ToastProvider from '@/components/common/ToastProvider'
 import { ThemeProvider } from '@/components/common/ThemeProvider'
+import ToastProvider from '@/components/common/ToastProvider'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -31,7 +31,7 @@ export default function RootLayout({
         <NextAuthProvider>
           <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
             {children}
-            <ToastProvider />
+          <ToastProvider />
           </ThemeProvider>
         </NextAuthProvider>
       </body>

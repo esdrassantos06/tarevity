@@ -52,7 +52,7 @@ export default function TodoFilters({ filters, setFilters }: TodoFiltersProps) {
               type="text"
               value={search}
               onChange={handleSearchChange}
-              placeholder="Pesquisar tarefas..."
+              placeholder="Search tasks..."
               className="bg-backgroundLight h-10 flex-grow rounded-l-md px-4 outline-none dark:bg-zinc-700 dark:text-white"
             />
             <button
@@ -71,9 +71,9 @@ export default function TodoFilters({ filters, setFilters }: TodoFiltersProps) {
               onChange={handleStatusChange}
               className="bg-backgroundLight w-full rounded-md px-4 py-2 outline-none dark:bg-zinc-700 dark:text-white"
             >
-              <option value="all">Todos os Status</option>
-              <option value="active">Pendentes</option>
-              <option value="completed">Concluídas</option>
+              <option value="all">All Statuses</option>
+              <option value="active">Pending</option>
+              <option value="completed">Completed</option>
             </select>
           </div>
 
@@ -83,10 +83,10 @@ export default function TodoFilters({ filters, setFilters }: TodoFiltersProps) {
               onChange={handlePriorityChange}
               className="bg-backgroundLight w-full rounded-md px-4 py-2 outline-none dark:bg-zinc-700 dark:text-white"
             >
-              <option value="all">Todas as Prioridades</option>
-              <option value="3">Prioridade Alta</option>
-              <option value="2">Prioridade Média</option>
-              <option value="1">Prioridade Baixa</option>
+              <option value="all">All Priorities</option>
+              <option value="3">High Priority</option>
+              <option value="2">Medium Priority</option>
+              <option value="1">Low Priority</option>
             </select>
           </div>
         </div>
@@ -98,13 +98,13 @@ export default function TodoFilters({ filters, setFilters }: TodoFiltersProps) {
         <div className="mt-3 flex items-center justify-between">
           <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
             <FaFilter className="mr-1" />
-            <span>Filtros aplicados</span>
+            <span>Filters applied</span>
           </div>
           <button
             onClick={handleClearFilters}
             className="text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400"
           >
-            Limpar filtros
+            Clear filters
           </button>
         </div>
       )}

@@ -6,22 +6,21 @@ export async function middleware(request: NextRequest) {
   const token = await getToken({ req: request })
   const isAuthenticated = !!token
 
-  // Caminhos que requerem autenticação
+ // Protected routes
   const protectedPaths = ['/dashboard', '/settings', '/profile']
 
-  // Verificar se a rota atual está protegida
   const isProtectedPath = protectedPaths.some((path) =>
     request.nextUrl.pathname.startsWith(path),
   )
 
-  // Redirecionar para login se tentar acessar rota protegida sem autenticação
+  // Redirects to login if not authenticated
   if (isProtectedPath && !isAuthenticated) {
     const url = new URL('/auth/login', request.url)
     url.searchParams.set('callbackUrl', request.nextUrl.pathname)
     return NextResponse.redirect(url)
   }
 
-  // Redirecionar para dashboard se tentar acessar login/registro já autenticado
+  // Redirects to dashboard if authenticated
   if (
     isAuthenticated &&
     (request.nextUrl.pathname.startsWith('/auth/login') ||

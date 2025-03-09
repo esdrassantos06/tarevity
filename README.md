@@ -1,58 +1,58 @@
-# Tarevity - Gerenciador de Tarefas
+# Tarevity - Task Manager
 
 ![Tarevity Logo](public/logo.png)
 
-Tarevity é um aplicativo moderno de gerenciamento de tarefas construído com Next.js, React, TypeScript e Supabase. Ele oferece uma interface intuitiva para ajudar usuários a organizar suas tarefas diárias com facilidade.
+Tarevity is a modern task management app built with Next.js, React, TypeScript, and Supabase. It provides an intuitive interface to help users organize their daily tasks with ease.
 
-## 🚀 Recursos
+## 🚀 Features
 
-- ✅ Gerenciamento completo de tarefas (criar, editar, excluir, marcar como concluído)
-- 🔄 Filtragem de tarefas por status, prioridade e busca textual
-- 🔐 Sistema de autenticação seguro (Email/Senha, Google, GitHub)
-- 🌓 Modo claro/escuro com detecção automática de preferência do sistema
-- 📱 Design responsivo para todos os dispositivos
-- 📊 Estatísticas de tarefas no perfil do usuário
-- 🔑 Recuperação de senha segura via email
+- ✅ Complete task management (create, edit, delete, mark as completed)
+- 🔄 Task filtering by status, priority, and text search
+- 🔐 Secure authentication system (Email/Password, Google, GitHub)
+- 🌓 Light/Dark mode with automatic system preference detection
+- 📱 Responsive design for all devices
+- 📊 Task statistics in the user profile
+- 🔑 Secure password recovery via email
 
-## 🛠️ Tecnologias Utilizadas
+## 🛠️ Technologies Used
 
 - **Frontend**: Next.js 15, React 19, TypeScript
-- **Estilização**: TailwindCSS 4
-- **Autenticação**: NextAuth.js
+- **Styling**: Tailwind v4
+- **Authentication**: NextAuth.js
 - **Backend/Database**: Supabase
 - **Email**: Resend
-- **Formulários**: React Hook Form, Zod
-- **Outros**: date-fns, react-icons, react-hot-toast
+- **Forms**: React Hook Form, Zod
+- **Others**: date-fns, react-icons, react-hot-toast
 
 ## 📷 Screenshots
 
-### Página Inicial
-![Página Inicial](public/screenshots/home.png)
+### Home Page
+![Home Page](public/screenshots/home.png)
 
 ### Dashboard de Tarefas
 ![Dashboard](public/screenshots/dashboard.png)
 
 ### Perfil do Usuário
-![Perfil](public/screenshots/profile.png)
+![Profile](public/screenshots/profile.png)
 
-## 🚀 Começando
+## 🚀 Getting Started
 
-### Pré-requisitos
+### Prerequisites
 
-- Node.js 18.x ou superior
-- npm, yarn ou pnpm
-- Conta no Supabase (para o banco de dados)
-- Conta no Resend (para envio de emails)
+- Node.js 18.x or higher
+- npm, yarn, or pnpm
+- Supabase account (for the database)
+- Resend account (for email sending)
 
-### Instalação
+### Installation
 
-1. Clone o repositório
+1. Clone the repository
    ```bash
    git clone https://github.com/esdrassantos06/tarevity.git
    cd tarevity
    ```
 
-2. Instale as dependências
+2. Install dependencies
    ```bash
    npm install
    # ou
@@ -61,22 +61,22 @@ Tarevity é um aplicativo moderno de gerenciamento de tarefas construído com Ne
    pnpm install
    ```
 
-3. Configure as variáveis de ambiente
-   Crie um arquivo `.env.local` na raiz do projeto e adicione as seguintes variáveis:
+3. Setup environment variables
+   Create a .env.local file in the root of the project and add the following variables:
 
    ```env
    # Next Auth
    NEXTAUTH_URL=http://localhost:3000
    NEXTAUTH_SECRET=seu_segredo_super_seguro
-   # Dica: Você pode gerar uma com: openssl rand -base64 32
+   # Tip: You can generate with: openssl rand -base64 32
 
    # App
    NEXT_PUBLIC_APP_URL=http://localhost:3000
 
-   # Ambiente
+   # Environment
    NODE_ENV=development || production 
 
-   # Provedores OAuth
+   # OAuth Providers
    GITHUB_ID=seu_github_client_id
    GITHUB_SECRET=seu_github_client_secret
    GOOGLE_ID=seu_google_client_id
@@ -93,12 +93,12 @@ Tarevity é um aplicativo moderno de gerenciamento de tarefas construído com Ne
    NEXT_PUBLIC_APP_URL=http://localhost:3000
    ```
 
-4. Configure o banco de dados Supabase
-   - Crie uma nova organização e projeto no Supabase
-   - Execute os scripts SQL em `database/schema.sql` para criar as tabelas necessárias ou use o editor do próprio site do Supabase
-   - Configure as Row Level Security (RLS) policies conforme necessário
+4. Configure the Supabase database
+   - Create a new organization and project in Supabase.
+   - Run the SQL scripts in `database/schema.sql` to create the necessary tables, or use the Supabase web editor.
+   - Set up Row Level Security (RLS) policies as needed.
 
-5. Inicie o servidor de desenvolvimento
+5. Start the development server
    ```bash
    npm run dev
    # ou
@@ -107,60 +107,60 @@ Tarevity é um aplicativo moderno de gerenciamento de tarefas construído com Ne
    pnpm dev
    ```
 
-6. Acesse o aplicativo em [http://localhost:3000](http://localhost:3000)
+6. Acess the app at [http://localhost:3000](http://localhost:3000)
 
-## 🗃️ Estrutura do Projeto
+## 🗃️ Project Structure
 
 ```
 /src
-  /app                   # Rotas e páginas (App Router do Next.js)
-    /api                 # Rotas de API
-    /auth                # Páginas de autenticação
-    /dashboard           # Dashboard principal
-    /profile             # Perfil do usuário
-    /settings            # Configurações do usuário
-  /components            # Componentes React reutilizáveis
-    /auth                # Componentes relacionados à autenticação
-    /common              # Componentes comuns (botões, cards, etc.)
+  /app                   # Routes and pages (Next.js App Router)
+    /api                 # API routes
+    /auth                # Authentication pages
+    /dashboard           # Main dashboard
+    /profile             # User profile
+    /settings            # User settings
+  /components            # Reusable React components
+    /auth                # Authentication-related components
+    /common              # Common components (buttons, cards, etc.)
     /layout              # Layout components (header, footer, etc.)
-    /profile             # Componentes de perfil
-    /settings            # Componentes de configurações
-    /todos               # Componentes relacionados às tarefas
-  /lib                   # Utilitários e hooks
-  /types                 # Definições de tipos TypeScript
+    /profile             # Profile-related components
+    /settings            # Settings-related components
+    /todos               # Task-related components
+  /lib                   # Utilities and hooks
+  /types                 # TypeScript type definitions
 ```
 
-## 📱 Recursos Planejados
+## 📱 Planned Features
 
-- [ ] Refatorar pesquisas de tarefas para melhor desempenho
-- [ ] Organização de tarefas
-- [ ] Categorias/Tags para tarefas
-- [ ] Subtarefas
-- [ ] Notificações para prazos
-- [ ] Visualização em calendário
-- [ ] Estatísticas avançadas
-- [ ] Exportação de dados
-- [ ] Integração com outros aplicativos
+- [ ] Refactor task searches for better performance
+- [ ] Task organization
+- [ ] Categories/Tags for tasks
+- [ ] Subtasks
+- [ ] Notifications for deadlines
+- [ ] Calendar view
+- [ ] Advanced statistics
+- [ ] Data export
+- [ ] Integration with other apps
 
 ## 🤝 Contribuindo
 
-Contribuições são bem-vindas! Sinta-se à vontade para abrir issues ou pull requests.
+Contributions are welcome! Feel free to open issues or pull requests.
 
-1. Faça um fork do projeto
-2. Crie sua branch de feature (`git checkout -b feature/AmazingFeature`)
-3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
-4. Push para a branch (`git push origin feature/AmazingFeature`)
-5. Abra um Pull Request
+1. Fork the project
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
-## 📄 Licença
+## 📄 License
 
-Este projeto está licenciado sob a Licença MIT - veja o arquivo [LICENSE](LICENSE) para detalhes.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 👨‍💻 Autor
+## 👨‍💻 Author
 
 - **Esdras Santos** - [Github](https://github.com/esdrassantos06)
 
-## 🙏 Agradecimentos
+## 🙏 Acknowledgements
 
 - [Next.js](https://nextjs.org/)
 - [React](https://reactjs.org/)

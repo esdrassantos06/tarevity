@@ -1,10 +1,9 @@
-// src/components/settings/SettingsComponent.tsx
 'use client'
 
 import { useState, useEffect } from 'react'
 import { useSession, signOut } from 'next-auth/react'
 import { useTheme } from 'next-themes'
-import { toast } from 'react-hot-toast'
+import { toast } from 'react-toastify'
 import { FaMoon, FaSun, FaDesktop, FaUserCircle } from 'react-icons/fa'
 import { useRouter } from 'next/navigation'
 
@@ -65,7 +64,7 @@ export default function SettingsComponent() {
           : newTheme === 'light'
             ? 'claro'
             : 'sistema'
-      }`,
+      }`
     )
   }
 
@@ -119,7 +118,7 @@ export default function SettingsComponent() {
       toast.error(
         error instanceof Error
           ? error.message
-          : 'Ocorreu um erro ao excluir sua conta',
+          : 'Ocorreu um erro ao excluir sua conta'
       )
     } finally {
       setIsDeleting(false)

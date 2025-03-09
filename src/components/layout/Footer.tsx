@@ -19,7 +19,7 @@ export default function Footer() {
               <TarevityLogo className="w-30" />
             </Link>
             <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-              &copy; {currentYear} Tarevity. Todos os direitos reservados.
+              &copy; {currentYear} Tarevity. All rights reserved.
             </p>
           </div>
 
@@ -27,7 +27,7 @@ export default function Footer() {
           <div className="grid grid-cols-3 gap-8 sm:gap-12">
             <div>
               <h3 className="text-sm font-semibold tracking-wider text-gray-700 uppercase dark:text-gray-300">
-                Navegação
+                Navigation
               </h3>
               <ul className="mt-4 space-y-2">
                 <li>
@@ -35,7 +35,7 @@ export default function Footer() {
                     href="/"
                     className="text-base text-gray-600 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400"
                   >
-                    Início
+                    Home
                   </Link>
                 </li>
                 <li>
@@ -51,7 +51,7 @@ export default function Footer() {
                     href="/profile"
                     className="text-base text-gray-600 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400"
                   >
-                    Perfil
+                    Profile
                   </Link>
                 </li>
               </ul>
@@ -67,7 +67,7 @@ export default function Footer() {
                     href="/privacy"
                     className="text-base text-gray-600 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400"
                   >
-                    Privacidade
+                    Privacy
                   </Link>
                 </li>
                 <li>
@@ -75,7 +75,7 @@ export default function Footer() {
                     href="/terms"
                     className="text-base text-gray-600 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400"
                   >
-                    Termos de Uso
+                    Terms of Use
                   </Link>
                 </li>
               </ul>
@@ -91,7 +91,7 @@ export default function Footer() {
                     href="/privacy"
                     className="text-base text-gray-600 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400"
                   >
-                    Privacidade
+                    Privacy
                   </Link>
                 </li>
                 <li>
@@ -99,7 +99,7 @@ export default function Footer() {
                     href="/terms"
                     className="text-base text-gray-600 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400"
                   >
-                    Termos de Uso
+                    Terms of Use
                   </Link>
                 </li>
               </ul>
@@ -109,7 +109,7 @@ export default function Footer() {
           {/* Social Media */}
           <div>
             <h3 className="text-sm font-semibold tracking-wider text-gray-700 uppercase dark:text-gray-300">
-              Redes Sociais
+              Social Media
             </h3>
             <div className="mt-4 flex space-x-6">
               <a
@@ -137,7 +137,7 @@ export default function Footer() {
         {/* Made with love */}
         <div className="border-borderLight dark:border-borderDark mt-8 border-t pt-6">
           <p className="flex items-center justify-center text-center text-sm text-gray-500 dark:text-gray-400">
-            Feito com <FaHeart className="mx-1 h-4 w-4 text-red-500" /> por{' '}
+            Made with <FaHeart className="mx-1 h-4 w-4 text-red-500" /> by{' '}
             <a
               href="https://github.com/esdrassantos06"
               target="_blank"
