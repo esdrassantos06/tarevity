@@ -142,7 +142,7 @@ Tarevity is a modern task management app built with Next.js, React, TypeScript, 
 - [ ] Data export
 - [ ] Integration with other apps
 
-## 🤝 Contribuindo
+## 🤝 Contributions
 
 Contributions are welcome! Feel free to open issues or pull requests.
 
