@@ -10,6 +10,14 @@ const inter = Inter({ subsets: ['latin'] })
 export const metadata: Metadata = {
   title: 'Tarevity - Gerencie suas tarefas com eficiência',
   description: 'Um aplicativo de lista de tarefas moderno e eficiente',
+  icons: {
+    icon: [
+      {url: '/icon.svg', type: 'image/svg+xml'},
+    ],
+    apple: [
+      {url: '/apple-icon.png', sizes: '180x180'},
+    ]
+  }
 }
 
 export default function RootLayout({
