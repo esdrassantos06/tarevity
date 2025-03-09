@@ -1,20 +1,11 @@
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/app/api/auth/[...nextauth]/auth-options'
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
-
-// Define the context type explicitly
-type RouteContext = {
-  params: {
-    id: string;
-  };
-};
+import { NextRequest } from 'next/server'
 
 // Get a specific task
-export async function GET(
-  request: NextRequest,
-  context: RouteContext
-): Promise<NextResponse> {
+export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const session = await getServerSession(authOptions)
 
@@ -23,7 +14,7 @@ export async function GET(
     }
 
     // Extract the task ID from URL parameters
-    const taskId = context.params.id
+    const taskId = params.id
 
     // Log for debugging
     console.log(`Fetching task with ID: ${taskId} for user: ${session.user.id}`)
@@ -41,7 +32,7 @@ export async function GET(
     }
 
     return NextResponse.json(data, { status: 200 })
-  } catch (error: unknown) {
+  } catch (error) {
     if (error instanceof Error) {
       console.error('Error fetching task:', error)
       return NextResponse.json(
@@ -59,10 +50,7 @@ export async function GET(
 }
 
 // Update a task
-export async function PUT(
-  request: NextRequest,
-  context: RouteContext
-): Promise<NextResponse> {
+export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const session = await getServerSession(authOptions)
 
@@ -71,7 +59,7 @@ export async function PUT(
     }
 
     // Extract the task ID from URL parameters
-    const taskId = context.params.id
+    const taskId = params.id
 
     // Parse the request body
     const updateData = await request.json()
@@ -108,7 +96,7 @@ export async function PUT(
     }
 
     return NextResponse.json(data, { status: 200 })
-  } catch (error: unknown) {
+  } catch (error) {
     if (error instanceof Error) {
       console.error('Error updating task:', error)
       return NextResponse.json(
@@ -126,10 +114,7 @@ export async function PUT(
 }
 
 // Delete a task
-export async function DELETE(
-  request: NextRequest,
-  context: RouteContext
-): Promise<NextResponse> {
+export async function DELETE(_request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const session = await getServerSession(authOptions)
 
@@ -138,7 +123,7 @@ export async function DELETE(
     }
 
     // Extract the task ID from URL parameters
-    const taskId = context.params.id
+    const taskId = params.id
 
     // Log for debugging
     console.log(`Deleting task with ID: ${taskId} for user: ${session.user.id}`)
@@ -173,7 +158,7 @@ export async function DELETE(
       { message: 'Tarefa excluída com sucesso' },
       { status: 200 },
     )
-  } catch (error: unknown) {
+  } catch (error) {
     if (error instanceof Error) {
       console.error('Error deleting task:', error)
       return NextResponse.json(
