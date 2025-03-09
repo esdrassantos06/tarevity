@@ -1,6 +1,6 @@
 'use client'
 
-import { ToastContainer } from 'react-toastify'
+import { Flip, ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 
 export default function ToastProvider() {
@@ -12,6 +12,7 @@ export default function ToastProvider() {
       newestOnTop={true}
       closeOnClick
       rtl={false}
+      transition={Flip}
       pauseOnFocusLoss
       draggable
       pauseOnHover

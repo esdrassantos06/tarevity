@@ -1,5 +1,7 @@
 @import 'tailwindcss';
 
+
+
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
@@ -32,4 +34,10 @@
 
   --color-buttonDark: #7d2ae8; /* Strong purple */
   --color-buttonDarkHover: #6824cc; /* Darker purple */
+}
+
+:root {
+  /* Ajusta as cores com transparência */
+  --toastify-color-success: rgba(7, 188, 12, 0.8);
+  --toastify-color-error: rgba(255, 82, 82, 0.8); 
 }
