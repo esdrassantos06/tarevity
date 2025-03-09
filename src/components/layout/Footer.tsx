@@ -87,20 +87,11 @@ export default function Footer() {
               </h3>
               <ul className="mt-4 space-y-2">
                 <li>
-                  <Link
-                    href="/privacy"
+                  <a href='mailto:esdrasirion1@gmail.com' target='_blank' rel='noreferrer nooppener' aria-label='Email'
                     className="text-base text-gray-600 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400"
                   >
-                    Privacy
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/terms"
-                    className="text-base text-gray-600 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400"
-                  >
-                    Terms of Use
-                  </Link>
+                    Email
+                  </a>
                 </li>
               </ul>
             </div>
