@@ -10,8 +10,8 @@ import Link from 'next/link'
 import OAuthButtons from './OAuthButtons'
 
 const loginSchema = z.object({
-  email: z.string().email('Email inválido'),
-  password: z.string().min(6, 'A senha deve ter pelo menos 6 caracteres'),
+  email: z.string().email('Invalid email'),
+  password: z.string().min(6, 'Password must be at least 6 characters'),
 })
 
 type LoginFormValues = z.infer<typeof loginSchema>
@@ -47,16 +47,16 @@ export default function LoginForm() {
       })
 
       if (result?.error) {
-        setError('Credenciais inválidas')
+        setError('Invalid credentials')
         return
       }
 
       router.push(callbackUrl)
     } catch (error: unknown) {
       if (error instanceof Error) {
-        setError(error.message || 'Ocorreu um erro ao fazer login')
+        setError(error.message || 'An error occurred while logging in')
       } else {
-        setError('Erro desconhecido ao fazer login')
+        setError('Unknown error while logging in')
       }
     } finally {
       setIsLoading(false)
@@ -102,7 +102,7 @@ export default function LoginForm() {
             htmlFor="password"
             className="block text-sm font-medium text-gray-700 dark:text-gray-300"
           >
-            Senha
+            Password
           </label>
           <input
             id="password"
@@ -124,7 +124,7 @@ export default function LoginForm() {
               href="/auth/forgot-password"
               className="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400"
             >
-              Esqueceu a senha?
+              Forgot password?
             </Link>
           </div>
         </div>
@@ -134,7 +134,7 @@ export default function LoginForm() {
           disabled={isLoading}
           className="flex w-full justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none dark:bg-blue-700 dark:hover:bg-blue-800"
         >
-          {isLoading ? 'Entrando...' : 'Entrar'}
+          {isLoading ? 'Logging in...' : 'Log in'}
         </button>
       </form>
 
@@ -145,7 +145,7 @@ export default function LoginForm() {
           </div>
           <div className="relative flex justify-center text-sm">
             <span className="bg-white px-2 text-gray-500 dark:bg-zinc-800 dark:text-gray-400">
-              Ou continue com
+              Or continue with
             </span>
           </div>
         </div>
@@ -157,12 +157,12 @@ export default function LoginForm() {
 
       <div className="mt-6 text-center">
         <p className="text-sm text-gray-600 dark:text-gray-400">
-          Não tem uma conta?{' '}
+          Don&apos;t have an account?{' '}
           <Link
             href="/auth/register"
             className="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400"
           >
-            Registre-se
+            Sign up
           </Link>
         </p>
       </div>

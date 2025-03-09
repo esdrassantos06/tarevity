@@ -3,13 +3,13 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/auth-options'
 import { NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
 
-// Obter todas as tarefas do usuário
+// Get all user tasks
 export async function GET() {
   try {
     const session = await getServerSession(authOptions)
 
     if (!session?.user?.id) {
-      return NextResponse.json({ message: 'Não autorizado' }, { status: 401 })
+      return NextResponse.json({ message: 'Unauthorized' }, { status: 401 })
     }
 
     // Use supabaseAdmin for GET requests too, to bypass RLS consistently
@@ -24,37 +24,37 @@ export async function GET() {
     return NextResponse.json(data || [], { status: 200 })
   } catch (error: unknown) {
     if (error instanceof Error) {
-      console.error('Erro ao buscar tarefas:', error)
+      console.error('Error fetching tasks:', error)
       return NextResponse.json(
-        { message: error.message || 'Erro ao buscar tarefas' },
+        { message: error.message || 'Error fetching tasks' },
         { status: 500 },
       )
     } else {
-      console.error('Erro desconhecido ao buscar tarefas:', error)
+      console.error('Unknown error fetching tasks:', error)
       return NextResponse.json(
-        { message: 'Erro desconhecido ao buscar tarefas' },
+        { message: 'Unknown error fetching tasks' },
         { status: 500 },
       )
     }
   }
 }
 
-// Criar nova tarefa
+// Create new task
 export async function POST(req: Request) {
   try {
     const session = await getServerSession(authOptions)
 
     if (!session?.user?.id) {
-      return NextResponse.json({ message: 'Não autorizado' }, { status: 401 })
+      return NextResponse.json({ message: 'Unauthorized' }, { status: 401 })
     }
 
     // Correct syntax for parsing request body
     const { title, description, priority, due_date } = await req.json()
 
-    // Validar dados
+    // Validate data
     if (!title) {
       return NextResponse.json(
-        { message: 'Título é obrigatório' },
+        { message: 'Title is required' },
         { status: 400 },
       )
     }
@@ -79,15 +79,15 @@ export async function POST(req: Request) {
     return NextResponse.json(data, { status: 201 })
   } catch (error: unknown) {
     if (error instanceof Error) {
-      console.error('Erro ao criar tarefa:', error)
+      console.error('Error creating task:', error)
       return NextResponse.json(
-        { message: error.message || 'Erro ao criar tarefa' },
+        { message: error.message || 'Error creating task' },
         { status: 500 },
       )
     } else {
-      console.error('Erro desconhecido ao criar tarefa:', error)
+      console.error('Unknown error creating task:', error)
       return NextResponse.json(
-        { message: 'Erro desconhecido ao criar tarefa' },
+        { message: 'Unknown error creating task' },
         { status: 500 },
       )
     }

@@ -3,93 +3,93 @@ import { supabaseAdmin } from '@/lib/supabaseAdmin'
 import { hashPassword } from '@/lib/auth'
 
 export async function POST(req: Request) {
-  try {
-    const { token, password } = await req.json()
+ try {
+   const { token, password } = await req.json()
 
-    // Validar input
-    if (!token || !password) {
-      return NextResponse.json(
-        { message: 'Token e senha são obrigatórios' },
-        { status: 400 },
-      )
-    }
+   // Validate input
+   if (!token || !password) {
+     return NextResponse.json(
+       { message: 'Token and password are required' },
+       { status: 400 },
+     )
+   }
 
-    if (password.length < 8) {
-      return NextResponse.json(
-        { message: 'A senha deve ter pelo menos 8 caracteres' },
-        { status: 400 },
-      )
-    }
+   if (password.length < 8) {
+     return NextResponse.json(
+       { message: 'Password must be at least 8 characters' },
+       { status: 400 },
+     )
+   }
 
-    // Buscar o token no banco de dados
-    const { data: tokenData, error: tokenError } = await supabaseAdmin
-      .from('password_reset_tokens')
-      .select('*')
-      .eq('token', token)
-      .eq('used', false)
-      .single()
+   // Find the token in the database
+   const { data: tokenData, error: tokenError } = await supabaseAdmin
+     .from('password_reset_tokens')
+     .select('*')
+     .eq('token', token)
+     .eq('used', false)
+     .single()
 
-    if (tokenError || !tokenData) {
-      return NextResponse.json(
-        { message: 'Token inválido ou expirado' },
-        { status: 400 },
-      )
-    }
+   if (tokenError || !tokenData) {
+     return NextResponse.json(
+       { message: 'Invalid or expired token' },
+       { status: 400 },
+     )
+   }
 
-    // Verificar se o token expirou
-    const expiresAt = new Date(tokenData.expires_at)
-    const now = new Date()
+   // Check if the token has expired
+   const expiresAt = new Date(tokenData.expires_at)
+   const now = new Date()
 
-    if (now > expiresAt) {
-      // Marcar o token como usado
-      await supabaseAdmin
-        .from('password_reset_tokens')
-        .update({ used: true })
-        .eq('id', tokenData.id)
+   if (now > expiresAt) {
+     // Mark the token as used
+     await supabaseAdmin
+       .from('password_reset_tokens')
+       .update({ used: true })
+       .eq('id', tokenData.id)
 
-      return NextResponse.json({ message: 'Token expirado' }, { status: 400 })
-    }
+     return NextResponse.json({ message: 'Token expired' }, { status: 400 })
+   }
 
-    // Hash da nova senha
-    const hashedPassword = await hashPassword(password)
+   // Hash the new password
+   const hashedPassword = await hashPassword(password)
 
-    // Atualizar a senha do usuário
-    const { error: updateError } = await supabaseAdmin
-      .from('users')
-      .update({
-        password: hashedPassword,
-        updated_at: new Date().toISOString(),
-      })
-      .eq('id', tokenData.user_id)
+   // Update the user's password
+   const { error: updateError } = await supabaseAdmin
+     .from('users')
+     .update({
+       password: hashedPassword,
+       updated_at: new Date().toISOString(),
+     })
+     .eq('id', tokenData.user_id)
 
-    if (updateError) {
-      console.error('Error updating password:', updateError)
-      throw new Error('Falha ao atualizar senha')
-    }
+   if (updateError) {
+     console.error('Error updating password:', updateError)
+     throw new Error('Failed to update password')
+   }
 
-    // Marcar o token como usado
-    await supabaseAdmin
-      .from('password_reset_tokens')
-      .update({ used: true })
-      .eq('id', tokenData.id)
+   // Mark the token as used
+   await supabaseAdmin
+     .from('password_reset_tokens')
+     .update({ used: true })
+     .eq('id', tokenData.id)
 
-    return NextResponse.json(
-      { message: 'Senha redefinida com sucesso' },
-      { status: 200 },
-    )
-  } catch (error: unknown) {
-    if (error instanceof Error) {
-      console.error('Error in reset password API:', error)
-      return NextResponse.json(
-        { message: error.message || 'Ocorreu um erro ao redefinir a senha' },
-        { status: 500 },
-      )
-    } else {
-      console.error('Unknown error in reset password API:', error)
-      return NextResponse.json(
-        { message: 'Ocorreu um erro desconhecido ao redefinir a senha' },
-        { status: 500 },
-      )
-    }
-  }
+   return NextResponse.json(
+     { message: 'Password reset successfully' },
+     { status: 200 },
+   )
+ } catch (error: unknown) {
+   if (error instanceof Error) {
+     console.error('Error in reset password API:', error)
+     return NextResponse.json(
+       { message: error.message || 'An error occurred while resetting the password' },
+       { status: 500 },
+     )
+   } else {
+     console.error('Unknown error in reset password API:', error)
+     return NextResponse.json(
+       { message: 'An unknown error occurred while resetting the password' },
+       { status: 500 },
+     )
+   }
+ }
 }

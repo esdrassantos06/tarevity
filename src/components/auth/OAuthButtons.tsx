@@ -26,7 +26,7 @@ export default function OAuthButtons() {
         className="flex w-full items-center justify-center gap-2 rounded-md bg-gray-800 p-2 text-white transition-colors hover:bg-gray-700"
       >
         <FaGithub />
-        <span>Continuar com GitHub</span>
+        <span>Continue with GitHub</span>
       </button>
       <button
         type="button"
@@ -35,7 +35,7 @@ export default function OAuthButtons() {
         className="flex w-full items-center justify-center gap-2 rounded-md border border-gray-300 bg-white p-2 text-gray-800 transition-colors hover:bg-gray-50"
       >
         <FcGoogle />
-        <span>Continuar com Google</span>
+        <span>Continue with Google</span>
       </button>
     </div>
   )

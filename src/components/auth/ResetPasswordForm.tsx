@@ -12,11 +12,11 @@ import { FaCheck, FaArrowLeft } from 'react-icons/fa'
 // Define the form validation schema
 const resetPasswordSchema = z
   .object({
-    password: z.string().min(8, 'A senha deve ter pelo menos 8 caracteres'),
+    password: z.string().min(8, 'Password must be at least 8 characters'),
     confirmPassword: z.string(),
   })
   .refine((data) => data.password === data.confirmPassword, {
-    message: 'As senhas não coincidem',
+    message: 'Passwords do not match',
     path: ['confirmPassword'],
   })
 
@@ -92,13 +92,13 @@ export default function ResetPasswordForm() {
       if (!response.ok) {
         const errorData = await response.json()
         throw new Error(
-          errorData.message || 'Ocorreu um erro ao redefinir sua senha',
+          errorData.message || 'An error occurred while resetting your password',
         )
       }
 
       // If successful, update UI to show success message
       setIsSubmitted(true)
-      toast.success('Senha redefinida com sucesso')
+      toast.success('Password reset successfully')
 
       // Redirect to login after 3 seconds
       setTimeout(() => {
@@ -109,7 +109,7 @@ export default function ResetPasswordForm() {
       toast.error(
         error instanceof Error
           ? error.message
-          : 'Ocorreu um erro ao redefinir sua senha',
+          : 'An error occurred while resetting your password',
       )
     } finally {
       setIsLoading(false)
@@ -123,7 +123,7 @@ export default function ResetPasswordForm() {
         <div className="text-center">
           <div className="mx-auto h-12 w-12 animate-spin rounded-full border-b-2 border-blue-500"></div>
           <p className="mt-4 text-gray-600 dark:text-gray-400">
-            Verificando link de redefinição de senha...
+            Verifying password reset link...
           </p>
         </div>
       </div>
@@ -135,11 +135,10 @@ export default function ResetPasswordForm() {
       <div className="mx-auto w-full max-w-md rounded-lg bg-white p-6 shadow-md dark:bg-gray-800">
         <div className="mb-6 text-center">
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-            Link inválido ou expirado
+            Invalid or expired link
           </h1>
           <p className="mt-2 text-gray-600 dark:text-gray-400">
-            Este link de redefinição de senha é inválido ou expirou. Por favor,
-            solicite um novo link.
+            This password reset link is invalid or has expired. Please request a new link.
           </p>
         </div>
         <div className="text-center">
@@ -147,14 +146,14 @@ export default function ResetPasswordForm() {
             href="/auth/forgot-password"
             className="inline-block rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none dark:bg-blue-700 dark:hover:bg-blue-800"
           >
-            Solicitar novo link
+            Request new link
           </Link>
           <Link
             href="/auth/login"
             className="mt-4 block text-sm text-blue-600 hover:text-blue-500 dark:text-blue-400"
           >
             <FaArrowLeft className="mr-1 inline" />
-            Voltar para o login
+            Back to login
           </Link>
         </div>
       </div>
@@ -166,12 +165,12 @@ export default function ResetPasswordForm() {
     <div className="mx-auto w-full max-w-md rounded-lg bg-white p-6 shadow-md dark:bg-gray-800">
       <div className="mb-6 text-center">
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-          Redefinir Senha
+          Reset Password
         </h1>
         <p className="mt-2 text-gray-600 dark:text-gray-400">
           {isSubmitted
-            ? 'Sua senha foi redefinida com sucesso.'
-            : 'Crie uma nova senha para sua conta.'}
+            ? 'Your password has been reset successfully.'
+            : 'Create a new password for your account.'}
         </p>
       </div>
 
@@ -181,8 +180,7 @@ export default function ResetPasswordForm() {
           <div className="mb-6 rounded-lg bg-green-50 p-4 dark:bg-green-900/30">
             <FaCheck className="mx-auto mb-2 h-12 w-12 text-green-500 dark:text-green-400" />
             <p className="text-green-800 dark:text-green-200">
-              Sua senha foi redefinida com sucesso. Você será redirecionado para
-              a página de login.
+              Your password has been reset successfully. You will be redirected to the login page.
             </p>
           </div>
 
@@ -191,7 +189,7 @@ export default function ResetPasswordForm() {
             className="text-sm text-blue-600 hover:text-blue-500 dark:text-blue-400"
           >
             <FaArrowLeft className="mr-1 inline" />
-            Voltar para o login
+            Back to login
           </Link>
         </div>
       ) : (
@@ -202,7 +200,7 @@ export default function ResetPasswordForm() {
               htmlFor="password"
               className="block text-sm font-medium text-gray-700 dark:text-gray-300"
             >
-              Nova senha
+              New password
             </label>
             <input
               id="password"
@@ -225,7 +223,7 @@ export default function ResetPasswordForm() {
               htmlFor="confirmPassword"
               className="block text-sm font-medium text-gray-700 dark:text-gray-300"
             >
-              Confirmar nova senha
+              Confirm new password
             </label>
             <input
               id="confirmPassword"
@@ -246,7 +244,7 @@ export default function ResetPasswordForm() {
             disabled={isLoading}
             className="flex w-full justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none dark:bg-blue-700 dark:hover:bg-blue-800"
           >
-            {isLoading ? 'Processando...' : 'Redefinir Senha'}
+            {isLoading ? 'Processing...' : 'Reset Password'}
           </button>
         </form>
       )}

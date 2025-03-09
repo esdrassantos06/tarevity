@@ -10,7 +10,7 @@ import { FaEnvelope, FaArrowLeft } from 'react-icons/fa'
 
 // Define the form validation schema
 const forgotPasswordSchema = z.object({
-  email: z.string().email('Por favor, insira um email válido'),
+  email: z.string().email('Please enter a valid email'),
 })
 
 type ForgotPasswordFormValues = z.infer<typeof forgotPasswordSchema>
@@ -48,7 +48,7 @@ export default function ForgotPasswordForm() {
       // First check if the response is ok before trying to parse JSON
       if (!response.ok) {
         // Try to parse error response, but handle the case where it's not valid JSON
-        let errorMessage = 'Ocorreu um erro ao processar sua solicitação'
+        let errorMessage = 'An error occurred while processing your request'
         try {
           const errorData = await response.json()
           errorMessage = errorData.message || errorMessage
@@ -67,14 +67,14 @@ export default function ForgotPasswordForm() {
       } catch (parseError) {
         console.error('Error parsing successful response:', parseError)
         // Even successful responses should be valid JSON
-        throw new Error('Resposta inválida do servidor')
+        throw new Error('Invalid server response')
       }
 
       // If successful, update UI to show success message
       setIsSubmitted(true)
       toast.success(
         responseData.message ||
-          'Instruções de recuperação enviadas para seu email',
+          'Recovery instructions sent to your email',
       )
     } catch (error) {
       // Show error toast
@@ -82,7 +82,7 @@ export default function ForgotPasswordForm() {
       toast.error(
         error instanceof Error
           ? error.message
-          : 'Ocorreu um erro ao processar sua solicitação',
+          : 'An error occurred while processing your request',
       )
     } finally {
       setIsLoading(false)
@@ -94,12 +94,12 @@ export default function ForgotPasswordForm() {
     <div className="mx-auto w-full max-w-md rounded-lg bg-white p-6 shadow-md dark:bg-gray-800">
       <div className="mb-6 text-center">
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-          Esqueceu sua senha?
+          Forgot your password?
         </h1>
         <p className="mt-2 text-gray-600 dark:text-gray-400">
           {isSubmitted
-            ? 'Verifique seu email para redefinir sua senha.'
-            : 'Insira seu email e enviaremos instruções para redefinir sua senha.'}
+            ? 'Check your email to reset your password.'
+            : 'Enter your email and we will send instructions to reset your password.'}
         </p>
       </div>
 
@@ -109,22 +109,21 @@ export default function ForgotPasswordForm() {
           <div className="mb-6 rounded-lg bg-green-50 p-4 dark:bg-green-900/30">
             <FaEnvelope className="mx-auto mb-2 h-12 w-12 text-green-500 dark:text-green-400" />
             <p className="text-green-800 dark:text-green-200">
-              Enviamos um email para você com instruções sobre como redefinir
-              sua senha. O link expirará em 1 hora.
+              We have sent you an email with instructions on how to reset
+              your password. The link will expire in 1 hour.
             </p>
           </div>
 
           <div className="space-y-4">
             <p className="text-sm text-gray-600 dark:text-gray-400">
-              Não recebeu o email? Verifique sua pasta de spam ou tente
-              novamente.
+              Didn&apos;t receive the email? Check your spam folder or try again.
             </p>
 
             <button
               onClick={() => setIsSubmitted(false)}
               className="w-full rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
             >
-              Tentar novamente
+              Try again
             </button>
 
             <Link
@@ -132,7 +131,7 @@ export default function ForgotPasswordForm() {
               className="mt-4 block w-full text-center text-sm text-blue-600 hover:text-blue-500 dark:text-blue-400"
             >
               <FaArrowLeft className="mr-1 inline" />
-              Voltar para o login
+              Back to login
             </Link>
           </div>
         </div>
@@ -151,7 +150,7 @@ export default function ForgotPasswordForm() {
               type="email"
               {...register('email')}
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-              placeholder="seu@email.com"
+              placeholder="your@email.com"
               disabled={isLoading}
             />
             {errors.email && (
@@ -166,7 +165,7 @@ export default function ForgotPasswordForm() {
             disabled={isLoading}
             className="flex w-full justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none dark:bg-blue-700 dark:hover:bg-blue-800"
           >
-            {isLoading ? 'Enviando...' : 'Enviar instruções'}
+            {isLoading ? 'Sending...' : 'Send instructions'}
           </button>
 
           <div className="mt-4 text-center">
@@ -175,7 +174,7 @@ export default function ForgotPasswordForm() {
               className="text-sm text-blue-600 hover:text-blue-500 dark:text-blue-400"
             >
               <FaArrowLeft className="mr-1 inline" />
-              Voltar para o login
+              Back to login
             </Link>
           </div>
         </form>

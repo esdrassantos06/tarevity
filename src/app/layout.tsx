@@ -8,8 +8,8 @@ import ToastProvider from '@/components/common/ToastProvider'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Tarevity - Gerencie suas tarefas com eficiência',
-  description: 'Um aplicativo de lista de tarefas moderno e eficiente',
+  title: 'Tarevity - Manage your tasks efficiently',
+  description: 'A modern and efficient task list application',
   icons: {
     icon: [
       {url: '/icon.svg', type: 'image/svg+xml'},

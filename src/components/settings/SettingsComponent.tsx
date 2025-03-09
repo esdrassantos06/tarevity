@@ -36,14 +36,14 @@ export default function SettingsComponent() {
         })
 
         if (!response.ok) {
-          throw new Error('Falha ao carregar dados do perfil')
+          throw new Error('Failed to load profile data')
         }
 
         const data = await response.json()
         setProfileData(data)
       } catch (error) {
         console.error('Error fetching profile:', error)
-        toast.error('Não foi possível carregar suas informações de perfil')
+        toast.error('Could not load your profile information')
       } finally {
         setIsLoadingProfile(false)
       }
@@ -58,12 +58,12 @@ export default function SettingsComponent() {
   const handleThemeChange = (newTheme: string) => {
     setTheme(newTheme)
     toast.success(
-      `Tema alterado para ${
+      `Theme changed to ${
         newTheme === 'dark'
-          ? 'escuro'
+          ? 'dark'
           : newTheme === 'light'
-            ? 'claro'
-            : 'sistema'
+            ? 'light'
+            : 'system'
       }`
     )
   }
@@ -73,7 +73,7 @@ export default function SettingsComponent() {
     // Show a confirmation dialog to prevent accidental deletions
     if (
       !confirm(
-        'Tem certeza que deseja excluir sua conta? Esta ação não pode ser desfeita e todos os seus dados serão removidos permanentemente.',
+        'Are you sure you want to delete your account? This action cannot be undone and all your data will be permanently removed.',
       )
     ) {
       return
@@ -82,7 +82,7 @@ export default function SettingsComponent() {
     // Double-check with a more serious warning
     if (
       !confirm(
-        'ATENÇÃO: Esta é uma ação permanente. Todas as suas tarefas e dados serão perdidos. Deseja continuar?',
+        'WARNING: This is a permanent action. All your tasks and data will be lost. Do you want to continue?',
       )
     ) {
       return
@@ -102,11 +102,11 @@ export default function SettingsComponent() {
 
       if (!response.ok) {
         const data = await response.json()
-        throw new Error(data.message || 'Erro ao excluir a conta')
+        throw new Error(data.message || 'Error deleting account')
       }
 
       // Show success message
-      toast.success('Sua conta foi excluída com sucesso')
+      toast.success('Your account has been successfully deleted')
 
       // Sign out the user
       await signOut({ redirect: false })
@@ -118,7 +118,7 @@ export default function SettingsComponent() {
       toast.error(
         error instanceof Error
           ? error.message
-          : 'Ocorreu um erro ao excluir sua conta'
+          : 'An error occurred while deleting your account'
       )
     } finally {
       setIsDeleting(false)
@@ -129,7 +129,7 @@ export default function SettingsComponent() {
     return (
       <div className="rounded-lg bg-white p-6 shadow dark:bg-gray-800">
         <p className="text-gray-600 dark:text-gray-400">
-          Por favor, faça login para acessar as configurações.
+          Please log in to access settings.
         </p>
       </div>
     )
@@ -150,7 +150,7 @@ export default function SettingsComponent() {
               }`}
             >
               <FaDesktop className="mr-3 h-4 w-4" />
-              Aparência
+              Appearance
             </button>
             <button
               onClick={() => setActiveTab('account')}
@@ -161,7 +161,7 @@ export default function SettingsComponent() {
               }`}
             >
               <FaUserCircle className="mr-3 h-4 w-4" />
-              Conta
+              Account
             </button>
           </nav>
         </div>
@@ -172,12 +172,12 @@ export default function SettingsComponent() {
           {activeTab === 'appearance' && (
             <div>
               <h2 className="mb-4 text-xl font-semibold text-gray-900 dark:text-white">
-                Aparência
+                Appearance
               </h2>
               <div className="space-y-6">
                 <div>
                   <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                    Tema
+                    Theme
                   </label>
                   <div className="mt-3 grid grid-cols-3 gap-3">
                     <button
@@ -196,7 +196,7 @@ export default function SettingsComponent() {
                             : 'text-gray-500 dark:text-gray-400'
                         }`}
                       />
-                      <span className="ml-2">Claro</span>
+                      <span className="ml-2">Light</span>
                     </button>
                     <button
                       type="button"
@@ -214,7 +214,7 @@ export default function SettingsComponent() {
                             : 'text-gray-500 dark:text-gray-400'
                         }`}
                       />
-                      <span className="ml-2">Escuro</span>
+                      <span className="ml-2">Dark</span>
                     </button>
                     <button
                       type="button"
@@ -232,15 +232,11 @@ export default function SettingsComponent() {
                             : 'text-gray-500 dark:text-gray-400'
                         }`}
                       />
-                      <span className="ml-2">Sistema</span>
+                      <span className="ml-2">System</span>
                     </button>
                   </div>
                   <p className="mt-4 text-sm text-gray-500 dark:text-gray-400">
-                    O tema afeta como o Tarevity aparece para você. O tema
-                    escuro é ideal para uso noturno e pode reduzir o cansaço
-                    visual. O tema claro proporciona melhor visibilidade em
-                    ambientes bem iluminados. A opção sistema segue
-                    automaticamente as preferências do seu dispositivo.
+                    The theme affects how Tarevity appears to you. The dark theme is ideal for night use and can reduce eye strain. The light theme provides better visibility in well-lit environments. The system option automatically follows your device preferences.
                   </p>
                 </div>
               </div>
@@ -251,20 +247,20 @@ export default function SettingsComponent() {
           {activeTab === 'account' && (
             <div>
               <h2 className="mb-4 text-xl font-semibold text-gray-900 dark:text-white">
-                Conta
+                Account
               </h2>
               <div className="space-y-6">
                 <div className="bg-backgroundLight dark:bg-backgroundDark/50 rounded-lg p-4">
                   <h3 className="mb-2 text-base font-medium text-gray-800 dark:text-gray-200">
-                    Informações Básicas
+                    Basic Information
                   </h3>
                   <div className="flex flex-col space-y-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-500 dark:text-gray-400">
-                        Nome
+                        Name
                       </label>
                       <p className="text-base text-gray-900 dark:text-white">
-                        {session.user?.name || 'Nome não definido'}
+                        {session.user?.name || 'Name not set'}
                       </p>
                     </div>
                     <div>
@@ -277,18 +273,18 @@ export default function SettingsComponent() {
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-500 dark:text-gray-400">
-                        Método de Login
+                        Login Method
                       </label>
                       <p className="text-base text-gray-900 dark:text-white">
                         {isLoadingProfile
-                          ? 'Carregando...'
+                          ? 'Loading...'
                           : profileData?.provider
                             ? profileData.provider.charAt(0).toUpperCase() +
                               profileData.provider.slice(1)
                             : session?.user?.provider
                               ? session.user.provider.charAt(0).toUpperCase() +
                                 session.user.provider.slice(1)
-                              : 'Email/Senha'}
+                              : 'Email/Password'}
                       </p>
                     </div>
                   </div>
@@ -296,17 +292,17 @@ export default function SettingsComponent() {
 
                 <div className="border-t border-gray-200 pt-6 dark:border-gray-700">
                   <h3 className="mb-4 text-base font-medium text-gray-800 dark:text-gray-200">
-                    Gerenciamento de Conta
+                    Account Management
                   </h3>
                   <div className="flex flex-col space-y-4">
                     <button
                       className="flex items-center text-sm font-medium text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
                       onClick={() => {
-                        toast.success('Redirecionando para página de perfil')
+                        toast.success('Redirecting to profile page')
                         router.push('/profile')
                       }}
                     >
-                      Editar perfil
+                      Edit profile
                     </button>
 
                     <button
@@ -314,13 +310,12 @@ export default function SettingsComponent() {
                       onClick={handleDeleteAccount}
                       disabled={isDeleting}
                     >
-                      {isDeleting ? 'Excluindo...' : 'Excluir minha conta'}
+                      {isDeleting ? 'Deleting...' : 'Delete my account'}
                     </button>
 
                     {isDeleting && (
                       <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                        Estamos processando sua solicitação. Isso pode levar
-                        alguns momentos.
+                        We are processing your request. This may take a few moments.
                       </p>
                     )}
                   </div>

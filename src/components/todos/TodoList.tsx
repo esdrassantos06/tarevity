@@ -37,7 +37,7 @@ export default function TodoList() {
     search: '',
   })
 
-  // Carregar tarefas
+  // Load tasks
   const fetchTodos = async () => {
     setIsLoading(true)
     setError(null)
@@ -53,7 +53,7 @@ export default function TodoList() {
 
       if (!response.ok) {
         // Try to get detailed error message
-        let errorMessage = 'Falha ao carregar tarefas'
+        let errorMessage = 'Failed to load tasks'
         try {
           const errorData = await response.json()
           errorMessage = errorData.message || errorMessage
@@ -61,10 +61,10 @@ export default function TodoList() {
           let errorMessage: string
 
           if (e instanceof Error) {
-            // Caso o erro seja do tipo Error, usa a mensagem de erro
+            // If the error is of Error type, use the error message
             errorMessage = e.message
           } else {
-            // Se não for um erro, usa o status e statusText da resposta
+            // If it's not an error, use the response status and statusText
             errorMessage = `${response.status}: ${response.statusText}`
           }
 
@@ -82,39 +82,39 @@ export default function TodoList() {
     } catch (err: unknown) {
       if (err instanceof Error) {
         console.error('Error in fetchTodos:', err)
-        setError(err.message || 'Ocorreu um erro ao carregar as tarefas')
+        setError(err.message || 'An error occurred while loading tasks')
       } else {
         console.error('Error in fetchTodos:', err)
-        setError('Ocorreu um erro ao carregar as tarefas')
+        setError('An error occurred while loading tasks')
       }
     } finally {
       setIsLoading(false)
     }
   }
 
-  // Efeito para carregar tarefas ao montar o componente
+  // Effect to load tasks when the component mounts
   useEffect(() => {
     fetchTodos()
   }, [])
 
-  // Efeito para aplicar filtros
+  // Effect to apply filters
   useEffect(() => {
     let result = [...todos]
 
-    // Filtrar por status
+    // Filter by status
     if (filters.status === 'active') {
       result = result.filter((todo) => !todo.is_completed)
     } else if (filters.status === 'completed') {
       result = result.filter((todo) => todo.is_completed)
     }
 
-    // Filtrar por prioridade
+    // Filter by priority
     if (filters.priority !== 'all') {
       const priorityValue = parseInt(filters.priority)
       result = result.filter((todo) => todo.priority === priorityValue)
     }
 
-    // Filtrar por texto de busca
+    // Filter by search text
     if (filters.search) {
       const searchLower = filters.search.toLowerCase()
       result = result.filter(
@@ -128,7 +128,7 @@ export default function TodoList() {
     setFilteredTodos(result)
   }, [todos, filters])
 
-  // Alternar o status de conclusão de uma tarefa
+  // Toggle the completion status of a task
   const handleToggleComplete = async (id: string, isCompleted: boolean) => {
     try {
       const todoToUpdate = todos.find((todo) => todo.id === id)
@@ -143,7 +143,7 @@ export default function TodoList() {
       })
 
       if (!response.ok) {
-        throw new Error('Falha ao atualizar tarefa')
+        throw new Error('Failed to update task')
       }
 
       const data = await response.json()
@@ -152,19 +152,19 @@ export default function TodoList() {
         prevTodos.map((todo) => (todo.id === id ? data : todo)),
       )
 
-      toast.success(isCompleted ? 'Tarefa concluída!' : 'Tarefa reaberta!')
+      toast.success(isCompleted ? 'Task completed!' : 'Task reopened!')
     } catch (err: unknown) {
       if (err instanceof Error) {
-        toast.error(err.message || 'Ocorreu um erro ao atualizar a tarefa')
-        console.error('Erro ao atualizar tarefa:', err)
+        toast.error(err.message || 'An error occurred while updating the task')
+        console.error('Error updating task:', err)
       } else {
-        toast.error('Ocorreu um erro ao atualizar a tarefa')
-        console.error('Erro ao atualizar tarefa:', err)
+        toast.error('An error occurred while updating the task')
+        console.error('Error updating task:', err)
       }
     }
   }
 
-  // Adicionar nova tarefa
+  // Add new task
   const handleAddTodo = async (todoData: TodoFormData) => {
     try {
       const response = await fetch('/api/todos', {
@@ -184,16 +184,16 @@ export default function TodoList() {
             return { message: 'Could not parse error response' }
           }
         })
-        throw new Error(errorData.message || 'Falha ao criar tarefa')
+        throw new Error(errorData.message || 'Failed to create task')
       }
 
       const newTodo = await response.json()
       setTodos((prevTodos) => [newTodo, ...prevTodos])
       setShowForm(false)
 
-      toast.success('Tarefa criada com sucesso!')
+      toast.success('Task created successfully!')
     } catch (err: unknown) {
-      let errorMessage = 'Erro desconhecido ao criar tarefa'
+      let errorMessage = 'Unknown error when creating task'
       if (err instanceof Error) {
         errorMessage = err.message
       }
@@ -202,7 +202,7 @@ export default function TodoList() {
     }
   }
 
-  // Editar tarefa existente
+  // Edit existing task
   const handleEditTodo = async (id: string, todoData: Partial<Todo>) => {
     try {
       const response = await fetch(`/api/todos/${id}`, {
@@ -212,7 +212,7 @@ export default function TodoList() {
       })
 
       if (!response.ok) {
-        throw new Error('Falha ao atualizar tarefa')
+        throw new Error('Failed to update task')
       }
 
       const updatedTodo = await response.json()
@@ -222,21 +222,21 @@ export default function TodoList() {
       )
 
       setEditingTodoId(null)
-      toast.success('Tarefa atualizada com sucesso!')
+      toast.success('Task updated successfully!')
     } catch (err: unknown) {
       if (err instanceof Error) {
-        toast.error(err.message || 'Ocorreu um erro ao atualizar a tarefa')
-        console.error('Erro ao atualizar tarefa:', err)
+        toast.error(err.message || 'An error occurred while updating the task')
+        console.error('Error updating task:', err)
       } else {
-        toast.error('Ocorreu um erro ao atualizar a tarefa')
-        console.error('Erro ao atualizar tarefa:', err)
+        toast.error('An error occurred while updating the task')
+        console.error('Error updating task:', err)
       }
     }
   }
 
-  // Excluir tarefa
+  // Delete task
   const handleDeleteTodo = async (id: string) => {
-    if (!confirm('Tem certeza que deseja excluir esta tarefa?')) return
+    if (!confirm('Are you sure you want to delete this task?')) return
 
     try {
       const response = await fetch(`/api/todos/${id}`, {
@@ -244,28 +244,28 @@ export default function TodoList() {
       })
 
       if (!response.ok) {
-        throw new Error('Falha ao excluir tarefa')
+        throw new Error('Failed to delete task')
       }
 
       setTodos((prevTodos) => prevTodos.filter((todo) => todo.id !== id))
-      toast.success('Tarefa excluída com sucesso!')
+      toast.success('Task deleted successfully!')
     } catch (err: unknown) {
       if (err instanceof Error) {
-        toast.error(err.message || 'Ocorreu um erro ao excluir a tarefa')
-        console.error('Erro ao excluir tarefa:', err)
+        toast.error(err.message || 'An error occurred while deleting the task')
+        console.error('Error deleting task:', err)
       } else {
-        toast.error('Ocorreu um erro ao excluir a tarefa')
-        console.error('Erro ao excluir tarefa:', err)
+        toast.error('An error occurred while deleting the task')
+        console.error('Error deleting task:', err)
       }
     }
   }
 
-  // Iniciar edição de uma tarefa
+  // Start editing a task
   const handleStartEdit = (id: string) => {
     setEditingTodoId(id)
   }
 
-  // Cancelar edição de uma tarefa
+  // Cancel editing a task
   const handleCancelEdit = () => {
     setEditingTodoId(null)
   }
@@ -273,12 +273,12 @@ export default function TodoList() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold dark:text-white">Minhas Tarefas</h1>
+        <h1 className="text-2xl font-bold dark:text-white">My Tasks</h1>
         <button
           onClick={() => setShowForm(!showForm)}
           className="bg-primary hover:bg-primaryHover rounded-md px-4 py-2 text-white transition-colors"
         >
-          {showForm ? 'Cancelar' : 'Nova Tarefa'}
+          {showForm ? 'Cancel' : 'New Task'}
         </button>
       </div>
 
@@ -297,22 +297,22 @@ export default function TodoList() {
         <div className="py-8 text-center">
           <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-blue-500 border-t-transparent"></div>
           <p className="mt-2 text-gray-600 dark:text-gray-400">
-            Carregando tarefas...
+            Loading tasks...
           </p>
         </div>
       ) : error ? (
         <div className="rounded border border-red-400 bg-red-100 px-4 py-3 text-red-700">
           <p>{error}</p>
           <button onClick={fetchTodos} className="mt-2 text-sm underline">
-            Tentar novamente
+            Try again
           </button>
         </div>
       ) : filteredTodos.length === 0 ? (
         <div className="py-8 text-center text-gray-600 dark:text-gray-400">
           {todos.length === 0 ? (
-            <p>Você ainda não tem tarefas. Crie sua primeira tarefa agora!</p>
+            <p>You don&apos;t have any tasks yet. Create your first task now!</p>
           ) : (
-            <p>Nenhuma tarefa corresponde aos filtros selecionados.</p>
+            <p>No tasks match the selected filters.</p>
           )}
         </div>
       ) : (

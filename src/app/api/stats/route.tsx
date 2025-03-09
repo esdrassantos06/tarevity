@@ -8,7 +8,7 @@ export async function GET() {
     const session = await getServerSession(authOptions)
 
     if (!session?.user?.id) {
-      return NextResponse.json({ message: 'Não autorizado' }, { status: 401 })
+      return NextResponse.json({ message: 'Unauthorized' }, { status: 401 })
     }
 
     const userId = session.user.id
@@ -49,13 +49,13 @@ export async function GET() {
     if (error instanceof Error) {
       console.error('Error fetching user stats:', error)
       return NextResponse.json(
-        { message: error.message || 'Erro ao buscar estatísticas' },
+        { message: error.message || 'Error fetching statistics' },
         { status: 500 },
       )
     } else {
       console.error('Unknown error fetching user stats:', error)
       return NextResponse.json(
-        { message: 'Erro desconhecido ao buscar estatísticas' },
+        { message: 'Unknown error fetching statistics' },
         { status: 500 },
       )
     }

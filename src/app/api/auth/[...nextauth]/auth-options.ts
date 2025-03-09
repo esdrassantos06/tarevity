@@ -39,7 +39,7 @@ export const authOptions: NextAuthOptions = {
           name: user.name,
           email: user.email,
           image: user.image,
-          provider: 'credentials', // Adicionar provider para login com credenciais
+          provider: 'credentials', // Add provider for credentials login
         }
       },
     }),
@@ -54,18 +54,18 @@ export const authOptions: NextAuthOptions = {
   ],
   callbacks: {
     async jwt({ token, user, account }) {
-      // Inicialização inicial - primeiro login
+      // Initial initialization - first login
       if (account && user) {
         if (account.provider === 'credentials') {
           return { 
             ...token, 
             id: user.id,
-            provider: 'credentials' // Incluir o provider para login com credenciais
+            provider: 'credentials' // Include provider for credentials login
           }
         }
 
-        // Para provedores OAuth
-        // Verificar se o usuário já existe no banco de dados
+        // For OAuth providers
+        // Check if user already exists in the database
         const { data: existingUser } = await supabase
           .from('users')
           .select('*')
@@ -73,7 +73,7 @@ export const authOptions: NextAuthOptions = {
           .single()
 
         if (existingUser) {
-          // Atualizar informações do usuário existente
+          // Update existing user information
           await supabase
             .from('users')
             .update({
@@ -87,10 +87,10 @@ export const authOptions: NextAuthOptions = {
           return { 
             ...token, 
             id: existingUser.id,
-            provider: account.provider // Incluir o provider para OAuth
+            provider: account.provider // Include provider for OAuth
           }
         } else {
-          // Criar novo usuário
+          // Create new user
           const { data: newUser } = await supabase
             .from('users')
             .insert([
@@ -108,7 +108,7 @@ export const authOptions: NextAuthOptions = {
           return { 
             ...token, 
             id: newUser?.id,
-            provider: account.provider // Incluir o provider para OAuth
+            provider: account.provider // Include provider for OAuth
           }
         }
       }
@@ -119,7 +119,7 @@ export const authOptions: NextAuthOptions = {
       if (token && session.user) {
         session.user.id = token.id as string
         
-        // Adicionar a propriedade provider à sessão do usuário
+        // Add the provider property to the user session
         if (token.provider) {
           session.user.provider = token.provider as string
         }
@@ -133,7 +133,7 @@ export const authOptions: NextAuthOptions = {
   },
   session: {
     strategy: 'jwt' as const, // Add 'as const' to ensure type safety
-    maxAge: 30 * 24 * 60 * 60, // 30 dias
+    maxAge: 30 * 24 * 60 * 60, // 30 days
   },
   secret: process.env.NEXTAUTH_SECRET,
 }

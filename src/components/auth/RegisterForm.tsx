@@ -10,13 +10,13 @@ import OAuthButtons from './OAuthButtons'
 
 const registerSchema = z
   .object({
-    name: z.string().min(2, 'Nome deve ter pelo menos 2 caracteres'),
-    email: z.string().email('Email inválido'),
-    password: z.string().min(6, 'A senha deve ter pelo menos 6 caracteres'),
+    name: z.string().min(2, 'Name must have at least 2 characters'),
+    email: z.string().email('Invalid email'),
+    password: z.string().min(6, 'Password must have at least 6 characters'),
     confirmPassword: z.string(),
   })
   .refine((data) => data.password === data.confirmPassword, {
-    message: 'As senhas não coincidem',
+    message: 'Passwords do not match',
     path: ['confirmPassword'],
   })
 
@@ -59,15 +59,15 @@ export default function RegisterForm() {
       const result = await response.json()
 
       if (!response.ok) {
-        throw new Error(result.message || 'Erro ao registrar')
+        throw new Error(result.message || 'Error registering')
       }
 
       router.push('/auth/login?registered=true')
     } catch (error: unknown) {
       if (error instanceof Error) {
-        setError(error.message || 'Ocorreu um erro ao registrar')
+        setError(error.message || 'An error occurred during registration')
       } else {
-        setError('Erro desconhecido ao registrar')
+        setError('Unknown error during registration')
       }
     } finally {
       setIsLoading(false)
@@ -77,7 +77,7 @@ export default function RegisterForm() {
   return (
     <div className="bg-cardLightMode dark:bg-cardDarkMode mx-auto w-full max-w-md rounded-lg p-6 shadow-md">
       <h1 className="mb-6 text-center text-2xl font-bold dark:text-white">
-        Registrar - Tarevity
+        Register - Tarevity
       </h1>
 
       {error && (
@@ -92,7 +92,7 @@ export default function RegisterForm() {
             htmlFor="name"
             className="block text-sm font-medium text-gray-700 dark:text-gray-300"
           >
-            Nome
+            Name
           </label>
           <input
             id="name"
@@ -134,7 +134,7 @@ export default function RegisterForm() {
             htmlFor="password"
             className="block text-sm font-medium text-gray-700 dark:text-gray-300"
           >
-            Senha
+            Password
           </label>
           <input
             id="password"
@@ -155,7 +155,7 @@ export default function RegisterForm() {
             htmlFor="confirmPassword"
             className="block text-sm font-medium text-gray-700 dark:text-gray-300"
           >
-            Confirmar Senha
+            Confirm Password
           </label>
           <input
             id="confirmPassword"
@@ -176,7 +176,7 @@ export default function RegisterForm() {
           disabled={isLoading}
           className="flex w-full justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none dark:bg-blue-700 dark:hover:bg-blue-800"
         >
-          {isLoading ? 'Registrando...' : 'Registrar'}
+          {isLoading ? 'Registering...' : 'Register'}
         </button>
       </form>
 
@@ -187,7 +187,7 @@ export default function RegisterForm() {
           </div>
           <div className="relative flex justify-center text-sm">
             <span className="bg-white px-2 text-gray-500 dark:bg-zinc-800 dark:text-gray-400">
-              Ou continue com
+              Or continue with
             </span>
           </div>
         </div>
@@ -199,12 +199,12 @@ export default function RegisterForm() {
 
       <div className="mt-6 text-center">
         <p className="text-sm text-gray-600 dark:text-gray-400">
-          Já tem uma conta?{' '}
+          Already have an account?{' '}
           <Link
             href="/auth/login"
             className="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400"
           >
-            Faça login
+            Log in
           </Link>
         </p>
       </div>

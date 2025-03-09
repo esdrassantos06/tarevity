@@ -51,7 +51,7 @@ export default function ProfileComponent() {
         })
 
         if (!response.ok) {
-          throw new Error('Falha ao carregar dados do perfil')
+          throw new Error('Failed to load profile data')
         }
 
         const data = await response.json()
@@ -64,7 +64,7 @@ export default function ProfileComponent() {
         await fetchUserStats()
       } catch (error) {
         console.error('Error fetching profile:', error)
-        toast.error('Não foi possível carregar seu perfil')
+        toast.error('Could not load your profile')
       } finally {
         setIsLoading(false)
       }
@@ -83,14 +83,14 @@ export default function ProfileComponent() {
       })
 
       if (!response.ok) {
-        throw new Error('Falha ao carregar estatísticas')
+        throw new Error('Failed to load statistics')
       }
 
       const data = await response.json()
       setUserStats(data)
     } catch (error) {
       console.error('Error fetching user stats:', error)
-      toast.error('Não foi possível carregar suas estatísticas')
+      toast.error('Could not load your statistics')
     }
   }
 
@@ -119,7 +119,7 @@ export default function ProfileComponent() {
       })
 
       if (!response.ok) {
-        throw new Error('Falha ao atualizar perfil')
+        throw new Error('Failed to update profile')
       }
 
       const updatedProfile = await response.json()
@@ -136,11 +136,11 @@ export default function ProfileComponent() {
         })
       }
 
-      toast.success('Perfil atualizado com sucesso!')
+      toast.success('Profile updated successfully!')
       setIsEditing(false)
     } catch (error) {
       console.error('Error updating profile:', error)
-      toast.error('Erro ao atualizar perfil')
+      toast.error('Error updating profile')
     } finally {
       setIsLoading(false)
     }
@@ -166,7 +166,7 @@ export default function ProfileComponent() {
     return (
       <div className="bg-cardLightMode dark:bg-cardDarkMode rounded-lg p-6 shadow">
         <p className="text-gray-600 dark:text-gray-400">
-          Por favor, faça login para visualizar seu perfil.
+          Please log in to view your profile.
         </p>
       </div>
     )
@@ -207,7 +207,7 @@ export default function ProfileComponent() {
                     htmlFor="name"
                     className="block text-sm font-medium text-gray-700 dark:text-gray-300"
                   >
-                    Nome
+                    Name
                   </label>
                   <input
                     type="text"
@@ -228,7 +228,7 @@ export default function ProfileComponent() {
                     className="bg-primary hover:bg-primaryHover inline-flex items-center rounded-md border border-transparent px-4 py-2 text-sm font-medium text-white shadow-sm outline-none"
                   >
                     <FaSave className="mr-2 -ml-1 h-4 w-4" />
-                    Salvar
+                    Save
                   </button>
                   <button
                     type="button"
@@ -236,7 +236,7 @@ export default function ProfileComponent() {
                     className="inline-flex items-center rounded-md bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm outline-none hover:bg-gray-50 dark:bg-zinc-600 dark:text-gray-200 dark:hover:bg-zinc-700"
                   >
                     <FaTimes className="mr-2 -ml-1 h-4 w-4" />
-                    Cancelar
+                    Cancel
                   </button>
                 </div>
               </form>
@@ -244,14 +244,14 @@ export default function ProfileComponent() {
               <div>
                 <div className="flex items-center justify-between">
                   <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-                    {profileData.name || 'Usuário'}
+                    {profileData.name || 'User'}
                   </h2>
                   <button
                     onClick={() => setIsEditing(true)}
                     className="inline-flex items-center rounded-md border border-transparent p-2 text-sm text-blue-600 hover:text-blue-800 focus:outline-none dark:text-blue-400 dark:hover:text-blue-300"
                   >
                     <FaPencilAlt className="h-4 w-4" />
-                    <span className="ml-1">Editar</span>
+                    <span className="ml-1">Edit</span>
                   </button>
                 </div>
                 <div className="mt-2 flex items-center text-gray-600 dark:text-gray-400">
@@ -261,11 +261,11 @@ export default function ProfileComponent() {
                 <div className="mt-4 border-t border-gray-200 pt-4 dark:border-gray-700">
                   <div className="text-sm text-gray-500 dark:text-gray-400">
                     <p>
-                      Método de login:{' '}
+                      Login method:{' '}
                       {profileData.provider
                         ? profileData.provider.charAt(0).toUpperCase() +
                           profileData.provider.slice(1)
-                        : 'Email/Senha'}
+                        : 'Email/Password'}
                     </p>
                   </div>
                 </div>
@@ -278,7 +278,7 @@ export default function ProfileComponent() {
       {/* Profile Sections */}
       <div className="border-t border-gray-200 px-6 py-6 dark:border-gray-700">
         <h3 className="mb-4 text-lg font-medium text-gray-900 dark:text-white">
-          Estatísticas de Tarefas
+          Task Statistics
         </h3>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           <div className="rounded-lg bg-blue-50 p-4 dark:bg-blue-900/30">
@@ -287,7 +287,7 @@ export default function ProfileComponent() {
             </div>
             <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
               <FaClipboardList className="mr-1" />
-              Tarefas Criadas
+              Created Tasks
             </div>
           </div>
           <div className="rounded-lg bg-green-50 p-4 dark:bg-green-900/30">
@@ -296,7 +296,7 @@ export default function ProfileComponent() {
             </div>
             <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
               <FaClipboardCheck className="mr-1" />
-              Tarefas Concluídas
+              Completed Tasks
             </div>
           </div>
           <div className="rounded-lg bg-yellow-50 p-4 dark:bg-yellow-900/30">
@@ -305,7 +305,7 @@ export default function ProfileComponent() {
             </div>
             <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
               <FaClock className="mr-1" />
-              Pendentes
+              Pending
             </div>
           </div>
         </div>

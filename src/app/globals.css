@@ -18,19 +18,18 @@
   --color-textLight: #333333;
   --color-textDark: #e0e0e0;
 
-  --color-primary: #4ac3e9; /* Azul vibrante */
-  --color-primaryHover: #3aa6cc; /* Azul mais escuro para hover */
+  --color-primary: #4ac3e9; /* Vibrant blue */
+  --color-primaryHover: #3aa6cc; /* Darker blue for hover */
 
-  --color-secondary: #7d2ae8; /* Roxo forte */
-  --color-secondaryHover: #6824cc; /* Roxo mais escuro para hover */
+  --color-secondary: #7d2ae8; /* Strong purple */
+  --color-secondaryHover: #6824cc; /* Darker purple for hover */
 
   --color-borderLight: #d1d5db;
   --color-borderDark: #2f2f2f;
 
-  --color-buttonLight: #4ac3e9; /* Azul vibrante */
-  --color-buttonLightHover: #3aa6cc; /* Azul mais escuro */
+  --color-buttonLight: #4ac3e9; /* Vibrant blue */
+  --color-buttonLightHover: #3aa6cc; /* Darker blue */
 
-  --color-buttonDark: #7d2ae8; /* Roxo forte */
-  --color-buttonDarkHover: #6824cc; /* Roxo mais escuro */
+  --color-buttonDark: #7d2ae8; /* Strong purple */
+  --color-buttonDarkHover: #6824cc; /* Darker purple */
 }
-/* ECEAEB */

@@ -14,7 +14,7 @@ export async function GET(
     const resolvedParams = await params
 
     if (!session?.user?.id) {
-      return NextResponse.json({ message: 'Não autorizado' }, { status: 401 })
+      return NextResponse.json({ message: 'Unauthorized' }, { status: 401 })
     }
 
     // Extract the task ID from URL parameters
@@ -40,13 +40,13 @@ export async function GET(
     if (error instanceof Error) {
       console.error('Error fetching task:', error)
       return NextResponse.json(
-        { message: error.message || 'Erro ao buscar tarefa' },
+        { message: error.message || 'Error fetching task' },
         { status: 500 },
       )
     } else {
       console.error('Unknown error fetching task:', error)
       return NextResponse.json(
-        { message: 'Erro desconhecido ao buscar tarefa' },
+        { message: 'Unknown error fetching task' },
         { status: 500 },
       )
     }
@@ -63,7 +63,7 @@ export async function PUT(
     const resolvedParams = await params
 
     if (!session?.user?.id) {
-      return NextResponse.json({ message: 'Não autorizado' }, { status: 401 })
+      return NextResponse.json({ message: 'Unauthorized' }, { status: 401 })
     }
 
     // Extract the task ID from URL parameters
@@ -85,7 +85,7 @@ export async function PUT(
 
     if (checkError || !existingTask) {
       return NextResponse.json(
-        { message: 'Tarefa não encontrada' },
+        { message: 'Task not found' },
         { status: 404 },
       )
     }
@@ -108,13 +108,13 @@ export async function PUT(
     if (error instanceof Error) {
       console.error('Error updating task:', error)
       return NextResponse.json(
-        { message: error.message || 'Erro ao atualizar tarefa' },
+        { message: error.message || 'Error updating task' },
         { status: 500 },
       )
     } else {
       console.error('Unknown error updating task:', error)
       return NextResponse.json(
-        { message: 'Erro desconhecido ao atualizar tarefa' },
+        { message: 'Unknown error updating task' },
         { status: 500 },
       )
     }
@@ -131,7 +131,7 @@ export async function DELETE(
     const resolvedParams = await params
 
     if (!session?.user?.id) {
-      return NextResponse.json({ message: 'Não autorizado' }, { status: 401 })
+      return NextResponse.json({ message: 'Unauthorized' }, { status: 401 })
     }
 
     // Extract the task ID from URL parameters
@@ -150,7 +150,7 @@ export async function DELETE(
 
     if (checkError || !existingTask) {
       return NextResponse.json(
-        { message: 'Tarefa não encontrada' },
+        { message: 'Task not found' },
         { status: 404 },
       )
     }
@@ -167,20 +167,20 @@ export async function DELETE(
     }
 
     return NextResponse.json(
-      { message: 'Tarefa excluída com sucesso' },
+      { message: 'Task deleted successfully' },
       { status: 200 },
     )
   } catch (error) {
     if (error instanceof Error) {
       console.error('Error deleting task:', error)
       return NextResponse.json(
-        { message: error.message || 'Erro ao excluir tarefa' },
+        { message: error.message || 'Error deleting task' },
         { status: 500 },
       )
     } else {
       console.error('Unknown error deleting task:', error)
       return NextResponse.json(
-        { message: 'Erro desconhecido ao excluir tarefa' },
+        { message: 'Unknown error deleting task' },
         { status: 500 },
       )
     }

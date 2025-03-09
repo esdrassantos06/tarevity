@@ -2,16 +2,16 @@ import { Metadata } from 'next'
 import Layout from '@/components/layout/Layout'
 
 export const metadata: Metadata = {
-  title: 'Termos de Uso | Tarevity',
-  description: 'Termos de uso do Tarevity',
+  title: 'Terms of Use | Tarevity',
+  description: 'Terms of use for Tarevity',
 }
 
 export default function TermsPage() {
   return (
     <Layout>
       <div className="mx-auto max-w-4xl">
-        {/* Adicionar componente aqui */}
-        <h1>Termos de Uso</h1>
+        {/* Add component here */}
+        <h1>Terms of Use</h1>
       </div>
     </Layout>
   )
