@@ -60,7 +60,7 @@ export default function LoginForm() {
   };
 
   return (
-    <div className="w-full max-w-md mx-auto p-6 bg-white rounded-lg shadow-md dark:bg-gray-800">
+    <div className="w-full max-w-md mx-auto p-6 bg-cardLightMode rounded-lg shadow-md dark:bg-cardDarkMode">
       <h1 className="text-2xl font-bold text-center mb-6 dark:text-white">
         Login - Tarevity
       </h1>
@@ -83,7 +83,7 @@ export default function LoginForm() {
             id="email"
             type="email"
             {...register("email")}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+            className="mt-1 block w-full outline-none p-2 rounded-md  shadow-sm dark:bg-gray-700  dark:text-white"
             disabled={isLoading}
           />
           {errors.email && (
@@ -104,7 +104,7 @@ export default function LoginForm() {
             id="password"
             type="password"
             {...register("password")}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+            className="mt-1 block w-full p-2 rounded-md outline-none shadow-sm dark:bg-gray-700 dark:text-white"
             disabled={isLoading}
           />
           {errors.password && (
@@ -140,7 +140,7 @@ export default function LoginForm() {
             <div className="w-full border-t border-gray-300 dark:border-gray-600"></div>
           </div>
           <div className="relative flex justify-center text-sm">
-            <span className="px-2 bg-white text-gray-500 dark:bg-gray-800 dark:text-gray-400">
+            <span className="px-2 bg-white text-gray-500 dark:bg-zinc-800 dark:text-gray-400">
               Ou continue com
             </span>
           </div>
