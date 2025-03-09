@@ -132,15 +132,15 @@ Tarevity é um aplicativo moderno de gerenciamento de tarefas construído com Ne
 
 ## 📱 Recursos Planejados
 
+- [ ] Refatorar pesquisas de tarefas para melhor desempenho
+- [ ] Organização de tarefas
 - [ ] Categorias/Tags para tarefas
 - [ ] Subtarefas
-- [ ] Compartilhamento de tarefas
 - [ ] Notificações para prazos
 - [ ] Visualização em calendário
 - [ ] Estatísticas avançadas
-- [ ] Temas personalizados
 - [ ] Exportação de dados
-- [ ] Tarefas recorrentes
+- [ ] Integração com outros aplicativos
 
 ## 🤝 Contribuindo
 
