@@ -25,7 +25,7 @@ export default function Header() {
                 href={session ? '/dashboard' : '/'}
                 className="text-2xl font-bold text-blue-600 dark:text-blue-400"
               >
-                <TarevityLogo className="w-35" />
+                <TarevityLogo className="w-30" />
               </Link>
             </div>
           </div>
