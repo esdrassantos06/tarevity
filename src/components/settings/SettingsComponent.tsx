@@ -6,6 +6,7 @@ import { useTheme } from 'next-themes'
 import { toast } from 'react-toastify'
 import { FaMoon, FaSun, FaDesktop, FaUserCircle } from 'react-icons/fa'
 import { useRouter } from 'next/navigation'
+import ConfirmationDialog, { useConfirmationDialog } from '@/components/common/ConfirmationDialog'
 
 interface ProfileData {
   id: string
@@ -23,6 +24,14 @@ export default function SettingsComponent() {
   const router = useRouter()
   const [profileData, setProfileData] = useState<ProfileData | null>(null)
   const [isLoadingProfile, setIsLoadingProfile] = useState(true)
+  
+  // Use our confirmation dialog hook
+  const { 
+    dialogState, 
+    openConfirmDialog, 
+    closeConfirmDialog, 
+    setLoading: setDialogLoading 
+  } = useConfirmationDialog()
 
   // Fetch profile data
   useEffect(() => {
@@ -69,60 +78,64 @@ export default function SettingsComponent() {
   }
 
   // Function to handle account deletion
-  const handleDeleteAccount = async () => {
-    // Show a confirmation dialog to prevent accidental deletions
-    if (
-      !confirm(
-        'Are you sure you want to delete your account? This action cannot be undone and all your data will be permanently removed.',
-      )
-    ) {
-      return
-    }
+  const handleDeleteAccount = () => {
+    // First confirmation
+    openConfirmDialog({
+      title: "Delete Account",
+      description: "Are you sure you want to delete your account? This action cannot be undone and all your data will be permanently removed.",
+      variant: "danger",
+      confirmText: "Delete",
+      cancelText: "Cancel",
+      onConfirm: () => {
+        // Second confirmation (more serious)
+        openConfirmDialog({
+          title: "WARNING: Permanent Action",
+          description: "This is a permanent action. All your tasks and data will be lost. Do you want to continue?",
+          variant: "danger",
+          confirmText: "Yes, Delete My Account",
+          cancelText: "No, Keep My Account",
+          onConfirm: async () => {
+            try {
+              setDialogLoading(true);
+              setIsDeleting(true);
 
-    // Double-check with a more serious warning
-    if (
-      !confirm(
-        'WARNING: This is a permanent action. All your tasks and data will be lost. Do you want to continue?',
-      )
-    ) {
-      return
-    }
+              // Make an API call to delete the user account
+              const response = await fetch('/api/account/delete', {
+                method: 'DELETE',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                credentials: 'include',
+              })
 
-    try {
-      setIsDeleting(true)
+              if (!response.ok) {
+                const data = await response.json()
+                throw new Error(data.message || 'Error deleting account')
+              }
 
-      // Make an API call to delete the user account
-      const response = await fetch('/api/account/delete', {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-      })
+              // Show success message
+              toast.success('Your account has been successfully deleted')
 
-      if (!response.ok) {
-        const data = await response.json()
-        throw new Error(data.message || 'Error deleting account')
+              // Sign out the user
+              await signOut({ redirect: false })
+
+              // Redirect to home page
+              router.push('/')
+            } catch (error) {
+              console.error('Error deleting account:', error)
+              toast.error(
+                error instanceof Error
+                  ? error.message
+                  : 'An error occurred while deleting your account'
+              )
+            } finally {
+              setIsDeleting(false)
+              setDialogLoading(false)
+            }
+          }
+        });
       }
-
-      // Show success message
-      toast.success('Your account has been successfully deleted')
-
-      // Sign out the user
-      await signOut({ redirect: false })
-
-      // Redirect to home page
-      router.push('/')
-    } catch (error) {
-      console.error('Error deleting account:', error)
-      toast.error(
-        error instanceof Error
-          ? error.message
-          : 'An error occurred while deleting your account'
-      )
-    } finally {
-      setIsDeleting(false)
-    }
+    });
   }
 
   if (!session) {
@@ -325,6 +338,19 @@ export default function SettingsComponent() {
           )}
         </div>
       </div>
+      
+      {/* Render confirmation dialog */}
+      <ConfirmationDialog
+        isOpen={dialogState.isOpen}
+        onClose={closeConfirmDialog}
+        onConfirm={dialogState.onConfirm}
+        title={dialogState.title}
+        description={dialogState.description}
+        confirmText={dialogState.confirmText}
+        cancelText={dialogState.cancelText}
+        variant={dialogState.variant}
+        isLoading={dialogState.isLoading}
+      />
     </div>
   )
 }

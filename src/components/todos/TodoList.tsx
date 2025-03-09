@@ -5,6 +5,7 @@ import TodoItem from './TodoItem'
 import TodoForm from './TodoForm'
 import TodoFilters from './TodoFilters'
 import { toast } from 'react-toastify'
+import ConfirmationDialog, { useConfirmationDialog } from '@/components/common/ConfirmationDialog'
 
 interface Todo {
   id: string
@@ -36,6 +37,14 @@ export default function TodoList() {
     priority: 'all',
     search: '',
   })
+  
+  // Use our custom confirmation dialog hook
+  const { 
+    dialogState, 
+    openConfirmDialog, 
+    closeConfirmDialog, 
+    setLoading: setDialogLoading 
+  } = useConfirmationDialog()
 
   // Load tasks
   const fetchTodos = async () => {
@@ -237,28 +246,39 @@ export default function TodoList() {
 
   // Delete task
   const handleDeleteTodo = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this task?')) return
+    // Instead of using confirm, open our dialog
+    openConfirmDialog({
+      title: "Delete Task",
+      description: "Are you sure you want to delete this task? This action cannot be undone.",
+      variant: "danger",
+      confirmText: "Delete",
+      cancelText: "Cancel",
+      onConfirm: async () => {
+        try {
+          setDialogLoading(true);
+          const response = await fetch(`/api/todos/${id}`, {
+            method: 'DELETE',
+          })
 
-    try {
-      const response = await fetch(`/api/todos/${id}`, {
-        method: 'DELETE',
-      })
+          if (!response.ok) {
+            throw new Error('Failed to delete task')
+          }
 
-      if (!response.ok) {
-        throw new Error('Failed to delete task')
+          setTodos((prevTodos) => prevTodos.filter((todo) => todo.id !== id))
+          toast.success('Task deleted successfully!')
+        } catch (err: unknown) {
+          if (err instanceof Error) {
+            toast.error(err.message || 'An error occurred while deleting the task')
+            console.error('Error deleting task:', err)
+          } else {
+            toast.error('An error occurred while deleting the task')
+            console.error('Error deleting task:', err)
+          }
+        } finally {
+          setDialogLoading(false);
+        }
       }
-
-      setTodos((prevTodos) => prevTodos.filter((todo) => todo.id !== id))
-      toast.success('Task deleted successfully!')
-    } catch (err: unknown) {
-      if (err instanceof Error) {
-        toast.error(err.message || 'An error occurred while deleting the task')
-        console.error('Error deleting task:', err)
-      } else {
-        toast.error('An error occurred while deleting the task')
-        console.error('Error deleting task:', err)
-      }
-    }
+    });
   }
 
   // Start editing a task
@@ -342,6 +362,19 @@ export default function TodoList() {
           ))}
         </div>
       )}
+      
+      {/* Render the confirmation dialog */}
+      <ConfirmationDialog
+        isOpen={dialogState.isOpen}
+        onClose={closeConfirmDialog}
+        onConfirm={dialogState.onConfirm}
+        title={dialogState.title}
+        description={dialogState.description}
+        confirmText={dialogState.confirmText}
+        cancelText={dialogState.cancelText}
+        variant={dialogState.variant}
+        isLoading={dialogState.isLoading}
+      />
     </div>
   )
 }

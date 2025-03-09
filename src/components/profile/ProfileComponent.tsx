@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react' // Add useCallback import
 import { useSession } from 'next-auth/react'
 import { toast } from 'react-toastify'
 import Image from 'next/image'
@@ -14,6 +14,8 @@ import {
   FaClipboardCheck,
   FaClock,
 } from 'react-icons/fa'
+import AlertDialog, { useAlertDialog } from '@/components/common/AlertDialog'
+import ConfirmationDialog, { useConfirmationDialog } from '@/components/common/ConfirmationDialog'
 
 interface ProfileData {
   id: string
@@ -38,6 +40,46 @@ export default function ProfileComponent() {
   const [formData, setFormData] = useState({
     name: '',
   })
+  
+  // Use our custom dialog hooks
+  const { 
+    alertDialogState, 
+    openAlertDialog, 
+    closeAlertDialog 
+  } = useAlertDialog()
+  
+  const {
+    dialogState: confirmDialogState,
+    openConfirmDialog,
+    closeConfirmDialog,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    setLoading: setConfirmDialogLoading
+  } = useConfirmationDialog()
+
+  // Function to fetch user task statistics wrapped in useCallback
+  const fetchUserStats = useCallback(async () => {
+    try {
+      const response = await fetch('/api/stats', {
+        credentials: 'include',
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to load statistics')
+      }
+
+      const data = await response.json()
+      setUserStats(data)
+    } catch (error) {
+      console.error('Error fetching user stats:', error)
+      // Show both toast and dialog
+      toast.error('Could not load your statistics')
+      openAlertDialog({
+        title: "Statistics Error",
+        description: "Could not load your task statistics. Your profile information is still available.",
+        variant: "warning"
+      })
+    }
+  }, [openAlertDialog]) // Include openAlertDialog as a dependency
 
   // Fetch profile data
   useEffect(() => {
@@ -64,7 +106,13 @@ export default function ProfileComponent() {
         await fetchUserStats()
       } catch (error) {
         console.error('Error fetching profile:', error)
+        // Show both toast and dialog
         toast.error('Could not load your profile')
+        openAlertDialog({
+          title: "Error",
+          description: "Could not load your profile data. Please try again later.",
+          variant: "danger"
+        })
       } finally {
         setIsLoading(false)
       }
@@ -73,26 +121,7 @@ export default function ProfileComponent() {
     if (session?.user) {
       fetchProfileData()
     }
-  }, [session])
-
-  // Function to fetch user task statistics
-  const fetchUserStats = async () => {
-    try {
-      const response = await fetch('/api/stats', {
-        credentials: 'include',
-      })
-
-      if (!response.ok) {
-        throw new Error('Failed to load statistics')
-      }
-
-      const data = await response.json()
-      setUserStats(data)
-    } catch (error) {
-      console.error('Error fetching user stats:', error)
-      toast.error('Could not load your statistics')
-    }
-  }
+  }, [session, fetchUserStats, openAlertDialog]) // Add missing dependencies
 
   // Handle form input changes
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -103,8 +132,29 @@ export default function ProfileComponent() {
     }))
   }
 
+  // Show confirmation before canceling edits if changes were made
+  const handleCancelEdit = useCallback(() => {
+    if (formData.name !== profileData?.name) {
+      openConfirmDialog({
+        title: "Discard Changes?",
+        description: "You have unsaved changes. Are you sure you want to discard them?",
+        variant: "warning",
+        confirmText: "Discard Changes",
+        cancelText: "Continue Editing",
+        onConfirm: () => {
+          setFormData({
+            name: profileData?.name || '',
+          })
+          setIsEditing(false)
+        }
+      })
+    } else {
+      setIsEditing(false)
+    }
+  }, [formData.name, profileData, openConfirmDialog, setFormData, setIsEditing])
+
   // Handle form submission
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault()
 
     try {
@@ -136,28 +186,36 @@ export default function ProfileComponent() {
         })
       }
 
+      // Show both toast and dialog
       toast.success('Profile updated successfully!')
+      openAlertDialog({
+        title: "Profile Updated",
+        description: "Your profile information has been updated successfully.",
+        variant: "success",
+        buttonText: "Great!"
+      })
       setIsEditing(false)
     } catch (error) {
       console.error('Error updating profile:', error)
+      // Show both toast and dialog
       toast.error('Error updating profile')
+      openAlertDialog({
+        title: "Update Failed",
+        description: error instanceof Error 
+          ? error.message
+          : "An error occurred while updating your profile. Please try again later.",
+        variant: "danger"
+      })
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [formData, session, update, openAlertDialog, setProfileData, setIsEditing, setIsLoading])
 
-  // Handle cancel edit
-  const handleCancelEdit = () => {
-    setFormData({
-      name: profileData?.name || '',
-    })
-    setIsEditing(false)
-  }
-
+  // Rest of the component remains unchanged
   if (isLoading && !profileData) {
     return (
       <div className="flex h-64 items-center justify-center">
-        <div className="h-12 w-12 animate-spin rounded-full"></div>
+        <div className="h-12 w-12 animate-spin rounded-full border-4 border-blue-500 border-t-transparent"></div>
       </div>
     )
   }
@@ -310,6 +368,29 @@ export default function ProfileComponent() {
           </div>
         </div>
       </div>
+    
+      {/* Alert Dialog */}
+      <AlertDialog 
+        isOpen={alertDialogState.isOpen}
+        onClose={closeAlertDialog}
+        title={alertDialogState.title}
+        description={alertDialogState.description}
+        buttonText={alertDialogState.buttonText}
+        variant={alertDialogState.variant}
+      />
+      
+      {/* Confirmation Dialog */}
+      <ConfirmationDialog
+        isOpen={confirmDialogState.isOpen}
+        onClose={closeConfirmDialog}
+        onConfirm={confirmDialogState.onConfirm}
+        title={confirmDialogState.title}
+        description={confirmDialogState.description}
+        confirmText={confirmDialogState.confirmText}
+        cancelText={confirmDialogState.cancelText}
+        variant={confirmDialogState.variant}
+        isLoading={confirmDialogState.isLoading}
+      />
     </div>
   )
 }
