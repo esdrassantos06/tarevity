@@ -5,16 +5,20 @@ import { supabaseAdmin } from '@/lib/supabaseAdmin'
 import { NextRequest } from 'next/server'
 
 // Get a specific task
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
     const session = await getServerSession(authOptions)
+    const resolvedParams = await params
 
     if (!session?.user?.id) {
       return NextResponse.json({ message: 'Não autorizado' }, { status: 401 })
     }
 
     // Extract the task ID from URL parameters
-    const taskId = params.id
+    const taskId = resolvedParams.id
 
     // Log for debugging
     console.log(`Fetching task with ID: ${taskId} for user: ${session.user.id}`)
@@ -50,16 +54,20 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
 }
 
 // Update a task
-export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
     const session = await getServerSession(authOptions)
+    const resolvedParams = await params
 
     if (!session?.user?.id) {
       return NextResponse.json({ message: 'Não autorizado' }, { status: 401 })
     }
 
     // Extract the task ID from URL parameters
-    const taskId = params.id
+    const taskId = resolvedParams.id
 
     // Parse the request body
     const updateData = await request.json()
@@ -114,16 +122,20 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
 }
 
 // Delete a task
-export async function DELETE(_request: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(
+  _request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
     const session = await getServerSession(authOptions)
+    const resolvedParams = await params
 
     if (!session?.user?.id) {
       return NextResponse.json({ message: 'Não autorizado' }, { status: 401 })
     }
 
     // Extract the task ID from URL parameters
-    const taskId = params.id
+    const taskId = resolvedParams.id
 
     // Log for debugging
     console.log(`Deleting task with ID: ${taskId} for user: ${session.user.id}`)
