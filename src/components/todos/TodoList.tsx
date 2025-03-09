@@ -238,14 +238,14 @@ export default function TodoList() {
         <h1 className="text-2xl font-bold dark:text-white">Minhas Tarefas</h1>
         <button
           onClick={() => setShowForm(!showForm)}
-          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+          className="px-4 py-2 bg-primary text-white rounded-md hover:bg-primaryHover transition-colors"
         >
           {showForm ? "Cancelar" : "Nova Tarefa"}
         </button>
       </div>
 
       {showForm && (
-        <div className="bg-white p-4 rounded-lg shadow dark:bg-gray-800">
+        <div className="bg-cardLightMode p-4 rounded-lg shadow dark:bg-cardDarkMode">
           <TodoForm
             onSubmit={handleAddTodo}
             onCancel={() => setShowForm(false)}
@@ -282,7 +282,7 @@ export default function TodoList() {
           {filteredTodos.map((todo) => (
             <div key={todo.id}>
               {editingTodoId === todo.id ? (
-                <div className="bg-white p-4 rounded-lg shadow dark:bg-gray-800">
+                <div className="bg-cardLightMode p-4 rounded-lg shadow dark:bg-cardDarkMode">
                   <TodoForm
                     initialData={todo}
                     onSubmit={(data) => handleEditTodo(todo.id, data)}

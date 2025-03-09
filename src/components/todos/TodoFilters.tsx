@@ -42,7 +42,7 @@ export default function TodoFilters({ filters, setFilters }: TodoFiltersProps) {
   };
 
   return (
-    <div className="bg-white p-4 rounded-lg shadow dark:bg-gray-800">
+    <div className="bg-cardLightMode p-4 rounded-lg shadow dark:bg-cardDarkMode">
       <div className="flex flex-col md:flex-row items-center gap-4">
         <div className="w-full md:w-1/2">
           <form onSubmit={handleSearchSubmit} className="flex">
@@ -51,11 +51,11 @@ export default function TodoFilters({ filters, setFilters }: TodoFiltersProps) {
               value={search}
               onChange={handleSearchChange}
               placeholder="Pesquisar tarefas..."
-              className="flex-grow px-4 py-2 border border-gray-300 rounded-l-md focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+              className="flex-grow px-4 outline-none h-10 rounded-l-md dark:bg-zinc-700 dark:text-white"
             />
             <button
               type="submit"
-              className="px-4 py-2 bg-blue-600 text-white rounded-r-md hover:bg-blue-700"
+              className="px-4 h-10 bg-primary text-white rounded-r-md hover:bg-primaryHover"
             >
               <FaSearch />
             </button>
@@ -67,7 +67,7 @@ export default function TodoFilters({ filters, setFilters }: TodoFiltersProps) {
             <select
               value={filters.status}
               onChange={handleStatusChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+              className="w-full px-4 py-2 rounded-md outline-none dark:bg-zinc-700 dark:text-white"
             >
               <option value="all">Todos os Status</option>
               <option value="active">Pendentes</option>
@@ -75,11 +75,11 @@ export default function TodoFilters({ filters, setFilters }: TodoFiltersProps) {
             </select>
           </div>
 
-          <div className="w-full sm:w-1/2">
+          <div className="w-full sm:w-[60%]">
             <select
               value={filters.priority}
               onChange={handlePriorityChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+              className="w-full px-4 py-2 outline-none rounded-md dark:bg-zinc-700 dark:text-white"
             >
               <option value="all">Todas as Prioridades</option>
               <option value="3">Prioridade Alta</option>

@@ -5,6 +5,7 @@ import { useSession, signOut } from "next-auth/react";
 import Link from "next/link";
 import { FaUser, FaCog, FaSignOutAlt, FaBars, FaTimes } from "react-icons/fa";
 import ThemeToggle from "../common/ThemeToggle";
+import TarevityLogo  from '../logo/TarevityLogo'
 
 export default function Header() {
   const { data: session } = useSession();
@@ -15,7 +16,7 @@ export default function Header() {
   };
 
   return (
-    <header className="bg-white shadow dark:bg-gray-800">
+    <header className="bg-headerLightMode shadow dark:bg-headerDarkMode">
       <div className="mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex">
@@ -24,7 +25,7 @@ export default function Header() {
                 href={session ? "/dashboard" : "/"}
                 className="text-2xl font-bold text-blue-600 dark:text-blue-400"
               >
-                Tarevity
+                <TarevityLogo className="w-35" />
               </Link>
             </div>
           </div>
@@ -32,24 +33,24 @@ export default function Header() {
           {session ? (
             <div className="hidden sm:ml-6 sm:flex sm:items-center">
               <div className="ml-3 relative">
-                <div className="flex items-center space-x-4">
+                <div className="flex items-center gap-4">
                   <Link
                     href="/profile"
-                    className="text-gray-700 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white"
+                    className="text-gray-700 flex items-center hover:text-gray-900 dark:text-gray-300 dark:hover:text-white"
                   >
                     <FaUser className="inline mr-1" />
                     Perfil
                   </Link>
                   <Link
                     href="/settings"
-                    className="text-gray-700 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white"
+                    className="text-gray-700 flex items-center hover:text-gray-900 dark:text-gray-300 dark:hover:text-white"
                   >
                     <FaCog className="inline mr-1" />
                     Configurações
                   </Link>
                   <button
                     onClick={() => signOut({ callbackUrl: "/" })}
-                    className="text-gray-700 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white"
+                    className="text-gray-700 cursor-pointer flex items-center hover:text-gray-900 dark:text-gray-300 dark:hover:text-white"
                   >
                     <FaSignOutAlt className="inline mr-1" />
                     Sair

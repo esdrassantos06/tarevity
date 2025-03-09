@@ -137,7 +137,7 @@ export default function SettingsComponent() {
   }
 
   return (
-    <div className="bg-white dark:bg-gray-800 shadow rounded-lg overflow-hidden">
+    <div className="bg-cardLightMode dark:bg-cardDarkMode shadow rounded-lg overflow-hidden">
       <div className="flex flex-col md:flex-row">
         {/* Sidebar / Tab Navigation */}
         <div className="w-full md:w-64 border-b md:border-b-0 md:border-r border-gray-200 dark:border-gray-700">
@@ -255,7 +255,7 @@ export default function SettingsComponent() {
                 Conta
               </h2>
               <div className="space-y-6">
-                <div className="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg">
+                <div className="bg-backgroundLight dark:bg-backgroundDark/50 p-4 rounded-lg">
                   <h3 className="text-base font-medium text-gray-800 dark:text-gray-200 mb-2">
                     Informações Básicas
                   </h3>

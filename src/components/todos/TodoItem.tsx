@@ -66,10 +66,10 @@ export default function TodoItem({
 
   return (
     <div
-      className={`border rounded-lg p-4 mb-4 transition-colors ${
+      className={`border border-borderLight dark:border-borderDark shadow-lg rounded-lg p-4 mb-4 transition-colors ${
         todo.is_completed
-          ? "bg-gray-100 dark:bg-gray-700"
-          : "bg-white dark:bg-gray-800"
+          ? "bg-gray-100 dark:bg-zinc-800"
+          : "bg-cardLightMode dark:bg-cardDarkMode"
       }`}
     >
       <div className="flex items-start gap-3">
