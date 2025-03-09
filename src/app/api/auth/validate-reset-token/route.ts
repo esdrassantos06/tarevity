@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { supabaseAdmin } from '@/lib/supabaseAdmin';
 
 export async function GET(req: Request) {
   try {
@@ -12,21 +13,40 @@ export async function GET(req: Request) {
       );
     }
 
-    // In a real application, you would validate the token against your database
-    // For this example, we'll consider any token valid for demonstration purposes
-    
-    // Simulate token validation
-    const isValidToken = true; // In reality, you would check if the token exists and hasn't expired
-    
-    if (!isValidToken) {
+    // Buscar o token no banco de dados
+    const { data, error } = await supabaseAdmin
+      .from('password_reset_tokens')
+      .select('*')
+      .eq('token', token)
+      .eq('used', false)
+      .single();
+
+    if (error || !data) {
       return NextResponse.json(
         { message: 'Token inválido ou expirado' },
         { status: 400 }
       );
     }
 
+    // Verificar se o token expirou
+    const expiresAt = new Date(data.expires_at);
+    const now = new Date();
+
+    if (now > expiresAt) {
+      // Marcar o token como usado, já que expirou
+      await supabaseAdmin
+        .from('password_reset_tokens')
+        .update({ used: true })
+        .eq('id', data.id);
+
+      return NextResponse.json(
+        { message: 'Token expirado' },
+        { status: 400 }
+      );
+    }
+
     return NextResponse.json(
-      { message: 'Token válido' },
+      { message: 'Token válido', userId: data.user_id },
       { status: 200 }
     );
   } catch (error: any) {
