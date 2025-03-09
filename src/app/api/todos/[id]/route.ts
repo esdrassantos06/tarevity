@@ -3,11 +3,18 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/auth-options'
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
 
+// Define the context type explicitly
+type RouteContext = {
+  params: {
+    id: string;
+  };
+};
+
 // Get a specific task
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } },
-) {
+  context: RouteContext
+): Promise<NextResponse> {
   try {
     const session = await getServerSession(authOptions)
 
@@ -16,7 +23,7 @@ export async function GET(
     }
 
     // Extract the task ID from URL parameters
-    const taskId = params.id
+    const taskId = context.params.id
 
     // Log for debugging
     console.log(`Fetching task with ID: ${taskId} for user: ${session.user.id}`)
@@ -54,8 +61,8 @@ export async function GET(
 // Update a task
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } },
-) {
+  context: RouteContext
+): Promise<NextResponse> {
   try {
     const session = await getServerSession(authOptions)
 
@@ -64,7 +71,7 @@ export async function PUT(
     }
 
     // Extract the task ID from URL parameters
-    const taskId = params.id
+    const taskId = context.params.id
 
     // Parse the request body
     const updateData = await request.json()
@@ -121,8 +128,8 @@ export async function PUT(
 // Delete a task
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } },
-) {
+  context: RouteContext
+): Promise<NextResponse> {
   try {
     const session = await getServerSession(authOptions)
 
@@ -131,7 +138,7 @@ export async function DELETE(
     }
 
     // Extract the task ID from URL parameters
-    const taskId = params.id
+    const taskId = context.params.id
 
     // Log for debugging
     console.log(`Deleting task with ID: ${taskId} for user: ${session.user.id}`)
