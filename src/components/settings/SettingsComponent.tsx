@@ -86,8 +86,11 @@ export default function SettingsComponent() {
       variant: "danger",
       confirmText: "Delete",
       cancelText: "Cancel",
-      onConfirm: () => {
-        // Second confirmation (more serious)
+      onConfirm: async () => {
+
+        closeConfirmDialog();
+
+        setTimeout(() => {
         openConfirmDialog({
           title: "WARNING: Permanent Action",
           description: "This is a permanent action. All your tasks and data will be lost. Do you want to continue?",
@@ -134,6 +137,7 @@ export default function SettingsComponent() {
             }
           }
         });
+      }, 100);
       }
     });
   }
