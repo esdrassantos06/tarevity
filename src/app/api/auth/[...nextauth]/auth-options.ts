@@ -39,6 +39,7 @@ export const authOptions: NextAuthOptions = {
           name: user.name,
           email: user.email,
           image: user.image,
+          provider: 'credentials', // Adicionar provider para login com credenciais
         }
       },
     }),
@@ -56,7 +57,11 @@ export const authOptions: NextAuthOptions = {
       // Inicialização inicial - primeiro login
       if (account && user) {
         if (account.provider === 'credentials') {
-          return { ...token, id: user.id }
+          return { 
+            ...token, 
+            id: user.id,
+            provider: 'credentials' // Incluir o provider para login com credenciais
+          }
         }
 
         // Para provedores OAuth
@@ -79,7 +84,11 @@ export const authOptions: NextAuthOptions = {
             })
             .eq('id', existingUser.id)
 
-          return { ...token, id: existingUser.id }
+          return { 
+            ...token, 
+            id: existingUser.id,
+            provider: account.provider // Incluir o provider para OAuth
+          }
         } else {
           // Criar novo usuário
           const { data: newUser } = await supabase
@@ -96,7 +105,11 @@ export const authOptions: NextAuthOptions = {
             .select()
             .single()
 
-          return { ...token, id: newUser?.id }
+          return { 
+            ...token, 
+            id: newUser?.id,
+            provider: account.provider // Incluir o provider para OAuth
+          }
         }
       }
 
@@ -105,6 +118,11 @@ export const authOptions: NextAuthOptions = {
     async session({ session, token }) {
       if (token && session.user) {
         session.user.id = token.id as string
+        
+        // Adicionar a propriedade provider à sessão do usuário
+        if (token.provider) {
+          session.user.provider = token.provider as string
+        }
       }
       return session
     },
