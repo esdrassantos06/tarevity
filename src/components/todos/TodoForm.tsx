@@ -1,30 +1,30 @@
-"use client";
+'use client'
 
-import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
+import { useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
 
 const todoSchema = z.object({
-  title: z.string().min(1, "Título é obrigatório"),
+  title: z.string().min(1, 'Título é obrigatório'),
   description: z.string().optional().nullable(),
   priority: z.number().min(1).max(3),
   due_date: z.string().optional().nullable(),
   is_completed: z.boolean().default(false),
-});
+})
 
-type TodoFormValues = z.infer<typeof todoSchema>;
+type TodoFormValues = z.infer<typeof todoSchema>
 
 interface TodoFormProps {
   initialData?: {
-    title: string;
-    description: string | null;
-    priority: number;
-    due_date: string | null;
-    is_completed: boolean;
-  };
-  onSubmit: (data: TodoFormValues) => void;
-  onCancel: () => void;
+    title: string
+    description: string | null
+    priority: number
+    due_date: string | null
+    is_completed: boolean
+  }
+  onSubmit: (data: TodoFormValues) => void
+  onCancel: () => void
 }
 
 export default function TodoForm({
@@ -32,7 +32,7 @@ export default function TodoForm({
   onSubmit,
   onCancel,
 }: TodoFormProps) {
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false)
 
   const {
     register,
@@ -41,22 +41,22 @@ export default function TodoForm({
   } = useForm<TodoFormValues>({
     resolver: zodResolver(todoSchema),
     defaultValues: initialData || {
-      title: "",
-      description: "",
+      title: '',
+      description: '',
       priority: 1,
-      due_date: "",
+      due_date: '',
       is_completed: false,
     },
-  });
+  })
 
   const handleFormSubmit = async (data: TodoFormValues) => {
-    setIsLoading(true);
+    setIsLoading(true)
     try {
-      await onSubmit(data);
+      await onSubmit(data)
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
-  };
+  }
 
   return (
     <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
@@ -70,8 +70,8 @@ export default function TodoForm({
         <input
           id="title"
           type="text"
-          {...register("title")}
-          className="mt-1 block w-full p-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+          {...register('title')}
+          className="mt-1 block w-full rounded-md border-gray-300 p-2 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
           disabled={isLoading}
         />
         {errors.title && (
@@ -90,9 +90,9 @@ export default function TodoForm({
         </label>
         <textarea
           id="description"
-          {...register("description")}
+          {...register('description')}
           rows={3}
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
           disabled={isLoading}
         ></textarea>
       </div>
@@ -106,8 +106,8 @@ export default function TodoForm({
         </label>
         <select
           id="priority"
-          {...register("priority", { valueAsNumber: true })}
-          className="mt-1 block p-2 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+          {...register('priority', { valueAsNumber: true })}
+          className="mt-1 block w-full rounded-md border-gray-300 p-2 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
           disabled={isLoading}
         >
           <option value={1}>Baixa</option>
@@ -126,8 +126,8 @@ export default function TodoForm({
         <input
           id="due_date"
           type="date"
-          {...register("due_date")}
-          className="mt-1 block w-full p-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+          {...register('due_date')}
+          className="mt-1 block w-full rounded-md border-gray-300 p-2 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
           disabled={isLoading}
         />
       </div>
@@ -137,7 +137,7 @@ export default function TodoForm({
           <input
             id="is_completed"
             type="checkbox"
-            {...register("is_completed")}
+            {...register('is_completed')}
             className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-600"
             disabled={isLoading}
           />
@@ -154,19 +154,19 @@ export default function TodoForm({
         <button
           type="button"
           onClick={onCancel}
-          className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 bg-white hover:bg-gray-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:hover:bg-gray-600"
+          className="rounded-md border border-gray-300 bg-white px-4 py-2 text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600"
           disabled={isLoading}
         >
           Cancelar
         </button>
         <button
           type="submit"
-          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+          className="rounded-md bg-blue-600 px-4 py-2 text-white transition-colors hover:bg-blue-700"
           disabled={isLoading}
         >
-          {isLoading ? "Salvando..." : initialData ? "Atualizar" : "Criar"}
+          {isLoading ? 'Salvando...' : initialData ? 'Atualizar' : 'Criar'}
         </button>
       </div>
     </form>
-  );
+  )
 }

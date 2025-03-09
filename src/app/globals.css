@@ -1,38 +1,36 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @custom-variant dark (&:where(.dark, .dark *));
 
-@theme{
-    --color-backgroundLight: #E8EAEC;
-    --color-backgroundDark: #181818; 
+@theme {
+  --color-backgroundLight: #e8eaec;
+  --color-backgroundDark: #181818;
 
-    --color-footerLightMode: #FAFAFA;
-    --color-footerDarkMode: #1E1E1E; 
+  --color-footerLightMode: #fafafa;
+  --color-footerDarkMode: #1e1e1e;
 
-    --color-headerLightMode: #F8F8F8;
-    --color-headerDarkMode: #1C1C1C; 
+  --color-headerLightMode: #f8f8f8;
+  --color-headerDarkMode: #1c1c1c;
 
-    --color-cardLightMode: #EEF1EE;
-    --color-cardDarkMode: #222222;
+  --color-cardLightMode: #eef1ee;
+  --color-cardDarkMode: #222222;
 
-    --color-textLight: #333333; 
-    --color-textDark: #E0E0E0; 
+  --color-textLight: #333333;
+  --color-textDark: #e0e0e0;
 
-    --color-primary: #4AC3E9; /* Azul vibrante */
-    --color-primaryHover: #3AA6CC; /* Azul mais escuro para hover */
+  --color-primary: #4ac3e9; /* Azul vibrante */
+  --color-primaryHover: #3aa6cc; /* Azul mais escuro para hover */
 
-    --color-secondary: #7D2AE8; /* Roxo forte */
-    --color-secondaryHover: #6824CC; /* Roxo mais escuro para hover */
+  --color-secondary: #7d2ae8; /* Roxo forte */
+  --color-secondaryHover: #6824cc; /* Roxo mais escuro para hover */
 
-    --color-borderLight: #D1D5DB; 
-    --color-borderDark: #2F2F2F; 
+  --color-borderLight: #d1d5db;
+  --color-borderDark: #2f2f2f;
 
-    --color-buttonLight: #4AC3E9; /* Azul vibrante */
-    --color-buttonLightHover: #3AA6CC; /* Azul mais escuro */
+  --color-buttonLight: #4ac3e9; /* Azul vibrante */
+  --color-buttonLightHover: #3aa6cc; /* Azul mais escuro */
 
-    --color-buttonDark: #7D2AE8; /* Roxo forte */
-    --color-buttonDarkHover: #6824CC; /* Roxo mais escuro */
-
-
+  --color-buttonDark: #7d2ae8; /* Roxo forte */
+  --color-buttonDarkHover: #6824cc; /* Roxo mais escuro */
 }
 /* ECEAEB */

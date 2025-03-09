@@ -1,10 +1,10 @@
 // src/components/profile/ProfileComponent.tsx
-"use client";
+'use client'
 
-import { useState, useEffect } from "react";
-import { useSession } from "next-auth/react";
-import { toast } from "react-hot-toast";
-import Image from "next/image";
+import { useState, useEffect } from 'react'
+import { useSession } from 'next-auth/react'
+import { toast } from 'react-hot-toast'
+import Image from 'next/image'
 import {
   FaUser,
   FaEnvelope,
@@ -13,118 +13,118 @@ import {
   FaTimes,
   FaClipboardList,
   FaClipboardCheck,
-  FaClock
-} from "react-icons/fa";
+  FaClock,
+} from 'react-icons/fa'
 
 interface ProfileData {
-  id: string;
-  name: string;
-  email: string;
-  image: string | null;
-  provider: string | null;
+  id: string
+  name: string
+  email: string
+  image: string | null
+  provider: string | null
 }
 
 interface UserStats {
-  total: number;
-  completed: number;
-  pending: number;
+  total: number
+  completed: number
+  pending: number
 }
 
 export default function ProfileComponent() {
-  const [userStats, setUserStats] = useState<UserStats | null>(null);
-  const { data: session, update } = useSession();
-  const [isLoading, setIsLoading] = useState(true);
-  const [isEditing, setIsEditing] = useState(false);
-  const [profileData, setProfileData] = useState<ProfileData | null>(null);
+  const [userStats, setUserStats] = useState<UserStats | null>(null)
+  const { data: session, update } = useSession()
+  const [isLoading, setIsLoading] = useState(true)
+  const [isEditing, setIsEditing] = useState(false)
+  const [profileData, setProfileData] = useState<ProfileData | null>(null)
   const [formData, setFormData] = useState({
-    name: "",
-  });
+    name: '',
+  })
 
   // Fetch profile data
   useEffect(() => {
     const fetchProfileData = async () => {
-      if (!session?.user?.id) return;
+      if (!session?.user?.id) return
 
-      setIsLoading(true);
+      setIsLoading(true)
       try {
-        const response = await fetch("/api/profile", {
-          credentials: "include",
-        });
+        const response = await fetch('/api/profile', {
+          credentials: 'include',
+        })
 
         if (!response.ok) {
-          throw new Error("Falha ao carregar dados do perfil");
+          throw new Error('Falha ao carregar dados do perfil')
         }
 
-        const data = await response.json();
-        setProfileData(data);
+        const data = await response.json()
+        setProfileData(data)
         setFormData({
-          name: data.name || "",
-        });
+          name: data.name || '',
+        })
 
         // After loading profile, fetch the user statistics
-        await fetchUserStats();
+        await fetchUserStats()
       } catch (error) {
-        console.error("Error fetching profile:", error);
-        toast.error("Não foi possível carregar seu perfil");
+        console.error('Error fetching profile:', error)
+        toast.error('Não foi possível carregar seu perfil')
       } finally {
-        setIsLoading(false);
+        setIsLoading(false)
       }
-    };
+    }
 
     if (session?.user) {
-      fetchProfileData();
+      fetchProfileData()
     }
-  }, [session]);
+  }, [session])
 
   // Function to fetch user task statistics
   const fetchUserStats = async () => {
     try {
-      const response = await fetch("/api/stats", {
-        credentials: "include",
-      });
+      const response = await fetch('/api/stats', {
+        credentials: 'include',
+      })
 
       if (!response.ok) {
-        throw new Error("Falha ao carregar estatísticas");
+        throw new Error('Falha ao carregar estatísticas')
       }
 
-      const data = await response.json();
-      setUserStats(data);
+      const data = await response.json()
+      setUserStats(data)
     } catch (error) {
-      console.error("Error fetching user stats:", error);
-      toast.error("Não foi possível carregar suas estatísticas");
+      console.error('Error fetching user stats:', error)
+      toast.error('Não foi possível carregar suas estatísticas')
     }
-  };
+  }
 
   // Handle form input changes
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
+    const { name, value } = e.target
     setFormData((prev) => ({
       ...prev,
       [name]: value,
-    }));
-  };
+    }))
+  }
 
   // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+    e.preventDefault()
 
     try {
-      setIsLoading(true);
-      const response = await fetch("/api/profile", {
-        method: "PUT",
+      setIsLoading(true)
+      const response = await fetch('/api/profile', {
+        method: 'PUT',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify(formData),
-        credentials: "include",
-      });
+        credentials: 'include',
+      })
 
       if (!response.ok) {
-        throw new Error("Falha ao atualizar perfil");
+        throw new Error('Falha ao atualizar perfil')
       }
 
-      const updatedProfile = await response.json();
-      setProfileData(updatedProfile);
+      const updatedProfile = await response.json()
+      setProfileData(updatedProfile)
 
       // Update session data to reflect changes
       if (update) {
@@ -134,65 +134,65 @@ export default function ProfileComponent() {
             ...session?.user,
             name: updatedProfile.name,
           },
-        });
+        })
       }
 
-      toast.success("Perfil atualizado com sucesso!");
-      setIsEditing(false);
+      toast.success('Perfil atualizado com sucesso!')
+      setIsEditing(false)
     } catch (error) {
-      console.error("Error updating profile:", error);
-      toast.error("Erro ao atualizar perfil");
+      console.error('Error updating profile:', error)
+      toast.error('Erro ao atualizar perfil')
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
-  };
+  }
 
   // Handle cancel edit
   const handleCancelEdit = () => {
     setFormData({
-      name: profileData?.name || "",
-    });
-    setIsEditing(false);
-  };
+      name: profileData?.name || '',
+    })
+    setIsEditing(false)
+  }
 
   if (isLoading && !profileData) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12"></div>
+      <div className="flex h-64 items-center justify-center">
+        <div className="h-12 w-12 animate-spin rounded-full"></div>
       </div>
-    );
+    )
   }
 
   if (!session?.user || !profileData) {
     return (
-      <div className="bg-cardLightMode dark:bg-cardDarkMode shadow rounded-lg p-6">
+      <div className="bg-cardLightMode dark:bg-cardDarkMode rounded-lg p-6 shadow">
         <p className="text-gray-600 dark:text-gray-400">
           Por favor, faça login para visualizar seu perfil.
         </p>
       </div>
-    );
+    )
   }
 
   return (
-    <div className="bg-cardLightMode dark:bg-cardDarkMode shadow rounded-lg overflow-hidden">
+    <div className="bg-cardLightMode dark:bg-cardDarkMode overflow-hidden rounded-lg shadow">
       {/* Profile Header */}
       <div className="bg-secondary h-32"></div>
 
       <div className="px-6 py-8">
-        <div className="flex flex-col md:flex-row items-center">
+        <div className="flex flex-col items-center md:flex-row">
           {/* Profile Image */}
-          <div className="relative -mt-16 mb-4 md:mb-0 md:mr-6">
-            <div className="h-24 w-24 rounded-full overflow-hidden bg-backgroundLight border-4 border-borderLight dark:border-borderDark">
+          <div className="relative -mt-16 mb-4 md:mr-6 md:mb-0">
+            <div className="bg-backgroundLight border-borderLight dark:border-borderDark h-24 w-24 overflow-hidden rounded-full border-4">
               {profileData.image ? (
                 <Image
                   src={profileData.image}
-                  alt={profileData.name || "Profile Picture"}
+                  alt={profileData.name || 'Profile Picture'}
                   width={96}
                   height={96}
                   className="h-full w-full object-cover"
                 />
               ) : (
-                <div className="h-full w-full flex items-center justify-center bg-blue-100 dark:bg-blue-900">
+                <div className="flex h-full w-full items-center justify-center bg-blue-100 dark:bg-blue-900">
                   <FaUser className="h-12 w-12 text-blue-500 dark:text-blue-300" />
                 </div>
               )}
@@ -216,7 +216,7 @@ export default function ProfileComponent() {
                     name="name"
                     value={formData.name}
                     onChange={handleChange}
-                    className="mt-1 p-2 outline-none block w-full rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-zinc-700 dark:text-white"
+                    className="mt-1 block w-full rounded-md p-2 shadow-sm outline-none focus:border-blue-500 focus:ring-blue-500 dark:bg-zinc-700 dark:text-white"
                     disabled={isLoading}
                     required
                   />
@@ -226,7 +226,7 @@ export default function ProfileComponent() {
                   <button
                     type="submit"
                     disabled={isLoading}
-                    className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-primaryHover outline-none"
+                    className="bg-primary hover:bg-primaryHover inline-flex items-center rounded-md border border-transparent px-4 py-2 text-sm font-medium text-white shadow-sm outline-none"
                   >
                     <FaSave className="mr-2 -ml-1 h-4 w-4" />
                     Salvar
@@ -234,7 +234,7 @@ export default function ProfileComponent() {
                   <button
                     type="button"
                     onClick={handleCancelEdit}
-                    className="inline-flex items-center px-4 py-2 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 outline-none dark:bg-zinc-600 dark:text-gray-200 dark:hover:bg-zinc-700"
+                    className="inline-flex items-center rounded-md bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm outline-none hover:bg-gray-50 dark:bg-zinc-600 dark:text-gray-200 dark:hover:bg-zinc-700"
                   >
                     <FaTimes className="mr-2 -ml-1 h-4 w-4" />
                     Cancelar
@@ -243,13 +243,13 @@ export default function ProfileComponent() {
               </form>
             ) : (
               <div>
-                <div className="flex justify-between items-center">
+                <div className="flex items-center justify-between">
                   <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-                    {profileData.name || "Usuário"}
+                    {profileData.name || 'Usuário'}
                   </h2>
                   <button
                     onClick={() => setIsEditing(true)}
-                    className="inline-flex items-center p-2 border border-transparent rounded-md text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 focus:outline-none"
+                    className="inline-flex items-center rounded-md border border-transparent p-2 text-sm text-blue-600 hover:text-blue-800 focus:outline-none dark:text-blue-400 dark:hover:text-blue-300"
                   >
                     <FaPencilAlt className="h-4 w-4" />
                     <span className="ml-1">Editar</span>
@@ -259,14 +259,14 @@ export default function ProfileComponent() {
                   <FaEnvelope className="mr-2 h-4 w-4" />
                   <span>{profileData.email}</span>
                 </div>
-                <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                <div className="mt-4 border-t border-gray-200 pt-4 dark:border-gray-700">
                   <div className="text-sm text-gray-500 dark:text-gray-400">
                     <p>
-                      Método de login:{" "}
+                      Método de login:{' '}
                       {profileData.provider
                         ? profileData.provider.charAt(0).toUpperCase() +
                           profileData.provider.slice(1)
-                        : "Email/Senha"}
+                        : 'Email/Senha'}
                     </p>
                   </div>
                 </div>
@@ -277,12 +277,12 @@ export default function ProfileComponent() {
       </div>
 
       {/* Profile Sections */}
-      <div className="border-t border-gray-200 dark:border-gray-700 px-6 py-6">
-        <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
+      <div className="border-t border-gray-200 px-6 py-6 dark:border-gray-700">
+        <h3 className="mb-4 text-lg font-medium text-gray-900 dark:text-white">
           Estatísticas de Tarefas
         </h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="bg-blue-50 dark:bg-blue-900/30 p-4 rounded-lg">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+          <div className="rounded-lg bg-blue-50 p-4 dark:bg-blue-900/30">
             <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
               {userStats ? userStats.total : '--'}
             </div>
@@ -291,7 +291,7 @@ export default function ProfileComponent() {
               Tarefas Criadas
             </div>
           </div>
-          <div className="bg-green-50 dark:bg-green-900/30 p-4 rounded-lg">
+          <div className="rounded-lg bg-green-50 p-4 dark:bg-green-900/30">
             <div className="text-2xl font-bold text-green-600 dark:text-green-400">
               {userStats ? userStats.completed : '--'}
             </div>
@@ -300,7 +300,7 @@ export default function ProfileComponent() {
               Tarefas Concluídas
             </div>
           </div>
-          <div className="bg-yellow-50 dark:bg-yellow-900/30 p-4 rounded-lg">
+          <div className="rounded-lg bg-yellow-50 p-4 dark:bg-yellow-900/30">
             <div className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">
               {userStats ? userStats.pending : '--'}
             </div>
@@ -312,5 +312,5 @@ export default function ProfileComponent() {
         </div>
       </div>
     </div>
-  );
+  )
 }

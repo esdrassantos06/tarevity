@@ -1,42 +1,42 @@
-import { useState } from "react";
-import { signIn } from "next-auth/react";
-import { FaGithub } from "react-icons/fa";
-import { FcGoogle } from "react-icons/fc";
+import { useState } from 'react'
+import { signIn } from 'next-auth/react'
+import { FaGithub } from 'react-icons/fa'
+import { FcGoogle } from 'react-icons/fc'
 
 export default function OAuthButtons() {
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false)
 
   const handleOAuthSignIn = async (provider: string) => {
-    setIsLoading(true);
+    setIsLoading(true)
     try {
-      await signIn(provider, { callbackUrl: "/dashboard" });
+      await signIn(provider, { callbackUrl: '/dashboard' })
     } catch (error) {
-      console.error("OAuth sign in error:", error);
+      console.error('OAuth sign in error:', error)
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
-  };
+  }
 
   return (
-    <div className="flex flex-col gap-4 w-full">
+    <div className="flex w-full flex-col gap-4">
       <button
         type="button"
-        onClick={() => handleOAuthSignIn("github")}
+        onClick={() => handleOAuthSignIn('github')}
         disabled={isLoading}
-        className="flex items-center justify-center gap-2 w-full p-2 bg-gray-800 text-white rounded-md hover:bg-gray-700 transition-colors"
+        className="flex w-full items-center justify-center gap-2 rounded-md bg-gray-800 p-2 text-white transition-colors hover:bg-gray-700"
       >
         <FaGithub />
         <span>Continuar com GitHub</span>
       </button>
       <button
         type="button"
-        onClick={() => handleOAuthSignIn("google")}
+        onClick={() => handleOAuthSignIn('google')}
         disabled={isLoading}
-        className="flex items-center justify-center gap-2 w-full p-2 bg-white text-gray-800 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
+        className="flex w-full items-center justify-center gap-2 rounded-md border border-gray-300 bg-white p-2 text-gray-800 transition-colors hover:bg-gray-50"
       >
-        <FcGoogle  />
+        <FcGoogle />
         <span>Continuar com Google</span>
       </button>
     </div>
-  );
+  )
 }

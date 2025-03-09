@@ -1,19 +1,17 @@
-import Header from './Header';
-import Footer from './Footer';
+import Header from './Header'
+import Footer from './Footer'
 
 interface LayoutProps {
-  children: React.ReactNode;
-  showFooter?: boolean;
+  children: React.ReactNode
+  showFooter?: boolean
 }
 
 export default function Layout({ children, showFooter = true }: LayoutProps) {
   return (
-    <div className="min-h-screen bg-backgroundLight dark:bg-backgroundDark">
+    <div className="bg-backgroundLight dark:bg-backgroundDark min-h-screen">
       <Header />
-      <main className="container flex-1 mx-auto px-4 py-8">
-        {children}
-      </main>
+      <main className="container mx-auto flex-1 px-4 py-8">{children}</main>
       {showFooter && <Footer />}
     </div>
-  );
+  )
 }

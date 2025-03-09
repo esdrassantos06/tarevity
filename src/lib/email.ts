@@ -1,11 +1,11 @@
-import { Resend } from 'resend';
+import { Resend } from 'resend'
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-const fromEmail = process.env.EMAIL_FROM || 'noreply@tarevity.com';
+const resend = new Resend(process.env.RESEND_API_KEY)
+const fromEmail = process.env.EMAIL_FROM || 'noreply@tarevity.com'
 
 export async function sendPasswordResetEmail(email: string, token: string) {
-  const resetUrl = `${process.env.NEXT_PUBLIC_APP_URL}/auth/reset-password?token=${token}`;
-  
+  const resetUrl = `${process.env.NEXT_PUBLIC_APP_URL}/auth/reset-password?token=${token}`
+
   try {
     const { data, error } = await resend.emails.send({
       from: fromEmail,
@@ -29,16 +29,16 @@ export async function sendPasswordResetEmail(email: string, token: string) {
           <p>Atenciosamente,<br>Equipe Tarevity</p>
         </div>
       `,
-    });
+    })
 
     if (error) {
-      console.error('Error sending email:', error);
-      throw new Error('Falha ao enviar o email de redefinição de senha');
+      console.error('Error sending email:', error)
+      throw new Error('Falha ao enviar o email de redefinição de senha')
     }
 
-    return { success: true, messageId: data?.id };
+    return { success: true, messageId: data?.id }
   } catch (error) {
-    console.error('Failed to send password reset email:', error);
-    throw error;
+    console.error('Failed to send password reset email:', error)
+    throw error
   }
 }

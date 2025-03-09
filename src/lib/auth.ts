@@ -1,12 +1,15 @@
-import { compare, hash } from 'bcryptjs';
-import { supabase } from './supabase';
+import { compare, hash } from 'bcryptjs'
+import { supabase } from './supabase'
 
 export async function hashPassword(password: string): Promise<string> {
-  return await hash(password, 12);
+  return await hash(password, 12)
 }
 
-export async function verifyPassword(password: string, hashedPassword: string): Promise<boolean> {
-  return await compare(password, hashedPassword);
+export async function verifyPassword(
+  password: string,
+  hashedPassword: string,
+): Promise<boolean> {
+  return await compare(password, hashedPassword)
 }
 
 export async function emailExists(email: string): Promise<boolean> {
@@ -14,13 +17,14 @@ export async function emailExists(email: string): Promise<boolean> {
     .from('users')
     .select('id')
     .eq('email', email)
-    .single();
-    
-  if (error && error.code !== 'PGRST116') { // PGRST116 is the "no rows returned" error
-    console.error('Error checking if email exists:', error);
+    .single()
+
+  if (error && error.code !== 'PGRST116') {
+    // PGRST116 is the "no rows returned" error
+    console.error('Error checking if email exists:', error)
   }
-  
-  return !!data;
+
+  return !!data
 }
 
 export async function getUserByEmail(email: string) {
@@ -28,17 +32,21 @@ export async function getUserByEmail(email: string) {
     .from('users')
     .select('*')
     .eq('email', email)
-    .single();
+    .single()
 
   if (error) {
-    return null;
+    return null
   }
 
-  return data;
+  return data
 }
 
-export async function createUser(name: string, email: string, password: string) {
-  const hashedPassword = await hashPassword(password);
+export async function createUser(
+  name: string,
+  email: string,
+  password: string,
+) {
+  const hashedPassword = await hashPassword(password)
 
   const { data, error } = await supabase
     .from('users')
@@ -47,15 +55,15 @@ export async function createUser(name: string, email: string, password: string) 
         name,
         email,
         password: hashedPassword,
-        provider: 'email'
-      }
+        provider: 'email',
+      },
     ])
     .select()
-    .single();
+    .single()
 
   if (error) {
-    throw new Error(error.message);
+    throw new Error(error.message)
   }
 
-  return data;
+  return data
 }

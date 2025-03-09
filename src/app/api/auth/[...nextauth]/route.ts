@@ -1,10 +1,10 @@
-import NextAuth from 'next-auth';
-import type { NextAuthOptions } from 'next-auth';
-import CredentialsProvider from 'next-auth/providers/credentials';
-import GitHubProvider from 'next-auth/providers/github';
-import GoogleProvider from 'next-auth/providers/google';
-import { getUserByEmail, verifyPassword } from '@/lib/auth';
-import { supabase } from '@/lib/supabase';
+import NextAuth from 'next-auth'
+import type { NextAuthOptions } from 'next-auth'
+import CredentialsProvider from 'next-auth/providers/credentials'
+import GitHubProvider from 'next-auth/providers/github'
+import GoogleProvider from 'next-auth/providers/google'
+import { getUserByEmail, verifyPassword } from '@/lib/auth'
+import { supabase } from '@/lib/supabase'
 
 // Export auth options with the correct type
 export const authOptions: NextAuthOptions = {
@@ -12,36 +12,36 @@ export const authOptions: NextAuthOptions = {
     CredentialsProvider({
       name: 'Credentials',
       credentials: {
-        email: { label: "Email", type: "email" },
-        password: { label: "Password", type: "password" }
+        email: { label: 'Email', type: 'email' },
+        password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
-          return null;
+          return null
         }
 
-        const user = await getUserByEmail(credentials.email);
+        const user = await getUserByEmail(credentials.email)
 
         if (!user || !user.password) {
-          return null;
+          return null
         }
 
         const isValid = await verifyPassword(
           credentials.password,
-          user.password
-        );
+          user.password,
+        )
 
         if (!isValid) {
-          return null;
+          return null
         }
 
         return {
           id: user.id,
           name: user.name,
           email: user.email,
-          image: user.image
-        };
-      }
+          image: user.image,
+        }
+      },
     }),
     GitHubProvider({
       clientId: process.env.GITHUB_ID || '',
@@ -50,14 +50,14 @@ export const authOptions: NextAuthOptions = {
     GoogleProvider({
       clientId: process.env.GOOGLE_ID || '',
       clientSecret: process.env.GOOGLE_SECRET || '',
-    })
+    }),
   ],
   callbacks: {
     async jwt({ token, user, account }) {
       // Inicialização inicial - primeiro login
       if (account && user) {
         if (account.provider === 'credentials') {
-          return { ...token, id: user.id };
+          return { ...token, id: user.id }
         }
 
         // Para provedores OAuth
@@ -66,7 +66,7 @@ export const authOptions: NextAuthOptions = {
           .from('users')
           .select('*')
           .eq('email', user.email)
-          .single();
+          .single()
 
         if (existingUser) {
           // Atualizar informações do usuário existente
@@ -76,11 +76,11 @@ export const authOptions: NextAuthOptions = {
               name: user.name,
               image: user.image,
               provider: account.provider,
-              provider_id: account.providerAccountId
+              provider_id: account.providerAccountId,
             })
-            .eq('id', existingUser.id);
+            .eq('id', existingUser.id)
 
-          return { ...token, id: existingUser.id };
+          return { ...token, id: existingUser.id }
         } else {
           // Criar novo usuário
           const { data: newUser } = await supabase
@@ -91,24 +91,24 @@ export const authOptions: NextAuthOptions = {
                 email: user.email,
                 image: user.image,
                 provider: account.provider,
-                provider_id: account.providerAccountId
-              }
+                provider_id: account.providerAccountId,
+              },
             ])
             .select()
-            .single();
+            .single()
 
-          return { ...token, id: newUser?.id };
+          return { ...token, id: newUser?.id }
         }
       }
 
-      return token;
+      return token
     },
     async session({ session, token }) {
       if (token && session.user) {
-        session.user.id = token.id as string;
+        session.user.id = token.id as string
       }
-      return session;
-    }
+      return session
+    },
   },
   pages: {
     signIn: '/auth/login',
@@ -119,9 +119,9 @@ export const authOptions: NextAuthOptions = {
     maxAge: 30 * 24 * 60 * 60, // 30 dias
   },
   secret: process.env.NEXTAUTH_SECRET,
-};
+}
 
 // Create the handler with the authOptions
-const handler = NextAuth(authOptions);
+const handler = NextAuth(authOptions)
 
-export { handler as GET, handler as POST };
+export { handler as GET, handler as POST }

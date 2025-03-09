@@ -1,12 +1,12 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient } from '@supabase/supabase-js'
 
 // Get the environment variables
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
 // Log more detailed information for debugging
 if (!supabaseUrl || !serviceRoleKey) {
-  console.error('Missing Supabase environment variables for admin client');
+  console.error('Missing Supabase environment variables for admin client')
 }
 
 // Create the admin client with explicit options
@@ -16,7 +16,7 @@ export const supabaseAdmin = createClient(
   {
     auth: {
       autoRefreshToken: false,
-      persistSession: false
-    }
-  }
-);
+      persistSession: false,
+    },
+  },
+)

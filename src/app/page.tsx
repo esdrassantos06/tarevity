@@ -1,22 +1,21 @@
-import Link from "next/link";
-import { FaCheckCircle, FaBell, FaLock, FaMobileAlt } from "react-icons/fa";
-import Layout from "@/components/layout/Layout";
+import Link from 'next/link'
+import { FaCheckCircle, FaBell, FaLock, FaMobileAlt } from 'react-icons/fa'
+import Layout from '@/components/layout/Layout'
 
 export default function HomePage() {
-
   return (
     <Layout>
       <div className="py-12">
         {/* Hero Section */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="lg:text-center">
-            <h1 className="text-4xl font-extrabold tracking-tight text-gray-900 dark:text-white sm:text-5xl md:text-6xl">
+            <h1 className="text-4xl font-extrabold tracking-tight text-gray-900 sm:text-5xl md:text-6xl dark:text-white">
               <span className="block">Tarevity</span>
               <span className="block text-blue-600 dark:text-blue-400">
                 Gerencie suas tarefas com eficiência
               </span>
             </h1>
-            <p className="mt-3 max-w-md mx-auto text-lg text-gray-600 dark:text-gray-300 sm:text-xl md:mt-5 md:max-w-3xl">
+            <p className="mx-auto mt-3 max-w-md text-lg text-gray-600 sm:text-xl md:mt-5 md:max-w-3xl dark:text-gray-300">
               Organize suas tarefas, defina prioridades e nunca mais esqueça de
               prazos importantes. Uma maneira simples e eficiente de aumentar
               sua produtividade.
@@ -25,7 +24,7 @@ export default function HomePage() {
               <div className="rounded-md shadow">
                 <Link
                   href="/auth/register"
-                  className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 md:py-4 md:text-lg md:px-10"
+                  className="flex w-full items-center justify-center rounded-md border border-transparent bg-blue-600 px-8 py-3 text-base font-medium text-white hover:bg-blue-700 md:px-10 md:py-4 md:text-lg"
                 >
                   Comece Agora - É Grátis!
                 </Link>
@@ -33,7 +32,7 @@ export default function HomePage() {
               <div className="ml-3 rounded-md shadow">
                 <Link
                   href="/auth/login"
-                  className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-blue-600 bg-white hover:bg-gray-50 dark:bg-gray-800 dark:text-blue-400 dark:hover:bg-gray-700 md:py-4 md:text-lg md:px-10"
+                  className="flex w-full items-center justify-center rounded-md border border-transparent bg-white px-8 py-3 text-base font-medium text-blue-600 hover:bg-gray-50 md:px-10 md:py-4 md:text-lg dark:bg-gray-800 dark:text-blue-400 dark:hover:bg-gray-700"
                 >
                   Fazer Login
                 </Link>
@@ -43,23 +42,23 @@ export default function HomePage() {
         </div>
 
         {/* Features Section */}
-        <div className="py-12 bg-cardLightMode dark:bg-cardDarkMode mt-10 rounded-lg shadow-lg">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="bg-cardLightMode dark:bg-cardDarkMode mt-10 rounded-lg py-12 shadow-lg">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="lg:text-center">
-              <h2 className="text-base text-blue-600 dark:text-blue-400 font-semibold tracking-wide uppercase">
+              <h2 className="text-base font-semibold tracking-wide text-blue-600 uppercase dark:text-blue-400">
                 Recursos
               </h2>
-              <p className="mt-2 text-3xl leading-8 font-extrabold tracking-tight text-gray-900 dark:text-white sm:text-4xl">
+              <p className="mt-2 text-3xl leading-8 font-extrabold tracking-tight text-gray-900 sm:text-4xl dark:text-white">
                 Tudo que você precisa para se manter organizado
               </p>
             </div>
 
             <div className="mt-10">
-              <div className="space-y-10 md:space-y-0 md:grid md:grid-cols-2 md:gap-x-8 md:gap-y-10">
+              <div className="space-y-10 md:grid md:grid-cols-2 md:space-y-0 md:gap-x-8 md:gap-y-10">
                 {/* Feature 1 */}
                 <div className="flex">
                   <div className="flex-shrink-0">
-                    <div className="flex items-center justify-center h-12 w-12 rounded-md bg-blue-500 text-white">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-md bg-blue-500 text-white">
                       <FaCheckCircle className="h-6 w-6" />
                     </div>
                   </div>
@@ -77,7 +76,7 @@ export default function HomePage() {
                 {/* Feature 2 */}
                 <div className="flex">
                   <div className="flex-shrink-0">
-                    <div className="flex items-center justify-center h-12 w-12 rounded-md bg-blue-500 text-white">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-md bg-blue-500 text-white">
                       <FaBell className="h-6 w-6" />
                     </div>
                   </div>
@@ -95,7 +94,7 @@ export default function HomePage() {
                 {/* Feature 3 */}
                 <div className="flex">
                   <div className="flex-shrink-0">
-                    <div className="flex items-center justify-center h-12 w-12 rounded-md bg-blue-500 text-white">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-md bg-blue-500 text-white">
                       <FaLock className="h-6 w-6" />
                     </div>
                   </div>
@@ -113,7 +112,7 @@ export default function HomePage() {
                 {/* Feature 4 */}
                 <div className="flex">
                   <div className="flex-shrink-0">
-                    <div className="flex items-center justify-center h-12 w-12 rounded-md bg-blue-500 text-white">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-md bg-blue-500 text-white">
                       <FaMobileAlt className="h-6 w-6" />
                     </div>
                   </div>
@@ -133,8 +132,8 @@ export default function HomePage() {
         </div>
 
         {/* CTA Section */}
-        <div className="bg-blue-600 dark:bg-blue-700 mt-10 rounded-lg shadow-lg">
-          <div className="max-w-2xl mx-auto text-center py-16 px-4 sm:py-20 sm:px-6 lg:px-8">
+        <div className="mt-10 rounded-lg bg-blue-600 shadow-lg dark:bg-blue-700">
+          <div className="mx-auto max-w-2xl px-4 py-16 text-center sm:px-6 sm:py-20 lg:px-8">
             <h2 className="text-3xl font-extrabold text-white sm:text-4xl">
               <span className="block">Pronto para se organizar?</span>
               <span className="block">Comece a usar o Tarevity hoje.</span>
@@ -145,7 +144,7 @@ export default function HomePage() {
             </p>
             <Link
               href="/auth/register"
-              className="mt-8 w-full inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-blue-600 bg-white hover:bg-blue-50 sm:w-auto"
+              className="mt-8 inline-flex w-full items-center justify-center rounded-md border border-transparent bg-white px-5 py-3 text-base font-medium text-blue-600 hover:bg-blue-50 sm:w-auto"
             >
               Criar Conta Gratuita
             </Link>
@@ -153,5 +152,5 @@ export default function HomePage() {
         </div>
       </div>
     </Layout>
-  );
+  )
 }

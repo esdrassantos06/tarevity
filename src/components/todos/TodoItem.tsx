@@ -1,22 +1,22 @@
-"use client";
+'use client'
 
-import { useState } from "react";
-import { format } from "date-fns";
-import { ptBR } from "date-fns/locale";
-import { FaEdit, FaTrash, FaClock, FaFlag } from "react-icons/fa";
+import { useState } from 'react'
+import { format } from 'date-fns'
+import { ptBR } from 'date-fns/locale'
+import { FaEdit, FaTrash, FaClock, FaFlag } from 'react-icons/fa'
 
 interface TodoItemProps {
   todo: {
-    id: string;
-    title: string;
-    description: string | null;
-    is_completed: boolean;
-    priority: number;
-    due_date: string | null;
-  };
-  onToggleComplete: (id: string, isCompleted: boolean) => void;
-  onEdit: (id: string) => void;
-  onDelete: (id: string) => void;
+    id: string
+    title: string
+    description: string | null
+    is_completed: boolean
+    priority: number
+    due_date: string | null
+  }
+  onToggleComplete: (id: string, isCompleted: boolean) => void
+  onEdit: (id: string) => void
+  onDelete: (id: string) => void
 }
 
 export default function TodoItem({
@@ -25,51 +25,51 @@ export default function TodoItem({
   onEdit,
   onDelete,
 }: TodoItemProps) {
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false)
 
   const handleToggleComplete = async () => {
-    setIsLoading(true);
+    setIsLoading(true)
     try {
-      await onToggleComplete(todo.id, !todo.is_completed);
+      await onToggleComplete(todo.id, !todo.is_completed)
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
-  };
+  }
 
   const getPriorityColor = (priority: number) => {
     switch (priority) {
       case 3:
-        return "text-red-500";
+        return 'text-red-500'
       case 2:
-        return "text-yellow-500";
+        return 'text-yellow-500'
       case 1:
       default:
-        return "text-green-500";
+        return 'text-green-500'
     }
-  };
+  }
 
   const getPriorityLabel = (priority: number) => {
     switch (priority) {
       case 3:
-        return "Alta";
+        return 'Alta'
       case 2:
-        return "Média";
+        return 'Média'
       case 1:
       default:
-        return "Baixa";
+        return 'Baixa'
     }
-  };
+  }
 
   const formattedDueDate = todo.due_date
     ? format(new Date(todo.due_date), "d 'de' MMMM", { locale: ptBR })
-    : null;
+    : null
 
   return (
     <div
-      className={`border border-borderLight dark:border-borderDark shadow-lg rounded-lg p-4 mb-4 transition-colors ${
+      className={`border-borderLight dark:border-borderDark mb-4 rounded-lg border p-4 shadow-lg transition-colors ${
         todo.is_completed
-          ? "bg-gray-100 dark:bg-zinc-800"
-          : "bg-cardLightMode dark:bg-cardDarkMode"
+          ? 'bg-gray-100 dark:bg-zinc-800'
+          : 'bg-cardLightMode dark:bg-cardDarkMode'
       }`}
     >
       <div className="flex items-start gap-3">
@@ -78,16 +78,16 @@ export default function TodoItem({
           checked={todo.is_completed}
           onChange={handleToggleComplete}
           disabled={isLoading}
-          className="h-5 w-5 mt-1 rounded text-blue-600"
+          className="mt-1 h-5 w-5 rounded text-blue-600"
         />
 
         <div className="flex-grow">
           <div className="flex justify-between">
             <h3
-              className={`font-medium text-lg ${
+              className={`text-lg font-medium ${
                 todo.is_completed
-                  ? "line-through text-gray-500 dark:text-gray-400"
-                  : "text-gray-900 dark:text-white"
+                  ? 'text-gray-500 line-through dark:text-gray-400'
+                  : 'text-gray-900 dark:text-white'
               }`}
             >
               {todo.title}
@@ -115,8 +115,8 @@ export default function TodoItem({
             <p
               className={`mt-1 text-sm ${
                 todo.is_completed
-                  ? "text-gray-500 dark:text-gray-400"
-                  : "text-gray-700 dark:text-gray-300"
+                  ? 'text-gray-500 dark:text-gray-400'
+                  : 'text-gray-700 dark:text-gray-300'
               }`}
             >
               {todo.description}
@@ -141,5 +141,5 @@ export default function TodoItem({
         </div>
       </div>
     </div>
-  );
+  )
 }

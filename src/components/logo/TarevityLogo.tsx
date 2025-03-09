@@ -1,109 +1,109 @@
-"use client";
+'use client'
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from 'react'
 
 interface LogoProps {
-  className?: string;
-  width?: string;
-  height?: string;
+  className?: string
+  width?: string
+  height?: string
 }
 
 export default function Logo({
   className,
-  width = "auto",
-  height = "auto",
+  width = 'auto',
+  height = 'auto',
 }: LogoProps) {
-  const [mode, setMode] = useState<"light" | "dark">("light");
+  const [mode, setMode] = useState<'light' | 'dark'>('light')
 
   useEffect(() => {
     const updateMode = () => {
-      const savedTheme = localStorage.getItem("theme");
+      const savedTheme = localStorage.getItem('theme')
 
-      if (savedTheme === "dark") {
-        setMode("dark");
-      } else if (savedTheme === "light") {
-        setMode("light");
-      } else if (document.documentElement.classList.contains("dark")) {
-        setMode("dark");
+      if (savedTheme === 'dark') {
+        setMode('dark')
+      } else if (savedTheme === 'light') {
+        setMode('light')
+      } else if (document.documentElement.classList.contains('dark')) {
+        setMode('dark')
       } else {
-        setMode("light");
+        setMode('light')
       }
-    };
+    }
 
-    updateMode();
+    updateMode()
 
     const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === "theme") {
-        updateMode();
+      if (e.key === 'theme') {
+        updateMode()
       }
-    };
+    }
 
     const observer = new MutationObserver(() => {
-      if (document.documentElement.classList.contains("dark")) {
-        setMode("dark");
+      if (document.documentElement.classList.contains('dark')) {
+        setMode('dark')
       } else {
-        setMode("light");
+        setMode('light')
       }
-    });
+    })
 
     observer.observe(document.documentElement, {
       attributes: true,
-      attributeFilter: ["class"],
-    });
+      attributeFilter: ['class'],
+    })
 
-    window.addEventListener("storage", handleStorageChange);
+    window.addEventListener('storage', handleStorageChange)
 
     return () => {
-      window.removeEventListener("storage", handleStorageChange);
-      observer.disconnect();
-    };
-  }, []);
+      window.removeEventListener('storage', handleStorageChange)
+      observer.disconnect()
+    }
+  }, [])
 
   const palette = {
     light: {
-      background: "#f8f9fa",
-      card: "#ffffff",
-      primary: "#4361ee",
-      secondary: "#3f37c9",
+      background: '#f8f9fa',
+      card: '#ffffff',
+      primary: '#4361ee',
+      secondary: '#3f37c9',
       text: {
-        primary: "#212529",
-        secondary: "#6c757d",
-        muted: "#adb5bd",
+        primary: '#212529',
+        secondary: '#6c757d',
+        muted: '#adb5bd',
       },
-      border: "#dee2e6",
-      hover: "#e9ecef",
+      border: '#dee2e6',
+      hover: '#e9ecef',
     },
     dark: {
-      background: "#121212",
-      card: "#1e1e1e",
-      primary: "#4cc9f0",
-      secondary: "#4895ef",
+      background: '#121212',
+      card: '#1e1e1e',
+      primary: '#4cc9f0',
+      secondary: '#4895ef',
       text: {
-        primary: "#f8f9fa",
-        secondary: "#e9ecef",
-        muted: "#6c757d",
+        primary: '#f8f9fa',
+        secondary: '#e9ecef',
+        muted: '#6c757d',
       },
-      border: "#343a40",
-      hover: "#2b2b2b",
+      border: '#343a40',
+      hover: '#2b2b2b',
     },
-  };
+  }
 
   const colors = {
     // Modo claro
     light: {
       logoBackground: palette.light.primary,
-      logoText: "#ffffff",
+      logoText: '#ffffff',
       textColor: palette.light.text.primary,
     },
     // Modo escuro
     dark: {
       logoBackground: palette.dark.primary,
-      logoText: "#ffffff",
+      logoText: '#ffffff',
       textColor: palette.dark.text.primary,
     },
-  };
+  }
 
-  const currentColors = colors[mode];
+  const currentColors = colors[mode]
 
   return (
     <svg
@@ -116,10 +116,14 @@ export default function Logo({
       <defs>
         <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="0%">
           <stop offset="0%" stopColor={currentColors.logoBackground} />
-          <stop offset="100%" stopColor={currentColors.logoBackground} stopOpacity="0.8" />
+          <stop
+            offset="100%"
+            stopColor={currentColors.logoBackground}
+            stopOpacity="0.8"
+          />
         </linearGradient>
       </defs>
-      
+
       {/* Ajustando a posição vertical do container do ícone */}
       <g transform="translate(0, 0)">
         {/* Fundo do retângulo - muda para a cor primária da paleta */}
@@ -132,7 +136,7 @@ export default function Logo({
             ry="10"
           ></rect>
         </g>
-        
+
         {/* Ícones em branco para melhor contraste - centralizado verticalmente */}
         <g
           transform="matrix(0.7977662295158654,0,0,0.7977662295158654,14.96689512823895,10.049462247040735)"
@@ -207,5 +211,5 @@ export default function Logo({
         <path d="M11.26 5.84 l0 1.8 l-4.56 0 l0 12.36 l-1.92 0 l0 -12.36 l-4.56 0 l0 -1.8 l11.04 0 z M14.42 10.28 c1.2 0 2.15 0.27328 2.85 0.81994 s1.07 1.3067 1.11 2.28 l0 5.08 c0 0.48 0.02666 0.99334 0.08 1.54 l-1.6 0 c-0.04 -0.42666 -0.06 -0.90666 -0.06 -1.44 l-0.04 0 c-0.41334 0.61334 -0.89 1.0467 -1.43 1.3 s-1.17 0.38 -1.89 0.38 c-0.97334 0 -1.7633 -0.26 -2.37 -0.78 s-0.91 -1.2067 -0.91 -2.06 c0 -1.08 0.45334 -1.8967 1.36 -2.45 s2.1866 -0.83 3.84 -0.83 l1.34 0 l0 -0.34 c0 -0.64 -0.21 -1.1433 -0.63 -1.51 s-0.97 -0.55 -1.65 -0.55 c-0.50666 0 -0.95 0.07666 -1.33 0.23 s-0.83 0.43668 -1.35 0.85002 l-1.08 -1.12 c1.0267 -0.90666 2.28 -1.3733 3.76 -1.4 z M11.96 17.259999999999998 c0 1.0267 0.68002 1.54 2.04 1.54 c0.81334 0 1.4633 -0.24334 1.95 -0.73 s0.73666 -1.19 0.75 -2.11 l0 -0.52 l-1.02 0 c-1.1733 0 -2.0866 0.15 -2.74 0.45 s-0.98 0.75666 -0.98 1.37 z M25.68 10.28 c0.33334 0 0.6 0.04 0.8 0.12 l-0.08 1.94 c-0.34666 -0.09334 -0.64666 -0.14 -0.9 -0.14 c-1.7733 0 -2.6734 0.98666 -2.7 2.96 l0 4.84 l-1.8 0 l0 -9.48 l1.8 0 l0 1.46 l0.04 0 c0.24 -0.50666 0.62666 -0.91666 1.16 -1.23 s1.0933 -0.47 1.68 -0.47 z M32.38 10.28 c1.4533 0 2.5834 0.45664 3.39 1.37 s1.2167 2.17 1.23 3.77 l0 0.5 l-7.6 0 c0 0.77334 0.31 1.4233 0.93 1.95 s1.3767 0.79666 2.27 0.81 c0.98666 0 1.8533 -0.47334 2.6 -1.42 l1.36 1.04 c-1.0133 1.2933 -2.4134 1.94 -4.2 1.94 c-1.4533 0 -2.6234 -0.46334 -3.51 -1.39 s-1.3433 -2.1234 -1.37 -3.59 c0 -1.4133 0.45666 -2.59 1.37 -3.53 s2.09 -1.4233 3.53 -1.45 z M35.08 14.48 c-0.02666 -0.89334 -0.28 -1.5767 -0.76 -2.05 s-1.14 -0.71 -1.98 -0.71 c-0.56 0 -1.0633 0.13666 -1.51 0.41 s-0.79666 0.62668 -1.05 1.06 s-0.38 0.86334 -0.38 1.29 l5.68 0 z M40.099999999999994 10.52 l2.84 7.26 l2.72 -7.26 l1.92 0 l-3.72 9.48 l-1.98 0 l-3.86 -9.48 l2.08 0 z M50.199999999999996 5.800000000000001 c0.36 0 0.67002 0.13002 0.93002 0.39002 s0.39 0.57 0.39 0.93 c0 0.37334 -0.13334 0.68668 -0.4 0.94002 s-0.57332 0.38 -0.91998 0.38 c-0.37334 0 -0.68668 -0.12666 -0.94002 -0.38 s-0.38 -0.56668 -0.38 -0.94002 s0.13334 -0.68668 0.4 -0.94002 s0.57332 -0.38 0.91998 -0.38 z M51.099999999999994 10.52 l0 9.48 l-1.8 0 l0 -9.48 l1.8 0 z M56.459999999999994 7.859999999999999 l-0.000019531 2.66 l2.58 0 l0 1.56 l-2.58 0 l0 4.56 c0 0.61334 0.08666 1.0867 0.26 1.42 s0.54 0.5 1.1 0.5 c0.53334 0 0.96 -0.09334 1.28 -0.28 l0 1.64 c-0.34666 0.18666 -0.89332 0.29332 -1.64 0.31998 c-0.72 0 -1.2767 -0.11 -1.67 -0.33 s-0.68 -0.52666 -0.86 -0.92 s-0.27 -1.01 -0.27 -1.85 l0 -5.06 l-2.08 0 l0 -1.56 l2.08 0 l0 -2.66 l1.8 0 z M62.29999999999999 10.52 l2.82 7.4 l0.04 0 l2.68 -7.4 l1.94 0 l-4.48 11.48 c-0.41334 1.1067 -0.86668 1.85 -1.36 2.23 s-1.1267 0.57 -1.9 0.57 c-0.65334 0 -1.1867 -0.08666 -1.6 -0.26 l0.22 -1.62 c0.37334 0.13334 0.73334 0.2 1.08 0.2 c0.56 0 0.96334 -0.13666 1.21 -0.41 s0.46332 -0.66334 0.64998 -1.17 l0.56 -1.48 l-3.94 -9.54 l2.08 0 z"></path>
       </g>
     </svg>
-  );
+  )
 }
