@@ -85,7 +85,7 @@ export default function Footer() {
             </h3>
             <div className="flex space-x-6 mt-4">
               <a 
-                href="https://github.com/yourusername" 
+                href="https://github.com/esdrassantos06" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
@@ -94,7 +94,7 @@ export default function Footer() {
                 <span className="sr-only">GitHub</span>
               </a>
               <a 
-                href="https://linkedin.com/in/yourprofile" 
+                href="https://linkedin.com/in/esdrassantos06" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
@@ -109,7 +109,12 @@ export default function Footer() {
         {/* Made with love */}
         <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
           <p className="text-center text-sm text-gray-500 dark:text-gray-400 flex items-center justify-center">
-            Feito com <FaHeart className="h-4 w-4 text-red-500 mx-1" /> usando Next.js, Supabase e Tailwind CSS
+            Feito com <FaHeart className="h-4 w-4 text-red-500 mx-1" /> por <a 
+                href="https://github.com/esdrassantos06" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-gray-600 hover:text-gray-900 ml-1 dark:text-gray-400 dark:hover:text-white"
+              >Esdras</a>
           </p>
         </div>
       </div>
