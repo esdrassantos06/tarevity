@@ -7,7 +7,7 @@ export default function Footer() {
   const currentYear = new Date().getFullYear()
 
   return (
-    <footer className="bg-footerLightMode dark:bg-footerDarkMode relative z-99 mt-auto shadow-inner">
+    <footer className="bg-lightFooter dark:bg-darkFooter relative z-99 mt-auto shadow-inner">
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         <div className="flex flex-col items-center justify-between space-y-4 md:flex-row md:space-y-0">
           {/* Logo and Copyright */}
@@ -107,7 +107,7 @@ export default function Footer() {
                 href="https://github.com/esdrassantos06"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
+                className="text-gray-600 hover:text-gray-900 dark:text-darkText dark:hover:text-darkText/80"
               >
                 <FaGithub className="h-6 w-6" />
                 <span className="sr-only">GitHub</span>
@@ -116,7 +116,7 @@ export default function Footer() {
                 href="https://linkedin.com/in/esdrassantos06"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
+                className="text-gray-600 hover:text-gray-900 dark:text-darkText dark:hover:text-darkText/80"
               >
                 <FaLinkedin className="h-6 w-6" />
                 <span className="sr-only">LinkedIn</span>
@@ -126,14 +126,14 @@ export default function Footer() {
         </div>
 
         {/* Made with love */}
-        <div className="border-borderLight dark:border-borderDark mt-8 border-t pt-6">
+        <div className="border-lightBorder dark:border-darkBorder mt-8 border-t pt-6">
           <p className="flex items-center justify-center text-center text-sm text-gray-500 dark:text-gray-400">
             Made with <FaHeart className="mx-1 h-4 w-4 text-red-500" /> by{' '}
             <a
               href="https://github.com/esdrassantos06"
               target="_blank"
               rel="noopener noreferrer"
-              className="ml-1 text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
+              className="ml-1 text-gray-600 hover:text-gray-900 dark:text-darkText dark:hover:text-darkText/80"
             >
               Esdras
             </a>

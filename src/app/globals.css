@@ -3,35 +3,28 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-  --color-backgroundLight: #e8eaec;
-  --color-backgroundDark: #181818;
 
-  --color-footerLightMode: #fafafa;
-  --color-footerDarkMode: #1e1e1e;
+  --color-darkBG: #070707;
+  --color-lightBG: ;
 
-  --color-headerLightMode: #f8f8f8;
-  --color-headerDarkMode: #1c1c1c;
+  --color-darkCard: #1F1F21;
+  --color-lightCard: ;
 
-  --color-cardLightMode: #eef1ee;
-  --color-cardDarkMode: #222222;
+  --color-darkButton: #29282B;
+  --color-lightButton: ;
 
-  --color-textLight: #333333;
-  --color-textDark: #e0e0e0;
+  --color-darkText: #F3F3F3;
+  --color-lightText: #111111;
 
-  --color-primary: #4ac3e9; /* Vibrant blue */
-  --color-primaryHover: #3aa6cc; /* Darker blue for hover */
+  --color-darkBorder: #28272A;
+  --color-lightBorder: #EDECEA;
 
-  --color-secondary: #7d2ae8; /* Strong purple */
-  --color-secondaryHover: #6824cc; /* Darker purple for hover */
+  --color-darkHeader: #1B1A1D;
+  --color-lightHeader: #FBFBFB;
 
-  --color-borderLight: #d1d5db;
-  --color-borderDark: #2f2f2f;
+  --color-darkFooter: #131313;
+  --color-lightFooter: #F7F7F7;
 
-  --color-buttonLight: #4ac3e9; /* Vibrant blue */
-  --color-buttonLightHover: #3aa6cc; /* Darker blue */
-
-  --color-buttonDark: #7d2ae8; /* Strong purple */
-  --color-buttonDarkHover: #6824cc; /* Darker purple */
 }
 
 :root {

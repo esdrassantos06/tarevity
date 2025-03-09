@@ -16,7 +16,7 @@ export default function Header() {
   }
 
   return (
-    <header className="bg-headerLightMode dark:bg-headerDarkMode shadow">
+    <header className="bg-lightHeader dark:bg-darkHeader border-b border-lightBorder dark:border-darkBorder shadow">
       <div className="mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 justify-between">
           <div className="flex">
@@ -36,21 +36,21 @@ export default function Header() {
                 <div className="flex items-center gap-4">
                   <Link
                     href="/profile"
-                    className="flex items-center text-gray-700 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white"
+                    className="flex items-center text-gray-700 hover:text-gray-900 dark:text-darkText dark:hover:text-darkText/80"
                   >
                     <FaUser className="mr-1 inline" />
                     Profile
                   </Link>
                   <Link
                     href="/settings"
-                    className="flex items-center text-gray-700 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white"
+                    className="flex items-center text-gray-700 hover:text-gray-900 dark:text-darkText dark:hover:text-darkText/80"
                   >
                     <FaCog className="mr-1 inline" />
                     Settings
                   </Link>
                   <button
                     onClick={() => signOut({ callbackUrl: '/' })}
-                    className="flex cursor-pointer items-center text-gray-700 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white"
+                    className="flex cursor-pointer items-center text-gray-700 hover:text-gray-900 dark:text-darkText dark:hover:text-darkText/80"
                   >
                     <FaSignOutAlt className="mr-1 inline" />
                     Logout
@@ -62,13 +62,13 @@ export default function Header() {
             <div className="hidden sm:flex sm:items-center sm:gap-3">
               <Link
                 href="/auth/login"
-                className="inline-flex items-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+                className="inline-flex items-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-darkText hover:bg-blue-700"
               >
                 Login
               </Link>
               <Link
                 href="/auth/register"
-                className="inline-flex items-center rounded-md border border-transparent bg-white px-4 py-2 text-sm font-medium text-blue-600 hover:bg-gray-50 dark:bg-gray-700 dark:text-blue-400 dark:hover:bg-gray-600"
+                className="inline-flex items-center rounded-md border border-transparent bg-white px-4 py-2 text-sm font-medium dark:text-darkText hover:bg-gray-50 dark:bg-darkButton dark:hover:bg-zinc-800"
               >
                 Register
               </Link>
@@ -80,7 +80,7 @@ export default function Header() {
             <button
               onClick={toggleMenu}
               type="button"
-              className="inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-500 dark:hover:bg-gray-700 dark:hover:text-white"
+              className="inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-500 dark:hover:bg-gray-700 dark:hover:text-darkText"
               aria-expanded="false"
             >
               <span className="sr-only">Open main menu</span>
@@ -97,27 +97,27 @@ export default function Header() {
               <>
                 <Link
                   href="/dashboard"
-                  className="block px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
+                  className="block px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900 dark:text-darkText dark:hover:bg-gray-700 dark:hover:text-darkText/80"
                 >
                   Dashboard
                 </Link>
                 <Link
                   href="/profile"
-                  className="block px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
+                  className="block px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900 dark:text-darkText dark:hover:bg-gray-700 dark:hover:text-darkText/80"
                 >
                   <FaUser className="mr-1 inline" />
                   Profile
                 </Link>
                 <Link
                   href="/settings"
-                  className="block px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
+                  className="block px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900 dark:text-darkText dark:hover:bg-gray-700 dark:hover:text-darkText/80"
                 >
                   <FaCog className="mr-1 inline" />
                   Settings
                 </Link>
                 <button
                   onClick={() => signOut({ callbackUrl: '/' })}
-                  className="block w-full px-3 py-2 text-left text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
+                  className="block w-full px-3 py-2 text-left text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900 dark:text-darkText dark:hover:bg-gray-700 dark:hover:text-darkText/80"
                 >
                   <FaSignOutAlt className="mr-1 inline" />
                   Logout
@@ -127,13 +127,13 @@ export default function Header() {
               <>
                 <Link
                   href="/auth/login"
-                  className="block px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
+                  className="block px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900 dark:text-darkText dark:hover:bg-gray-700 dark:hover:text-darkText/80"
                 >
                   Login
                 </Link>
                 <Link
                   href="/auth/register"
-                  className="block px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
+                  className="block px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900 dark:text-darkText dark:hover:bg-gray-700 dark:hover:text-darkText/80"
                 >
                   Register
                 </Link>

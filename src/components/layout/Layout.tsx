@@ -8,7 +8,7 @@ interface LayoutProps {
 
 export default function Layout({ children, showFooter = true }: LayoutProps) {
   return (
-    <div className="flex flex-col min-h-screen bg-backgroundLight dark:bg-backgroundDark ">
+    <div className="flex flex-col min-h-screen bg-lightBG dark:bg-darkBG ">
       <Header />
       <main className="container mx-auto flex-1 px-4 py-8">{children}</main>
       {showFooter && <Footer />}
