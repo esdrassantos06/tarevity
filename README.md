@@ -22,7 +22,7 @@ Tarevity is a modern task management app built with Next.js, React, TypeScript, 
 - **Backend/Database**: Supabase
 - **Email**: Resend
 - **Forms**: React Hook Form, Zod
-- **Others**: date-fns, react-icons, react-hot-toast
+- **Others**: date-fns, react-icons, react-toastify
 
 ## 📷 Screenshots
 
@@ -74,7 +74,7 @@ Tarevity is a modern task management app built with Next.js, React, TypeScript, 
    NEXT_PUBLIC_APP_URL=http://localhost:3000
 
    # Environment
-   NODE_ENV=development || production 
+   NODE_ENV=development or production 
 
    # OAuth Providers
    GITHUB_ID=seu_github_client_id
@@ -101,9 +101,9 @@ Tarevity is a modern task management app built with Next.js, React, TypeScript, 
 5. Start the development server
    ```bash
    npm run dev
-   # ou
+   # or
    yarn dev
-   # ou
+   # or
    pnpm dev
    ```
 

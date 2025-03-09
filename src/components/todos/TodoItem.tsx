@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import { format } from 'date-fns'
-import { ptBR } from 'date-fns/locale'
 import { FaEdit, FaTrash, FaClock, FaFlag } from 'react-icons/fa'
 
 interface TodoItemProps {
@@ -61,8 +60,8 @@ export default function TodoItem({
   }
 
   const formattedDueDate = todo.due_date
-    ? format(new Date(todo.due_date), "d 'of' MMMM", { locale: ptBR })
-    : null
+  ? format(new Date(todo.due_date), "MMMM d, yyyy")
+  : null
 
   return (
     <div

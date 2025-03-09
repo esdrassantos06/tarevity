@@ -20,7 +20,7 @@ declare module 'next-auth' {
   }
 }
 
-// Estendendo o objeto JWT para incluir provider
+// Extending the JWT object to include provider
 declare module 'next-auth/jwt' {
   interface JWT {
     id: string;
