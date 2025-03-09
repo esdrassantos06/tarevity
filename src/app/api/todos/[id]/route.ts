@@ -20,8 +20,7 @@ export async function GET(
     // Extract the task ID from URL parameters
     const taskId = resolvedParams.id
 
-    // Log for debugging
-    console.log(`Fetching task with ID: ${taskId} for user: ${session.user.id}`)
+
 
     const { data, error } = await supabaseAdmin
       .from('todos')
@@ -31,7 +30,6 @@ export async function GET(
       .single()
 
     if (error) {
-      console.error('Supabase error:', error)
       throw error
     }
 
@@ -72,8 +70,6 @@ export async function PUT(
     // Parse the request body
     const updateData = await request.json()
 
-    // Log for debugging
-    console.log(`Updating task with ID: ${taskId}`, updateData)
 
     // Verify task belongs to user first
     const { data: existingTask, error: checkError } = await supabaseAdmin
@@ -137,8 +133,6 @@ export async function DELETE(
     // Extract the task ID from URL parameters
     const taskId = resolvedParams.id
 
-    // Log for debugging
-    console.log(`Deleting task with ID: ${taskId} for user: ${session.user.id}`)
 
     // Verify task belongs to user first
     const { data: existingTask, error: checkError } = await supabaseAdmin

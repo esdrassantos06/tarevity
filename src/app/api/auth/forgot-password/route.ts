@@ -23,12 +23,9 @@ export async function POST(req: Request) {
      .eq('email', email.toLowerCase())
      .single()
 
-   // For security, we don't reveal whether the user exists or not
-   // This prevents email enumeration attacks
    if (userError || !user) {
-     console.log(`Password reset requested for non-existent email: ${email}`)
 
-     // Return success even if the email doesn't exist
+ 
      return NextResponse.json(
        {
          message:

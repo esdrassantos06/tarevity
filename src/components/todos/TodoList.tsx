@@ -42,14 +42,10 @@ export default function TodoList() {
     setIsLoading(true)
     setError(null)
     try {
-      console.log('Fetching todos from API...')
-
       const response = await fetch('/api/todos', {
         // Include credentials to send session cookies
         credentials: 'include',
       })
-
-      console.log('API response status:', response.status)
 
       if (!response.ok) {
         // Try to get detailed error message
@@ -76,7 +72,6 @@ export default function TodoList() {
       }
 
       const data = await response.json()
-      console.log('Todos fetched successfully:', data.length)
 
       setTodos(data)
     } catch (err: unknown) {
@@ -173,8 +168,6 @@ export default function TodoList() {
         body: JSON.stringify(todoData),
         credentials: 'include',
       })
-
-      console.log('API response status:', response.status)
 
       if (!response.ok) {
         const errorData = await response.json().catch((e: unknown) => {
