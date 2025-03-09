@@ -68,7 +68,13 @@ Tarevity é um aplicativo moderno de gerenciamento de tarefas construído com Ne
    # Next Auth
    NEXTAUTH_URL=http://localhost:3000
    NEXTAUTH_SECRET=seu_segredo_super_seguro
-   O segredo deve ser um hash de 32 caracteres
+   # Dica: Você pode gerar uma com: openssl rand -base64 32
+
+   # App
+   NEXT_PUBLIC_APP_URL=http://localhost:3000
+
+   # Ambiente
+   NODE_ENV=development || production 
 
    # Provedores OAuth
    GITHUB_ID=seu_github_client_id
