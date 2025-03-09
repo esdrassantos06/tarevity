@@ -273,7 +273,9 @@ export default function SettingsComponent() {
                         Name
                       </label>
                       <p className="text-base text-gray-900 dark:text-white">
-                        {session.user?.name || 'Name not set'}
+                        {isLoadingProfile
+                          ? 'Loading...'
+                          : profileData?.name || 'Name not set'}
                       </p>
                     </div>
                     <div>
@@ -281,7 +283,9 @@ export default function SettingsComponent() {
                         Email
                       </label>
                       <p className="text-base text-gray-900 dark:text-white">
-                        {session.user?.email}
+                        {isLoadingProfile
+                          ? 'Loading...'
+                          : profileData?.email || 'Email not available'}
                       </p>
                     </div>
                     <div>
@@ -294,10 +298,7 @@ export default function SettingsComponent() {
                           : profileData?.provider
                             ? profileData.provider.charAt(0).toUpperCase() +
                               profileData.provider.slice(1)
-                            : session?.user?.provider
-                              ? session.user.provider.charAt(0).toUpperCase() +
-                                session.user.provider.slice(1)
-                              : 'Email/Password'}
+                            : 'Email/Password'}
                       </p>
                     </div>
                   </div>
