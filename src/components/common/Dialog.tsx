@@ -46,7 +46,7 @@ const DialogContent = React.forwardRef<
     <DialogOverlay />
     <DialogPrimitive.Content
       ref={ref}
-      className="fixed z-50 grid w-full max-w-lg gap-4 rounded-lg bg-white p-6 shadow-lg animate-in data-[state=open]:fade-in-90 data-[state=open]:slide-in-from-bottom-10 sm:max-w-lg sm:rounded-lg md:w-full dark:bg-gray-800"
+      className="fixed z-101 grid w-full max-w-lg gap-4 rounded-lg bg-white p-6 shadow-lg animate-in data-[state=open]:fade-in-90 data-[state=open]:slide-in-from-bottom-10 sm:max-w-lg sm:rounded-lg md:w-full dark:bg-gray-800"
       {...props}
     >
       {children}
