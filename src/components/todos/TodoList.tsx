@@ -120,6 +120,14 @@ export default function TodoList() {
       )
     }
 
+    result.sort((a , b) =>{
+      if(a.is_completed !== b.is_completed){
+        return a.is_completed ? 1 : -1;
+      }
+
+      return b.priority - a.priority;
+    })
+
     setFilteredTodos(result)
   }, [todos, filters])
 
@@ -303,7 +311,9 @@ export default function TodoList() {
       ) : filteredTodos.length === 0 ? (
         <div className="py-8 text-center text-gray-600 dark:text-gray-400">
           {todos.length === 0 ? (
-            <p>You don&apos;t have any tasks yet. Create your first task now!</p>
+            <p>
+              You don&apos;t have any tasks yet. Create your first task now!
+            </p>
           ) : (
             <p>No tasks match the selected filters.</p>
           )}
