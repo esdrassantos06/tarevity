@@ -4,35 +4,47 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-  /* Existing Theme Variables */
-  --color-lightCard: #ffffff;
-  --color-lightText: #000;
-  --color-lightSecondaryText: #575767;
-  --color-lightDivider: #EBEBEB;
-  --color-checkmarkFillLight: linear-gradient(to bottom, #FCFCFC, #F8F8F8);
-  --color-checkmarkStrokeLight: #DADADA;
-  --color-lightBG: #E5E7EB;
-  --color-lightButton: #DADADA;
-  --color-lightHeader: #E5E7EB;
 
-  --color-darkCard: #1E1F25;
-  --color-darkText: #F3F3F3;
-  --color-darkSecondaryText: #9494B8;
-  --color-checkmarkFillDark: linear-gradient(to bottom, #2B2D37, #262933);
-  --color-checkmarkStrokeDark: #0E0E11;
-  --color-checkmarkTextDark: #DADADA;
-  --color-darkBG: #0F172A;
-  --color-darkButton: #29282B;
-  --color-darkHeader: #0F172A;
+  /* Header */
+--color-HeaderBgLight: #fff;
+--color-HeaderBgDark: #0F0D15;
 
-  --color-DarkFooter: #000000;
-  --color-DarkFooterText: #F4F5F7;
-  --color-DarkFooterText2: #E5E7EB;
-  --color-DarkFooterBorder: #2C2C2C;
-  --color-DarkFooterIconsBG: #191919;
+/* Footer */
+--color-FooterBgLight: #fff;
+--color-FooterBgDark: #0F0D15;
 
-  --color-LightFooterIconsBG: #333333;
-  --color-LightFooterBorder: #D3D3D3;
+/* Text */
+--color-BlackLight: #1D1929;
+--color-GraySecondaryLight: #77757F;
+--color-DescriptionLight: #4A4754;
+
+--color-GrayDark: #77757F;
+
+
+
+/* Blue Primary color */
+--color-primary: #003CFF;
+
+/* Border */
+/* Icones da navbar devem ter border-2 */
+
+--color-BorderLight: #E8E8EA;
+--color-BorderDark: #4A4754;
+
+/* Background */
+
+--color-bgLight: #F9F9F9;
+--color-bgDark: #000000;
+
+
+
+
+
+
+
+
+
+
   
   /* Radix UI Animation Keyframes */
   @keyframes fade-in {

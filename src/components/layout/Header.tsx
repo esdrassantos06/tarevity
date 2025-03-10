@@ -17,14 +17,13 @@ export default function Header() {
   }
 
   return (
-    <header className="bg-lightHeader dark:bg-darkHeader shadow-md">
+    <header className="bg-HeaderBgLightderBgLight dark:bg-HeaderBgDark shadow-sm">
       <div className="mx-auto px-4 sm:px-6 lg:px-12">
         <div className="flex h-16 justify-between">
           <div className="flex">
             <div className="flex flex-shrink-0 items-center">
               <Link
                 href={session ? '/dashboard' : '/'}
-                className="text-2xl font-bold text-blue-600 dark:text-blue-400"
               >
                 <TarevityLogo className="w-30 fill-black hidden sm:flex dark:fill-white" />
                 <TarevityIcon className="w-12 fill-black flex sm:hidden dark:fill-white" />
@@ -38,25 +37,22 @@ export default function Header() {
                 <div className="flex items-center gap-4">
                   <Link
                     href="/profile"
-                    className="flex items-center text-gray-700 hover:text-gray-900 dark:text-darkText dark:hover:text-darkText/80"
+                    className="flex p-2 hover:bg-BorderLight/60 duration-300 transition-colors dark:hover:bg-BorderDark/20 dark:border-BorderDark border-BorderLight rounded-lg border-2 dark:text-white text-BlackLight items-center"
                   >
-                    <FaUser className="mr-1 inline" />
-                    Profile
-                  </Link>
-                  <Link
-                    href="/settings"
-                    className="flex items-center text-gray-700 hover:text-gray-900 dark:text-darkText dark:hover:text-darkText/80"
-                  >
-                    <FaCog className="mr-1 inline" />
-                    Settings
+                    <FaUser className="dark:text-white" />
                   </Link>
                   <button
                     onClick={() => signOut({ callbackUrl: '/' })}
-                    className="flex cursor-pointer items-center text-gray-700 hover:text-gray-900 dark:text-darkText dark:hover:text-darkText/80"
+                    className="flex hover:bg-BorderLight/60 duration-300 transition-colors dark:hover:bg-BorderDark/20  dark:text-white text-BlackLight p-2 cursor-pointer items-center dark:border-BorderDark border-BorderLight rounded-lg border-2"
                   >
-                    <FaSignOutAlt className="mr-1 inline" />
-                    Logout
+                    <FaSignOutAlt className="dark:text-white" />
                   </button>
+                  <Link
+                    href="/settings"
+                    className="flex p-2 items-center border-BorderLight hover:bg-BorderLight/60 duration-300 transition-colors dark:hover:bg-BorderDark/20  dark:border-BorderDark rounded-lg border-2 dark:text-white text-BlackLight"
+                  >
+                    <FaCog className="dark:text-white" />
+                  </Link>
                 </div>
               </div>
             </div>
@@ -64,13 +60,13 @@ export default function Header() {
             <div className="hidden sm:flex sm:items-center sm:gap-3">
               <Link
                 href="/auth/login"
-                className="inline-flex items-center rounded-lg border border-transparent px-4 py-1.5 transition-all duration-300 text-sm font-medium dark:text-darkText text-lightText hover:border-blue-600"
+                className="inline-flex items-center rounded-lg px-4 py-1.5 transition-colors duration-300 dark:hover:bg-BorderDark/40 hover:bg-BorderLight/70 text-primary border-2 dark:border-BorderDark border-BorderLight"
               >
                 Login
               </Link>
               <Link
                 href="/auth/register"
-                className="inline-flex items-center transition-all duration-300 rounded-md border border-transparent dark:bg-white px-4 py-1.5 text-sm font-medium dark:text-black text-white dark:hover:bg-lightButton bg-darkButton hover:bg-zinc-900"
+                className="inline-flex items-center transition-all duration-300 bg-primary hover:bg-primary/80 text-white rounded-md px-4 py-1.5 "
               >
                 Register
               </Link>
@@ -82,11 +78,11 @@ export default function Header() {
             <button
               onClick={toggleMenu}
               type="button"
-              className="inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-500 dark:hover:bg-gray-700 dark:hover:text-darkText"
+              className="inline-flex items-center justify-center rounded-md p-2 "
               aria-expanded="false"
             >
               <span className="sr-only">Open main menu</span>
-              {isMenuOpen ? <FaTimes size={22} className='fill-black dark:fill-white'/> : <FaBars className='fill-black dark:fill-white' size={22}/>}
+              {isMenuOpen ? <FaTimes size={22} className='fill-BlackLight dark:fill-white'/> : <FaBars className='fill-BlackLight dark:fill-white' size={22}/>}
             </button>
           </div>
         </div>
@@ -99,27 +95,27 @@ export default function Header() {
               <>
                 <Link
                   href="/dashboard"
-                  className="block px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900 dark:text-darkText dark:hover:bg-gray-700 dark:hover:text-darkText/80"
+                  className="block dark:text-white text-BlackLight px-3 py-2"
                 >
                   Dashboard
                 </Link>
                 <Link
                   href="/profile"
-                  className="block px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900 dark:text-darkText dark:hover:bg-gray-700 dark:hover:text-darkText/80"
+                  className="block dark:text-white text-BlackLight px-3 py-2"
                 >
                   <FaUser className="mr-1 inline" />
                   Profile
                 </Link>
                 <Link
                   href="/settings"
-                  className="block px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900 dark:text-darkText dark:hover:bg-gray-700 dark:hover:text-darkText/80"
+                  className="block dark:text-white text-BlackLight px-3 py-2"
                 >
                   <FaCog className="mr-1 inline" />
                   Settings
                 </Link>
                 <button
                   onClick={() => signOut({ callbackUrl: '/' })}
-                  className="block w-full px-3 py-2 text-left text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900 dark:text-darkText dark:hover:bg-gray-700 dark:hover:text-darkText/80"
+                  className="block dark:text-white text-BlackLight w-full px-3 py-2"
                 >
                   <FaSignOutAlt className="mr-1 inline" />
                   Logout
@@ -129,13 +125,13 @@ export default function Header() {
               <>
                 <Link
                   href="/auth/login"
-                  className="block px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900 dark:text-darkText dark:hover:bg-gray-700 dark:hover:text-darkText/80"
+                  className="block dark:text-white text-BlackLight px-3 py-2"
                 >
                   Login
                 </Link>
                 <Link
                   href="/auth/register"
-                  className="block px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900 dark:text-darkText dark:hover:bg-gray-700 dark:hover:text-darkText/80"
+                  className="block dark:text-white text-BlackLight px-3 py-2"
                 >
                   Register
                 </Link>

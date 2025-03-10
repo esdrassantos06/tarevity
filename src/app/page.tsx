@@ -26,7 +26,7 @@ export default function HomePage() {
               <div className="rounded-md shadow">
                 <Link
                   href="/auth/login"
-                  className="dark:bg-lightButton transition-all duration-300 dark:hover:bg-lightButton/80 hover:bg-darkButton/80 bg-darkButton dark:text-lightText text-darkText flex w-full items-center justify-center rounded-md border border-transparent px-4 py-0.5 text-base font-medium md:px-5 md:py-1 md:text-lg"
+                  className="transition-all duration-300 flex w-full items-center justify-center rounded-md border border-transparent px-4 py-0.5 text-base font-medium md:px-5 md:py-1 md:text-lg"
                 >
                   Get Started <IoIosArrowForward size={18} className="ml-2" />
                 </Link>
@@ -36,13 +36,13 @@ export default function HomePage() {
         </div>
 
         {/* Features Section */}
-        <div className="bg-lightCard dark:bg-darkCard mt-10 rounded-lg py-12 shadow-lg">
+        <div className="mt-10 rounded-lg py-12 shadow-lg">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="lg:text-center">
-              <h2 className="text-base font-semibold tracking-wide text-blue-600 uppercase dark:text-blue-400">
+              <h2 className="uppercase">
                 Features
               </h2>
-              <p className="text-lightText dark:text-darkText mt-2 text-3xl leading-8 font-extrabold tracking-tight sm:text-4xl">
+              <p className="text-3xl sm:text-4xl">
                 Everything you need to stay organized
               </p>
             </div>
