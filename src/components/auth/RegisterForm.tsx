@@ -8,21 +8,39 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import OAuthButtons from './OAuthButtons'
 
-const registerSchema = z
-  .object({
-    name: z.string().min(2, 'Name must have at least 2 characters'),
-    email: z.string().email('Invalid email'),
-    password: z.string().min(6, 'Password must have at least 6 characters'),
-    confirmPassword: z.string(),
-    acceptTerms: z.boolean()
-      .refine((val) => val === true, {
-        message: 'You must accept the terms to continue',
-      })
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: 'Passwords do not match',
-    path: ['confirmPassword'],
-  })
+const registerSchema = z.object({
+  name: z.string()
+    .min(2, 'Nome deve ter pelo menos 2 caracteres')
+    .max(50, 'Nome muito longo (máximo 50 caracteres)')
+    .regex(/^[a-zA-Z0-9\s\u00C0-\u00FF]+$/, 'Nome contém caracteres inválidos')
+    .transform(val => val.trim()),
+    
+  email: z.string()
+    .email('Email inválido')
+    .toLowerCase()
+    .transform(val => val.trim()),
+    
+  password: z.string()
+    .min(8, 'Senha deve ter pelo menos 8 caracteres')
+    .max(100, 'Senha muito longa')
+    .regex(/[A-Z]/, 'Senha deve conter pelo menos uma letra maiúscula')
+    .regex(/[a-z]/, 'Senha deve conter pelo menos uma letra minúscula')
+    .regex(/[0-9]/, 'Senha deve conter pelo menos um número')
+    .regex(/[^A-Za-z0-9]/, 'Senha deve conter pelo menos um caractere especial'),
+    
+  confirmPassword: z.string()
+    .min(1, 'Confirmação de senha é obrigatória'),
+  
+  acceptTerms: z.boolean()
+    .refine(val => val === true, {
+      message: 'Você deve aceitar os termos para continuar'
+    })
+})
+// Add custom validation to ensure passwords match
+.refine(data => data.password === data.confirmPassword, {
+  message: 'As senhas não coincidem',
+  path: ['confirmPassword']
+})
 
 type RegisterFormValues = z.infer<typeof registerSchema>
 
