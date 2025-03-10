@@ -19,10 +19,8 @@ export default function Logo({
       preserveAspectRatio="xMidYMid meet"
       id="beabbeha"
     >
-      <defs id="SvgjsDefs1318"></defs>
       <g
         id="SvgjsG1319"
-        className={className}
         transform="matrix(0.95,0,0,0.95,0,0)"
       >
         <path
