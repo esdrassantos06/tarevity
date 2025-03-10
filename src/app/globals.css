@@ -3,31 +3,42 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-
-  --color-darkBG: #070707;
-  --color-lightBG: ;
-
-  --color-darkCard: #1F1F21;
-  --color-lightCard: ;
-
-  --color-darkButton: #29282B;
+  /* Light Theme */
+  --color-lightCard: #ffffff;
+  --color-lightText: #000;
+  --color-lightSecondaryText: #575767;
+  --color-lightDivider: #EBEBEB;
+  --color-checkmarkFillLight: linear-gradient(to bottom, #FCFCFC, #F8F8F8);
+  --color-checkmarkStrokeLight: #DADADA;
+  --color-lightBG: #E5E7EB;
   --color-lightButton: ;
+  --color-lightHeader: #FFFFFF;
 
+  /* Dark Theme */
+  --color-darkCard: #1E1F25;
   --color-darkText: #F3F3F3;
-  --color-lightText: #111111;
+  --color-darkSecondaryText: #9494B8;
+  --color-checkmarkFillDark: linear-gradient(to bottom, #2B2D37, #262933);
+  --color-checkmarkStrokeDark: #0E0E11;
+  --color-checkmarkTextDark: #DADADA;
+  --color-darkBG: #0F172A;
+  --color-darkButton: #29282B;
+  --color-darkHeader: #0F172A;
 
-  --color-darkBorder: #28272A;
-  --color-lightBorder: #EDECEA;
 
-  --color-darkHeader: #1B1A1D;
-  --color-lightHeader: #FBFBFB;
 
-  --color-darkFooter: #131313;
-  --color-lightFooter: #F7F7F7;
+  --color-Footer: #000000;
+  --color-FooterText: #F4F5F7;
+  --color-FooterText2: #E5E7EB;
+  --color-FooterBorder: #2C2C2C;
+  --color-FooterIconsBG: #191919;
+
+
 
 }
 
+
 :root {
   --toastify-color-success: rgba(7, 188, 12, 0.8) !important;
-  --toastify-color-error: rgba(255, 82, 82, 0.8) !important; 
+  --toastify-color-error: rgba(255, 82, 82, 0.8) !important;
 }

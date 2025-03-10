@@ -16,8 +16,8 @@ export default function Header() {
   }
 
   return (
-    <header className="bg-lightHeader dark:bg-darkHeader border-b border-lightBorder dark:border-darkBorder shadow">
-      <div className="mx-auto px-4 sm:px-6 lg:px-8">
+    <header className="bg-lightHeader dark:bg-darkHeader shadow">
+      <div className="mx-auto px-4 sm:px-6 lg:px-12">
         <div className="flex h-16 justify-between">
           <div className="flex">
             <div className="flex flex-shrink-0 items-center">
@@ -25,7 +25,7 @@ export default function Header() {
                 href={session ? '/dashboard' : '/'}
                 className="text-2xl font-bold text-blue-600 dark:text-blue-400"
               >
-                <TarevityLogo className="w-30" />
+                <TarevityLogo className="w-30" textColor='fill-black dark:fill-white' />
               </Link>
             </div>
           </div>
