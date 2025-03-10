@@ -12,7 +12,7 @@
   --color-checkmarkStrokeLight: #DADADA;
   --color-lightBG: #E5E7EB;
   --color-lightButton: ;
-  --color-lightHeader: #FFFFFF;
+  --color-lightHeader: #E5E7EB;
 
   /* Dark Theme */
   --color-darkCard: #1E1F25;
@@ -26,14 +26,18 @@
   --color-darkHeader: #0F172A;
 
 
+/* Dark Footer */
+  --color-DarkFooter: #000000;
+  --color-DarkFooterText: #F4F5F7;
+  --color-DarkFooterText2: #E5E7EB;
+  --color-DarkFooterBorder: #2C2C2C;
+  --color-DarkFooterIconsBG: #191919;
 
-  --color-Footer: #000000;
-  --color-FooterText: #F4F5F7;
-  --color-FooterText2: #E5E7EB;
-  --color-FooterBorder: #2C2C2C;
-  --color-FooterIconsBG: #191919;
 
-
+  --color-LightFooterIconsBG: #333333;
+  
+  
+  --color-LightFooterBorder: #D3D3D3;
 
 }
 

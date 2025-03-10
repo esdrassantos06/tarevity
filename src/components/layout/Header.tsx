@@ -16,7 +16,7 @@ export default function Header() {
   }
 
   return (
-    <header className="bg-lightHeader dark:bg-darkHeader shadow">
+    <header className="bg-lightHeader dark:bg-darkHeader shadow-md">
       <div className="mx-auto px-4 sm:px-6 lg:px-12">
         <div className="flex h-16 justify-between">
           <div className="flex">
