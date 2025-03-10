@@ -5,7 +5,11 @@ import GoogleProvider from 'next-auth/providers/google'
 import { getUserByEmail, verifyPassword } from '@/lib/auth'
 import { supabase } from '@/lib/supabase'
 
-// Create and export auth options configuration
+
+const cookiePrefix = process.env.NODE_ENV === 'production' 
+  ? '__Secure-' 
+  : ''
+
 export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
@@ -39,7 +43,7 @@ export const authOptions: NextAuthOptions = {
           name: user.name,
           email: user.email,
           image: user.image,
-          provider: 'credentials', // Add provider for credentials login
+          provider: 'credentials',
         }
       },
     }),
@@ -52,20 +56,48 @@ export const authOptions: NextAuthOptions = {
       clientSecret: process.env.GOOGLE_SECRET || '',
     }),
   ],
+  cookies: {
+    sessionToken: {
+      name: `${cookiePrefix}next-auth.session-token`,
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: process.env.NODE_ENV === 'production',
+      }
+    },
+    callbackUrl: {
+      name: `${cookiePrefix}next-auth.callback-url`,
+      options: {
+        sameSite: 'lax',
+        path: '/',
+        secure: process.env.NODE_ENV === 'production',
+      }
+    },
+    csrfToken: {
+      name: process.env.NODE_ENV === 'production' 
+        ? `__Host-next-auth.csrf-token` 
+        : `next-auth.csrf-token`,
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: process.env.NODE_ENV === 'production',
+      }
+    }
+  },
   callbacks: {
     async jwt({ token, user, account }) {
-      // Initial initialization - first login
       if (account && user) {
         if (account.provider === 'credentials') {
           return { 
             ...token, 
             id: user.id,
-            provider: 'credentials' // Include provider for credentials login
+            provider: 'credentials'
           }
         }
 
-        // For OAuth providers
-        // Check if user already exists in the database
+
         const { data: existingUser } = await supabase
           .from('users')
           .select('*')
@@ -73,7 +105,6 @@ export const authOptions: NextAuthOptions = {
           .single()
 
         if (existingUser) {
-          // Update existing user information
           await supabase
             .from('users')
             .update({
@@ -87,7 +118,7 @@ export const authOptions: NextAuthOptions = {
           return { 
             ...token, 
             id: existingUser.id,
-            provider: account.provider // Include provider for OAuth
+            provider: account.provider
           }
         } else {
           // Create new user
@@ -108,13 +139,15 @@ export const authOptions: NextAuthOptions = {
           return { 
             ...token, 
             id: newUser?.id,
-            provider: account.provider // Include provider for OAuth
+            provider: account.provider
           }
         }
       }
 
       return token
     },
+
+
     async session({ session, token }) {
       if (token && session.user) {
         session.user.id = token.id as string
@@ -132,8 +165,8 @@ export const authOptions: NextAuthOptions = {
     newUser: '/auth/register',
   },
   session: {
-    strategy: 'jwt' as const, // Add 'as const' to ensure type safety
-    maxAge: 30 * 24 * 60 * 60, // 30 days
+    strategy: 'jwt' as const,
+    maxAge: 30 * 24 * 60 * 60,
   },
   secret: process.env.NEXTAUTH_SECRET,
 }
