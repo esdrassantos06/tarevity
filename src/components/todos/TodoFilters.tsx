@@ -1,7 +1,7 @@
 'use client'
 
-import { useState } from 'react'
-import { FaSearch, FaFilter } from 'react-icons/fa'
+import { useState, useEffect } from 'react'
+import { FaFilter } from 'react-icons/fa'
 
 type Filters = {
   status: string
@@ -17,13 +17,22 @@ interface TodoFiltersProps {
 export default function TodoFilters({ filters, setFilters }: TodoFiltersProps) {
   const [search, setSearch] = useState(filters.search)
 
+  useEffect(() => {
+    if (search === filters.search) return
+
+    const timer = setTimeout(() => {
+      setFilters({
+         status: filters.status,
+         priority: filters.priority,
+          search 
+        })
+    }, 300)
+
+    return () => clearTimeout(timer)
+  }, [search, filters.search, filters.status, filters.priority, setFilters]);
+
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearch(e.target.value)
-  }
-
-  const handleSearchSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    setFilters({ ...filters, search })
   }
 
   const handleStatusChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -47,21 +56,15 @@ export default function TodoFilters({ filters, setFilters }: TodoFiltersProps) {
     <div className="bg-cardLightMode dark:bg-cardDarkMode rounded-lg p-4 shadow">
       <div className="flex flex-col items-center gap-4 md:flex-row">
         <div className="w-full md:w-1/2">
-          <form onSubmit={handleSearchSubmit} className="flex">
+          <div className="flex">
             <input
               type="text"
               value={search}
               onChange={handleSearchChange}
               placeholder="Search tasks..."
-              className="bg-backgroundLight h-10 flex-grow rounded-l-md px-4 outline-none dark:bg-zinc-700 dark:text-white"
+              className="bg-backgroundLight h-10 flex-grow rounded-md px-4 outline-none dark:bg-zinc-700 dark:text-white"
             />
-            <button
-              type="submit"
-              className="bg-primary hover:bg-primaryHover h-10 rounded-r-md px-4 text-white"
-            >
-              <FaSearch />
-            </button>
-          </form>
+          </div>
         </div>
 
         <div className="flex w-full flex-col items-center gap-4 sm:flex-row md:w-1/2">
