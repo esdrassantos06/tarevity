@@ -64,7 +64,7 @@ export default function LoginForm() {
   }
 
   return (
-    <div className="bg-lightCard dark:bg-darkCard mx-auto w-full max-w-md rounded-lg p-6 shadow-md">
+    <div className="dark:bg-BlackLight mx-auto w-full max-w-md rounded-2xl bg-white p-6 shadow-md">
       <h1 className="mb-6 text-center text-2xl font-bold dark:text-white">
         Login - Tarevity
       </h1>
@@ -118,6 +118,7 @@ export default function LoginForm() {
           )}
         </div>
 
+
         <div className="flex items-center justify-between">
           <div className="text-sm">
             <Link
@@ -144,7 +145,7 @@ export default function LoginForm() {
             <div className="w-full border-t border-gray-300 dark:border-gray-600"></div>
           </div>
           <div className="relative flex justify-center text-sm">
-            <span className="bg-lightCard/60 px-2 text-gray-500 dark:bg-darkCard/60 dark:text-gray-400">
+            <span className="bg-lightCard/60 dark:bg-darkCard/60 px-2 text-gray-500 dark:text-gray-400">
               Or continue with
             </span>
           </div>

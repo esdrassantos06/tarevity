@@ -14,6 +14,9 @@ const registerSchema = z
     email: z.string().email('Invalid email'),
     password: z.string().min(6, 'Password must have at least 6 characters'),
     confirmPassword: z.string(),
+    acceptTerms: z.literal(true, {
+      errorMap: () => ({ message: 'You must accept the terms to continue' })
+    })
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: 'Passwords do not match',
@@ -38,6 +41,7 @@ export default function RegisterForm() {
       email: '',
       password: '',
       confirmPassword: '',
+      acceptTerms: false
     },
   })
 
@@ -75,7 +79,7 @@ export default function RegisterForm() {
   }
 
   return (
-    <div className="bg-cardLightMode dark:bg-cardDarkMode mx-auto w-full max-w-md rounded-lg p-6 shadow-md">
+    <div className=" dark:bg-BlackLight bg-white mx-auto w-full max-w-md rounded-lg p-6 shadow-md">
       <h1 className="mb-6 text-center text-2xl font-bold dark:text-white">
         Register - Tarevity
       </h1>
@@ -169,6 +173,37 @@ export default function RegisterForm() {
               {errors.confirmPassword.message}
             </p>
           )}
+        </div>
+
+        <div className="mt-4">
+          <div className="flex items-start">
+            <div className="flex h-5 items-center">
+              <input
+                id="terms"
+                type="checkbox"
+                {...register('acceptTerms')}
+                className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700"
+                disabled={isLoading}
+              />
+            </div>
+            <div className="ml-3 text-sm">
+              <label htmlFor="terms" className="text-gray-600 dark:text-gray-400">
+                I agree to the{' '}
+                <Link href="/terms" className="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400">
+                  Terms of Service
+                </Link>{' '}
+                and{' '}
+                <Link href="/privacy" className="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400">
+                  Privacy Policy
+                </Link>
+              </label>
+              {errors.acceptTerms && (
+                <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+                  {errors.acceptTerms.message}
+                </p>
+              )}
+            </div>
+          </div>
         </div>
 
         <button
