@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { FaUser, FaCog, FaSignOutAlt, FaBars, FaTimes } from 'react-icons/fa'
 import ThemeToggle from '../common/ThemeToggle'
 import TarevityLogo from '../logo/TarevityLogo'
+import TarevityIcon from '../logo/TarevityIcon'
 
 export default function Header() {
   const { data: session } = useSession()
@@ -25,7 +26,8 @@ export default function Header() {
                 href={session ? '/dashboard' : '/'}
                 className="text-2xl font-bold text-blue-600 dark:text-blue-400"
               >
-                <TarevityLogo className="w-30" textColor='fill-black dark:fill-white' />
+                <TarevityLogo className="w-30 fill-black hidden sm:flex dark:fill-white" />
+                <TarevityIcon className="w-12 fill-black flex sm:hidden dark:fill-white" />
               </Link>
             </div>
           </div>
@@ -84,7 +86,7 @@ export default function Header() {
               aria-expanded="false"
             >
               <span className="sr-only">Open main menu</span>
-              {isMenuOpen ? <FaTimes /> : <FaBars />}
+              {isMenuOpen ? <FaTimes size={22} className='fill-black dark:fill-white'/> : <FaBars className='fill-black dark:fill-white' size={22}/>}
             </button>
           </div>
         </div>

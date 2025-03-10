@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { FaCheckCircle, FaBell, FaLock, FaMobileAlt } from 'react-icons/fa'
 import { IoIosArrowForward } from 'react-icons/io'
 import Layout from '@/components/layout/Layout'
+import TarevityLogo from '@/components/logo/TarevityLogo'
 
 export default function HomePage() {
   return (
@@ -11,9 +12,12 @@ export default function HomePage() {
         <div className="mx-auto max-w-7xl rounded-lg px-4 sm:px-6 lg:px-8">
           <div className="p-8 lg:text-center">
             <h1 className="text-lightText dark:text-darkText text-3xl font-extrabold tracking-tight sm:text-4xl md:text-5xl">
-              Manage your tasks efficiently
+            <TarevityLogo className='sm:w-120 w-100 md:w-150 mx-auto fill-lightText dark:fill-darkText mb-2'/> 
             </h1>
-            <p className="text-lightText dark:text-darkSecondaryText mx-auto mt-3 max-w-md text-lg sm:text-xl md:mt-5 md:max-w-3xl">
+            <h2 className="text-lightText text-center dark:text-darkText text-3xl font-extrabold tracking-tight sm:text-4xl md:text-5xl">
+              Manage your tasks efficiently
+            </h2>
+            <p className="text-lightText text-center dark:text-darkSecondaryText mx-auto mt-3 max-w-md text-lg sm:text-xl md:mt-5 md:max-w-3xl">
               Organize your tasks, set priorities, and never forget important
               deadlines again. A simple and efficient way to increase your
               productivity.

@@ -1,7 +1,7 @@
 // src/components/layout/Footer.tsx
 import Link from 'next/link'
 import { FaGithub, FaLinkedin, FaHeart } from 'react-icons/fa'
-import TarevityLogo from '../logo/TarevityLogo'
+import TarevityLogo from '../logo/TarevityLogo';
 
 export default function Footer() {
   const currentYear = new Date().getFullYear()
@@ -12,10 +12,8 @@ export default function Footer() {
         <div className="flex flex-col items-center justify-between space-y-4 md:flex-row md:space-y-0">
           {/* Logo and Copyright */}
           <div className="flex flex-col items-center gap-2 md:items-start">
-            <Link
-              href="/" aria-label='Tarevity Logo'
-            >
-              <TarevityLogo className="w-30" textColor="dark:fill-white fill-black" />
+            <Link href="/" aria-label="Tarevity Logo">
+              <TarevityLogo className="w-30 fill-black dark:fill-white" />
             </Link>
             <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
               &copy; {currentYear} Tarevity. All rights reserved.
@@ -30,17 +28,26 @@ export default function Footer() {
               </h3>
               <ul className="dark:text-DarkFooterText2 mt-4 space-y-2">
                 <li>
-                  <Link href="/" className="dark:hover:text-DarkFooterText2/70 text-base">
+                  <Link
+                    href="/"
+                    className="dark:hover:text-DarkFooterText2/70 text-base"
+                  >
                     Home
                   </Link>
                 </li>
                 <li>
-                  <Link href="/dashboard" className="dark:hover:text-DarkFooterText2/70 text-base">
+                  <Link
+                    href="/dashboard"
+                    className="dark:hover:text-DarkFooterText2/70 text-base"
+                  >
                     Dashboard
                   </Link>
                 </li>
                 <li>
-                  <Link href="/profile" className="dark:hover:text-DarkFooterText2/70 text-base">
+                  <Link
+                    href="/profile"
+                    className="dark:hover:text-DarkFooterText2/70 text-base"
+                  >
                     Profile
                   </Link>
                 </li>
@@ -53,12 +60,18 @@ export default function Footer() {
               </h3>
               <ul className="dark:text-DarkFooterText2 mt-4 space-y-2">
                 <li>
-                  <Link href="/privacy" className="dark:hover:text-DarkFooterText2/70 text-base">
+                  <Link
+                    href="/privacy"
+                    className="dark:hover:text-DarkFooterText2/70 text-base"
+                  >
                     Privacy
                   </Link>
                 </li>
                 <li>
-                  <Link href="/terms" className="dark:hover:text-DarkFooterText2/70 text-base">
+                  <Link
+                    href="/terms"
+                    className="dark:hover:text-DarkFooterText2/70 text-base"
+                  >
                     Terms of Use
                   </Link>
                 </li>
@@ -95,18 +108,18 @@ export default function Footer() {
                 href="https://github.com/esdrassantos06"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-white p-2.5 group bg-LightFooterIconsBG dark:bg-DarkFooterIconsBG rounded-full"
+                className="group bg-LightFooterIconsBG dark:bg-DarkFooterIconsBG rounded-full p-2.5 text-white"
               >
-                <FaGithub className="h-7 group-hover:text-DarkFooterText2/70 w-7" />
+                <FaGithub className="group-hover:text-DarkFooterText2/70 h-7 w-7" />
                 <span className="sr-only">GitHub</span>
               </a>
               <a
                 href="https://linkedin.com/in/esdrassantos06"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-white group flex items-center justify-center p-2.5 rounded-full bg-LightFooterIconsBG dark:bg-DarkFooterIconsBG"
+                className="group bg-LightFooterIconsBG dark:bg-DarkFooterIconsBG flex items-center justify-center rounded-full p-2.5 text-white"
               >
-                <FaLinkedin className="h-7 group-hover:text-DarkFooterText2/70 w-7"/>
+                <FaLinkedin className="group-hover:text-DarkFooterText2/70 h-7 w-7" />
                 <span className="sr-only">LinkedIn</span>
               </a>
             </div>
@@ -115,13 +128,13 @@ export default function Footer() {
 
         {/* Made with love */}
         <div className="dark:border-DarkFooterBorder border-LightFooterBorder mt-8 border-t pt-6">
-          <p className="flex items-center justify-center text-center text-sm dark:text-DarkFooterText2">
+          <p className="dark:text-DarkFooterText2 flex items-center justify-center text-center text-sm">
             Made with <FaHeart className="mx-1 h-4 w-4 text-red-500" /> by{' '}
             <a
               href="https://github.com/esdrassantos06"
               target="_blank"
               rel="noopener noreferrer"
-              className="dark:text-FooterText2 ml-1 hover:text-FooterText2/80"
+              className="dark:text-FooterText2 hover:text-FooterText2/80 ml-1"
             >
               Esdras
             </a>
