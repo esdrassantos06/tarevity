@@ -62,13 +62,13 @@ export default function Header() {
             <div className="hidden sm:flex sm:items-center sm:gap-3">
               <Link
                 href="/auth/login"
-                className="inline-flex items-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-darkText hover:bg-blue-700"
+                className="inline-flex items-center rounded-lg border border-transparent px-4 py-1.5 transition-all duration-300 text-sm font-medium dark:text-darkText text-lightText hover:border-blue-600"
               >
                 Login
               </Link>
               <Link
                 href="/auth/register"
-                className="inline-flex items-center rounded-md border border-transparent bg-white px-4 py-2 text-sm font-medium dark:text-darkText hover:bg-gray-50 dark:bg-darkButton dark:hover:bg-zinc-800"
+                className="inline-flex items-center transition-all duration-300 rounded-md border border-transparent dark:bg-white px-4 py-1.5 text-sm font-medium dark:text-black text-white dark:hover:bg-lightButton bg-darkButton hover:bg-zinc-900"
               >
                 Register
               </Link>

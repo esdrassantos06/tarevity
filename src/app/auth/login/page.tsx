@@ -8,7 +8,7 @@ export const metadata = {
 
 export default function LoginPage() {
  return (
-   <div className="bg-backgroundLight dark:bg-backgroundDark flex min-h-screen items-center justify-center px-4 py-12">
+   <div className="bg-lightBG dark:bg-darkBG flex min-h-screen items-center justify-center px-4 py-12">
      <Suspense fallback={<div className="text-center">Loading...</div>}>
        <LoginForm />
      </Suspense>
