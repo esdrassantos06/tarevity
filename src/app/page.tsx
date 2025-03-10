@@ -12,7 +12,7 @@ export default function HomePage() {
         <div className="mx-auto max-w-7xl rounded-lg px-4 sm:px-6 lg:px-8">
           <div className="p-8 lg:text-center">
             <h1 className="text-lightText dark:text-darkText text-3xl font-extrabold tracking-tight sm:text-4xl md:text-5xl">
-            <TarevityLogo className='sm:w-120 w-100 md:w-150 mx-auto fill-lightText dark:fill-darkText mb-2'/> 
+            <TarevityLogo className='sm:w-120 w-100 md:w-150 mx-auto fill-BlackLight dark:fill-white mb-2'/> 
             </h1>
             <h2 className="text-lightText text-center dark:text-darkText text-3xl font-extrabold tracking-tight sm:text-4xl md:text-5xl">
               Manage your tasks efficiently

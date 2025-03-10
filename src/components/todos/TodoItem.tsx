@@ -97,6 +97,7 @@ export default function TodoItem({
                 onClick={() => onEdit(todo.id)}
                 className="text-blue-500 hover:text-blue-700 dark:text-blue-400"
                 aria-label="Edit task"
+                type="button"
               >
                 <FaEdit />
               </button>
@@ -104,6 +105,7 @@ export default function TodoItem({
                 onClick={() => onDelete(todo.id)}
                 className="text-red-500 hover:text-red-700 dark:text-red-400"
                 aria-label="Delete task"
+                type="button"
               >
                 <FaTrash />
               </button>

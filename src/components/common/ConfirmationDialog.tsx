@@ -21,7 +21,7 @@ interface ConfirmationDialogProps {
   description: string
   confirmText?: string
   cancelText?: string
-  variant?: DialogVariant // Use the shared type here
+  variant?: DialogVariant
   isLoading?: boolean
 }
 
@@ -31,7 +31,7 @@ export function useConfirmationDialog() {
     title: string;
     description: string;
     onConfirm: () => void;
-    variant?: DialogVariant; // Use the shared type here
+    variant?: DialogVariant;
     confirmText?: string;
     cancelText?: string;
     isLoading?: boolean;
@@ -110,21 +110,28 @@ export default function ConfirmationDialog({
     }
   }
 
-  const handleConfirm = () => {
+  const handleConfirm = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
     onConfirm()
+  }
+
+  const handleCancel = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
     onClose()
   }
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent>
+      <DialogContent onClick={(e) => e.stopPropagation()}>
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
           <DialogDescription>{description}</DialogDescription>
         </DialogHeader>
         <DialogFooter>
           <button
-            onClick={onClose}
+            onClick={handleCancel}
             className="mt-3 sm:mt-0 w-full sm:w-auto inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none dark:bg-gray-700 dark:text-white dark:border-gray-600 dark:hover:bg-gray-600"
             disabled={isLoading}
           >

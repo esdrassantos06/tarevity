@@ -1,11 +1,18 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import TodoItem from './TodoItem'
 import TodoForm from './TodoForm'
 import TodoFilters from './TodoFilters'
 import { toast } from 'react-toastify'
-import ConfirmationDialog, { useConfirmationDialog } from '@/components/common/ConfirmationDialog'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from '@/components/common/Dialog'
 
 interface Todo {
   id: string
@@ -38,13 +45,10 @@ export default function TodoList() {
     search: '',
   })
   
-  // Use our custom confirmation dialog hook
-  const { 
-    dialogState, 
-    openConfirmDialog, 
-    closeConfirmDialog, 
-    setLoading: setDialogLoading 
-  } = useConfirmationDialog()
+  // Custom direct dialog state (without the hook)
+  const [dialogOpen, setDialogOpen] = useState(false)
+  const [dialogLoading, setDialogLoading] = useState(false)
+  const [todoToDelete, setTodoToDelete] = useState<string | null>(null)
 
   // Load tasks
   const fetchTodos = async () => {
@@ -244,42 +248,44 @@ export default function TodoList() {
     }
   }
 
-  // Delete task
-  const handleDeleteTodo = async (id: string) => {
-    // Instead of using confirm, open our dialog
-    openConfirmDialog({
-      title: "Delete Task",
-      description: "Are you sure you want to delete this task? This action cannot be undone.",
-      variant: "danger",
-      confirmText: "Delete",
-      cancelText: "Cancel",
-      onConfirm: async () => {
-        try {
-          setDialogLoading(true);
-          const response = await fetch(`/api/todos/${id}`, {
-            method: 'DELETE',
-          })
+  // Show delete confirmation dialog
+  const confirmDelete = useCallback((id: string) => {
+    setTodoToDelete(id);
+    setDialogOpen(true);
+  }, []);
 
-          if (!response.ok) {
-            throw new Error('Failed to delete task')
-          }
+  // Handle actual deletion
+  const handleDeleteConfirmed = useCallback(async () => {
+    if (!todoToDelete) return;
+    
+    setDialogLoading(true);
+    try {
+      const response = await fetch(`/api/todos/${todoToDelete}`, {
+        method: 'DELETE',
+      });
 
-          setTodos((prevTodos) => prevTodos.filter((todo) => todo.id !== id))
-          toast.success('Task deleted successfully!')
-        } catch (err: unknown) {
-          if (err instanceof Error) {
-            toast.error(err.message || 'An error occurred while deleting the task')
-            console.error('Error deleting task:', err)
-          } else {
-            toast.error('An error occurred while deleting the task')
-            console.error('Error deleting task:', err)
-          }
-        } finally {
-          setDialogLoading(false);
-        }
+      if (!response.ok) {
+        throw new Error('Failed to delete task');
       }
-    });
-  }
+
+      setTodos((prevTodos) => prevTodos.filter((todo) => todo.id !== todoToDelete));
+      toast.success('Task deleted successfully!');
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'An error occurred while deleting the task';
+      toast.error(errorMessage);
+      console.error('Error deleting task:', err);
+    } finally {
+      setDialogLoading(false);
+      setDialogOpen(false);
+      setTodoToDelete(null);
+    }
+  }, [todoToDelete]);
+
+  // Close dialog without deleting
+  const handleCancelDelete = useCallback(() => {
+    setDialogOpen(false);
+    setTodoToDelete(null);
+  }, []);
 
   // Start editing a task
   const handleStartEdit = (id: string) => {
@@ -355,7 +361,7 @@ export default function TodoList() {
                   todo={todo}
                   onToggleComplete={handleToggleComplete}
                   onEdit={handleStartEdit}
-                  onDelete={handleDeleteTodo}
+                  onDelete={confirmDelete}
                 />
               )}
             </div>
@@ -363,18 +369,33 @@ export default function TodoList() {
         </div>
       )}
       
-      {/* Render the confirmation dialog */}
-      <ConfirmationDialog
-        isOpen={dialogState.isOpen}
-        onClose={closeConfirmDialog}
-        onConfirm={dialogState.onConfirm}
-        title={dialogState.title}
-        description={dialogState.description}
-        confirmText={dialogState.confirmText}
-        cancelText={dialogState.cancelText}
-        variant={dialogState.variant}
-        isLoading={dialogState.isLoading}
-      />
+      {/* Custom Delete Confirmation Dialog */}
+      <Dialog open={dialogOpen} onOpenChange={handleCancelDelete}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Task</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete this task? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <button
+              onClick={handleCancelDelete}
+              disabled={dialogLoading}
+              className="mt-3 sm:mt-0 w-full sm:w-auto inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none dark:bg-gray-700 dark:text-white dark:border-gray-600 dark:hover:bg-gray-600"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleDeleteConfirmed}
+              disabled={dialogLoading}
+              className="py-2 px-4 rounded-md font-medium text-white bg-red-600 hover:bg-red-700"
+            >
+              {dialogLoading ? 'Deleting...' : 'Delete'}
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
