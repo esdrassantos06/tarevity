@@ -10,8 +10,8 @@ export async function middleware(request: NextRequest) {
 
   const cspHeader = `
   default-src 'self';
-  script-src 'self' 'unsafe-inline' 'unsafe-eval';
-  style-src 'self' 'unsafe-inline';
+  script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com;
+  style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com;
   img-src 'self' blob: data: https://lh3.googleusercontent.com https://avatars.githubusercontent.com;
   font-src 'self';
   object-src 'none';
