@@ -34,8 +34,9 @@ export async function middleware(request: NextRequest) {
   // CORS Configuration
   const origin = request.headers.get('origin')
   const allowedOrigins = [
-    process.env.NEXT_PUBLIC_APP_URL || 'https://tarevity.pt', 
-    // Add any other domains you want to allow
+    process.env.NEXT_PUBLIC_APP_URL || 'https://tarevity.pt',
+    'https://accounts.google.com',
+    'https://github.com',
   ]
   
   // Only set CORS headers for API routes
