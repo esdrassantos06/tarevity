@@ -7,6 +7,8 @@ import { toast } from 'react-toastify'
 import { FaMoon, FaSun, FaDesktop, FaUserCircle } from 'react-icons/fa'
 import { useRouter } from 'next/navigation'
 import ConfirmationDialog, { useConfirmationDialog } from '@/components/common/ConfirmationDialog'
+import { profileAPI } from '@/lib/api'
+import axiosClient from '@/lib/axios'
 
 interface ProfileData {
   id: string
@@ -40,16 +42,19 @@ export default function SettingsComponent() {
 
       setIsLoadingProfile(true)
       try {
-        const response = await fetch('/api/profile', {
-          credentials: 'include',
-        })
-
-        if (!response.ok) {
-          throw new Error('Failed to load profile data')
+        // Directly use axios instead of the API helper to debug the issue
+        const response = await axiosClient.get('/api/profile');
+        setProfileData(response.data);
+        
+        // Alternative approach using the API helper with safer error handling
+        /*
+        const result = await profileAPI.getProfile();
+        if (result.data) {
+          setProfileData(result.data);
+        } else {
+          console.warn('No profile data returned, but no error either');
         }
-
-        const data = await response.json()
-        setProfileData(data)
+        */
       } catch (error) {
         console.error('Error fetching profile:', error)
         toast.error('Could not load your profile information')
@@ -102,20 +107,9 @@ export default function SettingsComponent() {
               setDialogLoading(true);
               setIsDeleting(true);
 
-              // Make an API call to delete the user account
-              const response = await fetch('/api/account/delete', {
-                method: 'DELETE',
-                headers: {
-                  'Content-Type': 'application/json',
-                },
-                credentials: 'include',
-              })
-
-              if (!response.ok) {
-                const data = await response.json()
-                throw new Error(data.message || 'Error deleting account')
-              }
-
+              // Use direct axios call for more reliable error handling
+              await axiosClient.delete('/api/account/delete');
+              
               // Show success message
               toast.success('Your account has been successfully deleted')
 

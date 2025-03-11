@@ -1,6 +1,7 @@
 // src/app/api/auth/check-password/route.ts
 import { NextResponse } from 'next/server'
 import { redis } from '@/lib/redis'
+import axiosClient from '@/lib/axios'
 
 export async function POST(req: Request) {
   try {
@@ -72,18 +73,14 @@ async function checkPasswordWithHIBP(password: string): Promise<boolean> {
     }
     
     // If not in cache, fetch from API
-    const response = await fetch(`https://api.pwnedpasswords.com/range/${prefix}`, {
+    const response = await axiosClient.get(`https://api.pwnedpasswords.com/range/${prefix}`, {
       headers: {
         'User-Agent': 'Tarevity-PasswordChecker' 
       }
     })
     
-    if (!response.ok) {
-      throw new Error(`API error: ${response.status} ${response.statusText}`)
-    }
-    
     // Get the response text (list of hash suffixes and counts)
-    const text = await response.text()
+    const text = await response.data
     
     // Cache the result with a TTL of 24 hours (86400 seconds)
     // This is safe to cache since password hash prefixes change slowly

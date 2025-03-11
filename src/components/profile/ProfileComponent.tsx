@@ -14,6 +14,7 @@ import {
   FaClipboardCheck,
   FaClock,
 } from 'react-icons/fa'
+import { profileAPI } from '@/lib/api'
 
 
 interface ProfileData {
@@ -47,19 +48,18 @@ export default function ProfileComponent() {
 
       setIsLoading(true)
       try {
-        const response = await fetch('/api/profile', {
-          credentials: 'include',
-        })
-
-        if (!response.ok) {
-          throw new Error('Failed to load profile data')
+        const result = await profileAPI.getProfile();
+        
+        if (result.error) {
+          throw new Error(result.error.message || 'Failed to load profile data');
         }
 
-        const data = await response.json()
-        setProfileData(data)
-        setFormData({
-          name: data.name || '',
-        })
+        if (result.data) {
+          setProfileData(result.data);
+          setFormData({
+            name: result.data.name || '',
+          });
+        }
 
         // After loading profile, fetch the user statistics
         await fetchUserStats()
@@ -79,16 +79,15 @@ export default function ProfileComponent() {
   // Function to fetch user task statistics
   const fetchUserStats = async () => {
     try {
-      const response = await fetch('/api/stats', {
-        credentials: 'include',
-      })
-
-      if (!response.ok) {
-        throw new Error('Failed to load statistics')
+      const result = await profileAPI.getStats();
+      
+      if (result.error) {
+        throw new Error(result.error.message || 'Failed to load statistics');
       }
 
-      const data = await response.json()
-      setUserStats(data)
+      if (result.data) {
+        setUserStats(result.data);
+      }
     } catch (error) {
       console.error('Error fetching user stats:', error)
       toast.error('Could not load your statistics')
@@ -125,35 +124,29 @@ export default function ProfileComponent() {
 
     try {
       setIsLoading(true)
-      const response = await fetch('/api/profile', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-        credentials: 'include',
-      })
-
-      if (!response.ok) {
-        throw new Error('Failed to update profile')
+      const result = await profileAPI.updateProfile(formData);
+      
+      if (result.error) {
+        throw new Error(result.error.message || 'Failed to update profile');
       }
 
-      const updatedProfile = await response.json()
-      setProfileData(updatedProfile)
+      if (result.data) {
+        setProfileData(result.data);
+        
+        // Update session data to reflect changes
+        if (update) {
+          await update({
+            ...session,
+            user: {
+              ...session?.user,
+              name: result.data.name,
+            },
+          });
+        }
 
-      // Update session data to reflect changes
-      if (update) {
-        await update({
-          ...session,
-          user: {
-            ...session?.user,
-            name: updatedProfile.name,
-          },
-        })
+        toast.success('Profile updated successfully!');
+        setIsEditing(false);
       }
-
-      toast.success('Profile updated successfully!')
-      setIsEditing(false)
     } catch (error) {
       console.error('Error updating profile:', error)
       toast.error('Error updating profile')
