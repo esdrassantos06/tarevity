@@ -7,7 +7,6 @@ import { toast } from 'react-toastify'
 import { FaMoon, FaSun, FaDesktop, FaUserCircle } from 'react-icons/fa'
 import { useRouter } from 'next/navigation'
 import ConfirmationDialog, { useConfirmationDialog } from '@/components/common/ConfirmationDialog'
-import { profileAPI } from '@/lib/api'
 import axiosClient from '@/lib/axios'
 
 interface ProfileData {
