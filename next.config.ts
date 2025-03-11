@@ -36,7 +36,7 @@ const nextConfig: NextConfig = {
             key: 'Permissions-Policy',
             value: 'camera=(), microphone=(), geolocation=(self), interest-cohort=(), accelerometer=(), autoplay=(), encrypted-media=(), gyroscope=(), magnetometer=(), midi=(), payment=(), picture-in-picture=(), usb=(), xr-spatial-tracking=()',
           },
-          // Cache Control - adjust based on your needs
+          // Default Cache Control - moderate caching for html/dynamic content
           {
             key: 'Cache-Control',
             value: 'public, max-age=3600, stale-while-revalidate=86400',
@@ -53,7 +53,7 @@ const nextConfig: NextConfig = {
           },
         ],
       },
-      // Separate headers for static assets with longer cache duration
+      // Static assets with long-term caching
       {
         source: '/static/:path*',
         headers: [
@@ -63,13 +63,53 @@ const nextConfig: NextConfig = {
           },
         ],
       },
-      // API endpoints should not be cached
+      // Images with longer cache duration
+      {
+        source: '/_next/image/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=86400, stale-while-revalidate=604800',
+          },
+        ],
+      },
+      // Next.js static assets (JS, CSS) - immutable content-based hashing
+      {
+        source: '/_next/static/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      },
+      // Font files - rarely change and benefit from long cache
+      {
+        source: '/fonts/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      },
+      // API endpoints should not be cached by default
       {
         source: '/api/:path*',
         headers: [
           {
             key: 'Cache-Control',
             value: 'no-store, max-age=0',
+          },
+        ],
+      },
+      // Public assets with versioning in filename
+      {
+        source: '/assets/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
           },
         ],
       },

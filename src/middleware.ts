@@ -2,8 +2,11 @@ import { getToken } from 'next-auth/jwt'
 import { NextRequest, NextResponse } from 'next/server'
 import { redis } from '@/lib/redis'
 
-const RATE_LIMIT_MAX = 5
-const RATE_LIMIT_WINDOW = 60 * 15
+// Rate limit configurations
+const AUTH_RATE_LIMIT = 5
+const AUTH_RATE_LIMIT_WINDOW = 60 * 15 // 15 minutes
+const API_RATE_LIMIT = 60
+const API_RATE_LIMIT_WINDOW = 60 // 1 minute
 
 export async function middleware(request: NextRequest) {
   
@@ -28,7 +31,7 @@ export async function middleware(request: NextRequest) {
   // Set Security Headers
   response.headers.set('Content-Security-Policy', cspHeader)
   
-  // CORS Configuration - Fix for the vulnerability
+  // CORS Configuration
   const origin = request.headers.get('origin')
   const allowedOrigins = [
     process.env.NEXT_PUBLIC_APP_URL || 'https://tarevity.pt', 
@@ -54,38 +57,113 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // Rate limiting for auth endpoints
+  // Enhanced rate limiting for auth endpoints
   if (
     request.nextUrl.pathname.startsWith('/api/auth/login') ||
-    request.nextUrl.pathname.startsWith('/api/auth/forgot-password')
+    request.nextUrl.pathname.startsWith('/api/auth/forgot-password') ||
+    request.nextUrl.pathname.startsWith('/api/auth/reset-password')
   ) {
     try {
       const ip = request.headers.get('x-forwarded-for') || 'unknown'
-      const key = `rate-limit:${ip}:${request.nextUrl.pathname}`
+      const path = request.nextUrl.pathname
+      const key = `rate-limit:${ip}:${path}`
 
-      const result = await redis.get(key)
-      // Get current count and timestamp
-      const count = result ? parseInt(result as string, 10) : 0
+      // Get current count
+      const count = await getRequestCount(key)
 
-      if (count >= RATE_LIMIT_MAX) {
+      // Check for penalty
+      const penaltyKey = `rate-limit-penalty:${ip}`
+      const hasPenalty = await redis.exists(penaltyKey)
+      
+      if (hasPenalty) {
+        // Get remaining time for the penalty
+        const ttl = await redis.ttl(penaltyKey)
+        
         return NextResponse.json(
           { message: 'Too many requests, please try again later' },
-          { status: 429, headers: { 'Retry-After': RATE_LIMIT_WINDOW.toString() } }
+          { 
+            status: 429, 
+            headers: { 
+              'Retry-After': String(ttl),
+              'X-RateLimit-Reset': String(Math.ceil(Date.now() / 1000) + ttl)
+            } 
+          }
         )
       }
 
-      await redis.incr(key)
-
-      if (count === 0) {
-        await redis.expire(key, RATE_LIMIT_WINDOW)
+      if (count >= AUTH_RATE_LIMIT) {
+        // Apply a 5-minute penalty for reaching the limit
+        await redis.set(penaltyKey, '1', { ex: 60 * 5 })
+        
+        return NextResponse.json(
+          { message: 'Too many requests, please try again later' },
+          { 
+            status: 429, 
+            headers: { 
+              'Retry-After': String(AUTH_RATE_LIMIT_WINDOW),
+              'X-RateLimit-Reset': String(Math.ceil(Date.now() / 1000) + AUTH_RATE_LIMIT_WINDOW)
+            } 
+          }
+        )
       }
+
+      // Increment count
+      if (count === 0) {
+        await redis.set(key, '1', { ex: AUTH_RATE_LIMIT_WINDOW })
+      } else {
+        await redis.incr(key)
+      }
+      
+      // Set headers for rate limit info
+      response.headers.set('X-RateLimit-Limit', String(AUTH_RATE_LIMIT))
+      response.headers.set('X-RateLimit-Remaining', String(Math.max(0, AUTH_RATE_LIMIT - (count + 1))))
+      response.headers.set('X-RateLimit-Reset', String(Math.ceil(Date.now() / 1000) + AUTH_RATE_LIMIT_WINDOW))
+    } catch (error) {
+      console.error('Rate limiting error:', error)
+      // Continue even if rate limiting fails
+    }
+  }
+  
+  // General API rate limiting (higher limits for normal API calls)
+  else if (request.nextUrl.pathname.startsWith('/api/')) {
+    try {
+      const ip = request.headers.get('x-forwarded-for') || 'unknown'
+      const key = `rate-limit:${ip}:api`
+
+      // Get current count
+      const count = await getRequestCount(key)
+
+      if (count >= API_RATE_LIMIT) {
+        return NextResponse.json(
+          { message: 'Too many requests, please try again later' },
+          { 
+            status: 429, 
+            headers: { 
+              'Retry-After': String(API_RATE_LIMIT_WINDOW),
+              'X-RateLimit-Reset': String(Math.ceil(Date.now() / 1000) + API_RATE_LIMIT_WINDOW)
+            } 
+          }
+        )
+      }
+
+      // Increment count
+      if (count === 0) {
+        await redis.set(key, '1', { ex: API_RATE_LIMIT_WINDOW })
+      } else {
+        await redis.incr(key)
+      }
+      
+      // Set headers for rate limit info
+      response.headers.set('X-RateLimit-Limit', String(API_RATE_LIMIT))
+      response.headers.set('X-RateLimit-Remaining', String(Math.max(0, API_RATE_LIMIT - (count + 1))))
+      response.headers.set('X-RateLimit-Reset', String(Math.ceil(Date.now() / 1000) + API_RATE_LIMIT_WINDOW))
     } catch (error) {
       console.error('Rate limiting error:', error)
       // Continue even if rate limiting fails
     }
   }
 
-  // Your existing authentication logic
+  // Authentication logic
   const token = await getToken({ req: request })
   const isAuthenticated = !!token
 
@@ -110,6 +188,12 @@ export async function middleware(request: NextRequest) {
   }
 
   return response
+}
+
+// Helper function to get the current request count
+async function getRequestCount(key: string): Promise<number> {
+  const count = await redis.get(key)
+  return count ? parseInt(count as string, 10) : 0
 }
 
 // Make sure your matcher includes all API paths

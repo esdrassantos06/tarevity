@@ -1,5 +1,6 @@
-import axios, { AxiosError } from 'axios'
+import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios'
 import { getSession, getCsrfToken } from 'next-auth/react'
+import { cacheService } from './cacheService'
 
 // Define the expected structure of API error responses
 export interface APIErrorResponse {
@@ -17,6 +18,12 @@ export interface APIError {
 
 export function isAPIError(error: unknown): error is APIError {
   return typeof error === 'object' && error !== null && 'message' in error
+}
+
+interface CachedRequestConfig extends AxiosRequestConfig {
+  cache?: boolean;
+  cacheTTL?: number;
+  cacheKey?: string;
 }
 
 const axiosClient = axios.create({
@@ -103,5 +110,51 @@ axiosClient.interceptors.response.use(
     } satisfies APIError)
   },
 )
+
+// Extended axios client with cache support
+export const cachedAxios = {
+  async get<T = unknown>(url: string, config: CachedRequestConfig = {}): Promise<AxiosResponse<T>> {
+    const { cache = false, cacheTTL = 5 * 60 * 1000, cacheKey, ...axiosConfig } = config
+    
+    // If caching is disabled, just make the request
+    if (!cache) {
+      return axiosClient.get<T>(url, axiosConfig)
+    }
+    
+    // Generate a cache key if not provided
+    const key = cacheKey || `axios-cache:${url}:${JSON.stringify(axiosConfig.params || {})}`
+    
+    // Try to get from cache
+    const cachedData = cacheService.get<AxiosResponse<T>>(key)
+    if (cachedData) {
+      return cachedData
+    }
+    
+    // Make the request
+    const response = await axiosClient.get<T>(url, axiosConfig)
+    
+    // Cache the response
+    cacheService.set(key, response, { ttl: cacheTTL })
+    
+    return response
+  },
+  
+  // Forward other methods to axios client
+  post: axiosClient.post,
+  put: axiosClient.put,
+  delete: axiosClient.delete,
+  patch: axiosClient.patch,
+  
+  // Method to invalidate cache for a specific URL
+  invalidateCache(url: string, params: Record<string, unknown> = {}): void {
+    const key = `axios-cache:${url}:${JSON.stringify(params)}`
+    cacheService.remove(key)
+  },
+  
+  // Method to invalidate all cache entries
+  clearCache(): void {
+    cacheService.clear()
+  }
+}
 
 export default axiosClient

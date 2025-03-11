@@ -3,8 +3,15 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/auth-options'
 import { NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
 import { NextRequest } from 'next/server'
+import { 
+  withCache, 
+  getUserCachePrefix, 
+  invalidateUserTodosCache, 
+  invalidateUserStatsCache,
+  invalidateCache 
+} from '@/lib/cacheMiddleware'
 
-// Get a specific task
+// Get a specific task (with caching)
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -17,34 +24,39 @@ export async function GET(
       return NextResponse.json({ message: 'Unauthorized' }, { status: 401 })
     }
 
-    // Extract the task ID from URL parameters
+    const userId = session.user.id
     const taskId = resolvedParams.id
+    
+    return withCache(request, async () => {
+      // Fetch task data and perform authorization check in one query
+      const { data, error } = await supabaseAdmin
+        .from('todos')
+        .select('*')
+        .eq('id', taskId)
+        .single()
 
-    // Fetch task data and perform authorization check in one query
-    const { data, error } = await supabaseAdmin
-      .from('todos')
-      .select('*')
-      .eq('id', taskId)
-      .single()
+      // Check if task exists
+      if (error || !data) {
+        return NextResponse.json(
+          { message: 'Task not found' },
+          { status: 404 }
+        )
+      }
 
-    // Check if task exists
-    if (error || !data) {
-      return NextResponse.json(
-        { message: 'Task not found' },
-        { status: 404 }
-      )
-    }
+      // Check if the task belongs to the current user
+      if (data.user_id !== userId) {
+        return NextResponse.json(
+          { message: 'Forbidden' },
+          { status: 403 }
+        )
+      }
 
-    // Check if the task belongs to the current user
-    if (data.user_id !== session.user.id) {
-      return NextResponse.json(
-        { message: 'Forbidden' },
-        { status: 403 }
-      )
-    }
-
-    // Return the task data if authorization passes
-    return NextResponse.json(data, { status: 200 })
+      // Return the task data if authorization passes
+      return NextResponse.json(data, { status: 200 })
+    }, {
+      ttl: 60 * 5, // 5 minutes
+      keyPrefix: getUserCachePrefix(userId, `todo:${taskId}`)
+    })
   } catch (error) {
     if (error instanceof Error) {
       console.error('Error fetching task:', error)
@@ -75,7 +87,7 @@ export async function PUT(
       return NextResponse.json({ message: 'Unauthorized' }, { status: 401 })
     }
 
-    // Extract the task ID from URL parameters
+    const userId = session.user.id
     const taskId = resolvedParams.id
 
     // Parse the request body
@@ -86,7 +98,7 @@ export async function PUT(
       .from('todos')
       .select('id')
       .eq('id', taskId)
-      .eq('user_id', session.user.id)
+      .eq('user_id', userId)
       .single()
 
     if (checkError || !existingTask) {
@@ -108,6 +120,13 @@ export async function PUT(
       console.error('Supabase update error:', error)
       throw error
     }
+
+    // Invalidate related caches
+    await Promise.all([
+      invalidateUserTodosCache(userId),
+      invalidateUserStatsCache(userId),
+      invalidateCache(`cache:user:${userId}:todo:${taskId}*`)
+    ])
 
     return NextResponse.json(data, { status: 200 })
   } catch (error) {
@@ -140,7 +159,7 @@ export async function DELETE(
       return NextResponse.json({ message: 'Unauthorized' }, { status: 401 })
     }
 
-    // Extract the task ID from URL parameters
+    const userId = session.user.id
     const taskId = resolvedParams.id
 
     // Verify task belongs to user first
@@ -148,7 +167,7 @@ export async function DELETE(
       .from('todos')
       .select('id')
       .eq('id', taskId)
-      .eq('user_id', session.user.id)
+      .eq('user_id', userId)
       .single()
 
     if (checkError || !existingTask) {
@@ -168,6 +187,13 @@ export async function DELETE(
       console.error('Supabase delete error:', error)
       throw error
     }
+
+    // Invalidate related caches
+    await Promise.all([
+      invalidateUserTodosCache(userId),
+      invalidateUserStatsCache(userId),
+      invalidateCache(`cache:user:${userId}:todo:${taskId}*`)
+    ])
 
     return NextResponse.json(
       { message: 'Task deleted successfully' },
