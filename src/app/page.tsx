@@ -3,6 +3,15 @@ import { FaCheckCircle, FaBell, FaLock, FaMobileAlt } from 'react-icons/fa'
 import { IoIosArrowForward } from 'react-icons/io'
 import Layout from '@/components/layout/Layout'
 import TarevityLogo from '@/components/logo/TarevityLogo'
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'Tarevity - Streamline Your Productivity with Smart Task Management',
+  description: `Transform how you organize daily work with Tarevity's intuitive task management.`,
+  keywords: ['task management', 'productivity tool', 'to-do application', 'project organization'],
+  authors: [{ name: 'Esdras Santos' }],
+  robots: 'index, follow'
+}
 
 export default function HomePage() {
   return (

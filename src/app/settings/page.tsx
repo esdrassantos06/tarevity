@@ -3,8 +3,9 @@ import Layout from '@/components/layout/Layout'
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Settings | Tarevity',
-  description: 'Customize your Tarevity settings',
+  title: 'Personalize Your Experience | Tarevity Settings',
+  description: 'Customize your task management environment with theme preferences, notification settings, and account security options.',
+  robots: 'noindex, nofollow'
 }
 
 export default function SettingsPage() {

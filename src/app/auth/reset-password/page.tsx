@@ -3,8 +3,9 @@ import { Metadata } from 'next'
 import { Suspense } from 'react'
 
 export const metadata: Metadata = {
- title: 'Reset Password | Tarevity',
- description: 'Create a new password for your Tarevity account',
+  title: 'Create New Password | Tarevity Security Center',
+  description: 'Set a new secure password with real-time strength assessment and breach verification. Your security is our priority at Tarevity.',
+  robots: 'noindex, nofollow'
 }
 
 export default function ResetPasswordPage() {

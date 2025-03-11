@@ -9,10 +9,17 @@ import ToastProvider from '@/components/common/ToastProvider'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Tarevity - Manage your tasks efficiently',
-  description: 'A modern and efficient task list application',
+  title: {
+    template: '%s | Tarevity',
+    default: 'Tarevity - Intelligent Task Management for Modern Professionals',
+  },
+  description: `Elevate your productivity with Tarevity's secure, intuitive task management platform featuring priority-based workflows and comprehensive analytics.`,
+  keywords: ['task management', 'productivity system', 'priority management', 'deadline tracking'],
+  authors: [{ name: 'Esdras Santos' }],
+  creator: 'Esdras Santos',
+  publisher: 'Tarevity',
+  robots: 'index, follow'
 }
-
 export default async function RootLayout({
   children,
 }: Readonly<{

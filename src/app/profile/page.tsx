@@ -3,8 +3,9 @@ import Layout from '@/components/layout/Layout'
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
- title: 'Profile | Tarevity',
- description: 'Manage your profile information',
+  title: 'Your Profile & Productivity Statistics | Tarevity',
+  description: 'Review your personalized task analytics, completion metrics, and account settings. Gain insights into your productivity patterns.',
+  robots: 'noindex, nofollow'
 }
 
 export default function ProfilePage() {

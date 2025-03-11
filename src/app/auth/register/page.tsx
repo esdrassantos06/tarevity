@@ -1,8 +1,10 @@
+import { Metadata } from 'next'
 import RegisterForm from '@/components/auth/RegisterForm'
 
-export const metadata = {
- title: 'Register | Tarevity',
- description: 'Create a new account on Tarevity',
+export const metadata: Metadata = {
+  title: 'Create Your Tarevity Account | Simple Registration',
+  description: 'Join thousands of productive professionals. Create your account with enterprise-grade security, password strength verification, and data breach protection.',
+  robots: 'noindex, nofollow'
 }
 
 export default function RegisterPage() {

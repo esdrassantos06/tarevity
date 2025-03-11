@@ -2,8 +2,9 @@ import ForgotPasswordForm from '@/components/auth/ForgotPasswordForm'
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
- title: 'Forgot Password | Tarevity',
- description: 'Recover access to your Tarevity account',
+  title: 'Recover Account Access | Tarevity Password Reset',
+  description: 'Securely reset your password through our encrypted recovery system. Receive time-sensitive recovery links via email verification.',
+  robots: 'noindex, nofollow'
 }
 
 export default function ForgotPasswordPage() {
