@@ -6,29 +6,28 @@ const RATE_LIMIT_MAX = 5
 const RATE_LIMIT_WINDOW = 60 * 15
 
 export async function middleware(request: NextRequest) {
-  // Generate CSP nonce
-
-  const cspHeader = `
-  default-src 'self';
-  script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com;
-  style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com;
-  img-src 'self' blob: data: https://lh3.googleusercontent.com https://avatars.githubusercontent.com;
-  font-src 'self';
-  object-src 'none';
-  base-uri 'self';
-  form-action 'self';
-  frame-ancestors 'none';
-  connect-src 'self';
-  upgrade-insecure-requests;
-`.replace(/\s{2,}/g, ' ').trim()
-
-
-const response = NextResponse.next()
-
-
-response.headers.set('Content-Security-Policy', cspHeader)
   
+  // Create a comprehensive CSP policy with nonce
+  const cspHeader = `
+    default-src 'self';
+    script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com;
+    style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com;
+    img-src 'self' blob: data: https://lh3.googleusercontent.com https://avatars.githubusercontent.com;
+    font-src 'self' https://cdnjs.cloudflare.com;
+    object-src 'none';
+    base-uri 'self';
+    form-action 'self';
+    frame-ancestors 'none';
+    connect-src 'self' ${process.env.NEXT_PUBLIC_SUPABASE_URL || ''};
+    upgrade-insecure-requests;
+    block-all-mixed-content;
+  `.replace(/\s{2,}/g, ' ').trim()
 
+  const response = NextResponse.next()
+
+  // Set Security Headers
+  response.headers.set('Content-Security-Policy', cspHeader)
+  
 
   // Rate limiting for auth endpoints
   if (
@@ -46,7 +45,7 @@ response.headers.set('Content-Security-Policy', cspHeader)
       if (count >= RATE_LIMIT_MAX) {
         return NextResponse.json(
           { message: 'Too many requests, please try again later' },
-          { status: 429 },
+          { status: 429, headers: { 'Retry-After': RATE_LIMIT_WINDOW.toString() } }
         )
       }
 

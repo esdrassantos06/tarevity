@@ -11,6 +11,7 @@ const nextConfig: NextConfig = {
       {
         source: '/:path*',
         headers: [
+          // Security Headers
           {
             key: 'X-Content-Type-Options',
             value: 'nosniff',
@@ -33,8 +34,42 @@ const nextConfig: NextConfig = {
           },
           {
             key: 'Permissions-Policy',
-            value:
-              'camera=(), microphone=(), geolocation=(self), interest-cohort=()',
+            value: 'camera=(), microphone=(), geolocation=(self), interest-cohort=(), accelerometer=(), autoplay=(), encrypted-media=(), gyroscope=(), magnetometer=(), midi=(), payment=(), picture-in-picture=(), usb=(), xr-spatial-tracking=()',
+          },
+          // Cache Control - adjust based on your needs
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=3600, stale-while-revalidate=86400',
+          },
+          // Performance Headers
+          {
+            key: 'Timing-Allow-Origin',
+            value: '*',
+          },
+          // Preventing Browser Mining (using proper syntax)
+          {
+            key: 'Feature-Policy',
+            value: 'sync-xhr \'self\'',
+          },
+        ],
+      },
+      // Separate headers for static assets with longer cache duration
+      {
+        source: '/static/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      },
+      // API endpoints should not be cached
+      {
+        source: '/api/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'no-store, max-age=0',
           },
         ],
       },
