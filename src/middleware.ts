@@ -64,6 +64,12 @@ export async function middleware(request: NextRequest) {
     request.nextUrl.pathname.startsWith('/api/auth/forgot-password') ||
     request.nextUrl.pathname.startsWith('/api/auth/reset-password')
   ) {
+    response.headers.set('Access-Control-Allow-Origin', '*')  // ou mais restrito se preferir
+    response.headers.set('Access-Control-Allow-Methods', 'GET, POST')
+    response.headers.set('Access-Control-Allow-Credentials', 'true')
+
+
+    
     try {
       const ip = request.headers.get('x-forwarded-for') || 'unknown'
       const path = request.nextUrl.pathname
