@@ -3,16 +3,15 @@ import { getToken } from 'next-auth/jwt'
 import type { NextRequest } from 'next/server'
 import { redis } from '@/lib/redis'
 
-// Rate limit configuration
-const RATE_LIMIT_MAX = 5 // Maximum attempts
-const RATE_LIMIT_WINDOW = 60 * 15 // 15 minutes in seconds
+
+const RATE_LIMIT_MAX = 5
+const RATE_LIMIT_WINDOW = 60 * 15
 
 
 const isDev = process.env.NODE_ENV === 'development'
 
 export async function middleware(request: NextRequest) {
-
-  const response = NextResponse.next()
+const response = NextResponse.next()
 
   const nonce = Buffer.from(crypto.randomUUID()).toString('base64')
 
@@ -20,26 +19,29 @@ export async function middleware(request: NextRequest) {
     ? [
         // Development CSP - more permissive
         "default-src 'self'",
-        "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com",
-        "style-src 'self' 'unsafe-inline'",
-        "img-src 'self' blob: data:",
-        "font-src 'self'",
-        "connect-src 'self' ws: wss:",
-        "frame-ancestors 'none'",
-        "form-action 'self'"
+        `script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com`,
+        `style-src 'self' 'unsafe-inline'`,
+        `img-src 'self' blob: data:`,
+        `font-src 'self'`,
+        `connect-src 'self' ws: wss:`,
+        `frame-ancestors 'none'`,
+        `form-action 'self'`
       ].join("; ")
     : [
         // Production CSP - more secure but compatible with React
         "default-src 'self'",
         // Add unsafe-inline as fallback for browsers that don't support nonces
-        `script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com`,
+        `script-src 'self' 'nonce-${nonce}' 'strict-dynamic' https://cdnjs.cloudflare.com`,
         // Allow inline styles which are common in React apps
-        "style-src 'self' 'unsafe-inline'",
-        "img-src 'self' blob: data:",
+        `style-src 'self' 'unsafe-inline'`,
+        "img-src 'self' blob: data: https://lh3.googleusercontent.com https://avatars.githubusercontent.com",
         "font-src 'self'",
+        "object-src 'none'",
         "connect-src 'self'",
         "frame-ancestors 'none'",
-        "form-action 'self'"
+        "form-action 'self'",
+        "base-uri 'self'",
+        "upgrade-insecure-requests"        
       ].join("; ")
   
   // Add the CSP header
@@ -115,6 +117,6 @@ export const config = {
     '/auth/register',
     '/api/auth/login',
     '/api/auth/forgot-password',
-    '/((?!api|_next/static|_next/image|favicon.ico|public).*)',
+    '/((?!api|_next/static|_next/image|_next/data|favicon.ico|public).*)',
   ],
 }

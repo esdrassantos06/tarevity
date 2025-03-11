@@ -1,12 +1,6 @@
 // next.config.ts
 import type { NextConfig } from 'next'
 
-const isDevelopment = process.env.NODE_ENV !== 'production'
-
-const contentSecurityPolicy = isDevelopment
-  ? "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://lh3.googleusercontent.com https://avatars.githubusercontent.com; font-src 'self'; connect-src 'self' ws: wss:; frame-ancestors 'none'; form-action 'self';"
-  : "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://lh3.googleusercontent.com https://avatars.githubusercontent.com; font-src 'self'; connect-src 'self'; frame-ancestors 'none'; form-action 'self'; report-uri /api/csp-report;"
-
 const nextConfig: NextConfig = {
   poweredByHeader: false,
   images: {
@@ -24,10 +18,6 @@ const nextConfig: NextConfig = {
           {
             key: 'X-Frame-Options',
             value: 'DENY',
-          },
-          {
-            key: 'Content-Security-Policy',
-            value: contentSecurityPolicy,
           },
           {
             key: 'Referrer-Policy',
