@@ -1,44 +1,34 @@
-import { NextResponse } from 'next/server'
 import { getToken } from 'next-auth/jwt'
-import type { NextRequest } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { redis } from '@/lib/redis'
 
 const RATE_LIMIT_MAX = 5
 const RATE_LIMIT_WINDOW = 60 * 15
 
-
 export async function middleware(request: NextRequest) {
-  const response = NextResponse.next()
-  
+
   const nonce = Buffer.from(crypto.randomUUID()).toString('base64')
-  
-  const isProd = process.env.NODE_ENV === 'production'
+
+  const cspHeader = `
+    default-src 'self';
+    script-src 'self' 'nonce-${nonce}' 'strict-dynamic';
+    style-src 'self' 'unsafe-inline';
+    img-src 'self' blob: data:;
+    font-src 'self';
+    object-src 'none';
+    base-uri 'self';
+    form-action 'self';
+    frame-ancestors 'none';
+    upgrade-insecure-requests;
+`.replace(/\s{2,}/g, ' ').trim()
+
+const requestHeaders = new Headers(request.headers)
+requestHeaders.set('x-nonce', nonce)
+
+const response = NextResponse.next({ request: { headers: requestHeaders } })
+response.headers.set('Content-Security-Policy', cspHeader)
 
 
-  const cspHeader = [
-    "default-src 'self'",
-    isProd 
-      ? `script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com` // Produção: precisa de unsafe-inline para o Next.js
-      : `script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com`, // Dev: precisa de eval para HMR
-    "style-src 'self' 'unsafe-inline'",
-    "img-src 'self' blob: data: https://lh3.googleusercontent.com https://avatars.githubusercontent.com",
-    "font-src 'self'",
-    "connect-src 'self'" + (isProd ? "" : " ws: wss:"),
-    "object-src 'none'",
-    "frame-ancestors 'none'",
-    "form-action 'self'",
-    "base-uri 'self'",
-    isProd ? "report-uri /api/csp-report" : "",
-    isProd ? "upgrade-insecure-requests" : ""
-  ].filter(Boolean).join("; ")
-
-  response.headers.set('Content-Security-Policy', cspHeader)
-  response.headers.set('x-nonce', nonce)
-
-  if (isProd) {
-    const stricterPolicyForReporting = cspHeader.replace("'unsafe-inline'", `'nonce-${nonce}'`)
-    response.headers.set('Content-Security-Policy-Report-Only', stricterPolicyForReporting)
-  }
 
   // Rate limiting for auth endpoints
   if (
