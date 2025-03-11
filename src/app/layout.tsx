@@ -6,7 +6,6 @@ import { ThemeProvider } from '@/components/common/ThemeProvider'
 import ToastProvider from '@/components/common/ToastProvider'
 
 
-
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
@@ -19,22 +18,20 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
-
   
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-
       </head>
       <body className={`${inter.className}`} suppressHydrationWarning>
         <NextAuthProvider>
-          {/* Don't pass nonce to ThemeProvider directly */}
-          <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          <ThemeProvider  attribute="class" defaultTheme="system" enableSystem>
             {children}
             <ToastProvider />
           </ThemeProvider>
         </NextAuthProvider>
       </body>
+
     </html>
   )
 }

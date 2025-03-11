@@ -6,28 +6,28 @@ const RATE_LIMIT_MAX = 5
 const RATE_LIMIT_WINDOW = 60 * 15
 
 export async function middleware(request: NextRequest) {
-
-  const nonce = Buffer.from(crypto.randomUUID()).toString('base64')
+  // Generate CSP nonce
 
   const cspHeader = `
-    default-src 'self';
-    script-src 'self' 'nonce-${nonce}' 'strict-dynamic';
-    style-src 'self' 'unsafe-inline';
-    img-src 'self' blob: data:;
-    font-src 'self';
-    object-src 'none';
-    base-uri 'self';
-    form-action 'self';
-    frame-ancestors 'none';
-    upgrade-insecure-requests;
+  default-src 'self';
+  script-src 'self' 'unsafe-inline' 'unsafe-eval';
+  style-src 'self' 'unsafe-inline';
+  img-src 'self' blob: data: https://lh3.googleusercontent.com https://avatars.githubusercontent.com;
+  font-src 'self';
+  object-src 'none';
+  base-uri 'self';
+  form-action 'self';
+  frame-ancestors 'none';
+  connect-src 'self';
+  upgrade-insecure-requests;
 `.replace(/\s{2,}/g, ' ').trim()
 
-const requestHeaders = new Headers(request.headers)
-requestHeaders.set('x-nonce', nonce)
 
-const response = NextResponse.next({ request: { headers: requestHeaders } })
+const response = NextResponse.next()
+
+
 response.headers.set('Content-Security-Policy', cspHeader)
-
+  
 
 
   // Rate limiting for auth endpoints
