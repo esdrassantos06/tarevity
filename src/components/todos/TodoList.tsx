@@ -183,36 +183,53 @@ export default function TodoList() {
   // Add new task
   const handleAddTodo = async (todoData: TodoFormData) => {
     try {
+      console.log("Sending data to API:", JSON.stringify(todoData));
+      
       const response = await fetch('/api/todos', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(todoData),
         credentials: 'include',
-      })
+      });
 
+      // Log the raw response for debugging
+      console.log("Response status:", response.status);
+      console.log("Response OK:", response.ok);
+      
+      // Try to get the response body as text first for debugging
+      const responseText = await response.text();
+      console.log("Raw response:", responseText);
+      
+      // If the response is not ok, try to parse it as JSON or use the text
       if (!response.ok) {
-        const errorData = await response.json().catch((e: unknown) => {
-          if (e instanceof Error) {
-            return { message: e.message || 'Could not parse error response' }
-          } else {
-            return { message: 'Could not parse error response' }
-          }
-        })
-        throw new Error(errorData.message || 'Failed to create task')
+        let errorMessage = 'Failed to create task';
+        
+        try {
+          const errorData = JSON.parse(responseText);
+          errorMessage = errorData.message || errorMessage;
+          console.error("Error details:", errorData);
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        } catch (parseError) {
+          // If parsing fails, use the response text
+          errorMessage = responseText || errorMessage;
+        }
+        
+        throw new Error(errorMessage);
       }
 
-      const newTodo = await response.json()
-      setTodos((prevTodos) => [newTodo, ...prevTodos])
-      setShowForm(false)
+      // Parse the successful response
+      const newTodo = JSON.parse(responseText);
+      setTodos((prevTodos) => [newTodo, ...prevTodos]);
+      setShowForm(false);
 
-      toast.success('Task created successfully!')
+      toast.success('Task created successfully!');
     } catch (err: unknown) {
-      let errorMessage = 'Unknown error when creating task'
+      let errorMessage = 'Unknown error when creating task';
       if (err instanceof Error) {
-        errorMessage = err.message
+        errorMessage = err.message;
       }
-      toast.error(errorMessage)
-      console.error('Error in handleAddTodo:', err)
+      toast.error(errorMessage);
+      console.error('Error in handleAddTodo:', err);
     }
   }
 
