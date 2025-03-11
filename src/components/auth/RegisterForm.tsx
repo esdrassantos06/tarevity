@@ -20,13 +20,20 @@ const registerSchema = z.object({
     .toLowerCase()
     .transform(val => val.trim()),
     
-  password: z.string()
-    .min(8, 'Senha deve ter pelo menos 8 caracteres')
-    .max(100, 'Senha muito longa')
-    .regex(/[A-Z]/, 'Senha deve conter pelo menos uma letra maiúscula')
-    .regex(/[a-z]/, 'Senha deve conter pelo menos uma letra minúscula')
-    .regex(/[0-9]/, 'Senha deve conter pelo menos um número')
-    .regex(/[^A-Za-z0-9]/, 'Senha deve conter pelo menos um caractere especial'),
+    password: z.string()
+    .min(12, 'Password must be at least 12 characters')
+    .max(100, 'Password too long')
+    .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
+    .regex(/[a-z]/, 'Password must contain at least one lowercase letter')
+    .regex(/[0-9]/, 'Password must contain at least one number')
+    .regex(/[^A-Za-z0-9]/, 'Password must contain at least one special character')
+    .refine(
+      (password) => {
+        const commonPasswords = ['password123', 'qwerty123', '12345678'];
+        return !commonPasswords.includes(password.toLowerCase());
+      },
+      { message: 'Password is too common or easily guessable' }
+    ),
     
   confirmPassword: z.string()
     .min(1, 'Confirmação de senha é obrigatória'),

@@ -20,32 +20,43 @@ export async function GET(
     // Extract the task ID from URL parameters
     const taskId = resolvedParams.id
 
-
-
+    // Fetch task data and perform authorization check in one query
     const { data, error } = await supabaseAdmin
       .from('todos')
       .select('*')
       .eq('id', taskId)
-      .eq('user_id', session.user.id)
       .single()
 
-    if (error) {
-      throw error
+    // Check if task exists
+    if (error || !data) {
+      return NextResponse.json(
+        { message: 'Task not found' },
+        { status: 404 }
+      )
     }
 
+    // Check if the task belongs to the current user
+    if (data.user_id !== session.user.id) {
+      return NextResponse.json(
+        { message: 'Forbidden' },
+        { status: 403 }
+      )
+    }
+
+    // Return the task data if authorization passes
     return NextResponse.json(data, { status: 200 })
   } catch (error) {
     if (error instanceof Error) {
       console.error('Error fetching task:', error)
       return NextResponse.json(
         { message: error.message || 'Error fetching task' },
-        { status: 500 },
+        { status: 500 }
       )
     } else {
       console.error('Unknown error fetching task:', error)
       return NextResponse.json(
         { message: 'Unknown error fetching task' },
-        { status: 500 },
+        { status: 500 }
       )
     }
   }
@@ -69,7 +80,6 @@ export async function PUT(
 
     // Parse the request body
     const updateData = await request.json()
-
 
     // Verify task belongs to user first
     const { data: existingTask, error: checkError } = await supabaseAdmin
@@ -132,7 +142,6 @@ export async function DELETE(
 
     // Extract the task ID from URL parameters
     const taskId = resolvedParams.id
-
 
     // Verify task belongs to user first
     const { data: existingTask, error: checkError } = await supabaseAdmin

@@ -5,7 +5,7 @@ const isDevelopment = process.env.NODE_ENV !== 'production'
 
 // Configuração de CSP diferente para desenvolvimento e produção
 const contentSecurityPolicy = isDevelopment
-  ? "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://lh3.googleusercontent.com https://avatars.githubusercontent.com; font-src 'self'; connect-src 'self' ws: wss:; frame-ancestors 'none'; form-action 'self';"
+  ? "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://lh3.googleusercontent.com https://avatars.githubusercontent.com; font-src 'self'; connect-src 'self' ws: wss:; frame-ancestors 'none'; form-action 'self';"
   : "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://lh3.googleusercontent.com https://avatars.githubusercontent.com; font-src 'self'; connect-src 'self'; frame-ancestors 'none'; form-action 'self'; report-uri /api/csp-report;"
 
 const nextConfig: NextConfig = {
@@ -43,7 +43,8 @@ const nextConfig: NextConfig = {
           },
           {
             key: 'Permissions-Policy',
-            value: 'camera=(), microphone=(), geolocation=(self), interest-cohort=()',
+            value:
+              'camera=(), microphone=(), geolocation=(self), interest-cohort=()',
           },
         ],
       },
