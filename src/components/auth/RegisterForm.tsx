@@ -219,7 +219,7 @@ export default function RegisterForm() {
         </div>
       )}
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+      <form onSubmit={handleSubmit(onSubmit)} autoComplete='off' className="space-y-4">
         <div>
           <label
             htmlFor="name"

@@ -62,7 +62,7 @@ export default function TodoFilters({ filters, setFilters }: TodoFiltersProps) {
               value={search}
               onChange={handleSearchChange}
               placeholder="Search tasks..."
-              className="bg-backgroundLight h-10 flex-grow rounded-md px-4 outline-none dark:bg-zinc-700 dark:text-white"
+              className="shadow h-10 flex-grow rounded-md px-4 outline-none dark:text-white"
             />
           </div>
         </div>

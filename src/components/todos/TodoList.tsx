@@ -366,7 +366,7 @@ export default function TodoList() {
           {filteredTodos.map((todo) => (
             <div key={todo.id}>
               {editingTodoId === todo.id ? (
-                <div className="bg-cardLightMode dark:bg-cardDarkMode rounded-lg p-4 shadow">
+                <div className="bg-white dark:bg-BlackLight rounded-lg p-4 shadow">
                   <TodoForm
                     initialData={todo}
                     onSubmit={(data) => handleEditTodo(todo.id, data)}
