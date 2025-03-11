@@ -1,7 +1,7 @@
 import { Resend } from 'resend'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
-const fromEmail = process.env.EMAIL_FROM || "undefined"
+const fromEmail = process.env.EMAIL_FROM || ""
 
 if(fromEmail === undefined){
 console.error("fromEmail is undefined, verify your env keys.")
