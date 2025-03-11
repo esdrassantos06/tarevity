@@ -4,7 +4,6 @@ import GitHubProvider from 'next-auth/providers/github'
 import GoogleProvider from 'next-auth/providers/google'
 import { getUserByEmail, verifyPassword } from '@/lib/auth'
 import { supabase } from '@/lib/supabase'
-import { warmUserCache } from '@/lib/cacheWarming'
 
 const cookiePrefix = process.env.NODE_ENV === 'production' ? '__Secure-' : ''
 
@@ -84,8 +83,6 @@ export const authOptions: NextAuthOptions = {
       if (token && session.user) {
         session.user.id = token.id as string
         session.user.provider = token.provider as string
-
-        warmUserCache(token.id as string)
       }
       return session
     },
