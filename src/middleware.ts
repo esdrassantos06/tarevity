@@ -7,54 +7,41 @@ import { redis } from '@/lib/redis'
 const RATE_LIMIT_MAX = 5 // Maximum attempts
 const RATE_LIMIT_WINDOW = 60 * 15 // 15 minutes in seconds
 
-// Define isDev variable to check if we're in development mode
+
 const isDev = process.env.NODE_ENV === 'development'
 
-function generateNonce() {
-  const randomBytes = new Uint8Array(16)
-  crypto.getRandomValues(randomBytes)
-
-  let base64Nonce = ''
-  randomBytes.forEach((byte) => {
-    base64Nonce += String.fromCharCode(byte)
-  })
-  return btoa(base64Nonce)
-}
-
 export async function middleware(request: NextRequest) {
-  // Create a response that we'll eventually return
+
   const response = NextResponse.next()
 
-  // Generate nonce for CSP
-  const nonce = generateNonce()
+  const nonce = Buffer.from(crypto.randomUUID()).toString('base64')
 
-  // Define CSP directives as arrays and join them with semicolons
-  const devCsp = [
-    "default-src 'self'",
-    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com",
-    "style-src 'self' 'unsafe-inline'",
-    "img-src 'self' data: https://lh3.googleusercontent.com https://avatars.githubusercontent.com",
-    "font-src 'self'",
-    "connect-src 'self' ws: wss:",
-    "frame-ancestors 'none'",
-    "form-action 'self'"
-  ].join("; ");
-
-  const prodCsp = [
-    "default-src 'self'",
-    `script-src 'self' 'nonce-${nonce}' https://cdnjs.cloudflare.com`,
-    "style-src 'self' 'unsafe-inline'",
-    "img-src 'self' data: https://lh3.googleusercontent.com https://avatars.githubusercontent.com",
-    "font-src 'self'",
-    "connect-src 'self'",
-    "frame-ancestors 'none'",
-    "form-action 'self'",
-    "report-uri /api/csp-report"
-  ].join("; ");
-
-  // Select appropriate CSP based on environment
-  const cspHeader = isDev ? devCsp : prodCsp;
-
+  const cspHeader = isDev 
+    ? [
+        // Development CSP - more permissive
+        "default-src 'self'",
+        "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com",
+        "style-src 'self' 'unsafe-inline'",
+        "img-src 'self' blob: data:",
+        "font-src 'self'",
+        "connect-src 'self' ws: wss:",
+        "frame-ancestors 'none'",
+        "form-action 'self'"
+      ].join("; ")
+    : [
+        // Production CSP - more secure but compatible with React
+        "default-src 'self'",
+        // Add unsafe-inline as fallback for browsers that don't support nonces
+        `script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com`,
+        // Allow inline styles which are common in React apps
+        "style-src 'self' 'unsafe-inline'",
+        "img-src 'self' blob: data:",
+        "font-src 'self'",
+        "connect-src 'self'",
+        "frame-ancestors 'none'",
+        "form-action 'self'"
+      ].join("; ")
+  
   // Add the CSP header
   response.headers.set('Content-Security-Policy', cspHeader)
 
