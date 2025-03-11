@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
-import { hashPassword } from '@/lib/auth'
+import { hashPassword, verifyPassword } from '@/lib/auth'
 
 export async function POST(req: Request) {
  try {
@@ -36,12 +36,10 @@ export async function POST(req: Request) {
      )
    }
 
-   // Check if the token has expired
    const expiresAt = new Date(tokenData.expires_at)
    const now = new Date()
 
    if (now > expiresAt) {
-     // Mark the token as used
      await supabaseAdmin
        .from('password_reset_tokens')
        .update({ used: true })
@@ -50,7 +48,27 @@ export async function POST(req: Request) {
      return NextResponse.json({ message: 'Token expired' }, { status: 400 })
    }
 
-   // Hash the new password
+   const { data: userData, error: userError } = await supabaseAdmin
+     .from('users')
+     .select('password')
+     .eq('id', tokenData.user_id)
+     .single()
+
+   if (userError || !userData || !userData.password) {
+     return NextResponse.json(
+       { message: 'User not found' },
+       { status: 400 }
+     )
+   }
+
+   const isCurrentPassword = await verifyPassword(password, userData.password)
+   if (isCurrentPassword) {
+     return NextResponse.json(
+       { message: 'New password cannot be the same as your current password' },
+       { status: 400 }
+     )
+   }
+
    const hashedPassword = await hashPassword(password)
 
    // Update the user's password

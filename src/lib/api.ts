@@ -105,6 +105,19 @@ export const authAPI = {
       };
     }
   },
+  
+  async checkCurrentPassword(token: string, password: string): Promise<ApiResult<{isCurrentPassword: boolean}>> {
+    try {
+      const response = await axiosClient.post('/api/auth/check-current-password', { token, password });
+      return { data: response.data, error: null, loading: false };
+    } catch (error) {
+      return { 
+        data: null, 
+        error: isAPIError(error) ? error : { message: 'Error checking current password' },
+        loading: false
+      };
+    }
+  },
 
   async resetPassword(token: string, password: string): Promise<ApiResult<{message: string}>> {
     try {
