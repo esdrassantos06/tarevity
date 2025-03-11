@@ -3,52 +3,42 @@ import { getToken } from 'next-auth/jwt'
 import type { NextRequest } from 'next/server'
 import { redis } from '@/lib/redis'
 
-
 const RATE_LIMIT_MAX = 5
 const RATE_LIMIT_WINDOW = 60 * 15
 
 
-const isDev = process.env.NODE_ENV === 'development'
-
 export async function middleware(request: NextRequest) {
-const response = NextResponse.next()
-
-  const nonce = Buffer.from(crypto.randomUUID()).toString('base64')
-
-  const cspHeader = isDev 
-    ? [
-        // Development CSP - more permissive
-        "default-src 'self'",
-        `script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com`,
-        `style-src 'self' 'unsafe-inline'`,
-        `img-src 'self' blob: data:`,
-        `font-src 'self'`,
-        `connect-src 'self' ws: wss:`,
-        `frame-ancestors 'none'`,
-        `form-action 'self'`
-      ].join("; ")
-    : [
-        // Production CSP - more secure but compatible with React
-        "default-src 'self'",
-        // Add unsafe-inline as fallback for browsers that don't support nonces
-        `script-src 'self' 'nonce-${nonce}' 'strict-dynamic' https://cdnjs.cloudflare.com`,
-        // Allow inline styles which are common in React apps
-        `style-src 'self' 'unsafe-inline'`,
-        "img-src 'self' blob: data: https://lh3.googleusercontent.com https://avatars.githubusercontent.com",
-        "font-src 'self'",
-        "object-src 'none'",
-        "connect-src 'self'",
-        "frame-ancestors 'none'",
-        "form-action 'self'",
-        "base-uri 'self'",
-        "upgrade-insecure-requests"        
-      ].join("; ")
+  const response = NextResponse.next()
   
-  // Add the CSP header
-  response.headers.set('Content-Security-Policy', cspHeader)
+  const nonce = Buffer.from(crypto.randomUUID()).toString('base64')
+  
+  const isProd = process.env.NODE_ENV === 'production'
 
-  // Add the nonce as a custom header
+
+  const cspHeader = [
+    "default-src 'self'",
+    isProd 
+      ? `script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com` // Produção: precisa de unsafe-inline para o Next.js
+      : `script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com`, // Dev: precisa de eval para HMR
+    "style-src 'self' 'unsafe-inline'",
+    "img-src 'self' blob: data: https://lh3.googleusercontent.com https://avatars.githubusercontent.com",
+    "font-src 'self'",
+    "connect-src 'self'" + (isProd ? "" : " ws: wss:"),
+    "object-src 'none'",
+    "frame-ancestors 'none'",
+    "form-action 'self'",
+    "base-uri 'self'",
+    isProd ? "report-uri /api/csp-report" : "",
+    isProd ? "upgrade-insecure-requests" : ""
+  ].filter(Boolean).join("; ")
+
+  response.headers.set('Content-Security-Policy', cspHeader)
   response.headers.set('x-nonce', nonce)
+
+  if (isProd) {
+    const stricterPolicyForReporting = cspHeader.replace("'unsafe-inline'", `'nonce-${nonce}'`)
+    response.headers.set('Content-Security-Policy-Report-Only', stricterPolicyForReporting)
+  }
 
   // Rate limiting for auth endpoints
   if (
