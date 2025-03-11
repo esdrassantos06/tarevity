@@ -320,14 +320,14 @@ export default function TodoList() {
         <h1 className="text-2xl font-bold dark:text-white">My Tasks</h1>
         <button
           onClick={() => setShowForm(!showForm)}
-          className="bg-primary hover:bg-primaryHover rounded-md px-4 py-2 text-white transition-colors"
+          className="bg-primary hover:bg-primary/80 rounded-md px-4 py-2 text-white transition-colors"
         >
           {showForm ? 'Cancel' : 'New Task'}
         </button>
       </div>
 
       {showForm && (
-        <div className="bg-cardLightMode dark:bg-cardDarkMode rounded-lg p-4 shadow">
+        <div className="bg-white dark:bg-BlackLight rounded-lg p-4 shadow">
           <TodoForm
             onSubmit={handleAddTodo}
             onCancel={() => setShowForm(false)}

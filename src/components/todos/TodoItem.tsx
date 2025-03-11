@@ -65,7 +65,7 @@ export default function TodoItem({
 
   return (
     <div
-      className={`border-borderLight dark:border-borderDark mb-4 rounded-lg border p-4 shadow-lg transition-colors ${
+      className={`bg-white dark:bg-BlackLight mb-4 rounded-lg p-4 shadow-lg transition-colors ${
         todo.is_completed
           ? 'bg-gray-100 dark:bg-zinc-800'
           : 'bg-cardLightMode dark:bg-cardDarkMode'

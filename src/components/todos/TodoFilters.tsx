@@ -53,7 +53,7 @@ export default function TodoFilters({ filters, setFilters }: TodoFiltersProps) {
   }
 
   return (
-    <div className="bg-cardLightMode dark:bg-cardDarkMode rounded-lg p-4 shadow">
+    <div className="bg-white dark:bg-BlackLight rounded-lg p-4 shadow">
       <div className="flex flex-col items-center gap-4 md:flex-row">
         <div className="w-full md:w-1/2">
           <div className="flex">
