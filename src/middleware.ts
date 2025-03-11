@@ -28,6 +28,31 @@ export async function middleware(request: NextRequest) {
   // Set Security Headers
   response.headers.set('Content-Security-Policy', cspHeader)
   
+  // CORS Configuration - Fix for the vulnerability
+  const origin = request.headers.get('origin')
+  const allowedOrigins = [
+    process.env.NEXT_PUBLIC_APP_URL || 'https://tarevity.pt', 
+    // Add any other domains you want to allow
+  ]
+  
+  // Only set CORS headers for API routes
+  if (request.nextUrl.pathname.startsWith('/api/')) {
+    // Only set the CORS headers if the origin is in our allowed list
+    if (origin && allowedOrigins.includes(origin)) {
+      response.headers.set('Access-Control-Allow-Origin', origin)
+      response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
+      response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization')
+      response.headers.set('Access-Control-Allow-Credentials', 'true')
+    }
+    
+    // Handle preflight requests
+    if (request.method === 'OPTIONS') {
+      return new NextResponse(null, { 
+        status: 200,
+        headers: response.headers
+      })
+    }
+  }
 
   // Rate limiting for auth endpoints
   if (
@@ -87,6 +112,7 @@ export async function middleware(request: NextRequest) {
   return response
 }
 
+// Make sure your matcher includes all API paths
 export const config = {
   matcher: [
     '/dashboard/:path*',
@@ -94,6 +120,7 @@ export const config = {
     '/profile/:path*',
     '/auth/login',
     '/auth/register',
+    '/api/:path*', // This ensures we catch all API routes for CORS
     '/api/auth/login',
     '/api/auth/forgot-password',
     '/((?!api|_next/static|_next/image|_next/data|favicon.ico|public).*)',
