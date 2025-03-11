@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import TodoItem from './TodoItem'
 import TodoForm from './TodoForm'
 import TodoFilters from './TodoFilters'
@@ -15,10 +15,8 @@ import {
   DialogFooter,
 } from '@/components/common/Dialog'
 
-
 export default function TodoList() {
   const [todos, setTodos] = useState<Todo[]>([])
-  const [filteredTodos, setFilteredTodos] = useState<Todo[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [editingTodoId, setEditingTodoId] = useState<string | null>(null)
@@ -35,7 +33,7 @@ export default function TodoList() {
   const [todoToDelete, setTodoToDelete] = useState<string | null>(null)
 
   // Load tasks using the API library
-  const fetchTodos = async () => {
+  const fetchTodos = useCallback(async () => {
     setIsLoading(true)
     setError(null)
     
@@ -49,15 +47,15 @@ export default function TodoList() {
     }
     
     setIsLoading(false)
-  }
+  }, [])
 
   // Effect to load tasks when the component mounts
   useEffect(() => {
     fetchTodos()
-  }, [])
+  }, [fetchTodos])
 
-  // Effect to apply filters (this remains unchanged as it's local logic)
-  useEffect(() => {
+  // Use memoization to derive filtered todos instead of using a separate state
+  const filteredTodos = useMemo(() => {
     let result = [...todos]
 
     // Filter by status
@@ -84,38 +82,42 @@ export default function TodoList() {
       )
     }
 
-    result.sort((a, b) =>{
+    // Sort with completed tasks at the bottom and by priority
+    return result.sort((a, b) => {
       if(a.is_completed !== b.is_completed){
         return a.is_completed ? 1 : -1;
       }
-
       return b.priority - a.priority;
-    })
+    });
+    
+  }, [todos, filters.status, filters.priority, filters.search]);
 
-    setFilteredTodos(result)
-  }, [todos, filters])
-
-  // Toggle the completion status of a task
-  const handleToggleComplete = async (id: string, isCompleted: boolean) => {
+  // Toggle the completion status of a task with optimistic updates
+  const handleToggleComplete = useCallback(async (id: string, isCompleted: boolean) => {
     try {
       const todoToUpdate = todos.find((todo) => todo.id === id)
       if (!todoToUpdate) return
 
-      const updatedTodo = { ...todoToUpdate, is_completed: isCompleted }
+      // Optimistically update the UI
+      setTodos(prevTodos => 
+        prevTodos.map(todo => 
+          todo.id === id ? {...todo, is_completed: isCompleted} : todo
+        )
+      );
 
-      const result = await todoAPI.updateTodo(id, updatedTodo)
+      const result = await todoAPI.updateTodo(id, {...todoToUpdate, is_completed: isCompleted})
 
       if (result.error) {
+        // Revert the optimistic update if there's an error
+        setTodos(prevTodos => 
+          prevTodos.map(todo => 
+            todo.id === id ? {...todo, is_completed: !isCompleted} : todo
+          )
+        );
         throw new Error(result.error.message || 'Failed to update task')
       }
 
-      if (result.data) {
-        setTodos((prevTodos) =>
-          prevTodos.map((todo) => (todo.id === id ? result.data! : todo)),
-        )
-
-        toast.success(isCompleted ? 'Task completed!' : 'Task reopened!')
-      }
+      toast.success(isCompleted ? 'Task completed!' : 'Task reopened!')
     } catch (err: unknown) {
       if (err instanceof Error) {
         toast.error(err.message || 'An error occurred while updating the task')
@@ -125,92 +127,134 @@ export default function TodoList() {
         console.error('Error updating task:', err)
       }
     }
-  }
+  }, [todos]);
 
-  // Add new task
-  const handleAddTodo = async (todoData: TodoFormData) => {
-    console.log("Sending data to API:", JSON.stringify(todoData))
-    
-    const result = await todoAPI.createTodo(todoData)
-    
-    if (result.error) {
-      toast.error(result.error.message || 'Failed to create task')
-      console.error('Error creating task:', result.error)
-      return
-    }
-    
-    if (result.data) {
-      setTodos((prevTodos) => [result.data!, ...prevTodos])
+  // Add new task with optimistic update
+  const handleAddTodo = useCallback(async (todoData: TodoFormData) => {
+    try {
+      console.log("Sending data to API:", JSON.stringify(todoData))
+      
+      // Create optimistic temporary ID
+      const tempId = `temp-${Date.now()}`
+      
+      // Add optimistic todo to the list
+      const optimisticTodo: Todo = {
+        id: tempId,
+        title: todoData.title,
+        description: todoData.description || null,
+        is_completed: todoData.is_completed || false,
+        priority: todoData.priority,
+        due_date: todoData.due_date || null,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      }
+      
+      setTodos(prevTodos => [optimisticTodo, ...prevTodos])
       setShowForm(false)
-      toast.success('Task created successfully!')
+      
+      const result = await todoAPI.createTodo(todoData)
+      
+      if (result.error) {
+        // Remove the optimistic todo if there's an error
+        setTodos(prevTodos => prevTodos.filter(todo => todo.id !== tempId))
+        throw new Error(result.error.message || 'Failed to create task')
+      }
+      
+      if (result.data) {
+        // Replace the optimistic todo with the real one
+        setTodos(prevTodos => 
+          prevTodos.map(todo => todo.id === tempId ? result.data! : todo)
+        )
+        toast.success('Task created successfully!')
+      }
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Failed to create task')
+      console.error('Error creating task:', error)
     }
-  }
+  }, []);
 
-  // Edit existing task
-  const handleEditTodo = async (id: string, todoData: Partial<Todo>) => {
-    const result = await todoAPI.updateTodo(id, todoData)
-    
-    if (result.error) {
-      toast.error(result.error.message || 'Failed to update task')
-      console.error('Error updating task:', result.error)
-      return
-    }
-    
-    if (result.data) {
-      setTodos((prevTodos) =>
-        prevTodos.map((todo) => (todo.id === id ? result.data! : todo)),
+  // Other handlers converted to useCallback to prevent unnecessary re-renders
+
+  const handleEditTodo = useCallback(async (id: string, todoData: Partial<Todo>) => {
+    try {
+      // Find the current todo
+      const currentTodo = todos.find(todo => todo.id === id)
+      if (!currentTodo) return
+      
+      // Optimistically update the UI
+      setTodos(prevTodos => 
+        prevTodos.map(todo => 
+          todo.id === id ? {...todo, ...todoData} : todo
+        )
       )
+      
+      const result = await todoAPI.updateTodo(id, todoData)
+      
+      if (result.error) {
+        // Revert to the original todo if there's an error
+        setTodos(prevTodos => 
+          prevTodos.map(todo => 
+            todo.id === id ? currentTodo : todo
+          )
+        )
+        throw new Error(result.error.message || 'Failed to update task')
+      }
       
       setEditingTodoId(null)
       toast.success('Task updated successfully!')
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Failed to update task')
+      console.error('Error updating task:', error)
     }
-  }
+  }, [todos]);
 
-  // Show delete confirmation dialog
   const confirmDelete = useCallback((id: string) => {
     setTodoToDelete(id);
     setDialogOpen(true);
   }, []);
 
-  // Handle actual deletion
   const handleDeleteConfirmed = useCallback(async () => {
     if (!todoToDelete) return;
     
-    setDialogLoading(true);
-    
-    const result = await todoAPI.deleteTodo(todoToDelete)
-    
-    if (result.error) {
-      toast.error(result.error.message || 'Failed to delete task')
-      console.error('Error deleting task:', result.error)
-    } else {
-      setTodos((prevTodos) => prevTodos.filter((todo) => todo.id !== todoToDelete))
+    try {
+      setDialogLoading(true);
+      
+      // Optimistically remove the todo
+      setTodos(prevTodos => prevTodos.filter(todo => todo.id !== todoToDelete))
+      
+      const result = await todoAPI.deleteTodo(todoToDelete)
+      
+      if (result.error) {
+        // This would require fetching the todo again since we've already removed it
+        // For simplicity, we'll just show an error and refresh the list
+        throw new Error(result.error.message || 'Failed to delete task')
+      }
+      
       toast.success('Task deleted successfully!')
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Failed to delete task')
+      console.error('Error deleting task:', error)
+      // Refresh todos to get the current state
+      fetchTodos()
+    } finally {
+      setDialogLoading(false)
+      setDialogOpen(false)
+      setTodoToDelete(null)
     }
-    
-    setDialogLoading(false)
-    setDialogOpen(false)
-    setTodoToDelete(null)
-  }, [todoToDelete]);
+  }, [todoToDelete, fetchTodos]);
 
-  // Close dialog without deleting
   const handleCancelDelete = useCallback(() => {
     setDialogOpen(false);
     setTodoToDelete(null);
   }, []);
 
-  // Start editing a task
-  const handleStartEdit = (id: string) => {
+  const handleStartEdit = useCallback((id: string) => {
     setEditingTodoId(id)
-  }
+  }, []);
 
-  // Cancel editing a task
-  const handleCancelEdit = () => {
+  const handleCancelEdit = useCallback(() => {
     setEditingTodoId(null)
-  }
-
-  // Rest of component remains the same
-  // ...
+  }, []);
 
   return (
     <div className="space-y-6">

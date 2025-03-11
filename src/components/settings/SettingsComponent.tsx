@@ -6,11 +6,15 @@ import { useTheme } from 'next-themes'
 import { toast } from 'react-toastify'
 import { FaMoon, FaSun, FaDesktop, FaUserCircle } from 'react-icons/fa'
 import { useRouter } from 'next/navigation'
-import { profileAPI, ProfileData } from '@/lib/api'
-
-// import { profileAPI, ProfileData } from '@/lib/api'
 import ConfirmationDialog, { useConfirmationDialog } from '@/components/common/ConfirmationDialog'
 
+interface ProfileData {
+  id: string
+  name: string
+  email: string
+  image: string | null
+  provider: string | null
+}
 
 export default function SettingsComponent() {
   const { data: session } = useSession()
@@ -35,16 +39,23 @@ export default function SettingsComponent() {
       if (!session?.user?.id) return
 
       setIsLoadingProfile(true)
-      const profileResult = await profileAPI.getProfile()
-      
-      if (profileResult.error) {
-        console.error('Error fetching profile:', profileResult.error)
+      try {
+        const response = await fetch('/api/profile', {
+          credentials: 'include',
+        })
+
+        if (!response.ok) {
+          throw new Error('Failed to load profile data')
+        }
+
+        const data = await response.json()
+        setProfileData(data)
+      } catch (error) {
+        console.error('Error fetching profile:', error)
         toast.error('Could not load your profile information')
-      } else if (profileResult.data) {
-        setProfileData(profileResult.data)
+      } finally {
+        setIsLoadingProfile(false)
       }
-      
-      setIsLoadingProfile(false)
     }
 
     if (session?.user) {
@@ -91,10 +102,18 @@ export default function SettingsComponent() {
               setDialogLoading(true);
               setIsDeleting(true);
 
-              const deleteResult = await profileAPI.deleteAccount()
-              
-              if (deleteResult.error) {
-                throw new Error(deleteResult.error.message || 'Error deleting account')
+              // Make an API call to delete the user account
+              const response = await fetch('/api/account/delete', {
+                method: 'DELETE',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                credentials: 'include',
+              })
+
+              if (!response.ok) {
+                const data = await response.json()
+                throw new Error(data.message || 'Error deleting account')
               }
 
               // Show success message
@@ -123,7 +142,6 @@ export default function SettingsComponent() {
     });
   }
 
-  // The JSX rendering remains largely the same
   if (!session) {
     return (
       <div className="rounded-lg bg-white p-6 shadow dark:bg-gray-800">
@@ -135,7 +153,7 @@ export default function SettingsComponent() {
   }
 
   return (
-    <div className="bg-cardLightMode dark:bg-cardDarkMode overflow-hidden rounded-lg shadow">
+    <div className="bg-white dark:bg-BlackLight overflow-hidden rounded-lg shadow">
       <div className="flex flex-col md:flex-row">
         {/* Sidebar / Tab Navigation */}
         <div className="w-full border-b border-gray-200 md:w-64 md:border-r md:border-b-0 dark:border-gray-700">

@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import { toast } from 'react-toastify'
 import Image from 'next/image'
-import { profileAPI, ProfileData, UserStats } from '@/lib/api'
 import {
   FaUser,
   FaEnvelope,
@@ -15,6 +14,20 @@ import {
   FaClipboardCheck,
   FaClock,
 } from 'react-icons/fa'
+
+interface ProfileData {
+  id: string
+  name: string
+  email: string
+  image: string | null
+  provider: string | null
+}
+
+interface UserStats {
+  total: number
+  completed: number
+  pending: number
+}
 
 export default function ProfileComponent() {
   const [userStats, setUserStats] = useState<UserStats | null>(null)
@@ -32,22 +45,29 @@ export default function ProfileComponent() {
       if (!session?.user?.id) return
 
       setIsLoading(true)
-      const profileResult = await profileAPI.getProfile()
-      
-      if (profileResult.error) {
-        console.error('Error fetching profile:', profileResult.error)
-        toast.error('Could not load your profile')
-      } else if (profileResult.data) {
-        setProfileData(profileResult.data)
-        setFormData({
-          name: profileResult.data.name || '',
+      try {
+        const response = await fetch('/api/profile', {
+          credentials: 'include',
         })
-        
+
+        if (!response.ok) {
+          throw new Error('Failed to load profile data')
+        }
+
+        const data = await response.json()
+        setProfileData(data)
+        setFormData({
+          name: data.name || '',
+        })
+
         // After loading profile, fetch the user statistics
         await fetchUserStats()
+      } catch (error) {
+        console.error('Error fetching profile:', error)
+        toast.error('Could not load your profile')
+      } finally {
+        setIsLoading(false)
       }
-      
-      setIsLoading(false)
     }
 
     if (session?.user) {
@@ -57,13 +77,20 @@ export default function ProfileComponent() {
 
   // Function to fetch user task statistics
   const fetchUserStats = async () => {
-    const statsResult = await profileAPI.getStats()
-    
-    if (statsResult.error) {
-      console.error('Error fetching user stats:', statsResult.error)
+    try {
+      const response = await fetch('/api/stats', {
+        credentials: 'include',
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to load statistics')
+      }
+
+      const data = await response.json()
+      setUserStats(data)
+    } catch (error) {
+      console.error('Error fetching user stats:', error)
       toast.error('Could not load your statistics')
-    } else if (statsResult.data) {
-      setUserStats(statsResult.data)
     }
   }
 
@@ -95,14 +122,23 @@ export default function ProfileComponent() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    setIsLoading(true)
-    const updateResult = await profileAPI.updateProfile(formData)
-    
-    if (updateResult.error) {
-      console.error('Error updating profile:', updateResult.error)
-      toast.error('Error updating profile')
-    } else if (updateResult.data) {
-      setProfileData(updateResult.data)
+    try {
+      setIsLoading(true)
+      const response = await fetch('/api/profile', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+        credentials: 'include',
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to update profile')
+      }
+
+      const updatedProfile = await response.json()
+      setProfileData(updatedProfile)
 
       // Update session data to reflect changes
       if (update) {
@@ -110,19 +146,22 @@ export default function ProfileComponent() {
           ...session,
           user: {
             ...session?.user,
-            name: updateResult.data.name,
+            name: updatedProfile.name,
           },
         })
       }
 
       toast.success('Profile updated successfully!')
       setIsEditing(false)
+    } catch (error) {
+      console.error('Error updating profile:', error)
+      toast.error('Error updating profile')
+    } finally {
+      setIsLoading(false)
     }
-    
-    setIsLoading(false)
   }
 
-  // Rest of the component remains the same
+
   if (isLoading && !profileData) {
     return (
       <div className="flex h-64 items-center justify-center">
@@ -141,9 +180,7 @@ export default function ProfileComponent() {
     )
   }
 
-  // Rest of the JSX
   return (
-    // JSX remains the same...
     <div className="bg-cardLightMode dark:bg-cardDarkMode overflow-hidden rounded-lg shadow">
       {/* Profile Header */}
       <div className="bg-secondary h-32"></div>
