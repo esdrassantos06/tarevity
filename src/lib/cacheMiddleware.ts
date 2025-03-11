@@ -21,23 +21,6 @@ async function updateMetricsInRedis() {
   await redis.set('cache:metrics', JSON.stringify(cacheMetrics))
 }
 
-export async function getCacheMetrics(): Promise<Record<string, CacheMetrics>> {
-  try {
-    const storedMetrics = await redis.get('cache:metrics')
-    if (!storedMetrics) return cacheMetrics
-
-    // Safely handle parsing
-    if (typeof storedMetrics === 'string') {
-      return JSON.parse(storedMetrics)
-    } else if (typeof storedMetrics === 'object') {
-      return storedMetrics as Record<string, CacheMetrics>
-    }
-    return cacheMetrics
-  } catch (error) {
-    console.error('Error retrieving cache metrics:', error)
-    return cacheMetrics
-  }
-}
 
 /**
  * Middleware to cache GET responses using Redis
@@ -205,11 +188,6 @@ export async function invalidateCache(pattern: string): Promise<void> {
   }
 }
 
-/**
- * Invalidates all cached data for a specific user
- */
-export const invalidateUserCache = (userId: string) =>
-  invalidateCache(`cache:user:${userId}:*`)
 
 /**
  * Invalidates only the cached todos for a user

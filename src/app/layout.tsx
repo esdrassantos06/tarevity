@@ -6,6 +6,7 @@ import { ThemeProvider } from '@/components/common/ThemeProvider'
 import ToastProvider from '@/components/common/ToastProvider'
 
 
+
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
@@ -19,7 +20,10 @@ export const metadata: Metadata = {
   creator: 'Esdras Santos',
   publisher: 'Tarevity',
   robots: 'index, follow'
+
 }
+
+
 export default async function RootLayout({
   children,
 }: Readonly<{
