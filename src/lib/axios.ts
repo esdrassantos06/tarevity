@@ -1,14 +1,12 @@
 import axios from 'axios';
 import { getSession } from 'next-auth/react';
 
-// Interface para erro de API customizado
 export interface APIError {
   message: string;
   status?: number;
   code?: string;
 }
 
-// Função para verificar se um erro é uma APIError
 export function isAPIError(error: unknown): error is APIError {
   return (
     typeof error === 'object' &&
@@ -17,29 +15,29 @@ export function isAPIError(error: unknown): error is APIError {
   );
 }
 
-// Cria uma instância do Axios com configurações personalizadas
+
 const axiosClient = axios.create({
   baseURL: process.env.NEXT_PUBLIC_APP_URL || '',
   headers: {
     'Content-Type': 'application/json',
   },
-  withCredentials: true, // Importante para enviar cookies de autenticação
+  withCredentials: true, 
 });
 
-// Interceptador de requisição
+// Request interceptor
 axiosClient.interceptors.request.use(
   async (config) => {
-    // Só adiciona token no cliente (não no servidor)
+
     if (typeof window !== 'undefined') {
       try {
         const session = await getSession();
         
         if (session && session.user) {
-          // Opcional: adicionar token de autorização
+          // Optional: add a Bearer token to the request headers
           // config.headers.Authorization = `Bearer ${session.accessToken}`;
         }
       } catch (error) {
-        console.error('Erro ao obter sessão:', error);
+        console.error('Error getting session:', error);
       }
     }
     
@@ -48,48 +46,44 @@ axiosClient.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Interceptador de resposta
 axiosClient.interceptors.response.use(
   (response) => response,
   (error) => {
-    // Log de erros em ambiente de desenvolvimento
     if (process.env.NODE_ENV !== 'production') {
-      console.error('Erro Axios:', error);
+      console.error('Axios error:', error);
     }
 
-    // Tratamento de erros específicos
     if (error.response) {
       const status = error.response.status;
       const errorData = error.response.data;
 
       switch (status) {
-        case 401: // Não autorizado
-          // Opção de redirecionar para login ou fazer refresh do token
+        case 401:
           if (typeof window !== 'undefined') {
             window.location.href = '/auth/login';
           }
           break;
         
-        case 429: // Muitas requisições
-          console.warn('Limite de requisições excedido');
+        case 429:
+          console.warn('Request limit exceeded');
           break;
         
-        case 500: // Erro interno do servidor
-          console.error('Erro interno do servidor');
+        case 500:
+          console.error('Internal server error');
           break;
       }
 
-      // Rejeita a promessa com um erro customizado
+      // Reject the promise with a custom error
       return Promise.reject({
-        message: errorData?.message || 'Erro desconhecido',
+        message: errorData?.message || 'Unknown error',
         status,
         code: errorData?.code
       });
     }
 
-    // Erro de rede ou sem resposta do servidor
+    // Network error or no response from the server
     return Promise.reject({
-      message: 'Erro de conexão. Verifique sua internet.',
+      message: 'Connection error. Check your internet.',
       status: null
     });
   }

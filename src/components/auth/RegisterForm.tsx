@@ -10,44 +10,44 @@ import { toast } from 'react-toastify'
 import { FaLock, FaExclamationTriangle, FaCheck, FaTimes } from 'react-icons/fa'
 import OAuthButtons from './OAuthButtons'
 
-// Esquema de validação do formulário
+// Form validation schema
 const registerSchema = z.object({
   name: z.string()
-    .min(2, 'Nome deve ter pelo menos 2 caracteres')
-    .max(50, 'Nome muito longo (máximo 50 caracteres)')
-    .regex(/^[a-zA-Z0-9\s\u00C0-\u00FF]+$/, 'Nome contém caracteres inválidos')
+    .min(2, 'Name must be at least 2 characters')
+    .max(50, 'Name is too long (maximum 50 characters)')
+    .regex(/^[a-zA-Z0-9\s\u00C0-\u00FF]+$/, 'Name contains invalid characters')
     .transform(val => val.trim()),
     
   email: z.string()
-    .email('Email inválido')
+    .email('Invalid email')
     .toLowerCase()
     .transform(val => val.trim()),
     
   password: z.string()
-    .min(12, 'Senha deve ter pelo menos 12 caracteres')
-    .max(100, 'Senha muito longa')
-    .regex(/[A-Z]/, 'Senha deve conter pelo menos uma letra maiúscula')
-    .regex(/[a-z]/, 'Senha deve conter pelo menos uma letra minúscula')
-    .regex(/[0-9]/, 'Senha deve conter pelo menos um número')
-    .regex(/[^A-Za-z0-9]/, 'Senha deve conter pelo menos um caractere especial'),
+    .min(12, 'Password must be at least 12 characters')
+    .max(100, 'Password is too long')
+    .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
+    .regex(/[a-z]/, 'Password must contain at least one lowercase letter')
+    .regex(/[0-9]/, 'Password must contain at least one number')
+    .regex(/[^A-Za-z0-9]/, 'Password must contain at least one special character'),
     
   confirmPassword: z.string()
-    .min(1, 'Confirmação de senha é obrigatória'),
+    .min(1, 'Password confirmation is required'),
   
   acceptTerms: z.boolean()
     .refine(val => val === true, {
-      message: 'Você deve aceitar os termos para continuar'
+      message: 'You must accept the terms to continue'
     })
 })
-// Adicionar validação personalizada para garantir que as senhas coincidam
+// Add custom validation to ensure passwords match
 .refine(data => data.password === data.confirmPassword, {
-  message: 'As senhas não coincidem',
+  message: 'Passwords do not match',
   path: ['confirmPassword']
 })
 
 type RegisterFormValues = z.infer<typeof registerSchema>
 
-// Interface para a resposta de verificação de senha
+// Interface for password verification response
 interface PasswordCheckResponse {
   isCompromised: boolean;
   strength: number;
@@ -80,13 +80,13 @@ export default function RegisterForm() {
     },
   })
 
-  // Observar o campo de senha para mudanças
+  // Watch password field for changes
   const watchedPassword = watch('password')
 
-  // Verificar a força da senha quando ela mudar
+  // Check password strength when it changes
   useEffect(() => {
     const checkPasswordStrength = async () => {
-      // Se a senha for vazia ou muito curta, não verificar
+      // If password is empty or too short, don't check
       if (!watchedPassword || watchedPassword.length < 8) {
         setPasswordCheck(null)
         return
@@ -103,51 +103,51 @@ export default function RegisterForm() {
         })
 
         if (!response.ok) {
-          throw new Error('Falha ao verificar senha')
+          throw new Error('Failed to verify password')
         }
 
         const data = await response.json()
         setPasswordCheck(data)
 
-        // Definir ou limpar erro para senha comprometida
+        // Set or clear compromised password error
         if (data.isCompromised) {
           setFormError('password', { 
             type: 'manual', 
-            message: 'Esta senha foi encontrada em vazamentos de dados. Por favor, escolha outra.'
+            message: 'This password was found in data breaches. Please choose another.'
           })
         } else if (!data.isStrong) {
           setFormError('password', { 
             type: 'manual', 
-            message: 'Esta senha não é forte o suficiente. Adicione mais caracteres variados.'
+            message: 'This password is not strong enough. Add more varied characters.'
           })
         } else {
-          // Limpar apenas erros manuais, não os do Zod
+          // Clear only manual errors, not Zod errors
           if (errors.password?.type === 'manual') {
             clearErrors('password')
           }
         }
       } catch (err) {
-        console.error('Erro ao verificar força da senha:', err)
-        // Não definir erro de formulário aqui, apenas registrar
+        console.error('Error checking password strength:', err)
+        // Do not set form error here, just log
       } finally {
         setIsCheckingPassword(false)
       }
     }
 
-    // Debounce a verificação para evitar muitas requisições
+    // Debounce check to avoid too many requests
     const debounceTimer = setTimeout(checkPasswordStrength, 500)
     
     return () => clearTimeout(debounceTimer)
   }, [watchedPassword, setFormError, clearErrors, errors.password?.type])
 
   const onSubmit = async (data: RegisterFormValues) => {
-    // Verificar se a senha é forte e não comprometida
+    // Check if password is strong and not compromised
     if (passwordCheck && (passwordCheck.isCompromised || !passwordCheck.isStrong)) {
       setFormError('password', { 
         type: 'manual', 
         message: passwordCheck.isCompromised 
-          ? 'Esta senha foi encontrada em vazamentos de dados. Por favor, escolha outra.' 
-          : 'Esta senha não é forte o suficiente. Adicione mais caracteres variados.' 
+          ? 'This password was found in data breaches. Please choose another.' 
+          : 'This password is not strong enough. Add more varied characters.' 
       })
       return
     }
@@ -169,48 +169,48 @@ export default function RegisterForm() {
       const result = await response.json()
 
       if (!response.ok) {
-        throw new Error(result.message || 'Erro ao registrar')
+        throw new Error(result.message || 'Registration error')
       }
 
-      toast.success('Conta criada com sucesso! Faça login para continuar.')
+      toast.success('Account created successfully! Please log in to continue.')
       router.push('/auth/login?registered=true')
     } catch (error: unknown) {
       if (error instanceof Error) {
-        setError(error.message || 'Ocorreu um erro durante o registro')
+        setError(error.message || 'An error occurred during registration')
       } else {
-        setError('Erro desconhecido durante o registro')
+        setError('Unknown error during registration')
       }
     } finally {
       setIsLoading(false)
     }
   }
 
-  // Função para obter a cor baseada na força da senha
+  // Function to get color based on password strength
   function getStrengthColor(strength: number): string {
     if (strength < 40) return 'bg-red-500'
     if (strength < 70) return 'bg-yellow-500'
     return 'bg-green-500'
   }
 
-  // Função para obter a cor do texto baseada na força da senha
+  // Function to get text color based on password strength
   function getStrengthTextColor(strength: number): string {
     if (strength < 40) return 'text-red-500 dark:text-red-400'
     if (strength < 70) return 'text-yellow-500 dark:text-yellow-400'
     return 'text-green-500 dark:text-green-400'
   }
 
-  // Função para obter o rótulo da força da senha
+  // Function to get password strength label
   function getStrengthLabel(strength: number, isCompromised: boolean): string {
-    if (isCompromised) return 'Senha comprometida'
-    if (strength < 40) return 'Senha fraca'
-    if (strength < 70) return 'Senha moderada'
-    return 'Senha forte'
+    if (isCompromised) return 'Compromised Password'
+    if (strength < 40) return 'Weak Password'
+    if (strength < 70) return 'Moderate Password'
+    return 'Strong Password'
   }
 
   return (
     <div className="dark:bg-BlackLight bg-white mx-auto w-full max-w-md rounded-lg p-6 shadow-md">
       <h1 className="mb-6 text-center text-2xl font-bold dark:text-white">
-        Cadastro - Tarevity
+        Registration - Tarevity
       </h1>
 
       {error && (
@@ -225,7 +225,7 @@ export default function RegisterForm() {
             htmlFor="name"
             className="block text-sm font-medium text-gray-700 dark:text-gray-300"
           >
-            Nome
+            Name
           </label>
           <input
             id="name"
@@ -267,7 +267,7 @@ export default function RegisterForm() {
             htmlFor="password"
             className="block text-sm font-medium text-gray-700 dark:text-gray-300"
           >
-            Senha
+            Password
           </label>
           <div className="relative">
             <input
@@ -305,7 +305,7 @@ export default function RegisterForm() {
             </p>
           )}
 
-          {/* Indicador de força da senha */}
+          {/* Password strength indicator */}
           {passwordCheck && passwordValue === watchedPassword && (
             <div className="mt-2">
               <div className="h-2 w-full rounded-full bg-gray-200 dark:bg-gray-700">
@@ -322,32 +322,32 @@ export default function RegisterForm() {
                 {passwordCheck.isCompromised && (
                   <div className="ml-2 flex items-center text-xs text-red-500">
                     <FaLock className="mr-1" />
-                    <span>Senha vazada em bancos de dados</span>
+                    <span>Password leaked in databases</span>
                   </div>
                 )}
               </div>
               
-              {/* Requisitos de senha */}
+              {/* Password requirements */}
               <div className="mt-2 grid grid-cols-2 gap-1 text-xs">
                 <div className={`flex items-center ${/[A-Z]/.test(watchedPassword) ? 'text-green-500' : 'text-gray-500'}`}>
                   {/[A-Z]/.test(watchedPassword) ? <FaCheck className="mr-1" /> : <FaTimes className="mr-1" />}
-                  <span>Uma letra maiúscula</span>
+                  <span>One uppercase letter</span>
                 </div>
                 <div className={`flex items-center ${/[a-z]/.test(watchedPassword) ? 'text-green-500' : 'text-gray-500'}`}>
                   {/[a-z]/.test(watchedPassword) ? <FaCheck className="mr-1" /> : <FaTimes className="mr-1" />}
-                  <span>Uma letra minúscula</span>
+                  <span>One lowercase letter</span>
                 </div>
                 <div className={`flex items-center ${/[0-9]/.test(watchedPassword) ? 'text-green-500' : 'text-gray-500'}`}>
                   {/[0-9]/.test(watchedPassword) ? <FaCheck className="mr-1" /> : <FaTimes className="mr-1" />}
-                  <span>Um número</span>
+                  <span>One number</span>
                 </div>
                 <div className={`flex items-center ${/[^A-Za-z0-9]/.test(watchedPassword) ? 'text-green-500' : 'text-gray-500'}`}>
                   {/[^A-Za-z0-9]/.test(watchedPassword) ? <FaCheck className="mr-1" /> : <FaTimes className="mr-1" />}
-                  <span>Um caractere especial</span>
+                  <span>One special character</span>
                 </div>
                 <div className={`flex items-center ${watchedPassword.length >= 12 ? 'text-green-500' : 'text-gray-500'}`}>
                   {watchedPassword.length >= 12 ? <FaCheck className="mr-1" /> : <FaTimes className="mr-1" />}
-                  <span>Mínimo 12 caracteres</span>
+                  <span>Minimum 12 characters</span>
                 </div>
               </div>
             </div>
@@ -359,7 +359,7 @@ export default function RegisterForm() {
             htmlFor="confirmPassword"
             className="block text-sm font-medium text-gray-700 dark:text-gray-300"
           >
-            Confirmar Senha
+            Confirm Password
           </label>
           <input
             id="confirmPassword"
@@ -388,13 +388,13 @@ export default function RegisterForm() {
             </div>
             <div className="ml-3 text-sm">
               <label htmlFor="terms" className="text-gray-600 dark:text-gray-400">
-                Eu concordo com os{' '}
+                I agree to the{' '}
                 <Link href="/terms" className="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400">
-                  Termos de Serviço
+                  Terms of Service
                 </Link>{' '}
-                e{' '}
+                and{' '}
                 <Link href="/privacy" className="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400">
-                  Política de Privacidade
+                  Privacy Policy
                 </Link>
               </label>
               {errors.acceptTerms && (
@@ -411,7 +411,7 @@ export default function RegisterForm() {
           disabled={isLoading}
           className="flex w-full justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none dark:bg-blue-700 dark:hover:bg-blue-800"
         >
-          {isLoading ? 'Registrando...' : 'Registrar'}
+          {isLoading ? 'Registering...' : 'Register'}
         </button>
       </form>
 
@@ -422,7 +422,7 @@ export default function RegisterForm() {
           </div>
           <div className="relative flex justify-center text-sm">
             <span className="bg-white px-2 text-gray-500 dark:bg-zinc-800 dark:text-gray-400">
-              Ou continue com
+              Or continue with
             </span>
           </div>
         </div>
@@ -434,12 +434,12 @@ export default function RegisterForm() {
 
       <div className="mt-6 text-center">
         <p className="text-sm text-gray-600 dark:text-gray-400">
-          Já tem uma conta?{' '}
+          Already have an account?{' '}
           <Link
             href="/auth/login"
             className="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400"
           >
-            Faça login
+            Log in
           </Link>
         </p>
       </div>
