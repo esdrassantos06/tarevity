@@ -7,6 +7,7 @@ import { z } from 'zod'
 import Link from 'next/link'
 import { toast } from 'react-toastify'
 import { FaEnvelope, FaArrowLeft } from 'react-icons/fa'
+import { authAPI } from '@/lib/api'
 
 // Define the form validation schema
 const forgotPasswordSchema = z.object({
@@ -35,58 +36,21 @@ export default function ForgotPasswordForm() {
   const onSubmit = async (data: ForgotPasswordFormValues) => {
     setIsLoading(true)
 
-    try {
-      // Send request to the password reset API
-      const response = await fetch('/api/auth/forgot-password', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email: data.email }),
-      })
-
-      // First check if the response is ok before trying to parse JSON
-      if (!response.ok) {
-        // Try to parse error response, but handle the case where it's not valid JSON
-        let errorMessage = 'An error occurred while processing your request'
-        try {
-          const errorData = await response.json()
-          errorMessage = errorData.message || errorMessage
-        } catch (parseError) {
-          console.error('Error parsing error response:', parseError)
-          // Use status text if JSON parsing fails
-          errorMessage = `Error ${response.status}: ${response.statusText}`
-        }
-        throw new Error(errorMessage)
-      }
-
-      // Response is ok, so try to parse it
-      let responseData
-      try {
-        responseData = await response.json()
-      } catch (parseError) {
-        console.error('Error parsing successful response:', parseError)
-        // Even successful responses should be valid JSON
-        throw new Error('Invalid server response')
-      }
-
+    const result = await authAPI.forgotPassword(data.email)
+    
+    if (result.error) {
+      console.error('Error in forgot password:', result.error)
+      toast.error(result.error.message || 'An error occurred while processing your request')
+    } else {
       // If successful, update UI to show success message
       setIsSubmitted(true)
       toast.success(
-        responseData.message ||
-          'Recovery instructions sent to your email',
+        result.data?.message ||
+          'Recovery instructions sent to your email'
       )
-    } catch (error) {
-      // Show error toast
-      console.error('Error in forgot password:', error)
-      toast.error(
-        error instanceof Error
-          ? error.message
-          : 'An error occurred while processing your request',
-      )
-    } finally {
-      setIsLoading(false)
     }
+    
+    setIsLoading(false)
   }
 
   // Show different UI based on submission status

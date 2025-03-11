@@ -6,15 +6,11 @@ import { useTheme } from 'next-themes'
 import { toast } from 'react-toastify'
 import { FaMoon, FaSun, FaDesktop, FaUserCircle } from 'react-icons/fa'
 import { useRouter } from 'next/navigation'
+import { profileAPI, ProfileData } from '@/lib/api'
+
+// import { profileAPI, ProfileData } from '@/lib/api'
 import ConfirmationDialog, { useConfirmationDialog } from '@/components/common/ConfirmationDialog'
 
-interface ProfileData {
-  id: string
-  name: string
-  email: string
-  image: string | null
-  provider: string | null
-}
 
 export default function SettingsComponent() {
   const { data: session } = useSession()
@@ -39,23 +35,16 @@ export default function SettingsComponent() {
       if (!session?.user?.id) return
 
       setIsLoadingProfile(true)
-      try {
-        const response = await fetch('/api/profile', {
-          credentials: 'include',
-        })
-
-        if (!response.ok) {
-          throw new Error('Failed to load profile data')
-        }
-
-        const data = await response.json()
-        setProfileData(data)
-      } catch (error) {
-        console.error('Error fetching profile:', error)
+      const profileResult = await profileAPI.getProfile()
+      
+      if (profileResult.error) {
+        console.error('Error fetching profile:', profileResult.error)
         toast.error('Could not load your profile information')
-      } finally {
-        setIsLoadingProfile(false)
+      } else if (profileResult.data) {
+        setProfileData(profileResult.data)
       }
+      
+      setIsLoadingProfile(false)
     }
 
     if (session?.user) {
@@ -102,18 +91,10 @@ export default function SettingsComponent() {
               setDialogLoading(true);
               setIsDeleting(true);
 
-              // Make an API call to delete the user account
-              const response = await fetch('/api/account/delete', {
-                method: 'DELETE',
-                headers: {
-                  'Content-Type': 'application/json',
-                },
-                credentials: 'include',
-              })
-
-              if (!response.ok) {
-                const data = await response.json()
-                throw new Error(data.message || 'Error deleting account')
+              const deleteResult = await profileAPI.deleteAccount()
+              
+              if (deleteResult.error) {
+                throw new Error(deleteResult.error.message || 'Error deleting account')
               }
 
               // Show success message
@@ -142,6 +123,7 @@ export default function SettingsComponent() {
     });
   }
 
+  // The JSX rendering remains largely the same
   if (!session) {
     return (
       <div className="rounded-lg bg-white p-6 shadow dark:bg-gray-800">

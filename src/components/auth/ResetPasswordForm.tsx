@@ -8,6 +8,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { toast } from 'react-toastify'
 import { FaCheck, FaArrowLeft } from 'react-icons/fa'
+import { authAPI } from '@/lib/api'
 
 // Define the form validation schema
 const resetPasswordSchema = z
@@ -51,19 +52,12 @@ export default function ResetPasswordForm() {
         return
       }
 
-      try {
-        const response = await fetch(
-          `/api/auth/validate-reset-token?token=${token}`,
-        )
-
-        if (response.ok) {
-          setIsValidToken(true)
-        } else {
-          setIsValidToken(false)
-        }
-      } catch (error) {
-        console.error('Error validating token:', error)
+      const result = await authAPI.validateResetToken(token)
+      
+      if (result.error) {
         setIsValidToken(false)
+      } else {
+        setIsValidToken(true)
       }
     }
 
@@ -75,27 +69,12 @@ export default function ResetPasswordForm() {
     if (!token) return
 
     setIsLoading(true)
-
-    try {
-      // Send request to the reset password API
-      const response = await fetch('/api/auth/reset-password', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          token,
-          password: data.password,
-        }),
-      })
-
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(
-          errorData.message || 'An error occurred while resetting your password',
-        )
-      }
-
+    const result = await authAPI.resetPassword(token, data.password)
+    
+    if (result.error) {
+      console.error('Error in reset password:', result.error)
+      toast.error(result.error.message || 'An error occurred while resetting your password')
+    } else {
       // If successful, update UI to show success message
       setIsSubmitted(true)
       toast.success('Password reset successfully')
@@ -104,16 +83,9 @@ export default function ResetPasswordForm() {
       setTimeout(() => {
         router.push('/auth/login')
       }, 3000)
-    } catch (error) {
-      console.error('Error in reset password:', error)
-      toast.error(
-        error instanceof Error
-          ? error.message
-          : 'An error occurred while resetting your password',
-      )
-    } finally {
-      setIsLoading(false)
     }
+    
+    setIsLoading(false)
   }
 
   // Show different UI based on token validation status

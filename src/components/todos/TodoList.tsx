@@ -5,6 +5,7 @@ import TodoItem from './TodoItem'
 import TodoForm from './TodoForm'
 import TodoFilters from './TodoFilters'
 import { toast } from 'react-toastify'
+import { todoAPI, Todo, TodoFormData } from '@/lib/api'
 import {
   Dialog,
   DialogContent,
@@ -14,23 +15,6 @@ import {
   DialogFooter,
 } from '@/components/common/Dialog'
 
-interface Todo {
-  id: string
-  title: string
-  description: string | null
-  is_completed: boolean
-  priority: number
-  due_date: string | null
-  created_at: string
-  updated_at: string
-}
-
-interface TodoFormData {
-  title: string
-  description?: string | null
-  priority: number
-  due_date?: string | null
-}
 
 export default function TodoList() {
   const [todos, setTodos] = useState<Todo[]>([])
@@ -50,54 +34,21 @@ export default function TodoList() {
   const [dialogLoading, setDialogLoading] = useState(false)
   const [todoToDelete, setTodoToDelete] = useState<string | null>(null)
 
-  // Load tasks
+  // Load tasks using the API library
   const fetchTodos = async () => {
     setIsLoading(true)
     setError(null)
-    try {
-      const response = await fetch('/api/todos', {
-        // Include credentials to send session cookies
-        credentials: 'include',
-      })
-
-      if (!response.ok) {
-        // Try to get detailed error message
-        let errorMessage = 'Failed to load tasks'
-        try {
-          const errorData = await response.json()
-          errorMessage = errorData.message || errorMessage
-        } catch (e: unknown) {
-          let errorMessage: string
-
-          if (e instanceof Error) {
-            // If the error is of Error type, use the error message
-            errorMessage = e.message
-          } else {
-            // If it's not an error, use the response status and statusText
-            errorMessage = `${response.status}: ${response.statusText}`
-          }
-
-          console.error(errorMessage)
-        }
-
-        console.error('Error response:', errorMessage)
-        throw new Error(errorMessage)
-      }
-
-      const data = await response.json()
-
-      setTodos(data)
-    } catch (err: unknown) {
-      if (err instanceof Error) {
-        console.error('Error in fetchTodos:', err)
-        setError(err.message || 'An error occurred while loading tasks')
-      } else {
-        console.error('Error in fetchTodos:', err)
-        setError('An error occurred while loading tasks')
-      }
-    } finally {
-      setIsLoading(false)
+    
+    const result = await todoAPI.getAllTodos()
+    
+    if (result.error) {
+      console.error('Error fetching todos:', result.error)
+      setError(result.error.message || 'An error occurred while loading tasks')
+    } else if (result.data) {
+      setTodos(result.data)
     }
+    
+    setIsLoading(false)
   }
 
   // Effect to load tasks when the component mounts
@@ -105,7 +56,7 @@ export default function TodoList() {
     fetchTodos()
   }, [])
 
-  // Effect to apply filters
+  // Effect to apply filters (this remains unchanged as it's local logic)
   useEffect(() => {
     let result = [...todos]
 
@@ -133,7 +84,7 @@ export default function TodoList() {
       )
     }
 
-    result.sort((a , b) =>{
+    result.sort((a, b) =>{
       if(a.is_completed !== b.is_completed){
         return a.is_completed ? 1 : -1;
       }
@@ -152,23 +103,19 @@ export default function TodoList() {
 
       const updatedTodo = { ...todoToUpdate, is_completed: isCompleted }
 
-      const response = await fetch(`/api/todos/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updatedTodo),
-      })
+      const result = await todoAPI.updateTodo(id, updatedTodo)
 
-      if (!response.ok) {
-        throw new Error('Failed to update task')
+      if (result.error) {
+        throw new Error(result.error.message || 'Failed to update task')
       }
 
-      const data = await response.json()
+      if (result.data) {
+        setTodos((prevTodos) =>
+          prevTodos.map((todo) => (todo.id === id ? result.data! : todo)),
+        )
 
-      setTodos((prevTodos) =>
-        prevTodos.map((todo) => (todo.id === id ? data : todo)),
-      )
-
-      toast.success(isCompleted ? 'Task completed!' : 'Task reopened!')
+        toast.success(isCompleted ? 'Task completed!' : 'Task reopened!')
+      }
     } catch (err: unknown) {
       if (err instanceof Error) {
         toast.error(err.message || 'An error occurred while updating the task')
@@ -182,86 +129,40 @@ export default function TodoList() {
 
   // Add new task
   const handleAddTodo = async (todoData: TodoFormData) => {
-    try {
-      console.log("Sending data to API:", JSON.stringify(todoData));
-      
-      const response = await fetch('/api/todos', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(todoData),
-        credentials: 'include',
-      });
-
-      // Log the raw response for debugging
-      console.log("Response status:", response.status);
-      console.log("Response OK:", response.ok);
-      
-      // Try to get the response body as text first for debugging
-      const responseText = await response.text();
-      console.log("Raw response:", responseText);
-      
-      // If the response is not ok, try to parse it as JSON or use the text
-      if (!response.ok) {
-        let errorMessage = 'Failed to create task';
-        
-        try {
-          const errorData = JSON.parse(responseText);
-          errorMessage = errorData.message || errorMessage;
-          console.error("Error details:", errorData);
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        } catch (parseError) {
-          // If parsing fails, use the response text
-          errorMessage = responseText || errorMessage;
-        }
-        
-        throw new Error(errorMessage);
-      }
-
-      // Parse the successful response
-      const newTodo = JSON.parse(responseText);
-      setTodos((prevTodos) => [newTodo, ...prevTodos]);
-      setShowForm(false);
-
-      toast.success('Task created successfully!');
-    } catch (err: unknown) {
-      let errorMessage = 'Unknown error when creating task';
-      if (err instanceof Error) {
-        errorMessage = err.message;
-      }
-      toast.error(errorMessage);
-      console.error('Error in handleAddTodo:', err);
+    console.log("Sending data to API:", JSON.stringify(todoData))
+    
+    const result = await todoAPI.createTodo(todoData)
+    
+    if (result.error) {
+      toast.error(result.error.message || 'Failed to create task')
+      console.error('Error creating task:', result.error)
+      return
+    }
+    
+    if (result.data) {
+      setTodos((prevTodos) => [result.data!, ...prevTodos])
+      setShowForm(false)
+      toast.success('Task created successfully!')
     }
   }
 
   // Edit existing task
   const handleEditTodo = async (id: string, todoData: Partial<Todo>) => {
-    try {
-      const response = await fetch(`/api/todos/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(todoData),
-      })
-
-      if (!response.ok) {
-        throw new Error('Failed to update task')
-      }
-
-      const updatedTodo = await response.json()
-
+    const result = await todoAPI.updateTodo(id, todoData)
+    
+    if (result.error) {
+      toast.error(result.error.message || 'Failed to update task')
+      console.error('Error updating task:', result.error)
+      return
+    }
+    
+    if (result.data) {
       setTodos((prevTodos) =>
-        prevTodos.map((todo) => (todo.id === id ? updatedTodo : todo)),
+        prevTodos.map((todo) => (todo.id === id ? result.data! : todo)),
       )
-
+      
       setEditingTodoId(null)
       toast.success('Task updated successfully!')
-    } catch (err: unknown) {
-      if (err instanceof Error) {
-        toast.error(err.message || 'An error occurred while updating the task')
-        console.error('Error updating task:', err)
-      } else {
-        toast.error('An error occurred while updating the task')
-        console.error('Error updating task:', err)
-      }
     }
   }
 
@@ -276,26 +177,20 @@ export default function TodoList() {
     if (!todoToDelete) return;
     
     setDialogLoading(true);
-    try {
-      const response = await fetch(`/api/todos/${todoToDelete}`, {
-        method: 'DELETE',
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to delete task');
-      }
-
-      setTodos((prevTodos) => prevTodos.filter((todo) => todo.id !== todoToDelete));
-      toast.success('Task deleted successfully!');
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'An error occurred while deleting the task';
-      toast.error(errorMessage);
-      console.error('Error deleting task:', err);
-    } finally {
-      setDialogLoading(false);
-      setDialogOpen(false);
-      setTodoToDelete(null);
+    
+    const result = await todoAPI.deleteTodo(todoToDelete)
+    
+    if (result.error) {
+      toast.error(result.error.message || 'Failed to delete task')
+      console.error('Error deleting task:', result.error)
+    } else {
+      setTodos((prevTodos) => prevTodos.filter((todo) => todo.id !== todoToDelete))
+      toast.success('Task deleted successfully!')
     }
+    
+    setDialogLoading(false)
+    setDialogOpen(false)
+    setTodoToDelete(null)
   }, [todoToDelete]);
 
   // Close dialog without deleting
@@ -314,8 +209,12 @@ export default function TodoList() {
     setEditingTodoId(null)
   }
 
+  // Rest of component remains the same
+  // ...
+
   return (
     <div className="space-y-6">
+      {/* Component rendering remains the same */}
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold dark:text-white">My Tasks</h1>
         <button

@@ -9,6 +9,7 @@ import Link from 'next/link'
 import { toast } from 'react-toastify'
 import { FaLock, FaExclamationTriangle, FaCheck, FaTimes } from 'react-icons/fa'
 import OAuthButtons from './OAuthButtons'
+import { authAPI } from '@/lib/api'
 
 // Form validation schema
 const registerSchema = z.object({
@@ -24,7 +25,7 @@ const registerSchema = z.object({
     .transform(val => val.trim()),
     
   password: z.string()
-    .min(12, 'Password must be at least 12 characters')
+    .min(6, 'Password must be at least 6 characters')
     .max(100, 'Password is too long')
     .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
     .regex(/[a-z]/, 'Password must contain at least one lowercase letter')
@@ -95,40 +96,35 @@ export default function RegisterForm() {
       setPasswordValue(watchedPassword)
       setIsCheckingPassword(true)
 
+
       try {
-        const response = await fetch('/api/auth/check-password', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ password: watchedPassword }),
-        })
-
-        if (!response.ok) {
-          throw new Error('Failed to verify password')
-        }
-
-        const data = await response.json()
-        setPasswordCheck(data)
-
-        // Set or clear compromised password error
-        if (data.isCompromised) {
-          setFormError('password', { 
-            type: 'manual', 
-            message: 'This password was found in data breaches. Please choose another.'
-          })
-        } else if (!data.isStrong) {
-          setFormError('password', { 
-            type: 'manual', 
-            message: 'This password is not strong enough. Add more varied characters.'
-          })
-        } else {
-          // Clear only manual errors, not Zod errors
-          if (errors.password?.type === 'manual') {
-            clearErrors('password')
+        const result = await authAPI.checkPassword(watchedPassword)
+      
+        if (result.error) {
+          console.error('Error checking password strength:', result.error)
+        } else if (result.data) {
+          setPasswordCheck(result.data)
+          
+          // Agora é seguro acessar propriedades em result.data
+          if (result.data.isCompromised) {
+            setFormError('password', { 
+              type: 'manual', 
+              message: 'This password was found in data breaches. Please choose another.'
+            })
+          } else if (!result.data.isStrong) {
+            setFormError('password', { 
+              type: 'manual', 
+              message: 'This password is not strong enough. Add more varied characters.'
+            })
+          } else {
+            // Clear only manual errors, not Zod errors
+            if (errors.password?.type === 'manual') {
+              clearErrors('password')
+            }
           }
         }
       } catch (err) {
         console.error('Error checking password strength:', err)
-        // Do not set form error here, just log
       } finally {
         setIsCheckingPassword(false)
       }
@@ -155,34 +151,15 @@ export default function RegisterForm() {
     setIsLoading(true)
     setError(null)
 
-    try {
-      const response = await fetch('/api/auth/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: data.name,
-          email: data.email,
-          password: data.password,
-        }),
-      })
+    const result = await authAPI.register(data.name, data.email, data.password)
 
-      const result = await response.json()
-
-      if (!response.ok) {
-        throw new Error(result.message || 'Registration error')
+      if (result.error) {
+        setError(result.error.message || 'An error occurred during registration')
+      }  else {
+        toast.success('Account created successfully! Please log in to continue.')
+        router.push('/auth/login?registered=true')
       }
-
-      toast.success('Account created successfully! Please log in to continue.')
-      router.push('/auth/login?registered=true')
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        setError(error.message || 'An error occurred during registration')
-      } else {
-        setError('Unknown error during registration')
-      }
-    } finally {
       setIsLoading(false)
-    }
   }
 
   // Function to get color based on password strength
@@ -345,9 +322,9 @@ export default function RegisterForm() {
                   {/[^A-Za-z0-9]/.test(watchedPassword) ? <FaCheck className="mr-1" /> : <FaTimes className="mr-1" />}
                   <span>One special character</span>
                 </div>
-                <div className={`flex items-center ${watchedPassword.length >= 12 ? 'text-green-500' : 'text-gray-500'}`}>
-                  {watchedPassword.length >= 12 ? <FaCheck className="mr-1" /> : <FaTimes className="mr-1" />}
-                  <span>Minimum 12 characters</span>
+                <div className={`flex items-center ${watchedPassword.length >= 6 ? 'text-green-500' : 'text-gray-500'}`}>
+                  {watchedPassword.length >= 6 ? <FaCheck className="mr-1" /> : <FaTimes className="mr-1" />}
+                  <span>Minimum 6 characters</span>
                 </div>
               </div>
             </div>
