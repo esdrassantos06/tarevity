@@ -22,8 +22,21 @@ async function updateMetricsInRedis() {
 }
 
 export async function getCacheMetrics(): Promise<Record<string, CacheMetrics>> {
-  const storedMetrics = await redis.get('cache:metrics')
-  return storedMetrics ? JSON.parse(storedMetrics as string) : cacheMetrics
+  try {
+    const storedMetrics = await redis.get('cache:metrics')
+    if (!storedMetrics) return cacheMetrics
+
+    // Safely handle parsing
+    if (typeof storedMetrics === 'string') {
+      return JSON.parse(storedMetrics)
+    } else if (typeof storedMetrics === 'object') {
+      return storedMetrics as Record<string, CacheMetrics>
+    }
+    return cacheMetrics
+  } catch (error) {
+    console.error('Error retrieving cache metrics:', error)
+    return cacheMetrics
+  }
 }
 
 /**
@@ -60,6 +73,7 @@ export async function withCache(
     const cachedResponse = await redis.get(cacheKey)
 
     if (cachedResponse) {
+      // Update cache hit metrics
       cacheMetrics[cacheCategory].hits++
 
       const total =
@@ -67,16 +81,26 @@ export async function withCache(
       cacheMetrics[cacheCategory].ratio =
         total > 0 ? cacheMetrics[cacheCategory].hits / total : 0
 
-      if (
-        (cacheMetrics[cacheCategory].hits +
-          cacheMetrics[cacheCategory].misses) %
-          10 ===
-        0
-      ) {
+      if ((cacheMetrics[cacheCategory].hits + cacheMetrics[cacheCategory].misses) % 10 === 0) {
         updateMetricsInRedis().catch(console.error)
       }
 
-      const data = JSON.parse(cachedResponse as string)
+      // Safely parse the cached response
+      let data: { body: unknown; status: number; headers?: Record<string, string> }
+      
+      if (typeof cachedResponse === 'string') {
+        try {
+          data = JSON.parse(cachedResponse)
+        } catch (parseError) {
+          console.error('Error parsing cached response:', parseError)
+          throw new Error('Invalid cache format')
+        }
+      } else if (typeof cachedResponse === 'object' && cachedResponse !== null) {
+        data = cachedResponse as { body: unknown; status: number; headers?: Record<string, string> }
+      } else {
+        throw new Error(`Unexpected cached response type: ${typeof cachedResponse}`)
+      }
+
       const response = NextResponse.json(data.body, {
         status: data.status,
         headers: {
@@ -97,6 +121,7 @@ export async function withCache(
       return response
     }
 
+    // Update cache miss metrics
     cacheMetrics[cacheCategory].misses++
 
     const total =
@@ -104,11 +129,7 @@ export async function withCache(
     cacheMetrics[cacheCategory].ratio =
       total > 0 ? cacheMetrics[cacheCategory].hits / total : 0
 
-    if (
-      (cacheMetrics[cacheCategory].hits + cacheMetrics[cacheCategory].misses) %
-        10 ===
-      0
-    ) {
+    if ((cacheMetrics[cacheCategory].hits + cacheMetrics[cacheCategory].misses) % 10 === 0) {
       updateMetricsInRedis().catch(console.error)
     }
   } catch (error) {
@@ -124,7 +145,14 @@ export async function withCache(
     try {
       // Clone and get the response body
       const clonedResponse = response.clone()
-      const body = await clonedResponse.json()
+      let body: unknown
+      
+      try {
+        body = await clonedResponse.json()
+      } catch (jsonError) {
+        console.warn('Response is not JSON, skipping cache:', jsonError)
+        return response
+      }
 
       // Extract headers to cache
       const headers: Record<string, string> = {}
@@ -132,16 +160,14 @@ export async function withCache(
         headers[key] = value
       })
 
-      // Store in cache
-      await redis.set(
-        cacheKey,
-        JSON.stringify({
-          body,
-          status: response.status,
-          headers,
-        }),
-        { ex: ttl },
-      )
+      // Store in cache - always use JSON.stringify for consistency
+      const cacheData = JSON.stringify({
+        body,
+        status: response.status,
+        headers,
+      })
+      
+      await redis.set(cacheKey, cacheData, { ex: ttl })
 
       // Add cache status header
       response.headers.set('x-cache', 'MISS')
