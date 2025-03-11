@@ -50,3 +50,44 @@ export async function createTodo(todo: Todo): Promise<Todo> {
   
   return data;
 }
+
+export async function getTodoById(todoId: string): Promise<Todo | null> {
+    const cacheKey = `todo:${todoId}`;
+    
+
+    const cachedTodo = await redis.get(cacheKey);
+    if (cachedTodo) {
+      return JSON.parse(cachedTodo as string);
+    }
+
+    const { data, error } = await supabaseAdmin
+      .from('todos')
+      .select('*')
+      .eq('id', todoId)
+      .single();
+      
+    if (error) return null;
+    
+    await redis.set(cacheKey, JSON.stringify(data), { ex: 300 });
+    
+    return data;
+  }
+  
+  export async function updateTodoWithCache(todoId: string, updates: Partial<Todo>): Promise<Todo | null> {
+
+    const { data, error } = await supabaseAdmin
+      .from('todos')
+      .update(updates)
+      .eq('id', todoId)
+      .select()
+      .single();
+      
+    if (error) return null;
+    
+    const todoKey = `todo:${todoId}`;
+    await redis.set(todoKey, JSON.stringify(data), { ex: 300 });
+    
+    await redis.del(`todos:user:${data.user_id}`);
+    
+    return data;
+  }

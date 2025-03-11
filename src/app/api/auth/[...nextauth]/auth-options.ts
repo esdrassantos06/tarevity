@@ -4,11 +4,9 @@ import GitHubProvider from 'next-auth/providers/github'
 import GoogleProvider from 'next-auth/providers/google'
 import { getUserByEmail, verifyPassword } from '@/lib/auth'
 import { supabase } from '@/lib/supabase'
+import { warmUserCache } from '@/lib/cacheWarming'
 
-
-const cookiePrefix = process.env.NODE_ENV === 'production' 
-  ? '__Secure-' 
-  : ''
+const cookiePrefix = process.env.NODE_ENV === 'production' ? '__Secure-' : ''
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -24,16 +22,11 @@ export const authOptions: NextAuthOptions = {
         }
 
         const user = await getUserByEmail(credentials.email)
-
         if (!user || !user.password) {
           return null
         }
 
-        const isValid = await verifyPassword(
-          credentials.password,
-          user.password,
-        )
-
+        const isValid = await verifyPassword(credentials.password, user.password)
         if (!isValid) {
           return null
         }
@@ -64,7 +57,7 @@ export const authOptions: NextAuthOptions = {
         sameSite: 'lax',
         path: '/',
         secure: process.env.NODE_ENV === 'production',
-      }
+      },
     },
     callbackUrl: {
       name: `${cookiePrefix}next-auth.callback-url`,
@@ -72,7 +65,7 @@ export const authOptions: NextAuthOptions = {
         sameSite: 'lax',
         path: '/',
         secure: process.env.NODE_ENV === 'production',
-      }
+      },
     },
     csrfToken: {
       name: process.env.NODE_ENV === 'production' 
@@ -83,20 +76,24 @@ export const authOptions: NextAuthOptions = {
         sameSite: 'lax',
         path: '/',
         secure: process.env.NODE_ENV === 'production',
-      }
-    }
+      },
+    },
   },
   callbacks: {
+    async session({ session, token }) {
+      if (token && session.user) {
+        session.user.id = token.id as string
+        session.user.provider = token.provider as string
+
+        warmUserCache(token.id as string)
+      }
+      return session
+    },
     async jwt({ token, user, account }) {
       if (account && user) {
         if (account.provider === 'credentials') {
-          return { 
-            ...token, 
-            id: user.id,
-            provider: 'credentials'
-          }
+          return { ...token, id: user.id, provider: 'credentials' }
         }
-
 
         const { data: existingUser } = await supabase
           .from('users')
@@ -115,11 +112,7 @@ export const authOptions: NextAuthOptions = {
             })
             .eq('id', existingUser.id)
 
-          return { 
-            ...token, 
-            id: existingUser.id,
-            provider: account.provider
-          }
+          return { ...token, id: existingUser.id, provider: account.provider }
         } else {
           // Create new user
           const { data: newUser } = await supabase
@@ -136,28 +129,11 @@ export const authOptions: NextAuthOptions = {
             .select()
             .single()
 
-          return { 
-            ...token, 
-            id: newUser?.id,
-            provider: account.provider
-          }
+          return { ...token, id: newUser?.id, provider: account.provider }
         }
       }
 
       return token
-    },
-
-
-    async session({ session, token }) {
-      if (token && session.user) {
-        session.user.id = token.id as string
-        
-        // Add the provider property to the user session
-        if (token.provider) {
-          session.user.provider = token.provider as string
-        }
-      }
-      return session
     },
   },
   pages: {
@@ -165,7 +141,7 @@ export const authOptions: NextAuthOptions = {
     newUser: '/auth/register',
   },
   session: {
-    strategy: 'jwt' as const,
+    strategy: 'jwt',
     maxAge: 30 * 24 * 60 * 60,
   },
   secret: process.env.NEXTAUTH_SECRET,
