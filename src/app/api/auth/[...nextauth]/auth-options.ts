@@ -79,6 +79,15 @@ export const authOptions: NextAuthOptions = {
     },
   },
   callbacks: {
+    async signIn() {
+      return true;
+    },
+    async redirect({ url, baseUrl }) {
+      // Make sure redirects always go to valid paths
+      if (url.startsWith(baseUrl)) return url;
+      // Else, redirect to the dashboard
+      return `${baseUrl}/dashboard`;
+    },
     async session({ session, token }) {
       if (token && session.user) {
         session.user.id = token.id as string
