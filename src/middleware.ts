@@ -185,7 +185,6 @@ export async function middleware(request: NextRequest) {
   if (referer && currentUrl && 
     (referer.includes('/dashboard') && currentUrl.includes('/auth/login')) ||
     (referer.includes('/auth/login') && currentUrl.includes('/dashboard'))) {
-   console.log('Potential redirect loop detected, serving current page')
    return NextResponse.next()
  }
 
