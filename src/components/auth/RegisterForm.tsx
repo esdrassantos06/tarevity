@@ -87,7 +87,6 @@ export default function RegisterForm() {
   // Check password strength when it changes
   useEffect(() => {
     const checkPasswordStrength = async () => {
-      // If password is empty or too short, don't check
       if (!watchedPassword || watchedPassword.length < 8) {
         setPasswordCheck(null)
         return
@@ -105,7 +104,6 @@ export default function RegisterForm() {
         } else if (result.data) {
           setPasswordCheck(result.data)
           
-          // Agora é seguro acessar propriedades em result.data
           if (result.data.isCompromised) {
             setFormError('password', { 
               type: 'manual', 
@@ -267,8 +265,7 @@ export default function RegisterForm() {
                       : 'border-yellow-500 dark:border-yellow-500'
                   : ''
               }`}
-              disabled={isLoading}
-            />
+              disabled={isLoading}/>
             <div className="absolute inset-y-0 right-0 flex items-center pr-3 pt-1">
               {isCheckingPassword ? (
                 <div className="h-4 w-4 animate-spin rounded-full border-2 border-gray-300 border-t-blue-600"></div>

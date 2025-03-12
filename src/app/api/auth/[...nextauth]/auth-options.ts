@@ -95,12 +95,6 @@ export const authOptions: NextAuthOptions = {
     },
     async redirect({ url, baseUrl }) {
 
-      // CRITICAL: If it's an OAuth callback URL, do not modify it
-      if (url.includes('/api/auth/callback/')) {
-        return url
-      }
-
-      // Handle other URLs as before
       if (url.includes('/dashboard')) {
         return url
       }
@@ -116,13 +110,11 @@ export const authOptions: NextAuthOptions = {
       return `${baseUrl}/dashboard`
     },
     async session({ session, token }) {
-      // Transferir informações do token para a sessão
       if (token && session.user) {
         session.user.id = token.id;
         session.user.provider = token.provider;
       }
       
-      // Adicionar property de erro, se existir
       if (token.error === 'RefreshTokenError') {
         session.error = 'RefreshTokenError';
       }
@@ -130,7 +122,6 @@ export const authOptions: NextAuthOptions = {
       return session;
     },
     async jwt({ token, user, account }) {
-      // Handle initial sign in
       if (account && user) {
         if (account.provider === 'credentials') {
           return { 
@@ -151,7 +142,6 @@ export const authOptions: NextAuthOptions = {
 
           if (findError && findError.code !== 'PGRST116') {
             console.error('Error finding user:', findError)
-            // Return a valid token even if DB operations fail
             return { 
               ...token, 
               id: user.id, 
@@ -179,7 +169,6 @@ export const authOptions: NextAuthOptions = {
             const refreshToken = crypto.randomBytes(32).toString('hex');
             const refreshTokenExpires = Date.now() + 7 * 24 * 60 * 60 * 1000; // 7 days
             
-            // Armazena o refresh token no banco de dados
             await supabase.from('refresh_tokens').insert({
               user_id: existingUser.id,
               token: refreshToken,
@@ -212,7 +201,6 @@ export const authOptions: NextAuthOptions = {
 
             if (insertError) {
               console.error('Error creating user:', insertError)
-              // Return a valid token even if user creation fails
               return { 
                 ...token, 
                 id: user.id, 
@@ -225,7 +213,6 @@ export const authOptions: NextAuthOptions = {
             const refreshToken = crypto.randomBytes(32).toString('hex');
             const refreshTokenExpires = Date.now() + 7 * 24 * 60 * 60 * 1000;
             
-            // Armazena o refresh token no banco de dados
             if (newUser) {
               await supabase.from('refresh_tokens').insert({
                 user_id: newUser.id,
@@ -256,7 +243,6 @@ export const authOptions: NextAuthOptions = {
         }
       }
 
-      // Verificar se o token precisa ser atualizado quando não for login inicial
       if (token.refreshToken && !account && !user) {
         const shouldRefresh = Date.now() > Number(token.exp) * 1000;
         if (shouldRefresh) {

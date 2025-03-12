@@ -132,17 +132,14 @@ export default function LoginForm() {
 
           reset()
         } else {
-
           setError(`Invalid credentials. ${MAX_ATTEMPTS - newAttemptCount} attempts remaining.`)
         }
         return
       }
 
-
       setFailedAttempts(0)
       localStorage.removeItem('loginLockout')
       
-
       router.push(callbackUrl)
     } catch (error: unknown) {
       if (error instanceof Error) {
