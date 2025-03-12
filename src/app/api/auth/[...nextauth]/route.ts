@@ -1,7 +1,6 @@
 import NextAuth from 'next-auth'
 import { authOptions } from './auth-options'
-import { NextApiRequest, NextApiResponse } from 'next'
-
+import type { NextApiRequest, NextApiResponse } from 'next'
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   // Add debugging for OAuth callbacks
