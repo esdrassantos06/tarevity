@@ -2,14 +2,9 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/app/api/auth/[...nextauth]/auth-options'
 import { NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
-import { 
-  withCache, 
-  getUserCachePrefix, 
-  invalidateUserProfileCache 
-} from '@/lib/cacheMiddleware'
 
 // GET user profile
-export async function GET(request: Request) {
+export async function GET() {
   try {
     const session = await getServerSession(authOptions)
 
@@ -19,23 +14,18 @@ export async function GET(request: Request) {
 
     const userId = session.user.id
 
-    return withCache(request, async () => {
-      const { data, error } = await supabaseAdmin
-        .from('users')
-        .select('*')
-        .eq('id', userId)
-        .single()
+    const { data, error } = await supabaseAdmin
+      .from('users')
+      .select('*')
+      .eq('id', userId)
+      .single()
 
-      if (error) {
-        console.error('Error fetching user profile:', error)
-        throw error
-      }
+    if (error) {
+      console.error('Error fetching user profile:', error)
+      throw error
+    }
 
-      return NextResponse.json(data, { status: 200 })
-    }, {
-      ttl: 60 * 60, // 1 hour cache for profile information (changes rarely)
-      keyPrefix: getUserCachePrefix(userId, 'profile')
-    })
+    return NextResponse.json(data, { status: 200 })
   } catch (error: unknown) {
     if (error instanceof Error) {
       console.error('Error in profile API:', error)
@@ -88,9 +78,6 @@ export async function PUT(req: Request) {
       console.error('Error updating user profile:', error)
       throw error
     }
-
-    // Invalidate profile cache
-    await invalidateUserProfileCache(userId)
 
     return NextResponse.json(data, { status: 200 })
   } catch (error: unknown) {

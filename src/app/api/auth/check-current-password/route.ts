@@ -1,8 +1,6 @@
 import { NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
 import { verifyPassword } from '@/lib/auth'
-import { redis } from '@/lib/redis'
-import crypto from 'crypto'
 
 export async function POST(req: Request) {
   try {
@@ -32,25 +30,7 @@ export async function POST(req: Request) {
       )
     }
 
-    // Create a safe cache key using a hash of the password
-    // We never want to store the actual password in Redis cache
-    const passwordHash = crypto
-      .createHash('sha256')
-      .update(`${tokenData.user_id}:${password}`)
-      .digest('hex')
-      
-    const cacheKey = `pwd-check:${passwordHash}`
-    
-    // Check if this password was checked recently
-    const cachedResult = await redis.get(cacheKey)
-    if (cachedResult !== null) {
-      return NextResponse.json(
-        { isCurrentPassword: cachedResult === 'true' }, 
-        { status: 200 }
-      )
-    }
-
-    // Get the current user's password hash
+    // Get the current user's password hash directly
     const { data: userData, error: userError } = await supabaseAdmin
       .from('users')
       .select('password')
@@ -66,10 +46,6 @@ export async function POST(req: Request) {
 
     // Check if the new password matches the current one
     const isCurrentPassword = await verifyPassword(password, userData.password)
-    
-    // Cache the result for 10 minutes
-    // This is a security-sensitive check, so we use a short TTL
-    await redis.set(cacheKey, isCurrentPassword ? 'true' : 'false', { ex: 600 })
 
     return NextResponse.json({ isCurrentPassword }, { status: 200 })
   } catch (error: unknown) {

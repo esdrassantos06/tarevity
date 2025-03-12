@@ -1,4 +1,3 @@
-// src/lib/api.ts
 import axiosClient, { APIError, isAPIError } from './axios';
 
 // Type definitions (you already have good ones)

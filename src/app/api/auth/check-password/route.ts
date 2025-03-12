@@ -1,6 +1,5 @@
 // src/app/api/auth/check-password/route.ts
 import { NextResponse } from 'next/server'
-import { redis } from '@/lib/redis'
 import axiosClient from '@/lib/axios'
 
 export async function POST(req: Request) {
@@ -53,26 +52,7 @@ async function checkPasswordWithHIBP(password: string): Promise<boolean> {
     const prefix = hashHex.substring(0, 5).toUpperCase()
     const suffix = hashHex.substring(5).toUpperCase()
     
-    // Check if the result is in Redis cache
-    const cacheKey = `pwned:${prefix}`
-    const cachedResult = await redis.get(cacheKey)
-    
-    if (cachedResult) {
-      // Parse the cached result
-      const lines = (cachedResult as string).split(/\r?\n/)
-      for (const line of lines) {
-        const parts = line.split(':')
-        if (parts.length === 2) {
-          const [returnedSuffix, count] = parts
-          if (returnedSuffix === suffix) {
-            return parseInt(count, 10) > 0
-          }
-        }
-      }
-      return false
-    }
-    
-    // If not in cache, fetch from API
+    // Fetch from API directly (no caching)
     const response = await axiosClient.get(`https://api.pwnedpasswords.com/range/${prefix}`, {
       headers: {
         'User-Agent': 'Tarevity-PasswordChecker' 
@@ -81,10 +61,6 @@ async function checkPasswordWithHIBP(password: string): Promise<boolean> {
     
     // Get the response text (list of hash suffixes and counts)
     const text = await response.data
-    
-    // Cache the result with a TTL of 24 hours (86400 seconds)
-    // This is safe to cache since password hash prefixes change slowly
-    await redis.set(cacheKey, text, { ex: 86400 })
     
     // Check if the password is in the results
     const lines = text.split(/\r?\n/)

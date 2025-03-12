@@ -2,7 +2,6 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/app/api/auth/[...nextauth]/auth-options'
 import { NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
-import { redis } from '@/lib/redis'
 
 export async function DELETE() {
  try {
@@ -37,19 +36,6 @@ export async function DELETE() {
 
    if (userError) {
      throw new Error('Error deleting user account')
-   }
-
-
-   // Step 3: Clear any session data from Redis
-   try {
-     // Clear sessions related to this user
-     const sessionKeys = await redis.keys(`*:${userId}:*`)
-     if (sessionKeys.length > 0) {
-      await redis.del(sessionKeys[0], ...sessionKeys.slice(1));
-    }
-   } catch (e) {
-     // Log but don't fail the entire operation if session cleanup fails
-     console.error('Error cleaning up sessions:', e)
    }
 
    return NextResponse.json(

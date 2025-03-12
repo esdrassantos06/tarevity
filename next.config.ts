@@ -35,10 +35,10 @@ const nextConfig: NextConfig = {
             key: 'Permissions-Policy',
             value: 'camera=(), microphone=(), geolocation=(self), interest-cohort=(), accelerometer=(), autoplay=(), encrypted-media=(), gyroscope=(), magnetometer=(), midi=(), payment=(), picture-in-picture=(), usb=(), xr-spatial-tracking=()',
           },
-          // Default Cache Control - moderate caching for html/dynamic content
+          // No caching for HTML/dynamic content
           {
             key: 'Cache-Control',
-            value: 'public, max-age=3600, stale-while-revalidate=86400',
+            value: 'no-store, max-age=0',
           },
           // Performance Headers
           {
@@ -52,47 +52,47 @@ const nextConfig: NextConfig = {
           },
         ],
       },
-      // Static assets with long-term caching
+      // Static assets without caching
       {
         source: '/static/:path*',
         headers: [
           {
             key: 'Cache-Control',
-            value: 'public, max-age=31536000, immutable',
+            value: 'no-store, max-age=0',
           },
         ],
       },
-      // Images with longer cache duration
+      // Images without caching
       {
         source: '/_next/image/:path*',
         headers: [
           {
             key: 'Cache-Control',
-            value: 'public, max-age=86400, stale-while-revalidate=604800',
+            value: 'no-store, max-age=0',
           },
         ],
       },
-      // Next.js static assets (JS, CSS) - immutable content-based hashing
+      // Next.js static assets without caching
       {
         source: '/_next/static/:path*',
         headers: [
           {
             key: 'Cache-Control',
-            value: 'public, max-age=31536000, immutable',
+            value: 'no-store, max-age=0',
           },
         ],
       },
-      // Font files - rarely change and benefit from long cache
+      // Font files without caching
       {
         source: '/fonts/:path*',
         headers: [
           {
             key: 'Cache-Control',
-            value: 'public, max-age=31536000, immutable',
+            value: 'no-store, max-age=0',
           },
         ],
       },
-      // API endpoints should not be cached by default
+      // API endpoints should not be cached
       {
         source: '/api/:path*',
         headers: [
@@ -102,13 +102,13 @@ const nextConfig: NextConfig = {
           },
         ],
       },
-      // Public assets with versioning in filename
+      // Public assets without caching
       {
         source: '/assets/:path*',
         headers: [
           {
             key: 'Cache-Control',
-            value: 'public, max-age=31536000, immutable',
+            value: 'no-store, max-age=0',
           },
         ],
       },

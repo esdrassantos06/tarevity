@@ -45,10 +45,23 @@ export const authOptions: NextAuthOptions = {
     GitHubProvider({
       clientId: process.env.GITHUB_ID || '',
       clientSecret: process.env.GITHUB_SECRET || '',
+      // Use the authorization parameter instead of callbackUrl
+      authorization: {
+        params: {
+          redirect_uri: `${process.env.NEXTAUTH_URL}/api/auth/callback/github`
+        }
+      }
     }),
+    
     GoogleProvider({
       clientId: process.env.GOOGLE_ID || '',
       clientSecret: process.env.GOOGLE_SECRET || '',
+      // Use the authorization parameter instead of callbackUrl  
+      authorization: {
+        params: {
+          redirect_uri: `${process.env.NEXTAUTH_URL}/api/auth/callback/google`
+        }
+      }
     }),
   ],
   cookies: {
@@ -89,29 +102,28 @@ export const authOptions: NextAuthOptions = {
       return true
     },
     async redirect({ url, baseUrl }) {
+      // Add debug to see exactly what's happening
       console.log('NextAuth redirect callback:', { url, baseUrl });
       
-      // If this is a callback URL, don't modify it
-      if (url.includes('/api/auth/callback')) {
+      // CRITICAL: If it's an OAuth callback URL, do not modify it
+      if (url.includes('/api/auth/callback/')) {
+        console.log('Preserving OAuth callback URL:', url);
         return url;
       }
       
-      // If URL already points to dashboard, keep it
+      // Handle other URLs as before
       if (url.includes('/dashboard')) {
         return url;
       }
     
-      // If URL is an auth page, redirect to dashboard
       if (url.includes('/auth')) {
         return `${baseUrl}/dashboard`;
       }
     
-      // If URL is within our domain, keep it
       if (url.startsWith(baseUrl)) {
         return url;
       }
     
-      // Default to dashboard
       return `${baseUrl}/dashboard`;
     },
     async session({ session, token }) {

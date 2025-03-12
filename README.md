@@ -16,7 +16,6 @@ Tarevity is a modern task management application built with Next.js 15, React 19
 - 📊 Personal task statistics dashboard
 - 👤 User profile management
 - 🛡️ Comprehensive security headers and CSP implementation
-- 🔒 Rate limiting on sensitive endpoints
 - ⚡ Server-side rendering for improved performance and SEO
 
 ## 🛠️ Technologies Used
@@ -37,7 +36,6 @@ Tarevity is a modern task management application built with Next.js 15, React 19
 - **Data Validation**: Zod
 - **Form Management**: React Hook Form
 - **Password Hashing**: bcryptjs
-- **Rate Limiting**: Redis (Upstash)
 
 ### Email Services
 - **Email Provider**: Resend
@@ -47,7 +45,6 @@ Tarevity is a modern task management application built with Next.js 15, React 19
 - **Password Security Checking**: Integration with Have I Been Pwned API to detect compromised passwords
 - **Password Strength Analysis**: Comprehensive strength analysis with visual feedback
 - **CSP Protection**: Content Security Policy headers with nonce-based approach
-- **Rate Limiting**: Protection against brute force on authentication endpoints
 - **Secure Cookies**: HttpOnly, SameSite configuration based on environment
 - **CSRF Protection**: Built-in protection via NextAuth.js
 - **Input Validation**: Server and client-side validation using Zod
@@ -72,7 +69,6 @@ Tarevity is a modern task management application built with Next.js 15, React 19
 - npm, yarn, or pnpm
 - Supabase account (for the database)
 - Resend account (for email services)
-- Redis instance (optional, for rate limiting)
 
 ### Installation
 
@@ -120,10 +116,6 @@ Tarevity is a modern task management application built with Next.js 15, React 19
    # Email (Resend)
    RESEND_API_KEY=your_resend_api_key
    EMAIL_FROM=noreply@yourdomain.com
-
-   # Redis (Optional, for rate limiting)
-   REDIS_URL=your_redis_url
-   REDIS_TOKEN=your_redis_token
    ```
 
 4. Configure the Supabase database

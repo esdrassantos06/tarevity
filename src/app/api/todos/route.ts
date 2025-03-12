@@ -3,14 +3,8 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/app/api/auth/[...nextauth]/auth-options'
 import { NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
-import { 
-  withCache, 
-  getUserCachePrefix, 
-  invalidateUserTodosCache,
-  invalidateUserStatsCache
-} from '@/lib/cacheMiddleware'
 
-export async function GET(request: Request) {
+export async function GET() {
   const session = await getServerSession(authOptions)
 
   if (!session?.user?.id) {
@@ -19,28 +13,23 @@ export async function GET(request: Request) {
 
   const userId = session.user.id
   
-  return withCache(request, async () => {
-    try {
-      const { data, error } = await supabaseAdmin
-        .from('todos')
-        .select('*')
-        .eq('user_id', userId)
-        .order('created_at', { ascending: false })
+  try {
+    const { data, error } = await supabaseAdmin
+      .from('todos')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
 
-      if (error) throw error
+    if (error) throw error
 
-      return NextResponse.json(data || [], { status: 200 })
-    } catch (error: unknown) {
-      console.error('Error fetching tasks:', error)
-      return NextResponse.json(
-        { message: error instanceof Error ? error.message : 'Unknown error fetching tasks' },
-        { status: 500 },
-      )
-    }
-  }, { 
-    ttl: 60 * 5, // 5 minutes cache
-    keyPrefix: getUserCachePrefix(userId, 'todos') 
-  })
+    return NextResponse.json(data || [], { status: 200 })
+  } catch (error: unknown) {
+    console.error('Error fetching tasks:', error)
+    return NextResponse.json(
+      { message: error instanceof Error ? error.message : 'Unknown error fetching tasks' },
+      { status: 500 },
+    )
+  }
 }
 
 export async function POST(req: Request) {
@@ -90,12 +79,6 @@ export async function POST(req: Request) {
         { status: 500 },
       )
     }
-
-    // Invalidate user's todos and stats caches
-    await Promise.all([
-      invalidateUserTodosCache(userId),
-      invalidateUserStatsCache(userId)
-    ])
 
     return NextResponse.json(data, { status: 201 })
   } catch (error: unknown) {
