@@ -179,6 +179,16 @@ export async function middleware(request: NextRequest) {
     request.nextUrl.pathname.startsWith(path),
   )
 
+  const referer = request.headers.get('referer') || '';
+  const currentUrl = request.nextUrl.pathname
+
+  if (referer && currentUrl && 
+    (referer.includes('/dashboard') && currentUrl.includes('/auth/login')) ||
+    (referer.includes('/auth/login') && currentUrl.includes('/dashboard'))) {
+   console.log('Potential redirect loop detected, serving current page')
+   return NextResponse.next()
+ }
+
   if (request.nextUrl.pathname === '/auth' && isAuthenticated) {
     return NextResponse.redirect(new URL('/dashboard', request.url))
   }
@@ -190,16 +200,13 @@ export async function middleware(request: NextRequest) {
   }
 
   if (isAuthenticated && isAuthPath) {
-
-    if (request.nextUrl.searchParams.has('redirected')) {
-      // If we detect a loop, just serve the page and let client-side handle it
+    // Better loop detection - don't redirect if we just came from dashboard
+    if (referer && referer.includes('/dashboard')) {
       return NextResponse.next()
     }
-    const redirectUrl = new URL('/dashboard', request.url)
-
-    redirectUrl.searchParams.set('redirected', 'true')
-    return NextResponse.redirect(redirectUrl)
+    return NextResponse.redirect(new URL('/dashboard', request.url))
   }
+
   return response
 }
 
