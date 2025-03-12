@@ -5,7 +5,6 @@ import { rateLimiter } from './lib/rateLimit'
 export async function middleware(request: NextRequest) {
   // Get URL pathname for debugging
   const pathname = request.nextUrl.pathname
-  console.log('Middleware processing:', pathname)
 
   const rateLimits = {
     '/api/auth/login': { limit: 5, window: 300 }, // 5 attempts per 5 minutes
@@ -30,7 +29,6 @@ export async function middleware(request: NextRequest) {
 
   // Skip all processing for callback routes
   if (pathname.startsWith('/api/auth/callback') || pathname.includes('/api/auth/callback/')) {
-    console.log('Skipping middleware for OAuth callback:', pathname)
     return NextResponse.next()
   }
 
@@ -100,7 +98,6 @@ export async function middleware(request: NextRequest) {
   })
   const isAuthenticated = !!token
 
-  console.log('Path:', pathname, 'Authenticated:', isAuthenticated)
 
   const protectedPaths = ['/dashboard', '/settings', '/profile']
   const authPaths = ['/auth/login', '/auth/register']
@@ -114,7 +111,6 @@ export async function middleware(request: NextRequest) {
   )
 
   if (isProtectedPath && !isAuthenticated) {
-    console.log('Redirecting unauthenticated user from protected path to login')
     const url = new URL('/auth/login', request.url);
     url.searchParams.set('callbackUrl', pathname);
     const redirectResponse = NextResponse.redirect(url);
@@ -123,7 +119,6 @@ export async function middleware(request: NextRequest) {
   }
 
   if (isAuthenticated && isAuthPath) {
-    console.log('Redirecting authenticated user from auth path to dashboard')
     const redirectResponse = NextResponse.redirect(new URL('/dashboard', request.url));
     redirectResponse.headers.set('x-redirect-count', (redirectCount + 1).toString());
     return redirectResponse;

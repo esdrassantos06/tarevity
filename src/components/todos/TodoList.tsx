@@ -131,7 +131,6 @@ export default function TodoList() {
   // Add new task with optimistic update
   const handleAddTodo = useCallback(async (todoData: TodoFormData) => {
     try {
-      console.log("Sending data to API:", JSON.stringify(todoData))
       
       // Create optimistic temporary ID
       const tempId = `temp-${Date.now()}`

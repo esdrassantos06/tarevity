@@ -59,14 +59,11 @@ export default function ResetPasswordForm() {
         return
       }
 
-      console.log("Validating token...")
       const result = await authAPI.validateResetToken(token)
       
       if (result.error) {
-        console.log("Token validation failed:", result.error)
         setIsValidToken(false)
       } else {
-        console.log("Token validated successfully")
         setIsValidToken(true)
       }
     }
@@ -79,7 +76,6 @@ export default function ResetPasswordForm() {
     if (!token || password.length < 8) return null;
     
     setIsCheckingPassword(true);
-    console.log("Checking if password matches current one...");
     
     try {
       const result = await authAPI.checkCurrentPassword(token, password);
@@ -89,7 +85,6 @@ export default function ResetPasswordForm() {
         return null;
       }
       
-      console.log("Password check result:", result.data?.isCurrentPassword);
       return result.data?.isCurrentPassword || false;
     } catch (error) {
       console.error("Exception checking password:", error);
@@ -132,13 +127,11 @@ export default function ResetPasswordForm() {
     if (!token) return;
 
     setIsLoading(true);
-    console.log("Submitting reset password form...");
 
     // Double-check if password is current
     const isCurrent = await checkCurrentPassword(data.password);
     
     if (isCurrent) {
-      console.log("Prevented submission - password is current");
       setError('password', { 
         type: 'manual', 
         message: 'New password cannot be the same as your current password' 
@@ -154,7 +147,6 @@ export default function ResetPasswordForm() {
       console.error('Error in reset password:', result.error);
       toast.error(result.error.message || 'An error occurred while resetting your password');
     } else {
-      console.log("Password reset successfully");
       setIsSubmitted(true);
       toast.success('Password reset successfully');
 

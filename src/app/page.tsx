@@ -20,8 +20,8 @@ export default function HomePage() {
         {/* Hero Section */}
         <div className="mx-auto max-w-7xl rounded-lg px-4 sm:px-6 lg:px-8">
           <div className="p-8 lg:text-center">
-            <h1 className="text-BlackLight text-3xl font-extrabold tracking-tight sm:text-4xl md:text-5xl">
-            <TarevityLogo className='sm:w-120 w-100 md:w-150 mx-auto fill-BlackLight dark:fill-white mb-6'/> 
+            <h1 className="text-BlackLight font-extrabold tracking-tight">
+            <TarevityLogo className='sm:w-120 mx-auto fill-BlackLight dark:fill-white mb-6'/> 
             </h1>
             <h2 className="text-BlackLight dark:text-white text-center dark:text-darkText text-3xl font-extrabold tracking-tight sm:text-4xl md:text-5xl">
               Manage your tasks efficiently
@@ -35,9 +35,9 @@ export default function HomePage() {
               <div className="rounded-md shadow">
                 <Link
                   href="/auth/login"
-                  className="transition-all bg-white dark:bg-BlackLight duration-300 flex w-full items-center justify-center rounded-md border border-transparent px-4 py-0.5 text-base font-medium md:px-5 md:py-1 md:text-lg"
+                  className="transition-all bg-white dark:bg-BlackLight duration-300 w-full flex items-center justify-center rounded-md border border-transparent text-base font-medium px-5 py-1.5 md:text-lg"
                 >
-                  Get Started <IoIosArrowForward size={18} className="ml-2" />
+                  Get Started <IoIosArrowForward size={18} className="ml-1" />
                 </Link>
               </div>
             </div>
@@ -48,10 +48,10 @@ export default function HomePage() {
         <div className="mt-10 rounded-lg bg-white dark:bg-BlackLight py-12 shadow-lg">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="lg:text-center">
-              <h2 className="uppercase font-semibold">
+              <h2 className="uppercase text-center font-semibold">
                 Features
               </h2>
-              <p className="text-3xl font-extrabold sm:text-4xl">
+              <p className="text-3xl text-center font-extrabold sm:text-4xl">
                 Everything you need to stay organized
               </p>
             </div>
@@ -146,7 +146,7 @@ export default function HomePage() {
             </p>
             <Link
               href="/auth/register"
-              className="mt-8 transition-all duration-300 inline-flex w-full items-center justify-center rounded-md border border-transparent bg-white text-base font-medium text-primary hover:bg-white/80 sm:w-auto md:px-5 md:py-1.5"
+              className="mt-8 transition-all duration-300 inline-flex w-full items-center justify-center rounded-md border border-transparent bg-white text-base font-medium text-primary hover:bg-white/80 sm:w-auto px-5 py-1.5"
             >
               Create Free Account
             </Link>

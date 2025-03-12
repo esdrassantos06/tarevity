@@ -31,10 +31,10 @@ export default async function RootLayout({
 }>) {
   
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning className='overflow-x-hidden'>
       <head>
       </head>
-      <body className={`${inter.className}`} suppressHydrationWarning>
+      <body className={`${inter.className} overflow-x-hidden`}  suppressHydrationWarning>
         <NextAuthProvider>
           <ThemeProvider  attribute="class" defaultTheme="system" enableSystem>
             {children}

@@ -94,12 +94,9 @@ export const authOptions: NextAuthOptions = {
       return true
     },
     async redirect({ url, baseUrl }) {
-      // Add debug to see exactly what's happening
-      console.log('NextAuth redirect callback:', { url, baseUrl })
 
       // CRITICAL: If it's an OAuth callback URL, do not modify it
       if (url.includes('/api/auth/callback/')) {
-        console.log('Preserving OAuth callback URL:', url)
         return url
       }
 

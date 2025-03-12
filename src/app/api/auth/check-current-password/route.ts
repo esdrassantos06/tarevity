@@ -8,7 +8,6 @@ export async function POST(req: Request) {
 
     // Validate input
     if (!token || !password) {
-      console.log("Missing token or password")
       return NextResponse.json(
         { message: 'Token and password are required' },
         { status: 400 },
@@ -23,7 +22,6 @@ export async function POST(req: Request) {
       .single()
 
     if (tokenError || !tokenData) {
-      console.log("Token error or no token data:", tokenError)
       return NextResponse.json(
         { message: 'Invalid or expired token' },
         { status: 400 },
