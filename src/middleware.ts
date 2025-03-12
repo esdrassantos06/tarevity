@@ -3,12 +3,18 @@ import { NextRequest, NextResponse } from 'next/server'
 import { redis } from '@/lib/redis'
 
 // Rate limit configurations
-const AUTH_RATE_LIMIT = 5
+const AUTH_RATE_LIMIT = process.env.NODE_ENV === 'development' ? 50 : 5
 const AUTH_RATE_LIMIT_WINDOW = 60 * 15 // 15 minutes
-const API_RATE_LIMIT = 60
+const API_RATE_LIMIT = process.env.NODE_ENV === 'development' ? 200 : 60
 const API_RATE_LIMIT_WINDOW = 60 // 1 minute
 
 export async function middleware(request: NextRequest) {
+
+  const redirectCount = parseInt(request.headers.get('x-redirect-count') || '0', 10)
+  if (redirectCount > 5) {
+    console.error('Redirect loop detected and prevented')
+    return NextResponse.next()
+  }
   
   // Create a comprehensive CSP policy with nonce
   const cspHeader = `
@@ -34,7 +40,7 @@ export async function middleware(request: NextRequest) {
   // CORS Configuration
   const origin = request.headers.get('origin')
   const allowedOrigins = [
-    process.env.NEXT_PUBLIC_APP_URL || 'https://tarevity.pt',
+    process.env.NEXT_PUBLIC_APP_URL || 'https://www.tarevity.pt',
     'https://accounts.google.com',
     'https://github.com',
   ]
@@ -58,11 +64,24 @@ export async function middleware(request: NextRequest) {
     }
   }
 
+    let skipRateLimiting = process.env.NODE_ENV === 'development'
+
+    if (!skipRateLimiting) {
+      try {
+        await redis.ping()
+      } catch (error) {
+        console.error('Redis connection failed, skipping rate limiting:', error)
+        skipRateLimiting = true
+      }
+    }
+
+
+
   // Enhanced rate limiting for auth endpoints
-  if (
-    request.nextUrl.pathname.startsWith('/api/auth/login') ||
+  if (!skipRateLimiting && 
+    (request.nextUrl.pathname.startsWith('/api/auth/login') ||
     request.nextUrl.pathname.startsWith('/api/auth/forgot-password') ||
-    request.nextUrl.pathname.startsWith('/api/auth/reset-password')
+    request.nextUrl.pathname.startsWith('/api/auth/reset-password'))
   ) {
     try {
       const ip = request.headers.get('x-forwarded-for') || 'unknown'
@@ -181,11 +200,15 @@ export async function middleware(request: NextRequest) {
   if (isProtectedPath && !isAuthenticated) {
     const url = new URL('/auth/login', request.url);
     url.searchParams.set('callbackUrl', request.nextUrl.pathname);
-    return NextResponse.redirect(url);
+    const redirectResponse = NextResponse.redirect(url);
+    redirectResponse.headers.set('x-redirect-count', (redirectCount + 1).toString());
+    return redirectResponse;
   }
 
   if (isAuthenticated && isAuthPath) {
-    return NextResponse.redirect(new URL('/dashboard', request.url));
+    const redirectResponse = NextResponse.redirect(new URL('/dashboard', request.url));
+    redirectResponse.headers.set('x-redirect-count', (redirectCount + 1).toString());
+    return redirectResponse;
   }
 
   return response;
@@ -193,8 +216,13 @@ export async function middleware(request: NextRequest) {
 
 // Helper function to get the current request count
 async function getRequestCount(key: string): Promise<number> {
-  const count = await redis.get(key)
-  return count ? parseInt(count as string, 10) : 0
+  try {
+    const count = await redis.get(key)
+    return count ? parseInt(count as string, 10) : 0
+  } catch (error) {
+    console.error('Error getting request count:', error)
+    return 0
+  }
 }
 
 // Make sure your matcher includes all API paths
