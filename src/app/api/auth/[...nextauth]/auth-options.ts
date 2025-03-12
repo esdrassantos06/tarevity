@@ -114,45 +114,67 @@ export const authOptions: NextAuthOptions = {
         if (account.provider === 'credentials') {
           return { ...token, id: user.id, provider: 'credentials' }
         }
-
-        const { data: existingUser } = await supabase
-          .from('users')
-          .select('*')
-          .eq('email', user.email)
-          .single()
-
-        if (existingUser) {
-          await supabase
+    
+        try {
+          const { data: existingUser, error: findError } = await supabase
             .from('users')
-            .update({
-              name: user.name,
-              image: user.image,
-              provider: account.provider,
-              provider_id: account.providerAccountId,
-            })
-            .eq('id', existingUser.id)
-
-          return { ...token, id: existingUser.id, provider: account.provider }
-        } else {
-          // Create new user
-          const { data: newUser } = await supabase
-            .from('users')
-            .insert([
-              {
+            .select('*')
+            .eq('email', user.email)
+            .single()
+          
+          if (findError && findError.code !== 'PGRST116') {
+            console.error('Error finding user:', findError)
+            // Return a valid token even if DB operations fail
+            return { ...token, id: user.id, provider: account.provider }
+          }
+    
+          if (existingUser) {
+            const { error: updateError } = await supabase
+              .from('users')
+              .update({
                 name: user.name,
-                email: user.email,
                 image: user.image,
                 provider: account.provider,
                 provider_id: account.providerAccountId,
-              },
-            ])
-            .select()
-            .single()
-
-          return { ...token, id: newUser?.id, provider: account.provider }
+              })
+              .eq('id', existingUser.id)
+            
+            if (updateError) {
+              console.error('Error updating user:', updateError)
+            }
+    
+            return { ...token, id: existingUser.id, provider: account.provider }
+          } else {
+            // Create new user
+            const { data: newUser, error: insertError } = await supabase
+              .from('users')
+              .insert([
+                {
+                  name: user.name,
+                  email: user.email,
+                  image: user.image,
+                  provider: account.provider,
+                  provider_id: account.providerAccountId,
+                },
+              ])
+              .select()
+              .single()
+            
+            if (insertError) {
+              console.error('Error creating user:', insertError)
+              // Return a valid token even if user creation fails
+              return { ...token, id: user.id, provider: account.provider }
+            }
+    
+            return { ...token, id: newUser?.id || user.id, provider: account.provider }
+          }
+        } catch (error) {
+          console.error('Unexpected error in JWT callback:', error)
+          // Fallback to ensure a valid token is returned
+          return { ...token, id: user.id, provider: account.provider }
         }
       }
-
+    
       return token
     },
   },
