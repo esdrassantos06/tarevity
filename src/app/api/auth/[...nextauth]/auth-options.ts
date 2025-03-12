@@ -25,7 +25,10 @@ export const authOptions: NextAuthOptions = {
           return null
         }
 
-        const isValid = await verifyPassword(credentials.password, user.password)
+        const isValid = await verifyPassword(
+          credentials.password,
+          user.password,
+        )
         if (!isValid) {
           return null
         }
@@ -67,9 +70,10 @@ export const authOptions: NextAuthOptions = {
       },
     },
     csrfToken: {
-      name: process.env.NODE_ENV === 'production' 
-        ? `__Host-next-auth.csrf-token` 
-        : `next-auth.csrf-token`,
+      name:
+        process.env.NODE_ENV === 'production'
+          ? `__Host-next-auth.csrf-token`
+          : `next-auth.csrf-token`,
       options: {
         httpOnly: true,
         sameSite: 'lax',
@@ -80,13 +84,23 @@ export const authOptions: NextAuthOptions = {
   },
   callbacks: {
     async signIn() {
-      return true;
+      return true
     },
     async redirect({ url, baseUrl }) {
       // Make sure redirects always go to valid paths
-      if (url.startsWith(baseUrl)) return url;
-      // Else, redirect to the dashboard
-      return `${baseUrl}/dashboard`;
+      if (url.includes('/dashboard')) {
+        return url
+      }
+
+      if (url.includes('/auth')) {
+        return `${baseUrl}/dashboard`
+      }
+
+      if (url.startsWith(baseUrl)) {
+        return url
+      }
+
+      return `${baseUrl}/dashboard`
     },
     async session({ session, token }) {
       if (token && session.user) {

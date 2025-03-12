@@ -142,8 +142,7 @@ export default function LoginForm() {
       setFailedAttempts(0)
       localStorage.removeItem('loginLockout')
       
-
-      router.push(callbackUrl)
+    window.location.href = '/dashboard'
     } catch (error: unknown) {
       if (error instanceof Error) {
         setError(error.message || 'An error occurred while logging in')
