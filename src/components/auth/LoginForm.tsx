@@ -5,7 +5,6 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { signIn } from 'next-auth/react'
-import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import OAuthButtons from './OAuthButtons'
 import { toast } from 'react-toastify'
@@ -23,16 +22,23 @@ export default function LoginForm() {
   const [failedAttempts, setFailedAttempts] = useState<number>(0)
   const [isLocked, setIsLocked] = useState<boolean>(false)
   const [lockoutTime, setLockoutTime] = useState<number>(0)
-  const router = useRouter()
-  const searchParams = useSearchParams()
-  const callbackUrl = searchParams?.get('callbackUrl') || '/dashboard'
 
  
   const MAX_ATTEMPTS = 5
   const BASE_LOCKOUT_TIME = 30
 
+  const [callbackUrl, setCallbackUrl] = useState('/dashboard')
   
   useEffect(() => {
+
+    const urlParams = new URLSearchParams(window.location.search)
+    const callback = urlParams.get('callbackUrl')
+    if (callback) {
+      setCallbackUrl(callback)
+    }
+
+
+
     const storedLockoutData = localStorage.getItem('loginLockout')
     
     if (storedLockoutData) {
@@ -142,7 +148,7 @@ export default function LoginForm() {
       setFailedAttempts(0)
       localStorage.removeItem('loginLockout')
       
-    window.location.href = '/dashboard'
+      window.location.href = callbackUrl || '/dashboard'
     } catch (error: unknown) {
       if (error instanceof Error) {
         setError(error.message || 'An error occurred while logging in')
