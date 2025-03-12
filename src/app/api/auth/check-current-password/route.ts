@@ -49,7 +49,10 @@ export async function POST(req: Request) {
   } catch (error: unknown) {
     console.error('Error checking current password:', error)
     return NextResponse.json(
-      { message: error instanceof Error ? error.message : 'An unknown error occurred' },
+      {
+        message:
+          error instanceof Error ? error.message : 'An unknown error occurred',
+      },
       { status: 500 },
     )
   }

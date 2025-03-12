@@ -27,14 +27,14 @@ interface ConfirmationDialogProps {
 
 export function useConfirmationDialog() {
   const [dialogState, setDialogState] = useState<{
-    isOpen: boolean;
-    title: string;
-    description: string;
-    onConfirm: () => void;
-    variant?: DialogVariant;
-    confirmText?: string;
-    cancelText?: string;
-    isLoading?: boolean;
+    isOpen: boolean
+    title: string
+    description: string
+    onConfirm: () => void
+    variant?: DialogVariant
+    confirmText?: string
+    cancelText?: string
+    isLoading?: boolean
   }>({
     isOpen: false,
     title: '',
@@ -44,7 +44,7 @@ export function useConfirmationDialog() {
     confirmText: 'Confirm',
     cancelText: 'Cancel',
     isLoading: false,
-  });
+  })
 
   const openConfirmDialog = ({
     title,
@@ -64,23 +64,23 @@ export function useConfirmationDialog() {
       confirmText,
       cancelText,
       isLoading,
-    });
-  };
+    })
+  }
 
   const closeConfirmDialog = () => {
-    setDialogState((prev) => ({ ...prev, isOpen: false }));
-  };
+    setDialogState((prev) => ({ ...prev, isOpen: false }))
+  }
 
   const setLoading = (isLoading: boolean) => {
-    setDialogState((prev) => ({ ...prev, isLoading }));
-  };
+    setDialogState((prev) => ({ ...prev, isLoading }))
+  }
 
   return {
     dialogState,
     openConfirmDialog,
     closeConfirmDialog,
     setLoading,
-  };
+  }
 }
 
 export default function ConfirmationDialog({
@@ -95,8 +95,8 @@ export default function ConfirmationDialog({
   isLoading = false,
 }: ConfirmationDialogProps) {
   const getConfirmButtonClasses = () => {
-    const baseClasses = "py-2 px-4 rounded-md font-medium text-white"
-    
+    const baseClasses = 'py-2 px-4 rounded-md font-medium text-white'
+
     switch (variant) {
       case 'danger':
         return `${baseClasses} bg-red-600 hover:bg-red-700`
@@ -132,7 +132,7 @@ export default function ConfirmationDialog({
         <DialogFooter>
           <button
             onClick={handleCancel}
-            className="mt-3 sm:mt-0 w-full sm:w-auto inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none dark:bg-gray-700 dark:text-white dark:border-gray-600 dark:hover:bg-gray-600"
+            className="mt-3 inline-flex w-full justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-base font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none sm:mt-0 sm:w-auto dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600"
             disabled={isLoading}
           >
             {cancelText}

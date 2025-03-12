@@ -16,7 +16,6 @@ import {
 } from 'react-icons/fa'
 import { profileAPI } from '@/lib/api'
 
-
 interface ProfileData {
   id: string
   name: string
@@ -48,17 +47,17 @@ export default function ProfileComponent() {
 
       setIsLoading(true)
       try {
-        const result = await profileAPI.getProfile();
-        
+        const result = await profileAPI.getProfile()
+
         if (result.error) {
-          throw new Error(result.error.message || 'Failed to load profile data');
+          throw new Error(result.error.message || 'Failed to load profile data')
         }
 
         if (result.data) {
-          setProfileData(result.data);
+          setProfileData(result.data)
           setFormData({
             name: result.data.name || '',
-          });
+          })
         }
 
         // After loading profile, fetch the user statistics
@@ -79,14 +78,14 @@ export default function ProfileComponent() {
   // Function to fetch user task statistics
   const fetchUserStats = async () => {
     try {
-      const result = await profileAPI.getStats();
-      
+      const result = await profileAPI.getStats()
+
       if (result.error) {
-        throw new Error(result.error.message || 'Failed to load statistics');
+        throw new Error(result.error.message || 'Failed to load statistics')
       }
 
       if (result.data) {
-        setUserStats(result.data);
+        setUserStats(result.data)
       }
     } catch (error) {
       console.error('Error fetching user stats:', error)
@@ -107,7 +106,11 @@ export default function ProfileComponent() {
   const handleCancelEdit = () => {
     // If there are unsaved changes, reset to original values
     if (formData.name !== profileData?.name) {
-      if (window.confirm("You have unsaved changes. Are you sure you want to discard them?")) {
+      if (
+        window.confirm(
+          'You have unsaved changes. Are you sure you want to discard them?',
+        )
+      ) {
         setFormData({
           name: profileData?.name || '',
         })
@@ -124,15 +127,15 @@ export default function ProfileComponent() {
 
     try {
       setIsLoading(true)
-      const result = await profileAPI.updateProfile(formData);
-      
+      const result = await profileAPI.updateProfile(formData)
+
       if (result.error) {
-        throw new Error(result.error.message || 'Failed to update profile');
+        throw new Error(result.error.message || 'Failed to update profile')
       }
 
       if (result.data) {
-        setProfileData(result.data);
-        
+        setProfileData(result.data)
+
         // Update session data to reflect changes
         if (update) {
           await update({
@@ -141,11 +144,11 @@ export default function ProfileComponent() {
               ...session?.user,
               name: result.data.name,
             },
-          });
+          })
         }
 
-        toast.success('Profile updated successfully!');
-        setIsEditing(false);
+        toast.success('Profile updated successfully!')
+        setIsEditing(false)
       }
     } catch (error) {
       console.error('Error updating profile:', error)
@@ -154,7 +157,6 @@ export default function ProfileComponent() {
       setIsLoading(false)
     }
   }
-
 
   if (isLoading && !profileData) {
     return (

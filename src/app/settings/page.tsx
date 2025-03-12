@@ -4,8 +4,9 @@ import { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'Personalize Your Experience | Tarevity Settings',
-  description: 'Customize your task management environment with theme preferences, notification settings, and account security options.',
-  robots: 'noindex, nofollow'
+  description:
+    'Customize your task management environment with theme preferences, notification settings, and account security options.',
+  robots: 'noindex, nofollow',
 }
 
 export default function SettingsPage() {

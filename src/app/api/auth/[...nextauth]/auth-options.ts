@@ -8,25 +8,25 @@ import crypto from 'crypto'
 
 declare module 'next-auth' {
   interface Session {
-    error?: string;
+    error?: string
     user: {
-      id?: string;
-      name?: string | null;
-      email?: string | null;
-      image?: string | null;
-      provider?: string;
+      id?: string
+      name?: string | null
+      email?: string | null
+      image?: string | null
+      provider?: string
     }
   }
 }
 
 declare module 'next-auth/jwt' {
   interface JWT {
-    id: string;
-    provider?: string;
-    refreshToken?: string;
-    refreshTokenExpires?: number;
-    refreshTokenStored?: boolean;
-    error?: string;
+    id: string
+    provider?: string
+    refreshToken?: string
+    refreshTokenExpires?: number
+    refreshTokenStored?: boolean
+    error?: string
   }
 }
 
@@ -94,7 +94,6 @@ export const authOptions: NextAuthOptions = {
       return true
     },
     async redirect({ url, baseUrl }) {
-
       if (url.includes('/dashboard')) {
         return url
       }
@@ -111,25 +110,25 @@ export const authOptions: NextAuthOptions = {
     },
     async session({ session, token }) {
       if (token && session.user) {
-        session.user.id = token.id;
-        session.user.provider = token.provider;
+        session.user.id = token.id
+        session.user.provider = token.provider
       }
-      
+
       if (token.error === 'RefreshTokenError') {
-        session.error = 'RefreshTokenError';
+        session.error = 'RefreshTokenError'
       }
-      
-      return session;
+
+      return session
     },
     async jwt({ token, user, account }) {
       if (account && user) {
         if (account.provider === 'credentials') {
-          return { 
-            ...token, 
-            id: user.id, 
+          return {
+            ...token,
+            id: user.id,
             provider: 'credentials',
             refreshToken: crypto.randomBytes(32).toString('hex'),
-            refreshTokenExpires: Date.now() + 7 * 24 * 60 * 60 * 1000
+            refreshTokenExpires: Date.now() + 7 * 24 * 60 * 60 * 1000,
           }
         }
 
@@ -142,12 +141,12 @@ export const authOptions: NextAuthOptions = {
 
           if (findError && findError.code !== 'PGRST116') {
             console.error('Error finding user:', findError)
-            return { 
-              ...token, 
-              id: user.id, 
+            return {
+              ...token,
+              id: user.id,
               provider: account.provider,
               refreshToken: crypto.randomBytes(32).toString('hex'),
-              refreshTokenExpires: Date.now() + 7 * 24 * 60 * 60 * 1000
+              refreshTokenExpires: Date.now() + 7 * 24 * 60 * 60 * 1000,
             }
           }
 
@@ -166,22 +165,22 @@ export const authOptions: NextAuthOptions = {
               console.error('Error updating user:', updateError)
             }
 
-            const refreshToken = crypto.randomBytes(32).toString('hex');
-            const refreshTokenExpires = Date.now() + 7 * 24 * 60 * 60 * 1000; // 7 days
-            
+            const refreshToken = crypto.randomBytes(32).toString('hex')
+            const refreshTokenExpires = Date.now() + 7 * 24 * 60 * 60 * 1000 // 7 days
+
             await supabase.from('refresh_tokens').insert({
               user_id: existingUser.id,
               token: refreshToken,
               expires_at: new Date(refreshTokenExpires).toISOString(),
-            });
+            })
 
-            return { 
-              ...token, 
-              id: existingUser.id, 
+            return {
+              ...token,
+              id: existingUser.id,
               provider: account.provider,
               refreshToken: refreshToken,
               refreshTokenExpires: refreshTokenExpires,
-              refreshTokenStored: true
+              refreshTokenStored: true,
             }
           } else {
             // Create new user
@@ -201,24 +200,24 @@ export const authOptions: NextAuthOptions = {
 
             if (insertError) {
               console.error('Error creating user:', insertError)
-              return { 
-                ...token, 
-                id: user.id, 
+              return {
+                ...token,
+                id: user.id,
                 provider: account.provider,
                 refreshToken: crypto.randomBytes(32).toString('hex'),
-                refreshTokenExpires: Date.now() + 7 * 24 * 60 * 60 * 1000
+                refreshTokenExpires: Date.now() + 7 * 24 * 60 * 60 * 1000,
               }
             }
 
-            const refreshToken = crypto.randomBytes(32).toString('hex');
-            const refreshTokenExpires = Date.now() + 7 * 24 * 60 * 60 * 1000;
-            
+            const refreshToken = crypto.randomBytes(32).toString('hex')
+            const refreshTokenExpires = Date.now() + 7 * 24 * 60 * 60 * 1000
+
             if (newUser) {
               await supabase.from('refresh_tokens').insert({
                 user_id: newUser.id,
                 token: refreshToken,
                 expires_at: new Date(refreshTokenExpires).toISOString(),
-              });
+              })
             }
 
             return {
@@ -227,24 +226,24 @@ export const authOptions: NextAuthOptions = {
               provider: account.provider,
               refreshToken: refreshToken,
               refreshTokenExpires: refreshTokenExpires,
-              refreshTokenStored: true
+              refreshTokenStored: true,
             }
           }
         } catch (error) {
           console.error('Unexpected error in JWT callback:', error)
           // Fallback to ensure a valid token is returned
-          return { 
-            ...token, 
-            id: user.id, 
+          return {
+            ...token,
+            id: user.id,
             provider: account.provider,
             refreshToken: crypto.randomBytes(32).toString('hex'),
-            refreshTokenExpires: Date.now() + 7 * 24 * 60 * 60 * 1000
+            refreshTokenExpires: Date.now() + 7 * 24 * 60 * 60 * 1000,
           }
         }
       }
 
       if (token.refreshToken && !account && !user) {
-        const shouldRefresh = Date.now() > Number(token.exp) * 1000;
+        const shouldRefresh = Date.now() > Number(token.exp) * 1000
         if (shouldRefresh) {
           try {
             const { data, error } = await supabase
@@ -252,30 +251,39 @@ export const authOptions: NextAuthOptions = {
               .select('*')
               .eq('token', token.refreshToken)
               .eq('user_id', token.id)
-              .single();
+              .single()
 
-            if (error || !data || new Date(data.expires_at).getTime() < Date.now()) {
-              return { ...token, error: 'RefreshTokenError' };
+            if (
+              error ||
+              !data ||
+              new Date(data.expires_at).getTime() < Date.now()
+            ) {
+              return { ...token, error: 'RefreshTokenError' }
             }
 
-            const newRefreshToken = crypto.randomBytes(32).toString('hex');
+            const newRefreshToken = crypto.randomBytes(32).toString('hex')
 
-            await supabase.from('refresh_tokens').delete().eq('token', token.refreshToken);
+            await supabase
+              .from('refresh_tokens')
+              .delete()
+              .eq('token', token.refreshToken)
             await supabase.from('refresh_tokens').insert({
               user_id: token.id,
               token: newRefreshToken,
-              expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-            });
+              expires_at: new Date(
+                Date.now() + 7 * 24 * 60 * 60 * 1000,
+              ).toISOString(),
+            })
 
             return {
               ...token,
               refreshToken: newRefreshToken,
               refreshTokenExpires: Date.now() + 7 * 24 * 60 * 60 * 1000,
               exp: Math.floor(Date.now() / 1000) + 60 * 60,
-            };
+            }
           } catch (error) {
-            console.error('Error refreshing token:', error);
-            return { ...token, error: 'RefreshTokenError' };
+            console.error('Error refreshing token:', error)
+            return { ...token, error: 'RefreshTokenError' }
           }
         }
       }

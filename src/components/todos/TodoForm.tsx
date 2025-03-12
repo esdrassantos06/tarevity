@@ -6,26 +6,27 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 
 const todoSchema = z.object({
-  title: z.string()
+  title: z
+    .string()
     .min(1, 'Title is required')
     .max(100, 'Title too long (maximum 100 characters)')
-    .transform(val => val.trim()),
-    
-  description: z.string()
+    .transform((val) => val.trim()),
+
+  description: z
+    .string()
     .max(500, 'Description too long (maximum 500 characters)')
     .nullable()
-    .transform(val => val ? val.trim() : val),
-    
-  priority: z.number()
+    .transform((val) => (val ? val.trim() : val)),
+
+  priority: z
+    .number()
     .int('Priority must be an integer')
     .min(1, 'Minimum priority is 1')
     .max(3, 'Maximum priority is 3'),
-    
-  due_date: z.string()
-    .nullable()
-    .optional(),
-    
-  is_completed: z.boolean().optional() 
+
+  due_date: z.string().nullable().optional(),
+
+  is_completed: z.boolean().optional(),
 })
 
 type TodoFormValues = z.infer<typeof todoSchema>

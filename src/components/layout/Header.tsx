@@ -22,11 +22,9 @@ export default function Header() {
         <div className="flex h-16 justify-between">
           <div className="flex">
             <div className="flex flex-shrink-0 items-center">
-              <Link
-                href={session ? '/dashboard' : '/'}
-              >
-                <TarevityLogo className="w-30 fill-black hidden sm:flex dark:fill-white" />
-                <TarevityIcon className="w-12 fill-black flex sm:hidden dark:fill-white" />
+              <Link href={session ? '/dashboard' : '/'}>
+                <TarevityLogo className="hidden w-30 fill-black sm:flex dark:fill-white" />
+                <TarevityIcon className="flex w-12 fill-black sm:hidden dark:fill-white" />
               </Link>
             </div>
           </div>
@@ -37,19 +35,19 @@ export default function Header() {
                 <div className="flex items-center gap-4">
                   <Link
                     href="/profile"
-                    className="flex p-2 hover:bg-BorderLight/60 duration-300 transition-colors dark:hover:bg-BorderDark/20 dark:border-BorderDark border-BorderLight rounded-lg border-2 dark:text-white text-BlackLight items-center"
+                    className="hover:bg-BorderLight/60 dark:hover:bg-BorderDark/20 dark:border-BorderDark border-BorderLight text-BlackLight flex items-center rounded-lg border-2 p-2 transition-colors duration-300 dark:text-white"
                   >
                     <FaUser className="dark:text-white" />
                   </Link>
                   <button
                     onClick={() => signOut({ callbackUrl: '/' })}
-                    className="flex hover:bg-BorderLight/60 duration-300 transition-colors dark:hover:bg-BorderDark/20  dark:text-white text-BlackLight p-2 cursor-pointer items-center dark:border-BorderDark border-BorderLight rounded-lg border-2"
+                    className="hover:bg-BorderLight/60 dark:hover:bg-BorderDark/20 text-BlackLight dark:border-BorderDark border-BorderLight flex cursor-pointer items-center rounded-lg border-2 p-2 transition-colors duration-300 dark:text-white"
                   >
                     <FaSignOutAlt className="dark:text-white" />
                   </button>
                   <Link
                     href="/settings"
-                    className="flex p-2 items-center border-BorderLight hover:bg-BorderLight/60 duration-300 transition-colors dark:hover:bg-BorderDark/20  dark:border-BorderDark rounded-lg border-2 dark:text-white text-BlackLight"
+                    className="border-BorderLight hover:bg-BorderLight/60 dark:hover:bg-BorderDark/20 dark:border-BorderDark text-BlackLight flex items-center rounded-lg border-2 p-2 transition-colors duration-300 dark:text-white"
                   >
                     <FaCog className="dark:text-white" />
                   </Link>
@@ -60,13 +58,13 @@ export default function Header() {
             <div className="hidden font-bold sm:flex sm:items-center sm:gap-3">
               <Link
                 href="/auth/login"
-                className="inline-flex items-center rounded-lg px-4 py-1.5 transition-colors duration-300 dark:hover:bg-BorderDark/40 bg-transparent backdrop-blur-sm hover:bg-BorderLight/70 text-primary border-2 dark:border-BorderDark border-BorderLight"
+                className="dark:hover:bg-BorderDark/40 hover:bg-BorderLight/70 text-primary dark:border-BorderDark border-BorderLight inline-flex items-center rounded-lg border-2 bg-transparent px-4 py-1.5 backdrop-blur-sm transition-colors duration-300"
               >
                 Login
               </Link>
               <Link
                 href="/auth/register"
-                className="inline-flex items-center transition-all duration-300 bg-primary hover:bg-primary/80 text-white rounded-md px-4 py-1.5 "
+                className="bg-primary hover:bg-primary/80 inline-flex items-center rounded-md px-4 py-1.5 text-white transition-all duration-300"
               >
                 Register
               </Link>
@@ -78,11 +76,18 @@ export default function Header() {
             <button
               onClick={toggleMenu}
               type="button"
-              className="inline-flex items-center justify-center rounded-md p-2 "
+              className="inline-flex items-center justify-center rounded-md p-2"
               aria-expanded="false"
             >
               <span className="sr-only">Open main menu</span>
-              {isMenuOpen ? <FaTimes size={22} className='fill-BlackLight dark:fill-white'/> : <FaBars className='fill-BlackLight dark:fill-white' size={22}/>}
+              {isMenuOpen ? (
+                <FaTimes
+                  size={22}
+                  className="fill-BlackLight dark:fill-white"
+                />
+              ) : (
+                <FaBars className="fill-BlackLight dark:fill-white" size={22} />
+              )}
             </button>
           </div>
         </div>
@@ -95,27 +100,27 @@ export default function Header() {
               <>
                 <Link
                   href="/dashboard"
-                  className="block dark:text-white text-BlackLight px-3 py-2"
+                  className="text-BlackLight block px-3 py-2 dark:text-white"
                 >
                   Dashboard
                 </Link>
                 <Link
                   href="/profile"
-                  className="block dark:text-white text-BlackLight px-3 py-2"
+                  className="text-BlackLight block px-3 py-2 dark:text-white"
                 >
                   <FaUser className="mr-1 inline" />
                   Profile
                 </Link>
                 <Link
                   href="/settings"
-                  className="block dark:text-white text-BlackLight px-3 py-2"
+                  className="text-BlackLight block px-3 py-2 dark:text-white"
                 >
                   <FaCog className="mr-1 inline" />
                   Settings
                 </Link>
                 <button
                   onClick={() => signOut({ callbackUrl: '/' })}
-                  className="block dark:text-white text-BlackLight w-full px-3 py-2"
+                  className="text-BlackLight block w-full px-3 py-2 dark:text-white"
                 >
                   <FaSignOutAlt className="mr-1 inline" />
                   Logout
@@ -125,13 +130,13 @@ export default function Header() {
               <>
                 <Link
                   href="/auth/login"
-                  className="block dark:text-white text-BlackLight px-3 py-2"
+                  className="text-BlackLight block px-3 py-2 dark:text-white"
                 >
                   Login
                 </Link>
                 <Link
                   href="/auth/register"
-                  className="block dark:text-white text-BlackLight px-3 py-2"
+                  className="text-BlackLight block px-3 py-2 dark:text-white"
                 >
                   Register
                 </Link>

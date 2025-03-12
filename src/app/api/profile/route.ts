@@ -57,10 +57,7 @@ export async function PUT(req: Request) {
 
     // Validate data
     if (!updateData.name?.trim()) {
-      return NextResponse.json(
-        { message: 'Name is required' },
-        { status: 400 },
-      )
+      return NextResponse.json({ message: 'Name is required' }, { status: 400 })
     }
 
     // Update the user profile

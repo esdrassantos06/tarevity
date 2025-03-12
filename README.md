@@ -21,6 +21,7 @@ Tarevity is a modern task management application built with Next.js 15, React 19
 ## 🛠️ Technologies Used
 
 ### Frontend
+
 - **Framework**: Next.js 15 with App Router
 - **UI Library**: React 19
 - **Styling**: Tailwind CSS v4
@@ -31,6 +32,7 @@ Tarevity is a modern task management application built with Next.js 15, React 19
 - **Theme Management**: next-themes
 
 ### Backend & Database
+
 - **Authentication**: NextAuth.js v4
 - **Database**: Supabase (PostgreSQL)
 - **Data Validation**: Zod
@@ -38,6 +40,7 @@ Tarevity is a modern task management application built with Next.js 15, React 19
 - **Password Hashing**: bcryptjs
 
 ### Email Services
+
 - **Email Provider**: Resend
 
 ## 🔐 Security Features
@@ -54,6 +57,7 @@ Tarevity is a modern task management application built with Next.js 15, React 19
 ## 📱 Responsive Design
 
 Tarevity is built with a mobile-first approach, ensuring a great user experience across all devices:
+
 - Optimized layouts for mobile, tablet, and desktop
 - Adaptive navigation menus
 - Touch-friendly UI elements
@@ -81,12 +85,14 @@ The application follows a modern web architecture:
 ### Installation
 
 1. Clone the repository
+
    ```bash
    git clone https://github.com/esdrassantos06/tarevity.git
    cd tarevity
    ```
 
 2. Install dependencies
+
    ```bash
    npm install
    # or
@@ -124,13 +130,14 @@ The application follows a modern web architecture:
    # Email (Resend)
    RESEND_API_KEY=your_resend_api_key
    EMAIL_FROM=noreply@yourdomain.com
-   
+
    # Rate Limiting (Redis)
    REDIS_URL=your_redis_url
    REDIS_TOKEN=your_redis_token
    ```
 
 4. Configure the Supabase database
+
    - Create a new organization and project in Supabase
    - The database structure should include the following tables:
      - `users`: User accounts and authentication data
@@ -140,6 +147,7 @@ The application follows a modern web architecture:
    - Set up Row Level Security (RLS) policies to restrict data access
 
 5. Start the development server
+
    ```bash
    npm run dev
    # or

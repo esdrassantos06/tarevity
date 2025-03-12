@@ -1,10 +1,10 @@
-'use client';
+'use client'
 
-import * as React from 'react';
-import * as DialogPrimitive from '@radix-ui/react-dialog';
-import { FaTimes } from 'react-icons/fa';
+import * as React from 'react'
+import * as DialogPrimitive from '@radix-ui/react-dialog'
+import { FaTimes } from 'react-icons/fa'
 
-const Dialog = DialogPrimitive.Root;
+const Dialog = DialogPrimitive.Root
 
 const DialogPortal = ({
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -17,49 +17,49 @@ const DialogPortal = ({
       {children}
     </div>
   </DialogPrimitive.Portal>
-);
-DialogPortal.displayName = DialogPrimitive.Portal.displayName;
+)
+DialogPortal.displayName = DialogPrimitive.Portal.displayName
 
 // Dialog Overlay component with animations
 const DialogOverlay = React.forwardRef<
   React.ComponentRef<typeof DialogPrimitive.Overlay>,
   React.ComponentPropsWithoutRef<typeof DialogPrimitive.Overlay>
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
 >(({ className, ...props }, ref) => (
   <DialogPrimitive.Overlay
     ref={ref}
-    className="fixed inset-0 z-100 bg-black/50 backdrop-blur-sm transition-opacity duration-200 ease-out data-[state=open]:animate-in data-[state=open]:fade-in"
+    className="data-[state=open]:animate-in data-[state=open]:fade-in fixed inset-0 z-100 bg-black/50 backdrop-blur-sm transition-opacity duration-200 ease-out"
     {...props}
   />
-));
-DialogOverlay.displayName = DialogPrimitive.Overlay.displayName;
+))
+DialogOverlay.displayName = DialogPrimitive.Overlay.displayName
 
 // Dialog Content component with animations
 const DialogContent = React.forwardRef<
   React.ComponentRef<typeof DialogPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content>
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
 >(({ className, children, ...props }, ref) => (
   <DialogPortal>
     <DialogOverlay />
     <DialogPrimitive.Content
       ref={ref}
-      className="fixed z-101 grid w-full max-w-lg gap-4 rounded-lg bg-white p-6 shadow-lg transition-all duration-200 ease-out animate-in data-[state=open]:fade-in-90 data-[state=open]:slide-in-from-right sm:max-w-lg sm:rounded-lg md:w-full dark:bg-BlackLight"
+      className="animate-in data-[state=open]:fade-in-90 data-[state=open]:slide-in-from-right dark:bg-BlackLight fixed z-101 grid w-full max-w-lg gap-4 rounded-lg bg-white p-6 shadow-lg transition-all duration-200 ease-out sm:max-w-lg sm:rounded-lg md:w-full"
       {...props}
     >
       {children}
-      <DialogPrimitive.Close className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-white transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 disabled:pointer-events-none dark:ring-offset-gray-950 dark:focus:ring-gray-800">
+      <DialogPrimitive.Close className="absolute top-4 right-4 rounded-sm opacity-70 ring-offset-white transition-opacity hover:opacity-100 focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 focus:outline-none disabled:pointer-events-none dark:ring-offset-gray-950 dark:focus:ring-gray-800">
         <FaTimes className="h-4 w-4" />
         <span className="sr-only">Close</span>
       </DialogPrimitive.Close>
     </DialogPrimitive.Content>
   </DialogPortal>
-));
-DialogContent.displayName = DialogPrimitive.Content.displayName;
+))
+DialogContent.displayName = DialogPrimitive.Content.displayName
 
 // Dialog Header component
 const DialogHeader = ({
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   className,
   ...props
 }: React.HTMLAttributes<HTMLDivElement>) => (
@@ -67,12 +67,12 @@ const DialogHeader = ({
     className="flex flex-col space-y-1.5 text-center sm:text-left"
     {...props}
   />
-);
-DialogHeader.displayName = "DialogHeader";
+)
+DialogHeader.displayName = 'DialogHeader'
 
 // Dialog Footer component
 const DialogFooter = ({
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   className,
   ...props
 }: React.HTMLAttributes<HTMLDivElement>) => (
@@ -80,36 +80,36 @@ const DialogFooter = ({
     className="flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2"
     {...props}
   />
-);
-DialogFooter.displayName = "DialogFooter";
+)
+DialogFooter.displayName = 'DialogFooter'
 
 // Dialog Title component
 const DialogTitle = React.forwardRef<
   React.ComponentRef<typeof DialogPrimitive.Title>,
   React.ComponentPropsWithoutRef<typeof DialogPrimitive.Title>
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
 >(({ className, ...props }, ref) => (
   <DialogPrimitive.Title
     ref={ref}
     className="text-lg font-semibold text-gray-900 dark:text-gray-50"
     {...props}
   />
-));
-DialogTitle.displayName = DialogPrimitive.Title.displayName;
+))
+DialogTitle.displayName = DialogPrimitive.Title.displayName
 
 // Dialog Description component
 const DialogDescription = React.forwardRef<
   React.ComponentRef<typeof DialogPrimitive.Description>,
   React.ComponentPropsWithoutRef<typeof DialogPrimitive.Description>
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
 >(({ className, ...props }, ref) => (
   <DialogPrimitive.Description
     ref={ref}
     className="text-sm text-gray-500 dark:text-gray-400"
     {...props}
   />
-));
-DialogDescription.displayName = DialogPrimitive.Description.displayName;
+))
+DialogDescription.displayName = DialogPrimitive.Description.displayName
 
 export {
   Dialog,
@@ -118,4 +118,4 @@ export {
   DialogFooter,
   DialogTitle,
   DialogDescription,
-};
+}

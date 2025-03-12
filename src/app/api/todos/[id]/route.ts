@@ -7,7 +7,7 @@ import { NextRequest } from 'next/server'
 // Get a specific task
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const session = await getServerSession(authOptions)
@@ -19,7 +19,7 @@ export async function GET(
 
     const userId = session.user.id
     const taskId = resolvedParams.id
-    
+
     // Fetch task data and perform authorization check in one query
     const { data, error } = await supabaseAdmin
       .from('todos')
@@ -29,18 +29,12 @@ export async function GET(
 
     // Check if task exists
     if (error || !data) {
-      return NextResponse.json(
-        { message: 'Task not found' },
-        { status: 404 }
-      )
+      return NextResponse.json({ message: 'Task not found' }, { status: 404 })
     }
 
     // Check if the task belongs to the current user
     if (data.user_id !== userId) {
-      return NextResponse.json(
-        { message: 'Forbidden' },
-        { status: 403 }
-      )
+      return NextResponse.json({ message: 'Forbidden' }, { status: 403 })
     }
 
     // Return the task data if authorization passes
@@ -50,13 +44,13 @@ export async function GET(
       console.error('Error fetching task:', error)
       return NextResponse.json(
         { message: error.message || 'Error fetching task' },
-        { status: 500 }
+        { status: 500 },
       )
     } else {
       console.error('Unknown error fetching task:', error)
       return NextResponse.json(
         { message: 'Unknown error fetching task' },
-        { status: 500 }
+        { status: 500 },
       )
     }
   }
@@ -65,7 +59,7 @@ export async function GET(
 // Update a task
 export async function PUT(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const session = await getServerSession(authOptions)
@@ -90,10 +84,7 @@ export async function PUT(
       .single()
 
     if (checkError || !existingTask) {
-      return NextResponse.json(
-        { message: 'Task not found' },
-        { status: 404 },
-      )
+      return NextResponse.json({ message: 'Task not found' }, { status: 404 })
     }
 
     // Update the task
@@ -130,7 +121,7 @@ export async function PUT(
 // Delete a task
 export async function DELETE(
   _request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const session = await getServerSession(authOptions)
@@ -152,10 +143,7 @@ export async function DELETE(
       .single()
 
     if (checkError || !existingTask) {
-      return NextResponse.json(
-        { message: 'Task not found' },
-        { status: 404 },
-      )
+      return NextResponse.json({ message: 'Task not found' }, { status: 404 })
     }
 
     // Delete the task

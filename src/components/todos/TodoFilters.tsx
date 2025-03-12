@@ -22,14 +22,14 @@ export default function TodoFilters({ filters, setFilters }: TodoFiltersProps) {
 
     const timer = setTimeout(() => {
       setFilters({
-         status: filters.status,
-         priority: filters.priority,
-          search 
-        })
+        status: filters.status,
+        priority: filters.priority,
+        search,
+      })
     }, 300)
 
     return () => clearTimeout(timer)
-  }, [search, filters.search, filters.status, filters.priority, setFilters]);
+  }, [search, filters.search, filters.status, filters.priority, setFilters])
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearch(e.target.value)
@@ -53,7 +53,7 @@ export default function TodoFilters({ filters, setFilters }: TodoFiltersProps) {
   }
 
   return (
-    <div className="bg-white dark:bg-BlackLight rounded-lg p-4 shadow">
+    <div className="dark:bg-BlackLight rounded-lg bg-white p-4 shadow">
       <div className="flex flex-col items-center gap-4 md:flex-row">
         <div className="w-full md:w-1/2">
           <div className="flex">
@@ -62,7 +62,7 @@ export default function TodoFilters({ filters, setFilters }: TodoFiltersProps) {
               value={search}
               onChange={handleSearchChange}
               placeholder="Search tasks..."
-              className="shadow h-10 flex-grow rounded-md px-4 outline-none dark:text-white"
+              className="h-10 flex-grow rounded-md px-4 shadow outline-none dark:text-white"
             />
           </div>
         </div>

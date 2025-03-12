@@ -19,10 +19,7 @@ export default function Logo({
       preserveAspectRatio="xMidYMid meet"
       id="beabbeha"
     >
-      <g
-        id="SvgjsG1319"
-        transform="matrix(0.95,0,0,0.95,0,0)"
-      >
+      <g id="SvgjsG1319" transform="matrix(0.95,0,0,0.95,0,0)">
         <path
           xmlns="http://www.w3.org/2000/svg"
           fillRule="evenodd"

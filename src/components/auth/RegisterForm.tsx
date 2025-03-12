@@ -12,53 +12,62 @@ import OAuthButtons from './OAuthButtons'
 import { authAPI } from '@/lib/api'
 
 // Form validation schema
-const registerSchema = z.object({
-  name: z.string()
-    .min(2, 'Name must be at least 2 characters')
-    .max(50, 'Name is too long (maximum 50 characters)')
-    .regex(/^[a-zA-Z0-9\s\u00C0-\u00FF]+$/, 'Name contains invalid characters')
-    .transform(val => val.trim()),
-    
-  email: z.string()
-    .email('Invalid email')
-    .toLowerCase()
-    .transform(val => val.trim()),
-    
-  password: z.string()
-    .min(6, 'Password must be at least 6 characters')
-    .max(100, 'Password is too long')
-    .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
-    .regex(/[a-z]/, 'Password must contain at least one lowercase letter')
-    .regex(/[0-9]/, 'Password must contain at least one number')
-    .regex(/[^A-Za-z0-9]/, 'Password must contain at least one special character'),
-    
-  confirmPassword: z.string()
-    .min(1, 'Password confirmation is required'),
-  
-  acceptTerms: z.boolean()
-    .refine(val => val === true, {
-      message: 'You must accept the terms to continue'
-    })
-})
-// Add custom validation to ensure passwords match
-.refine(data => data.password === data.confirmPassword, {
-  message: 'Passwords do not match',
-  path: ['confirmPassword']
-})
+const registerSchema = z
+  .object({
+    name: z
+      .string()
+      .min(2, 'Name must be at least 2 characters')
+      .max(50, 'Name is too long (maximum 50 characters)')
+      .regex(
+        /^[a-zA-Z0-9\s\u00C0-\u00FF]+$/,
+        'Name contains invalid characters',
+      )
+      .transform((val) => val.trim()),
+
+    email: z
+      .string()
+      .email('Invalid email')
+      .toLowerCase()
+      .transform((val) => val.trim()),
+
+    password: z
+      .string()
+      .min(6, 'Password must be at least 6 characters')
+      .max(100, 'Password is too long')
+      .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
+      .regex(/[a-z]/, 'Password must contain at least one lowercase letter')
+      .regex(/[0-9]/, 'Password must contain at least one number')
+      .regex(
+        /[^A-Za-z0-9]/,
+        'Password must contain at least one special character',
+      ),
+
+    confirmPassword: z.string().min(1, 'Password confirmation is required'),
+
+    acceptTerms: z.boolean().refine((val) => val === true, {
+      message: 'You must accept the terms to continue',
+    }),
+  })
+  // Add custom validation to ensure passwords match
+  .refine((data) => data.password === data.confirmPassword, {
+    message: 'Passwords do not match',
+    path: ['confirmPassword'],
+  })
 
 type RegisterFormValues = z.infer<typeof registerSchema>
 
 // Interface for password verification response
 interface PasswordCheckResponse {
-  isCompromised: boolean;
-  strength: number;
-  isStrong: boolean;
+  isCompromised: boolean
+  strength: number
+  isStrong: boolean
 }
 
 export default function RegisterForm() {
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [error, setError] = useState<string | null>(null)
-  const [passwordCheck, setPasswordCheck] = useState<PasswordCheckResponse | null>(null)
+  const [passwordCheck, setPasswordCheck] =
+    useState<PasswordCheckResponse | null>(null)
   const [passwordValue, setPasswordValue] = useState<string>('')
   const [isCheckingPassword, setIsCheckingPassword] = useState<boolean>(false)
   const router = useRouter()
@@ -77,7 +86,7 @@ export default function RegisterForm() {
       email: '',
       password: '',
       confirmPassword: '',
-      acceptTerms: false
+      acceptTerms: false,
     },
   })
 
@@ -95,24 +104,25 @@ export default function RegisterForm() {
       setPasswordValue(watchedPassword)
       setIsCheckingPassword(true)
 
-
       try {
         const result = await authAPI.checkPassword(watchedPassword)
-      
+
         if (result.error) {
           console.error('Error checking password strength:', result.error)
         } else if (result.data) {
           setPasswordCheck(result.data)
-          
+
           if (result.data.isCompromised) {
-            setFormError('password', { 
-              type: 'manual', 
-              message: 'This password was found in data breaches. Please choose another.'
+            setFormError('password', {
+              type: 'manual',
+              message:
+                'This password was found in data breaches. Please choose another.',
             })
           } else if (!result.data.isStrong) {
-            setFormError('password', { 
-              type: 'manual', 
-              message: 'This password is not strong enough. Add more varied characters.'
+            setFormError('password', {
+              type: 'manual',
+              message:
+                'This password is not strong enough. Add more varied characters.',
             })
           } else {
             // Clear only manual errors, not Zod errors
@@ -130,18 +140,21 @@ export default function RegisterForm() {
 
     // Debounce check to avoid too many requests
     const debounceTimer = setTimeout(checkPasswordStrength, 500)
-    
+
     return () => clearTimeout(debounceTimer)
   }, [watchedPassword, setFormError, clearErrors, errors.password?.type])
 
   const onSubmit = async (data: RegisterFormValues) => {
     // Check if password is strong and not compromised
-    if (passwordCheck && (passwordCheck.isCompromised || !passwordCheck.isStrong)) {
-      setFormError('password', { 
-        type: 'manual', 
-        message: passwordCheck.isCompromised 
-          ? 'This password was found in data breaches. Please choose another.' 
-          : 'This password is not strong enough. Add more varied characters.' 
+    if (
+      passwordCheck &&
+      (passwordCheck.isCompromised || !passwordCheck.isStrong)
+    ) {
+      setFormError('password', {
+        type: 'manual',
+        message: passwordCheck.isCompromised
+          ? 'This password was found in data breaches. Please choose another.'
+          : 'This password is not strong enough. Add more varied characters.',
       })
       return
     }
@@ -151,20 +164,26 @@ export default function RegisterForm() {
 
     const result = await authAPI.register(data.name, data.email, data.password)
 
-      if (result.error) {
-        if (result.error.message?.toLowerCase().includes('compromised password') || 
-        result.error.message?.toLowerCase().includes('been pwned')) {
-      setError('This password has appeared in data breaches and cannot be used. Please choose a different password.')
-      // Focus back on the password field
-      document.getElementById('password')?.focus()
-    } else {
-      setError(result.error.message || 'An error occurred during registration')
-    }
-      }  else {
-        toast.success('Account created successfully! Please log in to continue.')
-        router.push('/auth/login?registered=true')
+    if (result.error) {
+      if (
+        result.error.message?.toLowerCase().includes('compromised password') ||
+        result.error.message?.toLowerCase().includes('been pwned')
+      ) {
+        setError(
+          'This password has appeared in data breaches and cannot be used. Please choose a different password.',
+        )
+        // Focus back on the password field
+        document.getElementById('password')?.focus()
+      } else {
+        setError(
+          result.error.message || 'An error occurred during registration',
+        )
       }
-      setIsLoading(false)
+    } else {
+      toast.success('Account created successfully! Please log in to continue.')
+      router.push('/auth/login?registered=true')
+    }
+    setIsLoading(false)
   }
 
   // Function to get color based on password strength
@@ -190,18 +209,22 @@ export default function RegisterForm() {
   }
 
   return (
-    <div className="dark:bg-BlackLight bg-white mx-auto w-full max-w-md rounded-lg p-6 shadow-md">
+    <div className="dark:bg-BlackLight mx-auto w-full max-w-md rounded-lg bg-white p-6 shadow-md">
       <h1 className="mb-6 text-center text-2xl font-bold dark:text-white">
         Registration - Tarevity
       </h1>
 
       {error && (
-        <div className="mb-4 rounded border border-red-400 bg-red-100 px-4 py-3 text-red-700 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800">
+        <div className="mb-4 rounded border border-red-400 bg-red-100 px-4 py-3 text-red-700 dark:border-red-800 dark:bg-red-900/30 dark:text-red-400">
           {error}
         </div>
       )}
 
-      <form onSubmit={handleSubmit(onSubmit)} autoComplete='off' className="space-y-4">
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        autoComplete="off"
+        className="space-y-4"
+      >
         <div>
           <label
             htmlFor="name"
@@ -265,16 +288,21 @@ export default function RegisterForm() {
                       : 'border-yellow-500 dark:border-yellow-500'
                   : ''
               }`}
-              disabled={isLoading}/>
-            <div className="absolute inset-y-0 right-0 flex items-center pr-3 pt-1">
+              disabled={isLoading}
+            />
+            <div className="absolute inset-y-0 right-0 flex items-center pt-1 pr-3">
               {isCheckingPassword ? (
                 <div className="h-4 w-4 animate-spin rounded-full border-2 border-gray-300 border-t-blue-600"></div>
               ) : passwordCheck && passwordValue === watchedPassword ? (
                 passwordCheck.isStrong && !passwordCheck.isCompromised ? (
                   <FaCheck className="text-green-500" />
                 ) : (
-                  <FaExclamationTriangle 
-                    className={passwordCheck.isCompromised ? "text-red-500" : "text-yellow-500"} 
+                  <FaExclamationTriangle
+                    className={
+                      passwordCheck.isCompromised
+                        ? 'text-red-500'
+                        : 'text-yellow-500'
+                    }
                   />
                 )
               ) : null}
@@ -296,10 +324,15 @@ export default function RegisterForm() {
                 ></div>
               </div>
               <div className="mt-1 flex items-center">
-                <span className={`text-xs ${getStrengthTextColor(passwordCheck.strength)}`}>
-                  {getStrengthLabel(passwordCheck.strength, passwordCheck.isCompromised)}
+                <span
+                  className={`text-xs ${getStrengthTextColor(passwordCheck.strength)}`}
+                >
+                  {getStrengthLabel(
+                    passwordCheck.strength,
+                    passwordCheck.isCompromised,
+                  )}
                 </span>
-                
+
                 {passwordCheck.isCompromised && (
                   <div className="ml-2 flex items-center text-xs text-red-500">
                     <FaLock className="mr-1" />
@@ -307,27 +340,57 @@ export default function RegisterForm() {
                   </div>
                 )}
               </div>
-              
+
               {/* Password requirements */}
               <div className="mt-2 grid grid-cols-2 gap-1 text-xs">
-                <div className={`flex items-center ${/[A-Z]/.test(watchedPassword) ? 'text-green-500' : 'text-gray-500'}`}>
-                  {/[A-Z]/.test(watchedPassword) ? <FaCheck className="mr-1" /> : <FaTimes className="mr-1" />}
+                <div
+                  className={`flex items-center ${/[A-Z]/.test(watchedPassword) ? 'text-green-500' : 'text-gray-500'}`}
+                >
+                  {/[A-Z]/.test(watchedPassword) ? (
+                    <FaCheck className="mr-1" />
+                  ) : (
+                    <FaTimes className="mr-1" />
+                  )}
                   <span>One uppercase letter</span>
                 </div>
-                <div className={`flex items-center ${/[a-z]/.test(watchedPassword) ? 'text-green-500' : 'text-gray-500'}`}>
-                  {/[a-z]/.test(watchedPassword) ? <FaCheck className="mr-1" /> : <FaTimes className="mr-1" />}
+                <div
+                  className={`flex items-center ${/[a-z]/.test(watchedPassword) ? 'text-green-500' : 'text-gray-500'}`}
+                >
+                  {/[a-z]/.test(watchedPassword) ? (
+                    <FaCheck className="mr-1" />
+                  ) : (
+                    <FaTimes className="mr-1" />
+                  )}
                   <span>One lowercase letter</span>
                 </div>
-                <div className={`flex items-center ${/[0-9]/.test(watchedPassword) ? 'text-green-500' : 'text-gray-500'}`}>
-                  {/[0-9]/.test(watchedPassword) ? <FaCheck className="mr-1" /> : <FaTimes className="mr-1" />}
+                <div
+                  className={`flex items-center ${/[0-9]/.test(watchedPassword) ? 'text-green-500' : 'text-gray-500'}`}
+                >
+                  {/[0-9]/.test(watchedPassword) ? (
+                    <FaCheck className="mr-1" />
+                  ) : (
+                    <FaTimes className="mr-1" />
+                  )}
                   <span>One number</span>
                 </div>
-                <div className={`flex items-center ${/[^A-Za-z0-9]/.test(watchedPassword) ? 'text-green-500' : 'text-gray-500'}`}>
-                  {/[^A-Za-z0-9]/.test(watchedPassword) ? <FaCheck className="mr-1" /> : <FaTimes className="mr-1" />}
+                <div
+                  className={`flex items-center ${/[^A-Za-z0-9]/.test(watchedPassword) ? 'text-green-500' : 'text-gray-500'}`}
+                >
+                  {/[^A-Za-z0-9]/.test(watchedPassword) ? (
+                    <FaCheck className="mr-1" />
+                  ) : (
+                    <FaTimes className="mr-1" />
+                  )}
                   <span>One special character</span>
                 </div>
-                <div className={`flex items-center ${watchedPassword.length >= 6 ? 'text-green-500' : 'text-gray-500'}`}>
-                  {watchedPassword.length >= 6 ? <FaCheck className="mr-1" /> : <FaTimes className="mr-1" />}
+                <div
+                  className={`flex items-center ${watchedPassword.length >= 6 ? 'text-green-500' : 'text-gray-500'}`}
+                >
+                  {watchedPassword.length >= 6 ? (
+                    <FaCheck className="mr-1" />
+                  ) : (
+                    <FaTimes className="mr-1" />
+                  )}
                   <span>Minimum 6 characters</span>
                 </div>
               </div>
@@ -368,13 +431,22 @@ export default function RegisterForm() {
               />
             </div>
             <div className="ml-3 text-sm">
-              <label htmlFor="terms" className="text-gray-600 dark:text-gray-400">
+              <label
+                htmlFor="terms"
+                className="text-gray-600 dark:text-gray-400"
+              >
                 I agree to the{' '}
-                <Link href="/terms" className="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400">
+                <Link
+                  href="/terms"
+                  className="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400"
+                >
                   Terms of Service
                 </Link>{' '}
                 and{' '}
-                <Link href="/privacy" className="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400">
+                <Link
+                  href="/privacy"
+                  className="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400"
+                >
                   Privacy Policy
                 </Link>
               </label>

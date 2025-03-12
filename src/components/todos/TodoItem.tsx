@@ -60,12 +60,12 @@ export default function TodoItem({
   }
 
   const formattedDueDate = todo.due_date
-  ? format(new Date(todo.due_date), "MMMM d, yyyy")
-  : null
+    ? format(new Date(todo.due_date), 'MMMM d, yyyy')
+    : null
 
   return (
     <div
-      className={`bg-white dark:bg-BlackLight mb-4 rounded-lg p-4 shadow-lg transition-colors ${
+      className={`dark:bg-BlackLight mb-4 rounded-lg bg-white p-4 shadow-lg transition-colors ${
         todo.is_completed
           ? 'bg-gray-100 dark:bg-zinc-800'
           : 'bg-cardLightMode dark:bg-cardDarkMode'

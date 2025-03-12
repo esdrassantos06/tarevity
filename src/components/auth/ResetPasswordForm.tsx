@@ -27,7 +27,9 @@ export default function ResetPasswordForm() {
   const [isLoading, setIsLoading] = useState(false)
   const [isSubmitted, setIsSubmitted] = useState(false)
   const [isValidToken, setIsValidToken] = useState<boolean | null>(null)
-  const [isCurrentPassword, setIsCurrentPassword] = useState<boolean | null>(null)
+  const [isCurrentPassword, setIsCurrentPassword] = useState<boolean | null>(
+    null,
+  )
   const [isCheckingPassword, setIsCheckingPassword] = useState(false)
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -60,7 +62,7 @@ export default function ResetPasswordForm() {
       }
 
       const result = await authAPI.validateResetToken(token)
-      
+
       if (result.error) {
         setIsValidToken(false)
       } else {
@@ -72,90 +74,102 @@ export default function ResetPasswordForm() {
   }, [token])
 
   // Check if password matches current one
-  const checkCurrentPassword = useCallback(async (password: string) => {
-    if (!token || password.length < 8) return null;
-    
-    setIsCheckingPassword(true);
-    
-    try {
-      const result = await authAPI.checkCurrentPassword(token, password);
-      
-      if (result.error) {
-        console.error("Error checking password:", result.error);
-        return null;
+  const checkCurrentPassword = useCallback(
+    async (password: string) => {
+      if (!token || password.length < 8) return null
+
+      setIsCheckingPassword(true)
+
+      try {
+        const result = await authAPI.checkCurrentPassword(token, password)
+
+        if (result.error) {
+          console.error('Error checking password:', result.error)
+          return null
+        }
+
+        return result.data?.isCurrentPassword || false
+      } catch (error) {
+        console.error('Exception checking password:', error)
+        return null
+      } finally {
+        setIsCheckingPassword(false)
       }
-      
-      return result.data?.isCurrentPassword || false;
-    } catch (error) {
-      console.error("Exception checking password:", error);
-      return null;
-    } finally {
-      setIsCheckingPassword(false);
-    }
-  }, [token]);
+    },
+    [token],
+  )
 
   // Check password when it changes
   useEffect(() => {
     if (!watchedPassword || watchedPassword.length < 8) {
-      setIsCurrentPassword(null);
-      return;
+      setIsCurrentPassword(null)
+      return
     }
 
     const handler = setTimeout(async () => {
-      const result = await checkCurrentPassword(watchedPassword);
-      
+      const result = await checkCurrentPassword(watchedPassword)
+
       if (result === true) {
-        setIsCurrentPassword(true);
-        setError('password', { 
-          type: 'manual', 
-          message: 'New password cannot be the same as your current password' 
-        });
+        setIsCurrentPassword(true)
+        setError('password', {
+          type: 'manual',
+          message: 'New password cannot be the same as your current password',
+        })
       } else if (result === false) {
-        setIsCurrentPassword(false);
+        setIsCurrentPassword(false)
         // Only clear manual errors
         if (errors.password?.type === 'manual') {
-          clearErrors('password');
+          clearErrors('password')
         }
       }
-    }, 500);
+    }, 500)
 
-    return () => clearTimeout(handler);
-  }, [watchedPassword, checkCurrentPassword, setError, clearErrors, errors.password?.type]);
+    return () => clearTimeout(handler)
+  }, [
+    watchedPassword,
+    checkCurrentPassword,
+    setError,
+    clearErrors,
+    errors.password?.type,
+  ])
 
   // Handle form submission
   const onSubmit = async (data: ResetPasswordFormValues) => {
-    if (!token) return;
+    if (!token) return
 
-    setIsLoading(true);
+    setIsLoading(true)
 
     // Double-check if password is current
-    const isCurrent = await checkCurrentPassword(data.password);
-    
+    const isCurrent = await checkCurrentPassword(data.password)
+
     if (isCurrent) {
-      setError('password', { 
-        type: 'manual', 
-        message: 'New password cannot be the same as your current password' 
-      });
-      setIsLoading(false);
-      return;
+      setError('password', {
+        type: 'manual',
+        message: 'New password cannot be the same as your current password',
+      })
+      setIsLoading(false)
+      return
     }
 
     // Submit the form
-    const result = await authAPI.resetPassword(token, data.password);
-    
+    const result = await authAPI.resetPassword(token, data.password)
+
     if (result.error) {
-      console.error('Error in reset password:', result.error);
-      toast.error(result.error.message || 'An error occurred while resetting your password');
+      console.error('Error in reset password:', result.error)
+      toast.error(
+        result.error.message ||
+          'An error occurred while resetting your password',
+      )
     } else {
-      setIsSubmitted(true);
-      toast.success('Password reset successfully');
+      setIsSubmitted(true)
+      toast.success('Password reset successfully')
 
       setTimeout(() => {
-        router.push('/auth/login');
-      }, 3000);
+        router.push('/auth/login')
+      }, 3000)
     }
-    
-    setIsLoading(false);
+
+    setIsLoading(false)
   }
 
   // Show different UI based on token validation status
@@ -180,7 +194,8 @@ export default function ResetPasswordForm() {
             Invalid or expired link
           </h1>
           <p className="mt-2 text-gray-600 dark:text-gray-400">
-            This password reset link is invalid or has expired. Please request a new link.
+            This password reset link is invalid or has expired. Please request a
+            new link.
           </p>
         </div>
         <div className="text-center">
@@ -222,7 +237,8 @@ export default function ResetPasswordForm() {
           <div className="mb-6 rounded-lg bg-green-50 p-4 dark:bg-green-900/30">
             <FaCheck className="mx-auto mb-2 h-12 w-12 text-green-500 dark:text-green-400" />
             <p className="text-green-800 dark:text-green-200">
-              Your password has been reset successfully. You will be redirected to the login page.
+              Your password has been reset successfully. You will be redirected
+              to the login page.
             </p>
           </div>
 
@@ -250,7 +266,9 @@ export default function ResetPasswordForm() {
                 type="password"
                 {...register('password')}
                 aria-invalid={errors.password ? 'true' : 'false'}
-                aria-describedby={errors.password ? 'password-error' : undefined}
+                aria-describedby={
+                  errors.password ? 'password-error' : undefined
+                }
                 className={`mt-1 block w-full rounded-md border-gray-300 p-2 pr-10 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white ${
                   isCurrentPassword === true
                     ? 'border-red-500 dark:border-red-500'
@@ -259,18 +277,21 @@ export default function ResetPasswordForm() {
                 disabled={isLoading}
               />
               {isCheckingPassword && (
-                <div className="absolute inset-y-0 right-0 flex items-center pr-3 pt-1">
+                <div className="absolute inset-y-0 right-0 flex items-center pt-1 pr-3">
                   <div className="h-4 w-4 animate-spin rounded-full border-2 border-gray-300 border-t-blue-600"></div>
                 </div>
               )}
               {isCurrentPassword === true && !isCheckingPassword && (
-                <div className="absolute inset-y-0 right-0 flex items-center pr-3 pt-1">
+                <div className="absolute inset-y-0 right-0 flex items-center pt-1 pr-3">
                   <FaExclamationTriangle className="text-red-500" />
                 </div>
               )}
             </div>
             {errors.password && (
-              <p className="mt-1 text-sm text-red-600 dark:text-red-400" id="password-error">
+              <p
+                className="mt-1 text-sm text-red-600 dark:text-red-400"
+                id="password-error"
+              >
                 {errors.password.message}
               </p>
             )}
@@ -302,7 +323,7 @@ export default function ResetPasswordForm() {
             disabled={isLoading || isCurrentPassword === true}
             className={`flex w-full justify-center rounded-md border border-transparent px-4 py-2 text-sm font-medium text-white shadow-sm focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none ${
               isLoading || isCurrentPassword === true
-                ? 'bg-gray-400 cursor-not-allowed'
+                ? 'cursor-not-allowed bg-gray-400'
                 : 'bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800'
             }`}
           >

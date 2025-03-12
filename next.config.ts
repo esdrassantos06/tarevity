@@ -33,7 +33,8 @@ const nextConfig: NextConfig = {
           },
           {
             key: 'Permissions-Policy',
-            value: 'camera=(), microphone=(), geolocation=(self), interest-cohort=(), accelerometer=(), autoplay=(), encrypted-media=(), gyroscope=(), magnetometer=(), midi=(), payment=(), picture-in-picture=(), usb=(), xr-spatial-tracking=()',
+            value:
+              'camera=(), microphone=(), geolocation=(self), interest-cohort=(), accelerometer=(), autoplay=(), encrypted-media=(), gyroscope=(), magnetometer=(), midi=(), payment=(), picture-in-picture=(), usb=(), xr-spatial-tracking=()',
           },
           {
             key: 'Cache-Control',
@@ -46,7 +47,7 @@ const nextConfig: NextConfig = {
           },
           {
             key: 'Feature-Policy',
-            value: 'sync-xhr \'self\'',
+            value: "sync-xhr 'self'",
           },
         ],
       },

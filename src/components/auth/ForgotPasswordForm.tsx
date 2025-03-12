@@ -37,19 +37,21 @@ export default function ForgotPasswordForm() {
     setIsLoading(true)
 
     const result = await authAPI.forgotPassword(data.email)
-    
+
     if (result.error) {
       console.error('Error in forgot password:', result.error)
-      toast.error(result.error.message || 'An error occurred while processing your request')
+      toast.error(
+        result.error.message ||
+          'An error occurred while processing your request',
+      )
     } else {
       // If successful, update UI to show success message
       setIsSubmitted(true)
       toast.success(
-        result.data?.message ||
-          'Recovery instructions sent to your email'
+        result.data?.message || 'Recovery instructions sent to your email',
       )
     }
-    
+
     setIsLoading(false)
   }
 
@@ -73,14 +75,15 @@ export default function ForgotPasswordForm() {
           <div className="mb-6 rounded-lg bg-green-50 p-4 dark:bg-green-900/30">
             <FaEnvelope className="mx-auto mb-2 h-12 w-12 text-green-500 dark:text-green-400" />
             <p className="text-green-800 dark:text-green-200">
-              We have sent you an email with instructions on how to reset
-              your password. The link will expire in 1 hour.
+              We have sent you an email with instructions on how to reset your
+              password. The link will expire in 1 hour.
             </p>
           </div>
 
           <div className="space-y-4">
             <p className="text-sm text-gray-600 dark:text-gray-400">
-              Didn&apos;t receive the email? Check your spam folder or try again.
+              Didn&apos;t receive the email? Check your spam folder or try
+              again.
             </p>
 
             <button

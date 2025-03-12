@@ -27,27 +27,27 @@ export default function LoginForm() {
   const searchParams = useSearchParams()
   const callbackUrl = searchParams?.get('callbackUrl') || '/dashboard'
 
- 
   const MAX_ATTEMPTS = 5
   const BASE_LOCKOUT_TIME = 30
 
-  
   useEffect(() => {
     const storedLockoutData = localStorage.getItem('loginLockout')
-    
+
     if (storedLockoutData) {
       const lockoutData = JSON.parse(storedLockoutData)
       const currentTime = new Date().getTime()
-      
+
       if (currentTime < lockoutData.expiresAt) {
         setIsLocked(true)
         setFailedAttempts(lockoutData.attempts)
-        
-        const remainingTime = Math.ceil((lockoutData.expiresAt - currentTime) / 1000)
+
+        const remainingTime = Math.ceil(
+          (lockoutData.expiresAt - currentTime) / 1000,
+        )
         setLockoutTime(remainingTime)
-        
+
         const timer = setInterval(() => {
-          setLockoutTime(prevTime => {
+          setLockoutTime((prevTime) => {
             if (prevTime <= 1) {
               clearInterval(timer)
               setIsLocked(false)
@@ -56,7 +56,7 @@ export default function LoginForm() {
             return prevTime - 1
           })
         }, 1000)
-        
+
         return () => clearInterval(timer)
       } else {
         setFailedAttempts(lockoutData.attempts)
@@ -69,7 +69,7 @@ export default function LoginForm() {
     register,
     handleSubmit,
     formState: { errors },
-    reset
+    reset,
   } = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -78,22 +78,24 @@ export default function LoginForm() {
     },
   })
 
-
   const setLoginLockout = (attempts: number) => {
     const lockoutMultiplier = Math.min(Math.pow(2, attempts - MAX_ATTEMPTS), 32)
     const lockoutDuration = BASE_LOCKOUT_TIME * lockoutMultiplier * 1000
     const expiresAt = new Date().getTime() + lockoutDuration
-    
-    localStorage.setItem('loginLockout', JSON.stringify({
-      attempts,
-      expiresAt
-    }))
-    
+
+    localStorage.setItem(
+      'loginLockout',
+      JSON.stringify({
+        attempts,
+        expiresAt,
+      }),
+    )
+
     setIsLocked(true)
     setLockoutTime(lockoutDuration / 1000)
-    
+
     const timer = setInterval(() => {
-      setLockoutTime(prevTime => {
+      setLockoutTime((prevTime) => {
         if (prevTime <= 1) {
           clearInterval(timer)
           setIsLocked(false)
@@ -106,10 +108,12 @@ export default function LoginForm() {
 
   const onSubmit = async (data: LoginFormValues) => {
     if (isLocked) {
-      toast.error(`Account is locked. Please try again in ${lockoutTime} seconds.`)
+      toast.error(
+        `Account is locked. Please try again in ${lockoutTime} seconds.`,
+      )
       return
     }
-    
+
     setIsLoading(true)
     setError(null)
 
@@ -121,25 +125,27 @@ export default function LoginForm() {
       })
 
       if (result?.error) {
-
         const newAttemptCount = failedAttempts + 1
         setFailedAttempts(newAttemptCount)
-        
 
         if (newAttemptCount >= MAX_ATTEMPTS) {
           setLoginLockout(newAttemptCount)
-          setError(`Too many failed attempts. Your account is locked for ${Math.ceil(lockoutTime)} seconds.`)
+          setError(
+            `Too many failed attempts. Your account is locked for ${Math.ceil(lockoutTime)} seconds.`,
+          )
 
           reset()
         } else {
-          setError(`Invalid credentials. ${MAX_ATTEMPTS - newAttemptCount} attempts remaining.`)
+          setError(
+            `Invalid credentials. ${MAX_ATTEMPTS - newAttemptCount} attempts remaining.`,
+          )
         }
         return
       }
 
       setFailedAttempts(0)
       localStorage.removeItem('loginLockout')
-      
+
       router.push(callbackUrl)
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -157,14 +163,14 @@ export default function LoginForm() {
     if (seconds < 60) {
       return `${seconds} seconds`
     }
-    
+
     const minutes = Math.floor(seconds / 60)
     const remainingSeconds = seconds % 60
-    
+
     if (remainingSeconds === 0) {
       return `${minutes} minute${minutes > 1 ? 's' : ''}`
     }
-    
+
     return `${minutes} minute${minutes > 1 ? 's' : ''} and ${remainingSeconds} second${remainingSeconds > 1 ? 's' : ''}`
   }
 
@@ -175,15 +181,17 @@ export default function LoginForm() {
       </h1>
 
       {error && (
-        <div className="mb-4 rounded border border-red-400 bg-red-100 px-4 py-3 text-red-700 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800">
+        <div className="mb-4 rounded border border-red-400 bg-red-100 px-4 py-3 text-red-700 dark:border-red-800 dark:bg-red-900/30 dark:text-red-400">
           {error}
         </div>
       )}
 
       {isLocked && (
-        <div className="mb-4 rounded border border-yellow-400 bg-yellow-100 px-4 py-3 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400 dark:border-yellow-800">
+        <div className="mb-4 rounded border border-yellow-400 bg-yellow-100 px-4 py-3 text-yellow-700 dark:border-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400">
           <p>Account is temporarily locked due to too many failed attempts.</p>
-          <p className="font-medium">Please try again in {formatLockoutTime(lockoutTime)}.</p>
+          <p className="font-medium">
+            Please try again in {formatLockoutTime(lockoutTime)}.
+          </p>
         </div>
       )}
 
@@ -245,8 +253,8 @@ export default function LoginForm() {
           type="submit"
           disabled={isLoading || isLocked}
           className={`flex w-full justify-center rounded-md border border-transparent px-4 py-2 text-sm font-medium text-white shadow-sm focus:outline-none ${
-            isLocked 
-              ? 'bg-gray-400 cursor-not-allowed' 
+            isLocked
+              ? 'cursor-not-allowed bg-gray-400'
               : 'bg-blue-600 hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:bg-blue-700 dark:hover:bg-blue-800'
           }`}
         >

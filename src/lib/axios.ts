@@ -19,7 +19,6 @@ export function isAPIError(error: unknown): error is APIError {
   return typeof error === 'object' && error !== null && 'message' in error
 }
 
-
 const axiosClient = axios.create({
   baseURL: process.env.NEXT_PUBLIC_APP_URL || '',
   headers: {
@@ -104,6 +103,5 @@ axiosClient.interceptors.response.use(
     } satisfies APIError)
   },
 )
-
 
 export default axiosClient

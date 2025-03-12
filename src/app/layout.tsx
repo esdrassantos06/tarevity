@@ -5,8 +5,6 @@ import { NextAuthProvider } from '@/components/auth/NextAuthProvider'
 import { ThemeProvider } from '@/components/common/ThemeProvider'
 import ToastProvider from '@/components/common/ToastProvider'
 
-
-
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
@@ -15,34 +13,37 @@ export const metadata: Metadata = {
     default: 'Tarevity - Intelligent Task Management for Modern Professionals',
   },
   description: `Elevate your productivity with Tarevity's secure, intuitive task management platform featuring priority-based workflows and comprehensive analytics.`,
-  keywords: ['task management', 'productivity system', 'priority management', 'deadline tracking'],
+  keywords: [
+    'task management',
+    'productivity system',
+    'priority management',
+    'deadline tracking',
+  ],
   authors: [{ name: 'Esdras Santos' }],
   creator: 'Esdras Santos',
   publisher: 'Tarevity',
-  robots: 'index, follow'
-
+  robots: 'index, follow',
 }
-
 
 export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
-  
   return (
-    <html lang="en" suppressHydrationWarning className='overflow-x-hidden'>
-      <head>
-      </head>
-      <body className={`${inter.className} overflow-x-hidden`}  suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning className="overflow-x-hidden">
+      <head></head>
+      <body
+        className={`${inter.className} overflow-x-hidden`}
+        suppressHydrationWarning
+      >
         <NextAuthProvider>
-          <ThemeProvider  attribute="class" defaultTheme="system" enableSystem>
+          <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
             {children}
             <ToastProvider />
           </ThemeProvider>
         </NextAuthProvider>
       </body>
-
     </html>
   )
 }

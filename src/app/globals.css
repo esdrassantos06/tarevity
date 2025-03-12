@@ -4,48 +4,35 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-
   /* Header */
---color-HeaderBgLight: #fff;
---color-HeaderBgDark: #1D1929;
+  --color-HeaderBgLight: #fff;
+  --color-HeaderBgDark: #1d1929;
 
-/* Footer */
---color-FooterBgLight: #fff;
---color-FooterBgDark: #0F0D15;
+  /* Footer */
+  --color-FooterBgLight: #fff;
+  --color-FooterBgDark: #0f0d15;
 
-/* Text */
---color-BlackLight: #1D1929;
---color-GraySecondaryLight: #77757F;
---color-DescriptionLight: #4A4754;
+  /* Text */
+  --color-BlackLight: #1d1929;
+  --color-GraySecondaryLight: #77757f;
+  --color-DescriptionLight: #4a4754;
 
---color-GrayDark: #77757F;
+  --color-GrayDark: #77757f;
 
+  /* Blue Primary color */
+  --color-primary: #003cff;
 
+  /* Border */
+  /* Icones da navbar devem ter border-2 */
 
-/* Blue Primary color */
---color-primary: #003CFF;
+  --color-BorderLight: #e8e8ea;
+  --color-BorderDark: #4a4754;
 
-/* Border */
-/* Icones da navbar devem ter border-2 */
+  /* Background */
 
---color-BorderLight: #E8E8EA;
---color-BorderDark: #4A4754;
+  --color-bgLight: #f9f9f9;
+  --color-bgDark: #000000;
 
-/* Background */
-
---color-bgLight: #F9F9F9;
---color-bgDark: #000000;
-
-
-
-
-
-
-
-
-
-
-  
   /* Radix UI Animation Keyframes */
   @keyframes fade-in {
     0% {
@@ -73,10 +60,10 @@
     }
   }
 
-
   /* Animation Properties */
   --animate-fade-in: fade-in 150ms ease;
-  --animate-slide-in-right: slide-in-from-right 150ms cubic-bezier(0.16, 1, 0.3, 1);
+  --animate-slide-in-right: slide-in-from-right 150ms
+    cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 /* Modal / Dialog Animations */
@@ -91,13 +78,11 @@
   opacity: 0.9;
 }
 
-
 .data-\[state\=open\]\:animate-in {
   animation-name: fade-in;
   animation-duration: 300ms;
   animation-fill-mode: forwards;
 }
-
 
 :root {
   --toastify-color-success: rgba(7, 188, 12, 0.8) !important;
