@@ -1,14 +1,18 @@
 import NextAuth from 'next-auth'
 import { authOptions } from './auth-options'
-import type { NextApiRequest, NextApiResponse } from 'next'
+import { NextRequest } from 'next/server'
 
-const handler = async (req: NextApiRequest, res: NextApiResponse) => {
-  // Add debugging for OAuth callbacks
-  if (req.query && req.query.nextauth && req.query.nextauth.includes('callback')) {
-    console.log('OAuth callback - query:', req.query)
+export async function GET(request: Request | NextRequest) {
+  // For debugging OAuth callbacks - extract from URL rather than req.query
+  const url = new URL(request.url)
+  if (url.pathname.includes('callback')) {
+    console.log('OAuth callback - searchParams:', url.searchParams)
   }
-  
-  return await NextAuth(req, res, authOptions)
+
+  return await NextAuth(authOptions)(request)
 }
 
-export { handler as GET, handler as POST }
+// POST handler
+export async function POST(request: Request | NextRequest) {
+  return await NextAuth(authOptions)(request)
+}
