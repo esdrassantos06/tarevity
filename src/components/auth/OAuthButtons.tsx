@@ -9,7 +9,7 @@ export default function OAuthButtons() {
   const handleOAuthSignIn = async (provider: string) => {
     setIsLoading(true)
     try {
-      await signIn(provider, { callbackUrl: '/dashboard' })
+      await signIn(provider, { callbackUrl: '/dashboard', oauthLogin: 'true' })
     } catch (error) {
       console.error('OAuth sign in error:', error)
     } finally {
