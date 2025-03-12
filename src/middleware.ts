@@ -177,12 +177,6 @@ export async function middleware(request: NextRequest) {
     request.nextUrl.pathname.startsWith(path),
   )
 
-  const sessionCookie = request.cookies.get('next-auth.session-token') || 
-                       request.cookies.get('__Secure-next-auth.session-token');
-  
-  // Store URL info for debugging
-  const currentUrl = request.nextUrl.pathname;
-  const fullUrl = request.url;
 
   if (isProtectedPath && !isAuthenticated) {
     const url = new URL('/auth/login', request.url);
