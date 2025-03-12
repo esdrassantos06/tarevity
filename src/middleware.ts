@@ -154,13 +154,11 @@ export async function middleware(request: NextRequest) {
         await redis.incr(key)
       }
       
-      // Set headers for rate limit info
       response.headers.set('X-RateLimit-Limit', String(API_RATE_LIMIT))
       response.headers.set('X-RateLimit-Remaining', String(Math.max(0, API_RATE_LIMIT - (count + 1))))
       response.headers.set('X-RateLimit-Reset', String(Math.ceil(Date.now() / 1000) + API_RATE_LIMIT_WINDOW))
     } catch (error) {
       console.error('Rate limiting error:', error)
-      // Continue even if rate limiting fails
     }
   }
 
@@ -179,34 +177,24 @@ export async function middleware(request: NextRequest) {
     request.nextUrl.pathname.startsWith(path),
   )
 
-  const referer = request.headers.get('referer') || '';
-  const currentUrl = request.nextUrl.pathname
-
-  if (referer && currentUrl && 
-    (referer.includes('/dashboard') && currentUrl.includes('/auth/login')) ||
-    (referer.includes('/auth/login') && currentUrl.includes('/dashboard'))) {
-   return NextResponse.next()
- }
-
-  if (request.nextUrl.pathname === '/auth' && isAuthenticated) {
-    return NextResponse.redirect(new URL('/dashboard', request.url))
-  }
+  const sessionCookie = request.cookies.get('next-auth.session-token') || 
+                       request.cookies.get('__Secure-next-auth.session-token');
+  
+  // Store URL info for debugging
+  const currentUrl = request.nextUrl.pathname;
+  const fullUrl = request.url;
 
   if (isProtectedPath && !isAuthenticated) {
-    const url = new URL('/auth/login', request.url)
-    url.searchParams.set('callbackUrl', request.nextUrl.pathname)
-    return NextResponse.redirect(url)
+    const url = new URL('/auth/login', request.url);
+    url.searchParams.set('callbackUrl', request.nextUrl.pathname);
+    return NextResponse.redirect(url);
   }
 
   if (isAuthenticated && isAuthPath) {
-    // Better loop detection - don't redirect if we just came from dashboard
-    if (referer && referer.includes('/dashboard')) {
-      return NextResponse.next()
-    }
-    return NextResponse.redirect(new URL('/dashboard', request.url))
+    return NextResponse.redirect(new URL('/dashboard', request.url));
   }
 
-  return response
+  return response;
 }
 
 // Helper function to get the current request count
@@ -223,7 +211,7 @@ export const config = {
     '/profile/:path*',
     '/auth/login',
     '/auth/register',
-    '/api/:path*', // This ensures we catch all API routes for CORS
+    '/api/:path*',
     '/api/auth/login',
     '/api/auth/forgot-password',
     '/((?!api|_next/static|_next/image|_next/data|favicon.ico|public).*)',
