@@ -49,17 +49,25 @@ Tarevity is a modern task management application built with Next.js 15, React 19
 - **CSRF Protection**: Built-in protection via NextAuth.js
 - **Input Validation**: Server and client-side validation using Zod
 - **Row Level Security**: Database-level security with Supabase RLS policies
+- **Rate Limiting**: Protection against brute force attacks on auth endpoints
 
-## 📷 Screenshots
+## 📱 Responsive Design
 
-### Home Page
-![Home Page](public/screenshots/home.png)
+Tarevity is built with a mobile-first approach, ensuring a great user experience across all devices:
+- Optimized layouts for mobile, tablet, and desktop
+- Adaptive navigation menus
+- Touch-friendly UI elements
+- Responsive task cards and input forms
 
-### Dashboard Tasks
-![Dashboard](public/screenshots/dashboard.png)
+## 🏗️ Architecture Overview
 
-### User Profile
-![Profile](public/screenshots/profile.png)
+The application follows a modern web architecture:
+
+- **App Router**: Leverages Next.js 15's App Router for efficient routing and data fetching
+- **API Organization**: RESTful API structure with logical endpoint grouping
+- **Authentication Flow**: Secure multi-provider auth with token refresh mechanism
+- **State Management**: Proper use of React hooks and context
+- **Error Handling**: Comprehensive error management and user feedback
 
 ## 🚀 Getting Started
 
@@ -116,6 +124,10 @@ Tarevity is a modern task management application built with Next.js 15, React 19
    # Email (Resend)
    RESEND_API_KEY=your_resend_api_key
    EMAIL_FROM=noreply@yourdomain.com
+   
+   # Rate Limiting (Redis)
+   REDIS_URL=your_redis_url
+   REDIS_TOKEN=your_redis_token
    ```
 
 4. Configure the Supabase database
@@ -124,6 +136,7 @@ Tarevity is a modern task management application built with Next.js 15, React 19
      - `users`: User accounts and authentication data
      - `todos`: Task data linked to users
      - `password_reset_tokens`: For the password recovery system
+     - `refresh_tokens`: For JWT token refresh mechanism
    - Set up Row Level Security (RLS) policies to restrict data access
 
 5. Start the development server
@@ -161,7 +174,16 @@ Tarevity is a modern task management application built with Next.js 15, React 19
     /settings            # Settings-related components
     /todos               # Task management components
   /lib                   # Utility functions and service connections
+    /api.ts              # API client library
+    /auth.ts             # Authentication utilities
+    /axios.ts            # Axios instance with interceptors
+    /email.ts            # Email sending functionality
+    /rateLimit.ts        # Rate limiting middleware
+    /supabase.ts         # Supabase client
+    /supabaseAdmin.ts    # Supabase admin client
+    /validateRequest.ts  # Request validation utility
   /types                 # TypeScript type definitions
+  /middleware.ts         # Global middleware for security and auth
 ```
 
 ## 🔮 Planned Features
