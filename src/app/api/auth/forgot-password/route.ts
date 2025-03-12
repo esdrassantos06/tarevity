@@ -1,12 +1,23 @@
-// src/app/api/auth/forgot-password/route.ts
-import { NextResponse } from 'next/server'
+import { NextResponse, NextRequest } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
-import crypto from 'crypto'
 import { sendPasswordResetEmail } from '@/lib/email'
+import { rateLimiter } from '@/lib/rateLimit';
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
  try {
    const { email } = await req.json()
+
+   const ip = req.headers.get("x-forwarded-for")?.split(",")[0] || "anonymous";
+   const emailFragment = email ? email.slice(0, 3) : "unknown";
+   const identifier = `${ip}-${emailFragment}`;
+
+   const rateLimit = await rateLimiter(req, {
+    limit: 5, // 5 attempts
+    window: 3600, // per hour
+    identifier,
+  });
+  
+  if (rateLimit) return rateLimit;
 
    // Validate input
    if (!email || typeof email !== 'string') {
@@ -36,7 +47,11 @@ export async function POST(req: Request) {
    }
 
    // Generate a secure token
-   const resetToken = crypto.randomBytes(32).toString('hex')
+   const resetToken = Array.from(
+    crypto.getRandomValues(new Uint8Array(32))
+  )
+    .map((byte) => byte.toString(16).padStart(2, "0"))
+    .join("");
 
    // Set expiration (1 hour from now)
    const expiresAt = new Date()

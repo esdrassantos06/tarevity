@@ -1,6 +1,8 @@
 // src/app/api/auth/check-password/route.ts
 import { NextResponse } from 'next/server'
 import axiosClient from '@/lib/axios'
+import { validatePasswordStrength } from '@/lib/auth';
+
 
 export async function POST(req: Request) {
   try {
@@ -14,14 +16,17 @@ export async function POST(req: Request) {
     }
 
     const isCompromised = await checkPasswordWithHIBP(password)
-    
-    const strength = calculatePasswordStrength(password)
+
+    const { score, isValid, errors } = validatePasswordStrength(password);
+
 
     return NextResponse.json({
       isCompromised,
-      strength,
-      isStrong: !isCompromised && strength >= 70
-    })
+      strength: score,
+      isStrong: !isCompromised && score >= 70,
+      isValid,
+      errors
+    });
   } catch (error: unknown) {
     console.error('Error checking password:', error)
     
@@ -89,30 +94,4 @@ function isCommonPassword(password: string): boolean {
     'admin', 'welcome', 'letmein', 'abc123', '1234567890'
   ]
   return commonPasswords.includes(password.toLowerCase())
-}
-
-function calculatePasswordStrength(password: string): number {
-  let score = 0
-  
-  // Length
-  if (password.length >= 8) score += 10
-  if (password.length >= 12) score += 10
-  if (password.length >= 16) score += 10
-  
-  // Character types
-  if (/[a-z]/.test(password)) score += 10 
-  if (/[A-Z]/.test(password)) score += 10 
-  if (/[0-9]/.test(password)) score += 10 
-  if (/[^A-Za-z0-9]/.test(password)) score += 20 
-  
-  // Complexity
-  const uniqueChars = new Set(password.split('')).size
-  score += Math.min(20, uniqueChars * 2) 
-  
-  // Penalize patterns
-  if (/(.)\1\1/.test(password)) score -= 10 
-  if (/(?:abc|bcd|cde|def|efg|fgh|ghi|hij|ijk|jkl|klm|lmn|mno|nop|opq|pqr|qrs|rst|stu|tuv|uvw|vwx|wxy|xyz)/i.test(password)) score -= 10 // Sequential letters
-  if (/(?:012|123|234|345|456|567|678|789)/.test(password)) score -= 10 
-  
-  return Math.max(0, Math.min(100, score))
 }

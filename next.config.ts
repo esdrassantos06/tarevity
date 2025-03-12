@@ -35,7 +35,6 @@ const nextConfig: NextConfig = {
             key: 'Permissions-Policy',
             value: 'camera=(), microphone=(), geolocation=(self), interest-cohort=(), accelerometer=(), autoplay=(), encrypted-media=(), gyroscope=(), magnetometer=(), midi=(), payment=(), picture-in-picture=(), usb=(), xr-spatial-tracking=()',
           },
-          // No caching for HTML/dynamic content
           {
             key: 'Cache-Control',
             value: 'no-store, max-age=0',
@@ -45,54 +44,48 @@ const nextConfig: NextConfig = {
             key: 'Timing-Allow-Origin',
             value: '*',
           },
-          // Preventing Browser Mining (using proper syntax)
           {
             key: 'Feature-Policy',
             value: 'sync-xhr \'self\'',
           },
         ],
       },
-      // Static assets without caching
       {
         source: '/static/:path*',
         headers: [
           {
             key: 'Cache-Control',
-            value: 'no-store, max-age=0',
+            value: 'public, max-age=31536000, immutable',
           },
         ],
       },
-      // Images without caching
       {
         source: '/_next/image/:path*',
         headers: [
           {
             key: 'Cache-Control',
-            value: 'no-store, max-age=0',
+            value: 'public, max-age=60, stale-while-revalidate=300',
           },
         ],
       },
-      // Next.js static assets without caching
       {
         source: '/_next/static/:path*',
         headers: [
           {
             key: 'Cache-Control',
-            value: 'no-store, max-age=0',
+            value: 'public, max-age=31536000, immutable',
           },
         ],
       },
-      // Font files without caching
       {
         source: '/fonts/:path*',
         headers: [
           {
             key: 'Cache-Control',
-            value: 'no-store, max-age=0',
+            value: 'public, max-age=31536000, immutable',
           },
         ],
       },
-      // API endpoints should not be cached
       {
         source: '/api/:path*',
         headers: [
@@ -102,13 +95,12 @@ const nextConfig: NextConfig = {
           },
         ],
       },
-      // Public assets without caching
       {
         source: '/assets/:path*',
         headers: [
           {
             key: 'Cache-Control',
-            value: 'no-store, max-age=0',
+            value: 'public, max-age=86400, stale-while-revalidate=43200',
           },
         ],
       },

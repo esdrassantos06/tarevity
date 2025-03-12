@@ -1,19 +1,18 @@
 'use client'
 
-import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useState, useEffect, useCallback, useMemo, Suspense } from 'react'
+import dynamic from 'next/dynamic'
 import TodoItem from './TodoItem'
-import TodoForm from './TodoForm'
 import TodoFilters from './TodoFilters'
 import { toast } from 'react-toastify'
 import { todoAPI, Todo, TodoFormData } from '@/lib/api'
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-} from '@/components/common/Dialog'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/common/Dialog'
+
+
+const TodoForm = dynamic(() => import('./TodoForm'), {
+  loading: () => <div className="bg-white dark:bg-BlackLight rounded-lg p-4 shadow"><div className="animate-pulse h-32 bg-gray-200 dark:bg-gray-700 rounded"></div></div>,
+  ssr: false // If this component is only client-side, disable SSR for it
+})
 
 export default function TodoList() {
   const [todos, setTodos] = useState<Todo[]>([])
@@ -270,12 +269,12 @@ export default function TodoList() {
       </div>
 
       {showForm && (
-        <div className="bg-white dark:bg-BlackLight rounded-lg p-4 shadow">
+        <Suspense fallback={<div className="bg-white dark:bg-BlackLight rounded-lg p-4 shadow"><div className="animate-pulse h-32 bg-gray-200 dark:bg-gray-700 rounded"></div></div>}>
           <TodoForm
             onSubmit={handleAddTodo}
             onCancel={() => setShowForm(false)}
           />
-        </div>
+        </Suspense>
       )}
 
       <TodoFilters filters={filters} setFilters={setFilters} />

@@ -4,6 +4,31 @@ import GitHubProvider from 'next-auth/providers/github'
 import GoogleProvider from 'next-auth/providers/google'
 import { getUserByEmail, verifyPassword } from '@/lib/auth'
 import { supabase } from '@/lib/supabase'
+import crypto from 'crypto'
+
+declare module 'next-auth' {
+  interface Session {
+    error?: string;
+    user: {
+      id?: string;
+      name?: string | null;
+      email?: string | null;
+      image?: string | null;
+      provider?: string;
+    }
+  }
+}
+
+declare module 'next-auth/jwt' {
+  interface JWT {
+    id: string;
+    provider?: string;
+    refreshToken?: string;
+    refreshTokenExpires?: number;
+    refreshTokenStored?: boolean;
+    error?: string;
+  }
+}
 
 const cookiePrefix = process.env.NODE_ENV === 'production' ? '__Secure-' : ''
 
@@ -45,23 +70,10 @@ export const authOptions: NextAuthOptions = {
     GitHubProvider({
       clientId: process.env.GITHUB_ID || '',
       clientSecret: process.env.GITHUB_SECRET || '',
-      // Use the authorization parameter instead of callbackUrl
-      authorization: {
-        params: {
-          redirect_uri: `${process.env.NEXTAUTH_URL}/api/auth/callback/github`
-        }
-      }
     }),
-    
     GoogleProvider({
       clientId: process.env.GOOGLE_ID || '',
       clientSecret: process.env.GOOGLE_SECRET || '',
-      // Use the authorization parameter instead of callbackUrl  
-      authorization: {
-        params: {
-          redirect_uri: `${process.env.NEXTAUTH_URL}/api/auth/callback/google`
-        }
-      }
     }),
   ],
   cookies: {
@@ -72,28 +84,8 @@ export const authOptions: NextAuthOptions = {
         sameSite: 'lax',
         path: '/',
         secure: process.env.NODE_ENV === 'production',
-        // Make sure the domain setting is correct for your production environment
-        domain: process.env.NODE_ENV === 'production' ? '.tarevity.pt' : undefined,
-      },
-    },
-    callbackUrl: {
-      name: `${cookiePrefix}next-auth.callback-url`,
-      options: {
-        sameSite: 'lax',
-        path: '/',
-        secure: process.env.NODE_ENV === 'production',
-      },
-    },
-    csrfToken: {
-      name:
-        process.env.NODE_ENV === 'production'
-          ? `__Host-next-auth.csrf-token`
-          : `next-auth.csrf-token`,
-      options: {
-        httpOnly: true,
-        sameSite: 'lax',
-        path: '/',
-        secure: process.env.NODE_ENV === 'production',
+        domain:
+          process.env.NODE_ENV === 'production' ? '.tarevity.pt' : undefined,
       },
     },
   },
@@ -103,55 +95,75 @@ export const authOptions: NextAuthOptions = {
     },
     async redirect({ url, baseUrl }) {
       // Add debug to see exactly what's happening
-      console.log('NextAuth redirect callback:', { url, baseUrl });
-      
+      console.log('NextAuth redirect callback:', { url, baseUrl })
+
       // CRITICAL: If it's an OAuth callback URL, do not modify it
       if (url.includes('/api/auth/callback/')) {
-        console.log('Preserving OAuth callback URL:', url);
-        return url;
+        console.log('Preserving OAuth callback URL:', url)
+        return url
       }
-      
+
       // Handle other URLs as before
       if (url.includes('/dashboard')) {
-        return url;
+        return url
       }
-    
+
       if (url.includes('/auth')) {
-        return `${baseUrl}/dashboard`;
+        return `${baseUrl}/dashboard`
       }
-    
+
       if (url.startsWith(baseUrl)) {
-        return url;
+        return url
       }
-    
-      return `${baseUrl}/dashboard`;
+
+      return `${baseUrl}/dashboard`
     },
     async session({ session, token }) {
+      // Transferir informações do token para a sessão
       if (token && session.user) {
-        session.user.id = token.id as string
-        session.user.provider = token.provider as string
+        session.user.id = token.id;
+        session.user.provider = token.provider;
       }
-      return session
+      
+      // Adicionar property de erro, se existir
+      if (token.error === 'RefreshTokenError') {
+        session.error = 'RefreshTokenError';
+      }
+      
+      return session;
     },
     async jwt({ token, user, account }) {
+      // Handle initial sign in
       if (account && user) {
         if (account.provider === 'credentials') {
-          return { ...token, id: user.id, provider: 'credentials' }
+          return { 
+            ...token, 
+            id: user.id, 
+            provider: 'credentials',
+            refreshToken: crypto.randomBytes(32).toString('hex'),
+            refreshTokenExpires: Date.now() + 7 * 24 * 60 * 60 * 1000
+          }
         }
-    
+
         try {
           const { data: existingUser, error: findError } = await supabase
             .from('users')
             .select('*')
             .eq('email', user.email)
             .single()
-          
+
           if (findError && findError.code !== 'PGRST116') {
             console.error('Error finding user:', findError)
             // Return a valid token even if DB operations fail
-            return { ...token, id: user.id, provider: account.provider }
+            return { 
+              ...token, 
+              id: user.id, 
+              provider: account.provider,
+              refreshToken: crypto.randomBytes(32).toString('hex'),
+              refreshTokenExpires: Date.now() + 7 * 24 * 60 * 60 * 1000
+            }
           }
-    
+
           if (existingUser) {
             const { error: updateError } = await supabase
               .from('users')
@@ -162,12 +174,29 @@ export const authOptions: NextAuthOptions = {
                 provider_id: account.providerAccountId,
               })
               .eq('id', existingUser.id)
-            
+
             if (updateError) {
               console.error('Error updating user:', updateError)
             }
-    
-            return { ...token, id: existingUser.id, provider: account.provider }
+
+            const refreshToken = crypto.randomBytes(32).toString('hex');
+            const refreshTokenExpires = Date.now() + 7 * 24 * 60 * 60 * 1000; // 7 days
+            
+            // Armazena o refresh token no banco de dados
+            await supabase.from('refresh_tokens').insert({
+              user_id: existingUser.id,
+              token: refreshToken,
+              expires_at: new Date(refreshTokenExpires).toISOString(),
+            });
+
+            return { 
+              ...token, 
+              id: existingUser.id, 
+              provider: account.provider,
+              refreshToken: refreshToken,
+              refreshTokenExpires: refreshTokenExpires,
+              refreshTokenStored: true
+            }
           } else {
             // Create new user
             const { data: newUser, error: insertError } = await supabase
@@ -183,22 +212,91 @@ export const authOptions: NextAuthOptions = {
               ])
               .select()
               .single()
-            
+
             if (insertError) {
               console.error('Error creating user:', insertError)
               // Return a valid token even if user creation fails
-              return { ...token, id: user.id, provider: account.provider }
+              return { 
+                ...token, 
+                id: user.id, 
+                provider: account.provider,
+                refreshToken: crypto.randomBytes(32).toString('hex'),
+                refreshTokenExpires: Date.now() + 7 * 24 * 60 * 60 * 1000
+              }
             }
-    
-            return { ...token, id: newUser?.id || user.id, provider: account.provider }
+
+            const refreshToken = crypto.randomBytes(32).toString('hex');
+            const refreshTokenExpires = Date.now() + 7 * 24 * 60 * 60 * 1000;
+            
+            // Armazena o refresh token no banco de dados
+            if (newUser) {
+              await supabase.from('refresh_tokens').insert({
+                user_id: newUser.id,
+                token: refreshToken,
+                expires_at: new Date(refreshTokenExpires).toISOString(),
+              });
+            }
+
+            return {
+              ...token,
+              id: newUser?.id || user.id,
+              provider: account.provider,
+              refreshToken: refreshToken,
+              refreshTokenExpires: refreshTokenExpires,
+              refreshTokenStored: true
+            }
           }
         } catch (error) {
           console.error('Unexpected error in JWT callback:', error)
           // Fallback to ensure a valid token is returned
-          return { ...token, id: user.id, provider: account.provider }
+          return { 
+            ...token, 
+            id: user.id, 
+            provider: account.provider,
+            refreshToken: crypto.randomBytes(32).toString('hex'),
+            refreshTokenExpires: Date.now() + 7 * 24 * 60 * 60 * 1000
+          }
         }
       }
-    
+
+      // Verificar se o token precisa ser atualizado quando não for login inicial
+      if (token.refreshToken && !account && !user) {
+        const shouldRefresh = Date.now() > Number(token.exp) * 1000;
+        if (shouldRefresh) {
+          try {
+            const { data, error } = await supabase
+              .from('refresh_tokens')
+              .select('*')
+              .eq('token', token.refreshToken)
+              .eq('user_id', token.id)
+              .single();
+
+            if (error || !data || new Date(data.expires_at).getTime() < Date.now()) {
+              return { ...token, error: 'RefreshTokenError' };
+            }
+
+            const newRefreshToken = crypto.randomBytes(32).toString('hex');
+
+            await supabase.from('refresh_tokens').delete().eq('token', token.refreshToken);
+            await supabase.from('refresh_tokens').insert({
+              user_id: token.id,
+              token: newRefreshToken,
+              expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+            });
+
+            return {
+              ...token,
+              refreshToken: newRefreshToken,
+              refreshTokenExpires: Date.now() + 7 * 24 * 60 * 60 * 1000,
+              exp: Math.floor(Date.now() / 1000) + 60 * 60,
+            };
+          } catch (error) {
+            console.error('Error refreshing token:', error);
+            return { ...token, error: 'RefreshTokenError' };
+          }
+        }
+      }
+
       return token
     },
   },
@@ -208,7 +306,7 @@ export const authOptions: NextAuthOptions = {
   },
   session: {
     strategy: 'jwt',
-    maxAge: 24 * 60 * 60,
+    maxAge: 60 * 60,
   },
   secret: process.env.NEXTAUTH_SECRET,
 }

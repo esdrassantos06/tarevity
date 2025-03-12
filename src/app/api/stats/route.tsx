@@ -43,7 +43,12 @@ export async function GET() {
         completed: completedCount || 0,
         pending: pendingCount,
       },
-      { status: 200 },
+      {
+        status: 200,
+        headers: {
+          'Cache-Control': 'private, max-age=60, stale-while-revalidate=300',
+        },
+      },
     )
   } catch (error: unknown) {
     if (error instanceof Error) {
