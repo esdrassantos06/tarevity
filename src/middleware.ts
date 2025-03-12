@@ -169,10 +169,19 @@ export async function middleware(request: NextRequest) {
   const isAuthenticated = !!token
 
   const protectedPaths = ['/dashboard', '/settings', '/profile']
+  const authPaths = ['/auth/login', '/auth/register']
 
   const isProtectedPath = protectedPaths.some((path) =>
     request.nextUrl.pathname.startsWith(path),
   )
+
+  const isAuthPath = authPaths.some((path) =>
+    request.nextUrl.pathname.startsWith(path),
+  )
+
+  if (request.nextUrl.pathname === '/auth' && isAuthenticated) {
+    return NextResponse.redirect(new URL('/dashboard', request.url))
+  }
 
   if (isProtectedPath && !isAuthenticated) {
     const url = new URL('/auth/login', request.url)
@@ -180,14 +189,17 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(url)
   }
 
-  if (
-    isAuthenticated &&
-    (request.nextUrl.pathname.startsWith('/auth/login') ||
-      request.nextUrl.pathname.startsWith('/auth/register'))
-  ) {
-    return NextResponse.redirect(new URL('/dashboard', request.url))
-  }
+  if (isAuthenticated && isAuthPath) {
 
+    if (request.nextUrl.searchParams.has('redirected')) {
+      // If we detect a loop, just serve the page and let client-side handle it
+      return NextResponse.next()
+    }
+    const redirectUrl = new URL('/dashboard', request.url)
+
+    redirectUrl.searchParams.set('redirected', 'true')
+    return NextResponse.redirect(redirectUrl)
+  }
   return response
 }
 
