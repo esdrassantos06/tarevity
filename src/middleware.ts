@@ -9,6 +9,15 @@ const API_RATE_LIMIT = process.env.NODE_ENV === 'development' ? 200 : 60
 const API_RATE_LIMIT_WINDOW = 60 // 1 minute
 
 export async function middleware(request: NextRequest) {
+  // Get URL pathname for debugging
+  const pathname = request.nextUrl.pathname
+  console.log('Middleware processing:', pathname)
+
+  // Skip all processing for callback routes
+  if (pathname.startsWith('/api/auth/callback') || pathname.includes('/api/auth/callback/')) {
+    console.log('Skipping middleware for OAuth callback:', pathname)
+    return NextResponse.next()
+  }
 
   const redirectCount = parseInt(request.headers.get('x-redirect-count') || '0', 10)
   if (redirectCount > 5) {
@@ -46,7 +55,7 @@ export async function middleware(request: NextRequest) {
   ]
   
   // Only set CORS headers for API routes
-  if (request.nextUrl.pathname.startsWith('/api/')) {
+  if (pathname.startsWith('/api/')) {
     // Only set the CORS headers if the origin is in our allowed list
     if (origin && allowedOrigins.includes(origin)) {
       response.headers.set('Access-Control-Allow-Origin', origin)
@@ -64,28 +73,26 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-    let skipRateLimiting = process.env.NODE_ENV === 'development'
+  let skipRateLimiting = process.env.NODE_ENV === 'development'
 
-    if (!skipRateLimiting) {
-      try {
-        await redis.ping()
-      } catch (error) {
-        console.error('Redis connection failed, skipping rate limiting:', error)
-        skipRateLimiting = true
-      }
+  if (!skipRateLimiting) {
+    try {
+      await redis.ping()
+    } catch (error) {
+      console.error('Redis connection failed, skipping rate limiting:', error)
+      skipRateLimiting = true
     }
-
-
+  }
 
   // Enhanced rate limiting for auth endpoints
   if (!skipRateLimiting && 
-    (request.nextUrl.pathname.startsWith('/api/auth/login') ||
-    request.nextUrl.pathname.startsWith('/api/auth/forgot-password') ||
-    request.nextUrl.pathname.startsWith('/api/auth/reset-password'))
+    (pathname.startsWith('/api/auth/login') ||
+    pathname.startsWith('/api/auth/forgot-password') ||
+    pathname.startsWith('/api/auth/reset-password'))
   ) {
     try {
       const ip = request.headers.get('x-forwarded-for') || 'unknown'
-      const path = request.nextUrl.pathname
+      const path = pathname
       const key = `rate-limit:${ip}:${path}`
 
       // Get current count
@@ -145,7 +152,7 @@ export async function middleware(request: NextRequest) {
   }
   
   // General API rate limiting (higher limits for normal API calls)
-  else if (request.nextUrl.pathname.startsWith('/api/')) {
+  else if (!skipRateLimiting && pathname.startsWith('/api/')) {
     try {
       const ip = request.headers.get('x-forwarded-for') || 'unknown'
       const key = `rate-limit:${ip}:api`
@@ -181,31 +188,42 @@ export async function middleware(request: NextRequest) {
     }
   }
 
+  // Skip authentication logic for API routes
+  if (pathname.startsWith('/api/')) {
+    return response
+  }
+
   // Authentication logic
-  const token = await getToken({ req: request })
+  const token = await getToken({ 
+    req: request,
+    secureCookie: process.env.NODE_ENV === 'production'
+  })
   const isAuthenticated = !!token
+
+  console.log('Path:', pathname, 'Authenticated:', isAuthenticated)
 
   const protectedPaths = ['/dashboard', '/settings', '/profile']
   const authPaths = ['/auth/login', '/auth/register']
 
   const isProtectedPath = protectedPaths.some((path) =>
-    request.nextUrl.pathname.startsWith(path),
+    pathname.startsWith(path),
   )
 
   const isAuthPath = authPaths.some((path) =>
-    request.nextUrl.pathname.startsWith(path),
+    pathname.startsWith(path),
   )
 
-
   if (isProtectedPath && !isAuthenticated) {
+    console.log('Redirecting unauthenticated user from protected path to login')
     const url = new URL('/auth/login', request.url);
-    url.searchParams.set('callbackUrl', request.nextUrl.pathname);
+    url.searchParams.set('callbackUrl', pathname);
     const redirectResponse = NextResponse.redirect(url);
     redirectResponse.headers.set('x-redirect-count', (redirectCount + 1).toString());
     return redirectResponse;
   }
 
   if (isAuthenticated && isAuthPath) {
+    console.log('Redirecting authenticated user from auth path to dashboard')
     const redirectResponse = NextResponse.redirect(new URL('/dashboard', request.url));
     redirectResponse.headers.set('x-redirect-count', (redirectCount + 1).toString());
     return redirectResponse;
@@ -225,7 +243,7 @@ async function getRequestCount(key: string): Promise<number> {
   }
 }
 
-// Make sure your matcher includes all API paths
+// Make sure your matcher includes all API paths but excludes OAuth callback paths
 export const config = {
   matcher: [
     '/dashboard/:path*',
@@ -233,9 +251,15 @@ export const config = {
     '/profile/:path*',
     '/auth/login',
     '/auth/register',
-    '/api/:path*',
-    '/api/auth/login',
-    '/api/auth/forgot-password',
-    '/((?!api|_next/static|_next/image|_next/data|favicon.ico|public).*)',
+    // Include needed API routes but exclude callbacks
+    '/api/auth/session',
+    '/api/auth/signin',
+    '/api/auth/signout',
+    '/api/todos/:path*',
+    '/api/profile/:path*',
+    '/api/stats/:path*', 
+    '/api/account/:path*',
+    // Generic matcher with callback exclusion
+    '/((?!api/auth/callback|_next/static|_next/image|_next/data|favicon.ico|public).*)',
   ],
-}
+};

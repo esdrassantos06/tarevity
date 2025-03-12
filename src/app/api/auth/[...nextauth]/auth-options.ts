@@ -59,6 +59,8 @@ export const authOptions: NextAuthOptions = {
         sameSite: 'lax',
         path: '/',
         secure: process.env.NODE_ENV === 'production',
+        // Make sure the domain setting is correct for your production environment
+        domain: process.env.NODE_ENV === 'production' ? '.tarevity.pt' : undefined,
       },
     },
     callbackUrl: {
@@ -87,20 +89,30 @@ export const authOptions: NextAuthOptions = {
       return true
     },
     async redirect({ url, baseUrl }) {
-      // Make sure redirects always go to valid paths
+      console.log('NextAuth redirect callback:', { url, baseUrl });
+      
+      // If this is a callback URL, don't modify it
+      if (url.includes('/api/auth/callback')) {
+        return url;
+      }
+      
+      // If URL already points to dashboard, keep it
       if (url.includes('/dashboard')) {
-        return url
+        return url;
       }
-
+    
+      // If URL is an auth page, redirect to dashboard
       if (url.includes('/auth')) {
-        return `${baseUrl}/dashboard`
+        return `${baseUrl}/dashboard`;
       }
-
+    
+      // If URL is within our domain, keep it
       if (url.startsWith(baseUrl)) {
-        return url
+        return url;
       }
-
-      return `${baseUrl}/dashboard`
+    
+      // Default to dashboard
+      return `${baseUrl}/dashboard`;
     },
     async session({ session, token }) {
       if (token && session.user) {
