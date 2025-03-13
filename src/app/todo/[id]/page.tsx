@@ -9,6 +9,7 @@ export const metadata: Metadata = {
   robots: 'noindex, nofollow',
 }
 
+// Update the component to accept params as a non-Promise object
 export default function TodoDetailPageRoute({ params }: { params: { id: string } }) {
   return (
     <Layout>
