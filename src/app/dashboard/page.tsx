@@ -1,6 +1,6 @@
 import { Metadata } from 'next'
 import Layout from '@/components/layout/Layout'
-import TodoList from '@/components/todos/TodoList'
+import RedesignedTodoList from '@/components/todos/RedesignedTodoList'
 
 export const metadata: Metadata = {
   title: 'Your Productivity Dashboard | Tarevity',
@@ -12,8 +12,8 @@ export const metadata: Metadata = {
 export default function DashboardPage() {
   return (
     <Layout>
-      <div className="mx-auto max-w-4xl">
-        <TodoList />
+      <div className="mx-auto max-w-7xl">
+        <RedesignedTodoList />
       </div>
     </Layout>
   )

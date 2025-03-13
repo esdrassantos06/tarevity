@@ -1,315 +1,427 @@
-'use client'
+import React, { useState, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
+import { FaEdit, FaTrash, FaClock, FaFlag, FaPlus, FaEllipsisH, FaSearch } from 'react-icons/fa';
+import { useTodosQuery, useUpdateTodoMutation } from '@/hooks/useTodosQuery';
 
-import { useState, useCallback, useMemo, Suspense } from 'react'
-import dynamic from 'next/dynamic'
-import TodoItem from './TodoItem'
-import TodoFilters from './TodoFilters'
-import { toast } from 'react-toastify'
-import { TodoFormData, Todo } from '@/lib/api'
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-} from '@/components/common/Dialog'
-import { 
-  useTodosQuery, 
-  useCreateTodoMutation, 
-  useUpdateTodoMutation, 
-  useDeleteTodoMutation 
-} from '@/hooks/useTodosQuery'
+// Define interfaces for our data
+interface Todo {
+  id: string;
+  title: string;
+  description: string | null;
+  is_completed: boolean;
+  priority: number;
+  due_date: string | null;
+  created_at: string;
+  updated_at: string;
+}
 
-const TodoForm = dynamic(() => import('./TodoForm'), {
-  loading: () => (
-    <div className="dark:bg-BlackLight rounded-lg bg-white p-4 shadow">
-      <div className="h-32 animate-pulse rounded bg-gray-200 dark:bg-gray-700"></div>
-    </div>
-  ),
-  ssr: false,
-})
+// Simple date formatter function
+const formatDate = (dateString: string | null) => {
+  if (!dateString) return null;
+  const date = new Date(dateString);
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  return `${months[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`;
+};
 
-export default function TodoList() {
-  // UI state
-  const [editingTodoId, setEditingTodoId] = useState<string | null>(null)
-  const [showForm, setShowForm] = useState(false)
-  const [filters, setFilters] = useState({
-    status: 'all',
-    priority: 'all',
-    search: '',
-  })
-
-  // Dialog state
-  const [dialogOpen, setDialogOpen] = useState(false)
-  const [todoToDelete, setTodoToDelete] = useState<string | null>(null)
-
-  // React Query hooks
-  const { 
-    data: todos = [], 
-    isLoading, 
-    error,
-    refetch 
-  } = useTodosQuery()
+const TodoList: React.FC = () => {
+  const router = useRouter();
+  const [activeTab, setActiveTab] = useState('all');
+  const [searchQuery, setSearchQuery] = useState('');
   
-  const createTodoMutation = useCreateTodoMutation()
-  const updateTodoMutation = useUpdateTodoMutation()
-  const deleteTodoMutation = useDeleteTodoMutation()
+  // React Query hooks
+  const { data: todos = [] as Todo[], isLoading } = useTodosQuery();
+  const updateTodoMutation = useUpdateTodoMutation();
 
-  // Filter todos based on selected filters
+  // Filter todos based on selected filter and search query
   const filteredTodos = useMemo(() => {
-    let result = [...todos]
+    let result = [...todos];
 
-    // Filter by status
-    if (filters.status === 'active') {
-      result = result.filter((todo) => !todo.is_completed)
-    } else if (filters.status === 'completed') {
-      result = result.filter((todo) => todo.is_completed)
+    // Filter by status tab
+    if (activeTab === 'active') {
+      result = result.filter(todo => !todo.is_completed);
+    } else if (activeTab === 'completed') {
+      result = result.filter(todo => todo.is_completed);
+    } else if (activeTab === 'review') {
+      // For example, let's consider "review" as medium priority tasks
+      result = result.filter(todo => todo.priority === 2);
+    } else if (activeTab === 'todo') {
+      // Let's consider "todo" as high priority tasks
+      result = result.filter(todo => todo.priority === 3);
     }
 
-    // Filter by priority
-    if (filters.priority !== 'all') {
-      const priorityValue = parseInt(filters.priority)
-      result = result.filter((todo) => todo.priority === priorityValue)
-    }
-
-    // Filter by search text
-    if (filters.search) {
-      const searchLower = filters.search.toLowerCase()
+    // Filter by search query
+    if (searchQuery) {
+      const lowerCaseQuery = searchQuery.toLowerCase();
       result = result.filter(
-        (todo) =>
-          todo.title.toLowerCase().includes(searchLower) ||
-          (todo.description &&
-            todo.description.toLowerCase().includes(searchLower)),
-      )
+        todo => 
+          todo.title.toLowerCase().includes(lowerCaseQuery) ||
+          (todo.description && todo.description.toLowerCase().includes(lowerCaseQuery))
+      );
     }
 
-    // Sort with completed tasks at the bottom and by priority
+    // Sort by priority and completion status
     return result.sort((a, b) => {
+      // First sort by completion status
       if (a.is_completed !== b.is_completed) {
-        return a.is_completed ? 1 : -1
+        return a.is_completed ? 1 : -1;
       }
-      return b.priority - a.priority
-    })
-  }, [todos, filters.status, filters.priority, filters.search])
+      // Then by priority (higher priority first)
+      return b.priority - a.priority;
+    });
+  }, [todos, activeTab, searchQuery]);
 
-  // Toggle the completion status of a task
-  const handleToggleComplete = useCallback(
-    (id: string, isCompleted: boolean) => {
-      const todoToUpdate = todos.find((todo) => todo.id === id)
-      if (!todoToUpdate) return
+  // Handle todo item click to navigate to detail page
+  const handleTodoClick = (id: string) => {
+    router.push(`/todo/${id}`);
+  };
 
-      updateTodoMutation.mutate(
-        { 
-          id, 
-          data: { ...todoToUpdate, is_completed: isCompleted } 
-        },
-        {
-          onSuccess: () => {
-            toast.success(isCompleted ? 'Task completed!' : 'Task reopened!')
-          },
-          onError: (error: unknown) => {
-            toast.error(
-              error instanceof Error 
-                ? error.message 
-                : 'An error occurred while updating the task'
-            )
-          }
-        }
-      )
-    },
-    [todos, updateTodoMutation]
-  )
+  // Toggle completion status
+  const handleToggleComplete = (e: React.SyntheticEvent, id: string, isCompleted: boolean) => {
+    e.stopPropagation(); // Prevent navigation
+    const todoToUpdate = todos.find(todo => todo.id === id);
+    if (!todoToUpdate) return;
+  
+    updateTodoMutation.mutate({ 
+      id, 
+      data: { ...todoToUpdate, is_completed: !isCompleted } 
+    });
+  };
+  // Get priority color and label
+  interface PriorityInfo {
+    color: string;
+    label: string;
+  }
 
-  // Add new task
-  const handleAddTodo = useCallback((todoData: TodoFormData) => {
-    createTodoMutation.mutate(todoData, {
-      onSuccess: () => {
-        setShowForm(false)
-        toast.success('Task created successfully!')
-      },
-      onError: (error: unknown) => {
-        toast.error(
-          error instanceof Error 
-            ? error.message 
-            : 'Failed to create task'
-        )
-      }
-    })
-  }, [createTodoMutation])
+  const getPriorityInfo = (priority: number): PriorityInfo => {
+    switch (priority) {
+      case 3:
+        return { color: 'bg-red-500', label: 'High' };
+      case 2:
+        return { color: 'bg-yellow-500', label: 'Medium' };
+      case 1:
+      default:
+        return { color: 'bg-green-500', label: 'Low' };
+    }
+  };
 
-  // Edit an existing task
-  const handleEditTodo = useCallback(
-    (id: string, todoData: Partial<Todo>) => {
-      updateTodoMutation.mutate(
-        { id, data: todoData },
-        {
-          onSuccess: () => {
-            setEditingTodoId(null)
-            toast.success('Task updated successfully!')
-          },
-          onError: (error: unknown) => {
-            toast.error(
-              error instanceof Error 
-                ? error.message 
-                : 'Failed to update task'
-            )
-          }
-        }
-      )
-    },
-    [updateTodoMutation]
-  )
+  // Calculate stats
+  const stats = useMemo(() => {
+    const total = todos.length;
+    const active = todos.filter(todo => !todo.is_completed).length;
+    const completed = todos.filter(todo => todo.is_completed).length;
+    const review = todos.filter(todo => todo.priority === 2).length;
+    const toDo = todos.filter(todo => todo.priority === 3).length;
+    
+    return { total, active, completed, review, toDo };
+  }, [todos]);
 
-  // Handle deletion confirmation
-  const confirmDelete = useCallback((id: string) => {
-    setTodoToDelete(id)
-    setDialogOpen(true)
-  }, [])
-
-  // Perform the actual deletion
-  const handleDeleteConfirmed = useCallback(() => {
-    if (!todoToDelete) return
-
-    deleteTodoMutation.mutate(todoToDelete, {
-      onSuccess: () => {
-        toast.success('Task deleted successfully!')
-        setDialogOpen(false)
-        setTodoToDelete(null)
-      },
-      onError: (error: unknown) => {
-        toast.error(
-          error instanceof Error 
-            ? error.message 
-            : 'Failed to delete task'
-        )
-      },
-      onSettled: () => {
-        setDialogOpen(false)
-        setTodoToDelete(null)
-      }
-    })
-  }, [todoToDelete, deleteTodoMutation])
-
-  const handleCancelDelete = useCallback(() => {
-    setDialogOpen(false)
-    setTodoToDelete(null)
-  }, [])
-
-  const handleStartEdit = useCallback((id: string) => {
-    setEditingTodoId(id)
-  }, [])
-
-  const handleCancelEdit = useCallback(() => {
-    setEditingTodoId(null)
-  }, [])
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold dark:text-white">My Tasks</h1>
-        <button
-          onClick={() => setShowForm(!showForm)}
-          className="bg-primary hover:bg-primary/80 rounded-md px-4 py-2 text-white transition-colors"
-        >
-          {showForm ? 'Cancel' : 'New Task'}
-        </button>
+    <div className="max-w-full px-4">
+      <div className="mb-8">
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Projects</h1>
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+          {/* Stats section */}
+          <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-lg font-semibold">{stats.total} Projects</h2>
+              <button className="bg-blue-600 text-white rounded-full p-2">
+                <FaPlus />
+              </button>
+            </div>
+            
+            <div className="mb-4">
+              <div className="w-full h-16 relative">
+                <svg viewBox="0 0 100 100" className="w-16 h-16">
+                  <circle cx="50" cy="50" r="40" fill="none" stroke="#e5e7eb" strokeWidth="15" />
+                  <circle 
+                    cx="50" 
+                    cy="50" 
+                    r="40" 
+                    fill="none" 
+                    stroke="#4f46e5" 
+                    strokeWidth="15" 
+                    strokeDasharray={`${stats.total ? (stats.active/stats.total) * 251.2 : 0} 251.2`}
+                    strokeDashoffset="0"
+                    transform="rotate(-90 50 50)"
+                  />
+                  <circle 
+                    cx="50" 
+                    cy="50" 
+                    r="40" 
+                    fill="none" 
+                    stroke="#8b5cf6" 
+                    strokeWidth="15" 
+                    strokeDasharray={`${stats.total ? (stats.completed/stats.total) * 251.2 : 0} 251.2`}
+                    strokeDashoffset={`${stats.total ? -1 * (stats.active/stats.total) * 251.2 : 0}`}
+                    transform="rotate(-90 50 50)"
+                  />
+                  <circle 
+                    cx="50" 
+                    cy="50" 
+                    r="40" 
+                    fill="none" 
+                    stroke="#f59e0b" 
+                    strokeWidth="15" 
+                    strokeDasharray={`${stats.total ? (stats.review/stats.total) * 251.2 : 0} 251.2`}
+                    strokeDashoffset={`${stats.total ? -1 * ((stats.active + stats.completed)/stats.total) * 251.2 : 0}`}
+                    transform="rotate(-90 50 50)"
+                  />
+                  <circle 
+                    cx="50" 
+                    cy="50" 
+                    r="40" 
+                    fill="none" 
+                    stroke="#10b981" 
+                    strokeWidth="15" 
+                    strokeDasharray={`${stats.total ? (stats.toDo/stats.total) * 251.2 : 0} 251.2`}
+                    strokeDashoffset={`${stats.total ? -1 * ((stats.active + stats.completed + stats.review)/stats.total) * 251.2 : 0}`}
+                    transform="rotate(-90 50 50)"
+                  />
+                </svg>
+                <div className="absolute right-0 top-0">
+                  <div className="flex flex-col space-y-1">
+                    <div className="flex items-center">
+                      <div className="w-3 h-3 rounded-full bg-blue-600 mr-2"></div>
+                      <span className="text-sm">Active</span>
+                      <span className="ml-2 text-sm font-medium">{stats.active}</span>
+                    </div>
+                    <div className="flex items-center">
+                      <div className="w-3 h-3 rounded-full bg-purple-600 mr-2"></div>
+                      <span className="text-sm">Completed</span>
+                      <span className="ml-2 text-sm font-medium">{stats.completed}</span>
+                    </div>
+                    <div className="flex items-center">
+                      <div className="w-3 h-3 rounded-full bg-yellow-500 mr-2"></div>
+                      <span className="text-sm">Review</span>
+                      <span className="ml-2 text-sm font-medium">{stats.review}</span>
+                    </div>
+                    <div className="flex items-center">
+                      <div className="w-3 h-3 rounded-full bg-green-500 mr-2"></div>
+                      <span className="text-sm">To Do</span>
+                      <span className="ml-2 text-sm font-medium">{stats.toDo}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          {/* Teams section */}
+          <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-lg font-semibold">7 Teams</h2>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <div className="w-8 h-8 rounded-md bg-green-500 flex items-center justify-center text-white">
+                <span>G</span>
+              </div>
+              <div className="w-8 h-8 rounded-md bg-blue-500 flex items-center justify-center text-white">
+                <span>B</span>
+              </div>
+              <div className="w-8 h-8 rounded-md bg-orange-500 flex items-center justify-center text-white">
+                <span>O</span>
+              </div>
+              <div className="w-8 h-8 rounded-md bg-pink-500 flex items-center justify-center text-white">
+                <span>P</span>
+              </div>
+              <div className="w-8 h-8 rounded-md bg-gray-700 flex items-center justify-center text-white">
+                <span>G</span>
+              </div>
+              <div className="w-8 h-8 rounded-md bg-violet-600 flex items-center justify-center text-white">
+                <span>V</span>
+              </div>
+              <div className="w-8 h-8 rounded-md bg-red-500 flex items-center justify-center text-white">
+                <span>R</span>
+              </div>
+              <div className="w-8 h-8 rounded-md border border-dashed border-gray-400 flex items-center justify-center text-gray-400">
+                <span>+</span>
+              </div>
+            </div>
+          </div>
+          
+          {/* Members section */}
+          <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-lg font-semibold">23 Members</h2>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white">
+                <span>J</span>
+              </div>
+              <div className="w-8 h-8 rounded-full bg-pink-500 flex items-center justify-center text-white">
+                <span>A</span>
+              </div>
+              <div className="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center text-white">
+                <span>S</span>
+              </div>
+              <div className="w-8 h-8 rounded-full bg-purple-500 flex items-center justify-center text-white">
+                <span>R</span>
+              </div>
+              <div className="w-8 h-8 rounded-full bg-green-200 flex items-center justify-center text-green-800">
+                <span>GH</span>
+              </div>
+              <div className="bg-gray-200 rounded-full text-xs px-2 py-1 flex items-center justify-center">
+                <span>+17</span>
+              </div>
+              <div className="w-8 h-8 rounded-full border border-dashed border-gray-400 flex items-center justify-center text-gray-400">
+                <span>+</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        {/* Filtering tabs */}
+        <div className="flex mb-4 space-x-4 overflow-x-auto pb-2">
+          <button 
+            className={`flex items-center px-4 py-2 ${activeTab === 'todo' ? 'bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300' : 'text-gray-700 dark:text-gray-300'} rounded-md font-medium`}
+            onClick={() => setActiveTab('todo')}
+          >
+            <span className="w-3 h-3 rounded-full bg-blue-600 mr-2"></span>
+            To Do
+          </button>
+          <div className="text-gray-300 dark:text-gray-600">|</div>
+          <button 
+            className={`px-4 py-2 ${activeTab === 'all' ? 'bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-300' : 'text-gray-700 dark:text-gray-300'} rounded-md font-medium`}
+            onClick={() => setActiveTab('all')}
+          >
+            <span className="mr-1">•</span> Active
+          </button>
+          <button 
+            className={`px-4 py-2 ${activeTab === 'completed' ? 'bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-300' : 'text-gray-700 dark:text-gray-300'} rounded-md font-medium`}
+            onClick={() => setActiveTab('completed')}
+          >
+            <span className="mr-1">•</span> Completed
+          </button>
+          <button 
+            className={`px-4 py-2 ${activeTab === 'review' ? 'bg-yellow-100 dark:bg-yellow-900 text-yellow-600 dark:text-yellow-300' : 'text-gray-700 dark:text-gray-300'} rounded-md font-medium`}
+            onClick={() => setActiveTab('review')}
+          >
+            <span className="mr-1">•</span> Review
+          </button>
+          <div className="text-gray-300 dark:text-gray-600">|</div>
+          <div className="relative">
+            <input
+              type="text"
+              placeholder="Search..."
+              className="pl-9 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+            <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+          </div>
+        </div>
       </div>
 
-      {showForm && (
-        <Suspense
-          fallback={
-            <div className="dark:bg-BlackLight rounded-lg bg-white p-4 shadow">
-              <div className="h-32 animate-pulse rounded bg-gray-200 dark:bg-gray-700"></div>
-            </div>
-          }
-        >
-          <TodoForm
-            onSubmit={handleAddTodo}
-            onCancel={() => setShowForm(false)}
-          />
-        </Suspense>
-      )}
-
-      <TodoFilters filters={filters} setFilters={setFilters} />
-
-      {isLoading ? (
-        <div className="py-8 text-center">
-          <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-blue-500 border-t-transparent"></div>
-          <p className="mt-2 text-gray-600 dark:text-gray-400">
-            Loading tasks...
-          </p>
-        </div>
-      ) : error ? (
-        <div className="rounded border border-red-400 bg-red-100 px-4 py-3 text-red-700">
-          <p>{error instanceof Error ? error.message : 'Error loading tasks'}</p>
-          <button onClick={() => refetch()} className="mt-2 text-sm underline">
-            Try again
-          </button>
-        </div>
-      ) : filteredTodos.length === 0 ? (
-        <div className="py-8 text-center text-gray-600 dark:text-gray-400">
-          {todos.length === 0 ? (
-            <p>
-              You don&apos;t have any tasks yet. Create your first task now!
-            </p>
-          ) : (
-            <p>No tasks match the selected filters.</p>
-          )}
-        </div>
-      ) : (
-        <div className="space-y-4">
-          {filteredTodos.map((todo) => (
-            <div key={todo.id}>
-              {editingTodoId === todo.id ? (
-                <div className="dark:bg-BlackLight rounded-lg bg-white p-4 shadow">
-                  <TodoForm
-                    initialData={todo}
-                    onSubmit={(data) => handleEditTodo(todo.id, data)}
-                    onCancel={handleCancelEdit}
-                  />
+      {/* Todo Items Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {filteredTodos.map((todo) => {
+          const priority = getPriorityInfo(todo.priority);
+          const dueDate = todo.due_date ? formatDate(todo.due_date) : null;
+          
+          return (
+            <div
+              key={todo.id}
+              className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden cursor-pointer hover:shadow-lg transition-shadow"
+              onClick={() => handleTodoClick(todo.id)}
+            >
+              <div className="p-4">
+                <div className="flex justify-between items-start mb-2">
+                  <div className="flex items-center">
+                    <div className={`w-5 h-5 rounded-full ${priority.color} mr-2 flex-shrink-0`}></div>
+                    <h3 className={`font-medium text-lg ${todo.is_completed ? 'line-through text-gray-500' : 'text-gray-900 dark:text-white'}`}>
+                      {todo.title}
+                    </h3>
+                  </div>
+                  <div>
+                    <input
+                      type="checkbox"
+                      checked={todo.is_completed}
+                      onChange={(e) => handleToggleComplete(e, todo.id, todo.is_completed)}
+                      className="w-4 h-4 text-blue-600 rounded"
+                    />
+                  </div>
                 </div>
-              ) : (
-                <TodoItem
-                  todo={todo}
-                  onToggleComplete={handleToggleComplete}
-                  onEdit={handleStartEdit}
-                  onDelete={confirmDelete}
-                />
-              )}
+                
+                {todo.description && (
+                  <p className={`text-sm mb-3 ${todo.is_completed ? 'text-gray-500' : 'text-gray-700 dark:text-gray-300'}`}>
+                    {todo.description.length > 100 
+                      ? `${todo.description.substring(0, 100)}...` 
+                      : todo.description}
+                  </p>
+                )}
+                
+                <div className="flex justify-between items-center text-xs text-gray-500 dark:text-gray-400">
+                  <div className="flex items-center">
+                    <FaFlag className={`mr-1 ${priority.color === 'bg-red-500' ? 'text-red-500' : priority.color === 'bg-yellow-500' ? 'text-yellow-500' : 'text-green-500'}`} />
+                    <span>Priority: {priority.label}</span>
+                  </div>
+                  
+                  {dueDate && (
+                    <div className="flex items-center">
+                      <FaClock className="mr-1" />
+                      <span>{dueDate}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+              
+              <div className="border-t border-gray-200 dark:border-gray-700 p-2 flex justify-end space-x-2">
+                <button 
+                  className="p-1 text-blue-500 hover:text-blue-700 dark:text-blue-400"
+                  onClick={(e: React.MouseEvent) => {
+                    e.stopPropagation();
+                    router.push(`/todo/${todo.id}/edit`);
+                  }}
+                >
+                  <FaEdit />
+                </button>
+                <button 
+                  className="p-1 text-red-500 hover:text-red-700 dark:text-red-400"
+                  onClick={(e: React.MouseEvent) => {
+                    e.stopPropagation();
+                    // Add delete confirmation logic
+                  }}
+                >
+                  <FaTrash />
+                </button>
+                <button 
+                  className="p-1 text-gray-500 hover:text-gray-700 dark:text-gray-400"
+                  onClick={(e: React.MouseEvent) => {
+                    e.stopPropagation();
+                    // Add more options logic
+                  }}
+                >
+                  <FaEllipsisH />
+                </button>
+              </div>
             </div>
-          ))}
+          );
+        })}
+        
+        {/* Add new todo button */}
+        <div 
+          className="bg-white dark:bg-gray-800 rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600 flex items-center justify-center h-48 cursor-pointer hover:border-blue-500 dark:hover:border-blue-500 transition-colors"
+          onClick={() => router.push('/todo/new')}
+        >
+          <div className="text-center">
+            <div className="flex justify-center mb-2">
+              <FaPlus className="text-gray-400 dark:text-gray-500 text-xl" />
+            </div>
+            <p className="text-gray-500 dark:text-gray-400">Add New Task</p>
+          </div>
         </div>
-      )}
-
-      {/* Custom Delete Confirmation Dialog */}
-      <Dialog open={dialogOpen} onOpenChange={handleCancelDelete}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Delete Task</DialogTitle>
-            <DialogDescription>
-              Are you sure you want to delete this task? This action cannot be
-              undone.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <button
-              onClick={handleCancelDelete}
-              disabled={deleteTodoMutation.isPending}
-              className="mt-3 inline-flex w-full justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-base font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none sm:mt-0 sm:w-auto dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={handleDeleteConfirmed}
-              disabled={deleteTodoMutation.isPending}
-              className="rounded-md bg-red-600 px-4 py-2 font-medium text-white hover:bg-red-700"
-            >
-              {deleteTodoMutation.isPending ? 'Deleting...' : 'Delete'}
-            </button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      </div>
     </div>
-  )
-}
+  );
+};
+
+export default TodoList;
