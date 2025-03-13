@@ -1,3 +1,5 @@
+Here's an enhanced version of the README with additional features and details that are present in the code but were missing from the original README:
+
 # Tarevity - Task Manager
 
 ![Tarevity Logo](public/logo.png)
@@ -17,6 +19,12 @@ Tarevity is a modern task management application built with Next.js 15, React 19
 - 👤 User profile management
 - 🛡️ Comprehensive security headers and CSP implementation
 - ⚡ Server-side rendering for improved performance and SEO
+- 🔄 Optimistic UI updates for improved user experience
+- 🔴 Prioritized task visualization with color coding
+- 🚫 Account lockout mechanism after multiple failed login attempts
+- 📨 Interactive toast notifications for user feedback
+- 🏃‍♂️ Skeleton loading states for improved perceived performance
+- 🎭 Animated UI transitions and dialog effects
 
 ## 🛠️ Technologies Used
 
@@ -30,6 +38,9 @@ Tarevity is a modern task management application built with Next.js 15, React 19
 - **Notifications**: react-toastify
 - **Date Handling**: date-fns
 - **Theme Management**: next-themes
+- **UI Components**: Radix UI primitives
+- **Data Fetching**: TanStack React Query v5 
+- **Animations**: Tailwind CSS Animated
 
 ### Backend & Database
 
@@ -38,6 +49,8 @@ Tarevity is a modern task management application built with Next.js 15, React 19
 - **Data Validation**: Zod
 - **Form Management**: React Hook Form
 - **Password Hashing**: bcryptjs
+- **HTTP Client**: Axios with custom interceptors
+- **Rate Limiting**: Upstash Redis
 
 ### Email Services
 
@@ -53,6 +66,11 @@ Tarevity is a modern task management application built with Next.js 15, React 19
 - **Input Validation**: Server and client-side validation using Zod
 - **Row Level Security**: Database-level security with Supabase RLS policies
 - **Rate Limiting**: Protection against brute force attacks on auth endpoints
+- **Account Lockout**: Progressive lockout periods after multiple failed login attempts
+- **JWT Token Rotation**: Enhanced session security with refresh tokens
+- **Error Obfuscation**: Prevention of information leakage for sensitive operations
+- **Custom Security Headers**: Comprehensive HTTP security headers implementation
+- **Request Validation Middleware**: Centralized request validation for API routes
 
 ## 📱 Responsive Design
 
@@ -62,6 +80,8 @@ Tarevity is built with a mobile-first approach, ensuring a great user experience
 - Adaptive navigation menus
 - Touch-friendly UI elements
 - Responsive task cards and input forms
+- Dynamic component rendering based on screen size
+- Mobile optimized footer with complete accessibility
 
 ## 🏗️ Architecture Overview
 
@@ -70,8 +90,25 @@ The application follows a modern web architecture:
 - **App Router**: Leverages Next.js 15's App Router for efficient routing and data fetching
 - **API Organization**: RESTful API structure with logical endpoint grouping
 - **Authentication Flow**: Secure multi-provider auth with token refresh mechanism
-- **State Management**: Proper use of React hooks and context
+- **State Management**: React Query for server state and React hooks for local state
 - **Error Handling**: Comprehensive error management and user feedback
+- **Data Caching**: Smart caching strategy with React Query for optimized performance
+- **Optimistic Updates**: Immediate UI feedback with background synchronization
+- **Custom Hooks**: Reusable logic encapsulation for clean component code
+- **Type-safe APIs**: End-to-end type safety from backend to frontend
+
+## 💼 State Management
+
+Tarevity uses a modern approach to state management:
+
+- **Server State**: TanStack React Query for fetching, caching, and updating server data
+- **Form State**: React Hook Form for efficient form handling and validation
+- **UI State**: React's built-in useState and useReducer for component-level state
+- **Authentication State**: NextAuth.js session management
+- **Theme State**: next-themes for persistent theme preferences
+- **Optimistic Updates**: Pre-rendering changes before server confirmation
+- **Query Invalidation**: Smart cache invalidation for consistent data
+- **Custom React Query Hooks**: Encapsulated API logic for components
 
 ## 🚀 Getting Started
 
@@ -81,6 +118,7 @@ The application follows a modern web architecture:
 - npm, yarn, or pnpm
 - Supabase account (for the database)
 - Resend account (for email services)
+- Redis instance (for rate limiting) - optional but recommended
 
 ### Installation
 
@@ -181,6 +219,10 @@ The application follows a modern web architecture:
     /profile             # Profile-related components
     /settings            # Settings-related components
     /todos               # Task management components
+  /hooks                 # Custom React hooks
+    /useAuthQuery.ts     # Authentication-related queries
+    /useProfileQuery.ts  # Profile management queries
+    /useTodosQuery.ts    # Todo operations queries
   /lib                   # Utility functions and service connections
     /api.ts              # API client library
     /auth.ts             # Authentication utilities
@@ -193,6 +235,38 @@ The application follows a modern web architecture:
   /types                 # TypeScript type definitions
   /middleware.ts         # Global middleware for security and auth
 ```
+
+## 🧠 Advanced Implementation Details
+
+### React Query Implementation
+
+The application leverages TanStack React Query for data fetching, with advanced features:
+
+- **Query Keys**: Structured for effective cache management
+- **Optimistic Updates**: Immediate UI feedback with background synchronization
+- **Error Handling**: Consistent error treatment across all queries
+- **Query Invalidation**: Smart cache invalidation for data consistency
+- **Custom Query Hooks**: Encapsulated fetch logic away from components
+
+### Authentication Flow
+
+The authentication system provides:
+
+- **JWT-based Sessions**: Secure authentication with refresh token rotation
+- **Multi-Provider Support**: Email/password, Google, and GitHub authentication
+- **Account Linking**: Recognizing users across different providers
+- **Session Timeouts**: Automatic session expiration with configurable durations
+- **Lockout Mechanism**: Progressive lockout after multiple failed attempts
+
+### Password Security
+
+Advanced password security features include:
+
+- **HIBP Integration**: Checking against known breached passwords
+- **Strength Analysis**: Real-time password strength assessment
+- **Visual Feedback**: Interactive strength meter with detailed requirements
+- **Common Pattern Detection**: Warnings for sequential and repeated characters
+- **Secure Reset Flow**: Tokenized password reset with time-limited validity
 
 ## 🔮 Planned Features
 
@@ -208,6 +282,10 @@ The application follows a modern web architecture:
 - [ ] Collaborative task lists
 - [ ] Task recurrence
 - [ ] Mobile applications
+- [ ] Email notifications and reminders
+- [ ] Task comments and attachments
+- [ ] Public task sharing
+- [ ] Integration with third-party calendars
 
 ## 🤝 Contributing
 
@@ -234,4 +312,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - [Supabase](https://supabase.io/)
 - [TailwindCSS](https://tailwindcss.com/)
 - [NextAuth.js](https://next-auth.js.org/)
-- All open-source contributors whose work makes this project possible
+- [React Query](https://tanstack.com/query/latest)
+- [React Hook Form](https://react-hook-form.com/)
+- [Radix UI](https://www.radix-ui.com/)
+- [Zod](https://zod.dev/)
+- All open-source contributors whose work makes this project possible.

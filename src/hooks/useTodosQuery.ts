@@ -1,4 +1,3 @@
-// src/hooks/useTodosQuery.ts
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { todoAPI, Todo, TodoFormData } from '@/lib/api'
 
@@ -20,18 +19,18 @@ export function useCreateTodoMutation() {
   
   return useMutation({
     mutationFn: (todoData: TodoFormData) => todoAPI.createTodo(todoData),
-    // Atualização otimista com onMutate
+
     onMutate: async (newTodoData) => {
-      // Cancelar consultas em andamento
+
       await queryClient.cancelQueries({ queryKey: ['todos'] })
       
-      // Salvar o estado anterior
+
       const previousTodos = queryClient.getQueryData<Todo[]>(['todos']) || []
       
-      // Criar um ID temporário para a tarefa otimista
+
       const tempId = `temp-${Date.now()}`
       
-      // Construir a tarefa otimista
+
       const optimisticTodo: Todo = {
         id: tempId,
         title: newTodoData.title,
@@ -43,21 +42,21 @@ export function useCreateTodoMutation() {
         updated_at: new Date().toISOString(),
       }
       
-      // Atualizar o cache
+
       queryClient.setQueryData<Todo[]>(['todos'], old => [optimisticTodo, ...(old || [])])
       
-      // Retornar o contexto com o estado anterior e o ID temporário
+      
       return { previousTodos, tempId }
     },
     onError: (err, newTodo, context) => {
-      // Em caso de erro, reverter para o estado anterior
+
       if (context?.previousTodos) {
         queryClient.setQueryData(['todos'], context.previousTodos)
       }
     },
     onSuccess: (result, variables, context) => {
       if (result.data && context?.tempId) {
-        // Atualizar a entrada temporária com a entrada real do servidor
+
         queryClient.setQueryData<Todo[]>(['todos'], old => 
           old?.map(todo => 
             todo.id === context.tempId ? result.data! : todo
@@ -66,7 +65,7 @@ export function useCreateTodoMutation() {
       }
     },
     onSettled: () => {
-      // Independentemente do resultado, revalidar a consulta
+
       queryClient.invalidateQueries({ queryKey: ['todos'] })
     },
   })
@@ -79,7 +78,7 @@ export function useUpdateTodoMutation() {
     mutationFn: ({ id, data }: { id: string, data: Partial<Todo> }) => 
       todoAPI.updateTodo(id, data),
     
-    // Atualização otimista
+
     onMutate: async ({ id, data }) => {
       await queryClient.cancelQueries({ queryKey: ['todos'] })
       
@@ -112,7 +111,7 @@ export function useDeleteTodoMutation() {
   return useMutation({
     mutationFn: (id: string) => todoAPI.deleteTodo(id),
     
-    // Atualização otimista
+
     onMutate: async (id) => {
       await queryClient.cancelQueries({ queryKey: ['todos'] })
       
