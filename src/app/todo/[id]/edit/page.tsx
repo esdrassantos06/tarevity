@@ -9,7 +9,11 @@ export const metadata: Metadata = {
   robots: 'noindex, nofollow',
 }
 
-export default function TodoEditPageRoute({ params }: { params: { id: string } }) {
+export default function TodoEditPageRoute({
+  params,
+}: {
+  params: { id: string }
+}) {
   return (
     <Layout>
       <Suspense fallback={
