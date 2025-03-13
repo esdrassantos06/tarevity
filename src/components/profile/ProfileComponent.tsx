@@ -138,7 +138,7 @@ export default function ProfileComponent() {
   return (
     <div className="bg-cardLightMode dark:bg-cardDarkMode overflow-hidden rounded-lg shadow">
       {/* Profile Header */}
-      <div className="bg-secondary h-32"></div>
+      <div className="bg-primary h-32"></div>
 
       <div className="px-6 py-8">
         <div className="flex flex-col items-center md:flex-row">
