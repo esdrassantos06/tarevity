@@ -43,6 +43,11 @@ export interface PasswordCheckResponse {
   errors?: string[]        // Any validation error messages
 }
 
+export interface ImageUploadResponse {
+  url: string
+  filename: string
+}
+
 // Result type for all API functions with better error handling
 export interface ApiResult<T> {
   data: T | null
@@ -187,7 +192,7 @@ export const profileAPI = {
     }
   },
 
-  async updateProfile(data: { name: string }): Promise<ApiResult<ProfileData>> {
+  async updateProfile(data: { name: string, image?: string | null }): Promise<ApiResult<ProfileData>> {
     try {
       const response = await axiosClient.put('/api/profile', data)
       return { data: response.data, error: null, loading: false }
@@ -197,6 +202,29 @@ export const profileAPI = {
         error: isAPIError(error)
           ? error
           : { message: 'Error updating profile' },
+        loading: false,
+      }
+    }
+  },
+
+  async uploadProfileImage(file: File): Promise<ApiResult<ImageUploadResponse>> {
+    try {
+      const formData = new FormData()
+      formData.append('image', file)
+
+      const response = await axiosClient.post('/api/profile/upload-image', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      })
+
+      return { data: response.data, error: null, loading: false }
+    } catch (error) {
+      return {
+        data: null,
+        error: isAPIError(error)
+          ? error
+          : { message: 'Error uploading profile image' },
         loading: false,
       }
     }
@@ -273,22 +301,21 @@ export const todoAPI = {
     }
   },
 
-async updateTodo(
-  id: string,
-  todoData: Partial<Todo>,
-): Promise<ApiResult<Todo>> {
-  try {
-    
-    const response = await axiosClient.put(`/api/todos/${id}`, todoData)
-    return { data: response.data, error: null, loading: false }
-  } catch (error) {
-    return {
-      data: null,
-      error: isAPIError(error) ? error : { message: 'Error updating task' },
-      loading: false,
+  async updateTodo(
+    id: string,
+    todoData: Partial<Todo>,
+  ): Promise<ApiResult<Todo>> {
+    try {
+      const response = await axiosClient.put(`/api/todos/${id}`, todoData)
+      return { data: response.data, error: null, loading: false }
+    } catch (error) {
+      return {
+        data: null,
+        error: isAPIError(error) ? error : { message: 'Error updating task' },
+        loading: false,
+      }
     }
-  }
-},
+  },
 
   async deleteTodo(id: string): Promise<ApiResult<{ message: string }>> {
     try {
