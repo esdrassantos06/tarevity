@@ -4,6 +4,8 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
+  --breakpoint-xs: 30rem;
+
   /* Header */
   --color-HeaderBgLight: #fff;
   --color-HeaderBgDark: #1d1929;

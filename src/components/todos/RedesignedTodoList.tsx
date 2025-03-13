@@ -140,14 +140,14 @@ const formatDate = (dateString: string | null) => {
     return (
       <div className="max-w-full px-4">
         <div className="mb-8">
-          <div className="flex items-center justify-between">
+          <div className="flex sm:flex-row flex-col sm:items-center justify-between">
             <h1 className="mb-2 text-5xl font-bold text-gray-900 dark:text-white">
               Projects
             </h1>
-            <div className='flex items-center gap-4'>
+            <div className='flex sm:flex-row max-xs:flex-col justify-around sm:mt-0 mt-4 sm:items-center items-start gap-4'>
               <button
                 onClick={() => router.push('/todo/new')}
-                className="flex cursor-pointer items-center justify-center gap-2 rounded-lg bg-blue-600 p-2 text-white transition-colors hover:bg-blue-700"
+                className="flex cursor-pointer items-center justify-center w-40 gap-2 rounded-lg bg-blue-600 py-2 text-white transition-colors hover:bg-blue-700"
               >
                 <FiPlus size={25} /> Create Project
               </button>
@@ -160,13 +160,13 @@ const formatDate = (dateString: string | null) => {
   
           <div className="mb-6 grid grid-cols-1 gap-6 md:grid-cols-3">
             {/* Stats section */}
-            <div className="rounded-lg p-4 dark:bg-gray-800">
-              <div className="mb-4 flex items-center justify-between">
+            <div className="rounded-lg p-4">
+              <div className="mb-2 flex items-center justify-between">
                 <h2 className="text-lg font-semibold">{stats.total} Projects</h2>
               </div>
   
-              <div className="mb-4 flex items-center justify-between">
-                <div className="relative h-16 flex-1/2">
+              <div className="mb-4 flex items-center gap-10">
+                <div className="relative h-16">
                   <svg viewBox="0 0 100 100" className="h-16 w-16">
                     <circle
                       cx="50"
@@ -222,7 +222,7 @@ const formatDate = (dateString: string | null) => {
                     />
                   </svg>
                 </div>
-                <div className="flex-1/2">
+                <div className="flex">
                   <div className="flex flex-col space-y-1">
                     <div className="flex items-center">
                       <div className="mr-2 h-3 w-3 rounded-full bg-blue-600"></div>
@@ -247,9 +247,9 @@ const formatDate = (dateString: string | null) => {
                     </div>
                     <div className="flex items-center">
                       <div className="mr-2 h-3 w-3 rounded-full bg-green-500"></div>
-                      <span className="text-sm">To Do</span>
+                      <span className="text-sm">All</span>
                       <span className="ml-2 text-sm font-medium">
-                        {stats.toDo}
+                        {stats.total}
                       </span>
                     </div>
                   </div>
@@ -261,16 +261,16 @@ const formatDate = (dateString: string | null) => {
           {/* Filtering tabs */}
           <div className="mb-4 flex space-x-4 overflow-x-auto pb-2">
             <button
-              className={`flex items-center px-4 py-2 ${activeTab === 'todo' ? 'bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300' : 'text-gray-700 dark:text-gray-300'} rounded-md font-medium`}
-              onClick={() => setActiveTab('todo')}
+              className={`flex items-center px-4 py-2 ${activeTab === 'all' ? 'bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300' : 'text-gray-700 dark:text-gray-300'} rounded-md font-medium`}
+              onClick={() => setActiveTab('all')}
             >
               <span className="mr-2 h-3 w-3 rounded-full bg-blue-600"></span>
-              To Do
+             All
             </button>
             <div className="border-r border-gray-300 dark:border-gray-600"></div>
             <button
-              className={`px-4 py-2 ${activeTab === 'all' ? 'bg-green-100 text-green-600 dark:bg-green-900 dark:text-green-300' : 'text-gray-700 dark:text-gray-300'} rounded-md font-medium`}
-              onClick={() => setActiveTab('all')}
+              className={`px-4 py-2 ${activeTab === 'active' ? 'bg-green-100 text-green-600 dark:bg-green-900 dark:text-green-300' : 'text-gray-700 dark:text-gray-300'} rounded-md font-medium`}
+              onClick={() => setActiveTab('active')}
             >
               <span className="mr-1">•</span> Active
             </button>
