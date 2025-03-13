@@ -1,22 +1,24 @@
 import axiosClient, { APIError, isAPIError } from './axios'
 
 export interface Todo {
-  id: string
-  title: string
-  description: string | null
-  is_completed: boolean
-  priority: number
-  due_date: string | null
-  created_at: string
-  updated_at: string
+  id: string;
+  title: string;
+  description: string | null;
+  is_completed: boolean;
+  priority: number;
+  due_date: string | null;
+  created_at: string;
+  updated_at: string;
+  status: 'active' | 'review' | 'completed';
 }
 
 export interface TodoFormData {
-  title: string
-  description?: string | null
-  priority: number
-  due_date?: string | null
-  is_completed?: boolean
+  title: string;
+  description?: string | null;
+  is_completed?: boolean;
+  priority: number;
+  due_date?: string | null;
+  status?: 'active' | 'review' | 'completed';
 }
 
 export interface ProfileData {
@@ -271,21 +273,22 @@ export const todoAPI = {
     }
   },
 
-  async updateTodo(
-    id: string,
-    todoData: Partial<Todo>,
-  ): Promise<ApiResult<Todo>> {
-    try {
-      const response = await axiosClient.put(`/api/todos/${id}`, todoData)
-      return { data: response.data, error: null, loading: false }
-    } catch (error) {
-      return {
-        data: null,
-        error: isAPIError(error) ? error : { message: 'Error updating task' },
-        loading: false,
-      }
+async updateTodo(
+  id: string,
+  todoData: Partial<Todo>,
+): Promise<ApiResult<Todo>> {
+  try {
+    
+    const response = await axiosClient.put(`/api/todos/${id}`, todoData)
+    return { data: response.data, error: null, loading: false }
+  } catch (error) {
+    return {
+      data: null,
+      error: isAPIError(error) ? error : { message: 'Error updating task' },
+      loading: false,
     }
-  },
+  }
+},
 
   async deleteTodo(id: string): Promise<ApiResult<{ message: string }>> {
     try {

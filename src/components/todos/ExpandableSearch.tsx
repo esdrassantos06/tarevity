@@ -41,8 +41,8 @@ const ExpandableSearch: React.FC<ExpandableSearchProps> = ({ value, onChange }) 
     <div className="relative" ref={searchRef}>
       <div 
         className={`
-          flex items-center rounded-md border border-gray-300 dark:border-gray-600 
-          bg-white dark:bg-gray-700 overflow-hidden
+          flex items-center rounded-md border-2 border-BorderLight dark:border-BorderDark
+          bg-white dark:bg-BlackLight overflow-hidden
           transition-all duration-300 ease-in-out
           ${isMobile ? 'w-40' : isExpanded ? 'w-60' : 'w-10'}
         `}
@@ -53,7 +53,7 @@ const ExpandableSearch: React.FC<ExpandableSearchProps> = ({ value, onChange }) 
           aria-label={isExpanded ? "Collapse search" : "Expand search"}
           type="button"
         >
-          <FaSearch className="text-gray-400 transition-transform duration-300" />
+          <FaSearch className="text-gray-400  transition-transform duration-300" />
         </button>
         
         <div className="flex-grow transition-all duration-300 ease-in-out">

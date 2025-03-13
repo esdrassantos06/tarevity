@@ -74,18 +74,21 @@ export async function PUT(
 
     // Parse the request body
     const updateData = await request.json()
+    
 
     // Verify task belongs to user first
     const { data: existingTask, error: checkError } = await supabaseAdmin
       .from('todos')
-      .select('id')
+      .select('*') 
       .eq('id', taskId)
       .eq('user_id', userId)
       .single()
 
     if (checkError || !existingTask) {
+      console.error('Erro ao verificar tarefa:', checkError)
       return NextResponse.json({ message: 'Task not found' }, { status: 404 })
     }
+    
 
     // Update the task
     const { data, error } = await supabaseAdmin
@@ -99,6 +102,7 @@ export async function PUT(
       console.error('Supabase update error:', error)
       throw error
     }
+
 
     return NextResponse.json(data, { status: 200 })
   } catch (error) {
