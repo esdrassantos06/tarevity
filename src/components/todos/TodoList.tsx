@@ -1,11 +1,11 @@
 'use client'
 
-import { useState, useEffect, useCallback, useMemo, Suspense } from 'react'
+import { useState, useCallback, useMemo, Suspense } from 'react'
 import dynamic from 'next/dynamic'
 import TodoItem from './TodoItem'
 import TodoFilters from './TodoFilters'
 import { toast } from 'react-toastify'
-import { todoAPI, Todo, TodoFormData } from '@/lib/api'
+import { TodoFormData, Todo } from '@/lib/api'
 import {
   Dialog,
   DialogContent,
@@ -14,6 +14,12 @@ import {
   DialogDescription,
   DialogFooter,
 } from '@/components/common/Dialog'
+import { 
+  useTodosQuery, 
+  useCreateTodoMutation, 
+  useUpdateTodoMutation, 
+  useDeleteTodoMutation 
+} from '@/hooks/useTodosQuery'
 
 const TodoForm = dynamic(() => import('./TodoForm'), {
   loading: () => (
@@ -21,13 +27,11 @@ const TodoForm = dynamic(() => import('./TodoForm'), {
       <div className="h-32 animate-pulse rounded bg-gray-200 dark:bg-gray-700"></div>
     </div>
   ),
-  ssr: false, // If this component is only client-side, disable SSR for it
+  ssr: false,
 })
 
 export default function TodoList() {
-  const [todos, setTodos] = useState<Todo[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  // UI state
   const [editingTodoId, setEditingTodoId] = useState<string | null>(null)
   const [showForm, setShowForm] = useState(false)
   const [filters, setFilters] = useState({
@@ -36,34 +40,23 @@ export default function TodoList() {
     search: '',
   })
 
-  // Custom direct dialog state (without the hook)
+  // Dialog state
   const [dialogOpen, setDialogOpen] = useState(false)
-  const [dialogLoading, setDialogLoading] = useState(false)
   const [todoToDelete, setTodoToDelete] = useState<string | null>(null)
 
-  // Load tasks using the API library
-  const fetchTodos = useCallback(async () => {
-    setIsLoading(true)
-    setError(null)
+  // React Query hooks
+  const { 
+    data: todos = [], 
+    isLoading, 
+    error,
+    refetch 
+  } = useTodosQuery()
+  
+  const createTodoMutation = useCreateTodoMutation()
+  const updateTodoMutation = useUpdateTodoMutation()
+  const deleteTodoMutation = useDeleteTodoMutation()
 
-    const result = await todoAPI.getAllTodos()
-
-    if (result.error) {
-      console.error('Error fetching todos:', result.error)
-      setError(result.error.message || 'An error occurred while loading tasks')
-    } else if (result.data) {
-      setTodos(result.data)
-    }
-
-    setIsLoading(false)
-  }, [])
-
-  // Effect to load tasks when the component mounts
-  useEffect(() => {
-    fetchTodos()
-  }, [fetchTodos])
-
-  // Use memoization to derive filtered todos instead of using a separate state
+  // Filter todos based on selected filters
   const filteredTodos = useMemo(() => {
     let result = [...todos]
 
@@ -100,171 +93,103 @@ export default function TodoList() {
     })
   }, [todos, filters.status, filters.priority, filters.search])
 
-  // Toggle the completion status of a task with optimistic updates
+  // Toggle the completion status of a task
   const handleToggleComplete = useCallback(
-    async (id: string, isCompleted: boolean) => {
-      try {
-        const todoToUpdate = todos.find((todo) => todo.id === id)
-        if (!todoToUpdate) return
+    (id: string, isCompleted: boolean) => {
+      const todoToUpdate = todos.find((todo) => todo.id === id)
+      if (!todoToUpdate) return
 
-        // Optimistically update the UI
-        setTodos((prevTodos) =>
-          prevTodos.map((todo) =>
-            todo.id === id ? { ...todo, is_completed: isCompleted } : todo,
-          ),
-        )
-
-        const result = await todoAPI.updateTodo(id, {
-          ...todoToUpdate,
-          is_completed: isCompleted,
-        })
-
-        if (result.error) {
-          // Revert the optimistic update if there's an error
-          setTodos((prevTodos) =>
-            prevTodos.map((todo) =>
-              todo.id === id ? { ...todo, is_completed: !isCompleted } : todo,
-            ),
-          )
-          throw new Error(result.error.message || 'Failed to update task')
+      updateTodoMutation.mutate(
+        { 
+          id, 
+          data: { ...todoToUpdate, is_completed: isCompleted } 
+        },
+        {
+          onSuccess: () => {
+            toast.success(isCompleted ? 'Task completed!' : 'Task reopened!')
+          },
+          onError: (error: unknown) => {
+            toast.error(
+              error instanceof Error 
+                ? error.message 
+                : 'An error occurred while updating the task'
+            )
+          }
         }
-
-        toast.success(isCompleted ? 'Task completed!' : 'Task reopened!')
-      } catch (err: unknown) {
-        if (err instanceof Error) {
-          toast.error(
-            err.message || 'An error occurred while updating the task',
-          )
-          console.error('Error updating task:', err)
-        } else {
-          toast.error('An error occurred while updating the task')
-          console.error('Error updating task:', err)
-        }
-      }
-    },
-    [todos],
-  )
-
-  // Add new task with optimistic update
-  const handleAddTodo = useCallback(async (todoData: TodoFormData) => {
-    try {
-      // Create optimistic temporary ID
-      const tempId = `temp-${Date.now()}`
-
-      // Add optimistic todo to the list
-      const optimisticTodo: Todo = {
-        id: tempId,
-        title: todoData.title,
-        description: todoData.description || null,
-        is_completed: todoData.is_completed || false,
-        priority: todoData.priority,
-        due_date: todoData.due_date || null,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      }
-
-      setTodos((prevTodos) => [optimisticTodo, ...prevTodos])
-      setShowForm(false)
-
-      const result = await todoAPI.createTodo(todoData)
-
-      if (result.error) {
-        // Remove the optimistic todo if there's an error
-        setTodos((prevTodos) => prevTodos.filter((todo) => todo.id !== tempId))
-        throw new Error(result.error.message || 'Failed to create task')
-      }
-
-      if (result.data) {
-        // Replace the optimistic todo with the real one
-        setTodos((prevTodos) =>
-          prevTodos.map((todo) => (todo.id === tempId ? result.data! : todo)),
-        )
-        toast.success('Task created successfully!')
-      }
-    } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : 'Failed to create task',
       )
-      console.error('Error creating task:', error)
-    }
-  }, [])
-
-  // Other handlers converted to useCallback to prevent unnecessary re-renders
-
-  const handleEditTodo = useCallback(
-    async (id: string, todoData: Partial<Todo>) => {
-      try {
-        // Find the current todo
-        const currentTodo = todos.find((todo) => todo.id === id)
-        if (!currentTodo) return
-
-        // Optimistically update the UI
-        setTodos((prevTodos) =>
-          prevTodos.map((todo) =>
-            todo.id === id ? { ...todo, ...todoData } : todo,
-          ),
-        )
-
-        const result = await todoAPI.updateTodo(id, todoData)
-
-        if (result.error) {
-          // Revert to the original todo if there's an error
-          setTodos((prevTodos) =>
-            prevTodos.map((todo) => (todo.id === id ? currentTodo : todo)),
-          )
-          throw new Error(result.error.message || 'Failed to update task')
-        }
-
-        setEditingTodoId(null)
-        toast.success('Task updated successfully!')
-      } catch (error) {
-        toast.error(
-          error instanceof Error ? error.message : 'Failed to update task',
-        )
-        console.error('Error updating task:', error)
-      }
     },
-    [todos],
+    [todos, updateTodoMutation]
   )
 
+  // Add new task
+  const handleAddTodo = useCallback((todoData: TodoFormData) => {
+    createTodoMutation.mutate(todoData, {
+      onSuccess: () => {
+        setShowForm(false)
+        toast.success('Task created successfully!')
+      },
+      onError: (error: unknown) => {
+        toast.error(
+          error instanceof Error 
+            ? error.message 
+            : 'Failed to create task'
+        )
+      }
+    })
+  }, [createTodoMutation])
+
+  // Edit an existing task
+  const handleEditTodo = useCallback(
+    (id: string, todoData: Partial<Todo>) => {
+      updateTodoMutation.mutate(
+        { id, data: todoData },
+        {
+          onSuccess: () => {
+            setEditingTodoId(null)
+            toast.success('Task updated successfully!')
+          },
+          onError: (error: unknown) => {
+            toast.error(
+              error instanceof Error 
+                ? error.message 
+                : 'Failed to update task'
+            )
+          }
+        }
+      )
+    },
+    [updateTodoMutation]
+  )
+
+  // Handle deletion confirmation
   const confirmDelete = useCallback((id: string) => {
     setTodoToDelete(id)
     setDialogOpen(true)
   }, [])
 
-  const handleDeleteConfirmed = useCallback(async () => {
+  // Perform the actual deletion
+  const handleDeleteConfirmed = useCallback(() => {
     if (!todoToDelete) return
 
-    try {
-      setDialogLoading(true)
-
-      // Optimistically remove the todo
-      setTodos((prevTodos) =>
-        prevTodos.filter((todo) => todo.id !== todoToDelete),
-      )
-
-      const result = await todoAPI.deleteTodo(todoToDelete)
-
-      if (result.error) {
-        // This would require fetching the todo again since we've already removed it
-        // For simplicity, we'll just show an error and refresh the list
-        throw new Error(result.error.message || 'Failed to delete task')
+    deleteTodoMutation.mutate(todoToDelete, {
+      onSuccess: () => {
+        toast.success('Task deleted successfully!')
+        setDialogOpen(false)
+        setTodoToDelete(null)
+      },
+      onError: (error: unknown) => {
+        toast.error(
+          error instanceof Error 
+            ? error.message 
+            : 'Failed to delete task'
+        )
+      },
+      onSettled: () => {
+        setDialogOpen(false)
+        setTodoToDelete(null)
       }
-
-      toast.success('Task deleted successfully!')
-    } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : 'Failed to delete task',
-      )
-      console.error('Error deleting task:', error)
-      // Refresh todos to get the current state
-      fetchTodos()
-    } finally {
-      setDialogLoading(false)
-      setDialogOpen(false)
-      setTodoToDelete(null)
-    }
-  }, [todoToDelete, fetchTodos])
+    })
+  }, [todoToDelete, deleteTodoMutation])
 
   const handleCancelDelete = useCallback(() => {
     setDialogOpen(false)
@@ -281,7 +206,6 @@ export default function TodoList() {
 
   return (
     <div className="space-y-6">
-      {/* Component rendering remains the same */}
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold dark:text-white">My Tasks</h1>
         <button
@@ -318,8 +242,8 @@ export default function TodoList() {
         </div>
       ) : error ? (
         <div className="rounded border border-red-400 bg-red-100 px-4 py-3 text-red-700">
-          <p>{error}</p>
-          <button onClick={fetchTodos} className="mt-2 text-sm underline">
+          <p>{error instanceof Error ? error.message : 'Error loading tasks'}</p>
+          <button onClick={() => refetch()} className="mt-2 text-sm underline">
             Try again
           </button>
         </div>
@@ -371,17 +295,17 @@ export default function TodoList() {
           <DialogFooter>
             <button
               onClick={handleCancelDelete}
-              disabled={dialogLoading}
+              disabled={deleteTodoMutation.isPending}
               className="mt-3 inline-flex w-full justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-base font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none sm:mt-0 sm:w-auto dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600"
             >
               Cancel
             </button>
             <button
               onClick={handleDeleteConfirmed}
-              disabled={dialogLoading}
+              disabled={deleteTodoMutation.isPending}
               className="rounded-md bg-red-600 px-4 py-2 font-medium text-white hover:bg-red-700"
             >
-              {dialogLoading ? 'Deleting...' : 'Delete'}
+              {deleteTodoMutation.isPending ? 'Deleting...' : 'Delete'}
             </button>
           </DialogFooter>
         </DialogContent>

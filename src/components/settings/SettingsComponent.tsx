@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useSession, signOut } from 'next-auth/react'
 import { useTheme } from 'next-themes'
 import { toast } from 'react-toastify'
@@ -9,24 +9,13 @@ import { useRouter } from 'next/navigation'
 import ConfirmationDialog, {
   useConfirmationDialog,
 } from '@/components/common/ConfirmationDialog'
-import axiosClient from '@/lib/axios'
-
-interface ProfileData {
-  id: string
-  name: string
-  email: string
-  image: string | null
-  provider: string | null
-}
+import { useProfileQuery, useDeleteAccountMutation } from '@/hooks/useProfileQuery'
 
 export default function SettingsComponent() {
   const { data: session } = useSession()
   const { theme, setTheme } = useTheme()
   const [activeTab, setActiveTab] = useState('appearance')
-  const [isDeleting, setIsDeleting] = useState(false)
   const router = useRouter()
-  const [profileData, setProfileData] = useState<ProfileData | null>(null)
-  const [isLoadingProfile, setIsLoadingProfile] = useState(true)
 
   // Use our confirmation dialog hook
   const {
@@ -36,38 +25,20 @@ export default function SettingsComponent() {
     setLoading: setDialogLoading,
   } = useConfirmationDialog()
 
-  // Fetch profile data
-  useEffect(() => {
-    const fetchProfileData = async () => {
-      if (!session?.user?.id) return
+  // Use React Query hooks instead of direct API calls
+  const { 
+    data: profileData, 
+    isLoading: isLoadingProfile,
+    error: profileError 
+  } = useProfileQuery()
+  
+  const deleteAccountMutation = useDeleteAccountMutation()
 
-      setIsLoadingProfile(true)
-      try {
-        // Directly use axios instead of the API helper to debug the issue
-        const response = await axiosClient.get('/api/profile')
-        setProfileData(response.data)
-
-        // Alternative approach using the API helper with safer error handling
-        /*
-        const result = await profileAPI.getProfile();
-        if (result.data) {
-          setProfileData(result.data);
-        } else {
-          console.warn('No profile data returned, but no error either');
-        }
-        */
-      } catch (error) {
-        console.error('Error fetching profile:', error)
-        toast.error('Could not load your profile information')
-      } finally {
-        setIsLoadingProfile(false)
-      }
-    }
-
-    if (session?.user) {
-      fetchProfileData()
-    }
-  }, [session])
+  // Display query errors if they occur
+  if (profileError) {
+    console.error('Error fetching profile:', profileError)
+    toast.error('Could not load your profile information')
+  }
 
   // Function to handle theme change
   const handleThemeChange = (newTheme: string) => {
@@ -103,29 +74,31 @@ export default function SettingsComponent() {
             onConfirm: async () => {
               try {
                 setDialogLoading(true)
-                setIsDeleting(true)
-
-                // Use direct axios call for more reliable error handling
-                await axiosClient.delete('/api/account/delete')
-
-                // Show success message
-                toast.success('Your account has been successfully deleted')
-
-                // Sign out the user
-                await signOut({ redirect: false })
-
-                // Redirect to home page
-                router.push('/')
+                
+                // Use React Query mutation instead of direct axios call
+                deleteAccountMutation.mutate(undefined, {
+                  onSuccess: async () => {
+                    // Sign out the user
+                    await signOut({ redirect: false })
+                    // Redirect to home page
+                    router.push('/')
+                  },
+                  onError: (error) => {
+                    console.error('Error deleting account:', error)
+                    toast.error(
+                      error instanceof Error
+                        ? error.message
+                        : 'An error occurred while deleting your account'
+                    )
+                  },
+                  onSettled: () => {
+                    setDialogLoading(false)
+                  }
+                })
               } catch (error) {
-                console.error('Error deleting account:', error)
-                toast.error(
-                  error instanceof Error
-                    ? error.message
-                    : 'An error occurred while deleting your account',
-                )
-              } finally {
-                setIsDeleting(false)
+                console.error('Error initiating account deletion:', error)
                 setDialogLoading(false)
+                toast.error('Failed to initiate account deletion')
               }
             },
           })
@@ -322,12 +295,12 @@ export default function SettingsComponent() {
                     <button
                       className="flex items-center text-sm font-medium text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
                       onClick={handleDeleteAccount}
-                      disabled={isDeleting}
+                      disabled={deleteAccountMutation.isPending}
                     >
-                      {isDeleting ? 'Deleting...' : 'Delete my account'}
+                      {deleteAccountMutation.isPending ? 'Deleting...' : 'Delete my account'}
                     </button>
 
-                    {isDeleting && (
+                    {deleteAccountMutation.isPending && (
                       <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
                         We are processing your request. This may take a few
                         moments.

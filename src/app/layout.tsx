@@ -4,6 +4,7 @@ import { Inter } from 'next/font/google'
 import { NextAuthProvider } from '@/components/auth/NextAuthProvider'
 import { ThemeProvider } from '@/components/common/ThemeProvider'
 import ToastProvider from '@/components/common/ToastProvider'
+import Providers from '@/components/common/Providers'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -30,6 +31,7 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
+
   return (
     <html lang="en" suppressHydrationWarning className="overflow-x-hidden">
       <head></head>
@@ -37,12 +39,14 @@ export default async function RootLayout({
         className={`${inter.className} overflow-x-hidden`}
         suppressHydrationWarning
       >
-        <NextAuthProvider>
-          <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-            {children}
-            <ToastProvider />
-          </ThemeProvider>
-        </NextAuthProvider>
+          <Providers>
+          <NextAuthProvider>
+            <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+              {children}
+              <ToastProvider />
+            </ThemeProvider>
+          </NextAuthProvider>
+          </Providers>
       </body>
     </html>
   )

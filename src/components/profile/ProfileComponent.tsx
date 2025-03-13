@@ -14,86 +14,56 @@ import {
   FaClipboardCheck,
   FaClock,
 } from 'react-icons/fa'
-import { profileAPI } from '@/lib/api'
-
-interface ProfileData {
-  id: string
-  name: string
-  email: string
-  image: string | null
-  provider: string | null
-}
-
-interface UserStats {
-  total: number
-  completed: number
-  pending: number
-}
+import { useProfileQuery, useStatsQuery, useUpdateProfileMutation } from '@/hooks/useProfileQuery'
 
 export default function ProfileComponent() {
-  const [userStats, setUserStats] = useState<UserStats | null>(null)
   const { data: session, update } = useSession()
-  const [isLoading, setIsLoading] = useState(true)
   const [isEditing, setIsEditing] = useState(false)
-  const [profileData, setProfileData] = useState<ProfileData | null>(null)
   const [formData, setFormData] = useState({
     name: '',
   })
 
-  // Fetch profile data
+  // Usar React Query hooks em vez de chamadas de API diretas
+  const { 
+    data: profileData, 
+    isLoading: isLoadingProfile, 
+    error: profileError 
+  } = useProfileQuery()
+  
+  const { 
+    data: userStats, 
+    // Removed isLoadingStats since it's not being used
+    error: statsError 
+  } = useStatsQuery()
+  
+  const updateProfileMutation = useUpdateProfileMutation()
+
+  // Atualizar o formulário quando os dados do perfil forem carregados
   useEffect(() => {
-    const fetchProfileData = async () => {
-      if (!session?.user?.id) return
-
-      setIsLoading(true)
-      try {
-        const result = await profileAPI.getProfile()
-
-        if (result.error) {
-          throw new Error(result.error.message || 'Failed to load profile data')
-        }
-
-        if (result.data) {
-          setProfileData(result.data)
-          setFormData({
-            name: result.data.name || '',
-          })
-        }
-
-        // After loading profile, fetch the user statistics
-        await fetchUserStats()
-      } catch (error) {
-        console.error('Error fetching profile:', error)
-        toast.error('Could not load your profile')
-      } finally {
-        setIsLoading(false)
-      }
+    if (profileData) {
+      setFormData({
+        name: profileData.name || '',
+      })
     }
+  }, [profileData])
 
-    if (session?.user) {
-      fetchProfileData()
+  // Exibir erros de consulta se ocorrerem
+  useEffect(() => {
+    if (profileError) {
+      console.error('Error fetching profile:', profileError)
+      toast.error('Could not load your profile')
     }
-  }, [session])
+  }, [profileError])
 
-  // Function to fetch user task statistics
-  const fetchUserStats = async () => {
-    try {
-      const result = await profileAPI.getStats()
-
-      if (result.error) {
-        throw new Error(result.error.message || 'Failed to load statistics')
-      }
-
-      if (result.data) {
-        setUserStats(result.data)
-      }
-    } catch (error) {
-      console.error('Error fetching user stats:', error)
+  // Exibir erros de estatísticas se ocorrerem
+  useEffect(() => {
+    if (statsError) {
+      console.error('Error fetching stats:', statsError)
       toast.error('Could not load your statistics')
     }
-  }
+  }, [statsError])
 
-  // Handle form input changes
+  // Handle form input changes (mantém o mesmo)
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
     setFormData((prev) => ({
@@ -102,9 +72,8 @@ export default function ProfileComponent() {
     }))
   }
 
-  // Handle cancel edit
+  // Handle cancel edit (mantém o mesmo)
   const handleCancelEdit = () => {
-    // If there are unsaved changes, reset to original values
     if (formData.name !== profileData?.name) {
       if (
         window.confirm(
@@ -121,44 +90,34 @@ export default function ProfileComponent() {
     }
   }
 
-  // Handle form submission
+  // Handle form submission com React Query mutation
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    try {
-      setIsLoading(true)
-      const result = await profileAPI.updateProfile(formData)
-
-      if (result.error) {
-        throw new Error(result.error.message || 'Failed to update profile')
-      }
-
-      if (result.data) {
-        setProfileData(result.data)
-
-        // Update session data to reflect changes
-        if (update) {
+    updateProfileMutation.mutate(formData, {
+      onSuccess: async (response) => {
+        // Correctly access the data from the ApiResult
+        if (update && response?.data) {
           await update({
             ...session,
             user: {
               ...session?.user,
-              name: result.data.name,
+              name: response.data.name,
             },
           })
         }
-
         toast.success('Profile updated successfully!')
         setIsEditing(false)
+      },
+      onError: (error) => {
+        toast.error('Error updating profile')
+        console.error('Error updating profile:', error)
       }
-    } catch (error) {
-      console.error('Error updating profile:', error)
-      toast.error('Error updating profile')
-    } finally {
-      setIsLoading(false)
-    }
+    })
   }
 
-  if (isLoading && !profileData) {
+  // Mostrar estado de carregamento
+  if ((isLoadingProfile && !profileData) || updateProfileMutation.isPending) {
     return (
       <div className="flex h-64 items-center justify-center">
         <div className="h-12 w-12 animate-spin rounded-full border-4 border-blue-500 border-t-transparent"></div>
@@ -220,7 +179,7 @@ export default function ProfileComponent() {
                     value={formData.name}
                     onChange={handleChange}
                     className="mt-1 block w-full rounded-md p-2 shadow-sm outline-none focus:border-blue-500 focus:ring-blue-500 dark:bg-zinc-700 dark:text-white"
-                    disabled={isLoading}
+                    disabled={updateProfileMutation.isPending}
                     required
                   />
                 </div>
@@ -228,11 +187,11 @@ export default function ProfileComponent() {
                 <div className="flex space-x-3">
                   <button
                     type="submit"
-                    disabled={isLoading}
+                    disabled={updateProfileMutation.isPending}
                     className="bg-primary hover:bg-primaryHover inline-flex items-center rounded-md border border-transparent px-4 py-2 text-sm font-medium text-white shadow-sm outline-none"
                   >
                     <FaSave className="mr-2 -ml-1 h-4 w-4" />
-                    Save
+                    {updateProfileMutation.isPending ? 'Saving...' : 'Save'}
                   </button>
                   <button
                     type="button"

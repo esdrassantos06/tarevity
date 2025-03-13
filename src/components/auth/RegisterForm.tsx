@@ -9,7 +9,7 @@ import Link from 'next/link'
 import { toast } from 'react-toastify'
 import { FaLock, FaExclamationTriangle, FaCheck, FaTimes } from 'react-icons/fa'
 import OAuthButtons from './OAuthButtons'
-import { authAPI } from '@/lib/api'
+import { usePasswordCheckQuery, useRegisterMutation } from '@/hooks/useAuthQuery'
 
 // Form validation schema
 const registerSchema = z
@@ -48,7 +48,6 @@ const registerSchema = z
       message: 'You must accept the terms to continue',
     }),
   })
-  // Add custom validation to ensure passwords match
   .refine((data) => data.password === data.confirmPassword, {
     message: 'Passwords do not match',
     path: ['confirmPassword'],
@@ -56,20 +55,10 @@ const registerSchema = z
 
 type RegisterFormValues = z.infer<typeof registerSchema>
 
-// Interface for password verification response
-interface PasswordCheckResponse {
-  isCompromised: boolean
-  strength: number
-  isStrong: boolean
-}
 
 export default function RegisterForm() {
-  const [isLoading, setIsLoading] = useState<boolean>(false)
   const [error, setError] = useState<string | null>(null)
-  const [passwordCheck, setPasswordCheck] =
-    useState<PasswordCheckResponse | null>(null)
   const [passwordValue, setPasswordValue] = useState<string>('')
-  const [isCheckingPassword, setIsCheckingPassword] = useState<boolean>(false)
   const router = useRouter()
 
   const {
@@ -88,63 +77,58 @@ export default function RegisterForm() {
       confirmPassword: '',
       acceptTerms: false,
     },
-  })
+  });
 
   // Watch password field for changes
   const watchedPassword = watch('password')
 
-  // Check password strength when it changes
+  // React Query hooks
+  const { 
+    data: passwordCheck, 
+    isLoading: isCheckingPassword, 
+    error: passwordCheckError 
+  } = usePasswordCheckQuery(watchedPassword, watchedPassword?.length >= 8)
+
+  const registerMutation = useRegisterMutation()
+
   useEffect(() => {
-    const checkPasswordStrength = async () => {
-      if (!watchedPassword || watchedPassword.length < 8) {
-        setPasswordCheck(null)
-        return
-      }
-
+    if (watchedPassword && watchedPassword.length >= 8) {
       setPasswordValue(watchedPassword)
-      setIsCheckingPassword(true)
+    }
+  }, [watchedPassword])
 
-      try {
-        const result = await authAPI.checkPassword(watchedPassword)
+  useEffect(() => {
+    if (!passwordCheck) return
 
-        if (result.error) {
-          console.error('Error checking password strength:', result.error)
-        } else if (result.data) {
-          setPasswordCheck(result.data)
-
-          if (result.data.isCompromised) {
-            setFormError('password', {
-              type: 'manual',
-              message:
-                'This password was found in data breaches. Please choose another.',
-            })
-          } else if (!result.data.isStrong) {
-            setFormError('password', {
-              type: 'manual',
-              message:
-                'This password is not strong enough. Add more varied characters.',
-            })
-          } else {
-            // Clear only manual errors, not Zod errors
-            if (errors.password?.type === 'manual') {
-              clearErrors('password')
-            }
-          }
-        }
-      } catch (err) {
-        console.error('Error checking password strength:', err)
-      } finally {
-        setIsCheckingPassword(false)
+    if (passwordCheck.isCompromised) {
+      setFormError('password', {
+        type: 'manual',
+        message: 'This password was found in data breaches. Please choose another.',
+      })
+    } else if (!passwordCheck.isStrong) {
+      setFormError('password', {
+        type: 'manual',
+        message: 'This password is not strong enough. Add more varied characters.',
+      })
+    } else {
+      // Clear only manual errors, not Zod errors
+      if (errors.password?.type === 'manual') {
+        clearErrors('password')
       }
     }
+  }, [passwordCheck, setFormError, clearErrors, errors.password?.type])
 
-    // Debounce check to avoid too many requests
-    const debounceTimer = setTimeout(checkPasswordStrength, 500)
-
-    return () => clearTimeout(debounceTimer)
-  }, [watchedPassword, setFormError, clearErrors, errors.password?.type])
+  useEffect(() => {
+    if (passwordCheckError) {
+      console.error('Error checking password strength:', passwordCheckError)
+      toast.error('Error checking password security. Please try again.')
+    }
+  }, [passwordCheckError])
 
   const onSubmit = async (data: RegisterFormValues) => {
+    // Reset any previous errors
+    setError(null)
+
     // Check if password is strong and not compromised
     if (
       passwordCheck &&
@@ -158,32 +142,38 @@ export default function RegisterForm() {
       })
       return
     }
-
-    setIsLoading(true)
-    setError(null)
-
-    const result = await authAPI.register(data.name, data.email, data.password)
-
-    if (result.error) {
-      if (
-        result.error.message?.toLowerCase().includes('compromised password') ||
-        result.error.message?.toLowerCase().includes('been pwned')
-      ) {
-        setError(
-          'This password has appeared in data breaches and cannot be used. Please choose a different password.',
-        )
-        // Focus back on the password field
-        document.getElementById('password')?.focus()
-      } else {
-        setError(
-          result.error.message || 'An error occurred during registration',
-        )
+    
+    registerMutation.mutate(
+      { 
+        name: data.name, 
+        email: data.email, 
+        password: data.password 
+      },
+      {
+        onSuccess: () => {
+          toast.success('Account created successfully! Please log in to continue.')
+          router.push('/auth/login?registered=true')
+        },
+        onError: (error) => {
+          const errorMessage = error.message || 'An error occurred during registration'
+          
+          if (
+            errorMessage.toLowerCase().includes('compromised password') ||
+            errorMessage.toLowerCase().includes('been pwned')
+          ) {
+            setError(
+              'This password has appeared in data breaches and cannot be used. Please choose a different password.'
+            )
+            // Focus back on the password field
+            document.getElementById('password')?.focus()
+            toast.error('Password security issue detected. Please choose a different password.')
+          } else {
+            setError(errorMessage)
+            toast.error(errorMessage || 'Registration failed. Please try again.')
+          }
+        }
       }
-    } else {
-      toast.success('Account created successfully! Please log in to continue.')
-      router.push('/auth/login?registered=true')
-    }
-    setIsLoading(false)
+    )
   }
 
   // Function to get color based on password strength
@@ -237,7 +227,7 @@ export default function RegisterForm() {
             type="text"
             {...register('name')}
             className="mt-1 block w-full rounded-md border-gray-300 p-2 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-            disabled={isLoading}
+            disabled={registerMutation.isPending}
           />
           {errors.name && (
             <p className="mt-1 text-sm text-red-600 dark:text-red-400">
@@ -258,7 +248,7 @@ export default function RegisterForm() {
             type="email"
             {...register('email')}
             className="mt-1 block w-full rounded-md border-gray-300 p-2 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-            disabled={isLoading}
+            disabled={registerMutation.isPending}
           />
           {errors.email && (
             <p className="mt-1 text-sm text-red-600 dark:text-red-400">
@@ -288,7 +278,7 @@ export default function RegisterForm() {
                       : 'border-yellow-500 dark:border-yellow-500'
                   : ''
               }`}
-              disabled={isLoading}
+              disabled={registerMutation.isPending}
             />
             <div className="absolute inset-y-0 right-0 flex items-center pt-1 pr-3">
               {isCheckingPassword ? (
@@ -410,7 +400,7 @@ export default function RegisterForm() {
             type="password"
             {...register('confirmPassword')}
             className="mt-1 block w-full rounded-md border-gray-300 p-2 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-            disabled={isLoading}
+            disabled={registerMutation.isPending}
           />
           {errors.confirmPassword && (
             <p className="mt-1 text-sm text-red-600 dark:text-red-400">
@@ -427,7 +417,7 @@ export default function RegisterForm() {
                 type="checkbox"
                 {...register('acceptTerms')}
                 className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700"
-                disabled={isLoading}
+                disabled={registerMutation.isPending}
               />
             </div>
             <div className="ml-3 text-sm">
@@ -461,10 +451,10 @@ export default function RegisterForm() {
 
         <button
           type="submit"
-          disabled={isLoading}
+          disabled={registerMutation.isPending}
           className="flex w-full justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none dark:bg-blue-700 dark:hover:bg-blue-800"
         >
-          {isLoading ? 'Registering...' : 'Register'}
+          {registerMutation.isPending ? 'Registering...' : 'Register'}
         </button>
       </form>
 
