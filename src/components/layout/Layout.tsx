@@ -8,9 +8,9 @@ interface LayoutProps {
 
 export default function Layout({ children, showFooter = true }: LayoutProps) {
   return (
-    <div className="bg-bgLight dark:bg-bgDark flex min-h-screen flex-col">
+    <div className="flex min-h-screen flex-col bg-bgLight dark:bg-bgDark">
       <Header />
-      <main className="container mx-auto flex-1 px-4 py-8">{children}</main>
+      <main className="mx-auto flex-1 px-4 py-8">{children}</main>
       {showFooter && <Footer />}
     </div>
   )

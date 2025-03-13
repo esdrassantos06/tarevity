@@ -30,8 +30,8 @@
 
   /* Background */
 
+  --color-bgDark: #000;
   --color-bgLight: #f9f9f9;
-  --color-bgDark: #000000;
 
   /* Radix UI Animation Keyframes */
   @keyframes fade-in {

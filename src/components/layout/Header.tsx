@@ -58,7 +58,7 @@ export default function Header() {
             <div className="hidden font-bold sm:flex sm:items-center sm:gap-3">
               <Link
                 href="/auth/login"
-                className="dark:hover:bg-BorderDark/40 hover:bg-BorderLight/70 text-primary dark:border-BorderDark border-BorderLight inline-flex items-center rounded-lg border-2 bg-transparent px-4 py-1.5 backdrop-blur-sm transition-colors duration-300"
+                className="dark:hover:bg-BorderDark/40 hover:bg-BorderLight/70 text-primary dark:text-white dark:border-BorderDark border-BorderLight inline-flex items-center rounded-lg border bg-transparent px-4 py-1.5 backdrop-blur-sm transition-colors duration-300"
               >
                 Login
               </Link>

@@ -2,7 +2,6 @@ import Link from 'next/link'
 import { FaCheckCircle, FaBell, FaLock, FaMobileAlt } from 'react-icons/fa'
 import { IoIosArrowForward } from 'react-icons/io'
 import Layout from '@/components/layout/Layout'
-import TarevityLogo from '@/components/logo/TarevityLogo'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
@@ -25,13 +24,10 @@ export default function HomePage() {
         {/* Hero Section */}
         <div className="mx-auto max-w-7xl rounded-lg px-4 sm:px-6 lg:px-8">
           <div className="p-8 lg:text-center">
-            <h1 className="text-BlackLight font-extrabold tracking-tight">
-              <TarevityLogo className="fill-BlackLight mx-auto mb-6 sm:w-120 dark:fill-white" />
-            </h1>
-            <h2 className="text-BlackLight dark:text-darkText text-center text-3xl font-extrabold tracking-tight sm:text-4xl md:text-5xl dark:text-white">
+            <h1 className="text-BlackLight dark:text-darkText text-center text-3xl font-extrabold tracking-tight sm:text-6xl md:text-7xl dark:text-white">
               Manage your tasks efficiently
-            </h2>
-            <p className="text-BlackLight dark:text-darkSecondaryText mx-auto mt-3 max-w-md text-center text-lg sm:text-xl md:mt-5 md:max-w-3xl dark:text-white">
+            </h1>
+            <p className="text-BlackLight dark:text-darkSecondaryText mx-auto mt-3 max-w-md text-center text-lg md:mt-5 md:max-w-3xl dark:text-white">
               Organize your tasks, set priorities, and never forget important
               deadlines again. A simple and efficient way to increase your
               productivity.
@@ -40,7 +36,7 @@ export default function HomePage() {
               <div className="rounded-md shadow">
                 <Link
                   href="/auth/login"
-                  className="dark:bg-BlackLight flex w-full items-center justify-center rounded-md border border-transparent bg-white px-5 py-1.5 text-base font-medium transition-all duration-300 md:text-lg"
+                  className="dark:bg-BlackLight flex w-full items-center justify-center rounded-md border border-transparent bg-white px-5 py-1.5 text-base hover:scale-105 font-medium transition-all duration-300 md:text-lg"
                 >
                   Get Started <IoIosArrowForward size={18} className="ml-1" />
                 </Link>
