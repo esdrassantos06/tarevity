@@ -1,6 +1,5 @@
 import axiosClient, { APIError, isAPIError } from './axios'
 
-// Type definitions (you already have good ones)
 export interface Todo {
   id: string
   title: string
@@ -172,7 +171,6 @@ export const authAPI = {
   },
 }
 
-// Profile API with improved error handling
 export const profileAPI = {
   async getProfile(): Promise<ApiResult<ProfileData>> {
     try {
@@ -233,7 +231,6 @@ export const profileAPI = {
   },
 }
 
-// Todo API with improved error handling
 export const todoAPI = {
   async getAllTodos(): Promise<ApiResult<Todo[]>> {
     try {
