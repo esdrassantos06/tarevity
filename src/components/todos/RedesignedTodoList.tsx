@@ -338,13 +338,13 @@ const RedesignedTodoList: React.FC = () => {
         <div className="mb-6 grid grid-cols-1 gap-6 md:grid-cols-3">
           {/* Stats section with improved colors */}
           <div className="rounded-lg p-4">
-            <div className="mb-2 flex items-center justify-between">
+            <div className="mb-4 flex items-center justify-between">
               <h2 className="text-lg font-semibold">{stats.total} Projects</h2>
             </div>
 
-            <div className="mb-4 flex items-center gap-10">
+            <div className="mb-4 h-30 flex gap-10">
               <div className="relative h-16">
-                <svg viewBox="0 0 100 100" className="h-20 w-20">
+                <svg viewBox="0 0 100 100" className="h-25 w-25">
                   <circle
                     cx="50"
                     cy="50"
@@ -391,8 +391,8 @@ const RedesignedTodoList: React.FC = () => {
                   />
                 </svg>
               </div>
-              <div className="flex">
-                <div className="flex flex-col space-y-1">
+              <div className="flex items-center">
+                <div className="flex flex-col gap-2">
                   <div className="flex items-center">
                     <div className="mr-2 h-3 w-3 rounded-full bg-blue-600"></div>
                     <span className="text-sm">Active</span>
@@ -429,7 +429,7 @@ const RedesignedTodoList: React.FC = () => {
 
         {/* Filtering tabs and sorting controls */}
         <div className="mb-4 flex flex-wrap items-center justify-between">
-          <div className="flex space-x-4 overflow-x-auto pb-2">
+          <div className="flex flex-col sm:flex-row space-x-4 overflow-x-auto pb-2">
             <button
               className={`flex items-center px-4 py-2 ${activeTab === 'all' ? 'bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300' : 'text-gray-700 dark:text-gray-300'} rounded-md font-medium`}
               onClick={() => setActiveTab('all')}
@@ -437,21 +437,21 @@ const RedesignedTodoList: React.FC = () => {
               <span className="mr-2 h-3 w-3 rounded-full bg-blue-600"></span>
               All
             </button>
-            <div className="border-r border-gray-300 dark:border-gray-600"></div>
+            <div className="sm:border-r border-b my-1 border-gray-300 dark:border-gray-600"></div>
             <button
-              className={`px-4 py-2 ${activeTab === 'active' ? 'bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300' : 'text-gray-700 dark:text-gray-300'} rounded-md font-medium`}
+              className={`px-4 flex items-center justify-start py-2 ${activeTab === 'active' ? 'bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300' : 'text-gray-700 dark:text-gray-300'} rounded-md font-medium`}
               onClick={() => setActiveTab('active')}
             >
               <span className="mr-1">•</span> Active
             </button>
             <button
-              className={`px-4 py-2 ${activeTab === 'completed' ? 'bg-green-100 text-green-600 dark:bg-green-900 dark:text-green-300' : 'text-gray-700 dark:text-gray-300'} rounded-md font-medium`}
+              className={`px-4 flex items-center justify-start py-2 ${activeTab === 'completed' ? 'bg-green-100 text-green-600 dark:bg-green-900 dark:text-green-300' : 'text-gray-700 dark:text-gray-300'} rounded-md font-medium`}
               onClick={() => setActiveTab('completed')}
             >
               <span className="mr-1">•</span> Completed
             </button>
             <button
-              className={`px-4 py-2 ${activeTab === 'review' ? 'bg-amber-100 text-amber-600 dark:bg-amber-900 dark:text-amber-300' : 'text-gray-700 dark:text-gray-300'} rounded-md font-medium`}
+              className={`px-4 py-2 flex items-center justify-start ${activeTab === 'review' ? 'bg-amber-100 text-amber-600 dark:bg-amber-900 dark:text-amber-300' : 'text-gray-700 dark:text-gray-300'} rounded-md font-medium`}
               onClick={() => setActiveTab('review')}
             >
               <span className="mr-1">•</span> Review
@@ -474,137 +474,146 @@ const RedesignedTodoList: React.FC = () => {
         </div>
       </div>
 
-      {/* Todo Items Grid with Review functionality */}
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {filteredTodos.map((todo) => {
-          const priority = getPriorityInfo(todo.priority)
-          const dueDate = todo.due_date ? formatDate(todo.due_date) : null
-          const isReview = todo.status === 'review'
+{/* Todo Items Grid with Review functionality */}
+<div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+  {filteredTodos.map((todo) => {
+    const priority = getPriorityInfo(todo.priority)
+    const dueDate = todo.due_date ? formatDate(todo.due_date) : null
+    const isReview = todo.status === 'review'
 
-          return (
-            <div
-              key={todo.id}
-              className={`cursor-pointer overflow-hidden rounded-lg bg-white shadow-md transition-shadow hover:shadow-lg dark:bg-gray-800 ${isReview ? 'border-l-4 border-amber-500' : ''} flex flex-col h-64`}
-              onClick={() => handleTodoClick(todo.id)}
-            >
-              <div className="p-4 flex-grow flex flex-col">
-                <div className="mb-2 flex items-start justify-between">
-                  <div className="flex items-center">
-                    <div
-                      className={`h-5 w-5 rounded-full ${priority.color} mr-2 flex-shrink-0`}
-                    ></div>
-                    <h3 title={todo.title}
-                      className={`text-lg font-medium truncate max-w-[200px] ${
-                        todo.is_completed
-                          ? 'text-gray-500 line-through'
-                          : isReview
-                            ? 'text-amber-600 dark:text-amber-400'
-                            : 'text-gray-900 dark:text-white'
-                      }`}
-                    >
-                      {todo.title}
-                    </h3>
-                  </div>
-                  <div>
-                    <input
-                      type="checkbox"
-                      checked={todo.is_completed}
-                      onChange={(e) =>
-                        handleCheckboxChange(e, todo.id, todo.is_completed)
-                      }
-                      onClick={(e) => e.stopPropagation()}
-                      className="h-4 w-4 rounded text-blue-600"
-                    />
-                  </div>
-                </div>
-
-                {isReview && (
-                  <div className="mb-2 flex items-center text-sm text-amber-600 dark:text-amber-400">
-                    <FaExclamationCircle className="mr-1 flex-shrink-0" />
-                    <span>In Review</span>
-                  </div>
-                )}
-
-                <div className="flex-grow overflow-hidden">
-                  {todo.description && (
-                    <p
-                      className={`text-sm line-clamp-3 ${todo.is_completed ? 'text-gray-500' : 'text-gray-700 dark:text-gray-300'}`}
-                    >
-                      {todo.description}
-                    </p>
-                  )}
-                </div>
-
-                <div className="mt-auto pt-2 flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
-                  <div className="flex items-center">
-                    <FaFlag className={`mr-1 ${priority.textColor}`} />
-                    <span>Priority: {priority.label}</span>
-                  </div>
-
-                  {dueDate && (
-                    <div className="flex items-center">
-                      <FaClock className="mr-1" />
-                      <span>{dueDate}</span>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <div className="flex justify-end space-x-2 border-t border-gray-200 p-2 dark:border-gray-700 mt-auto">
-                {!isReview && !todo.is_completed && (
-                  <button
-                    className="p-1 text-amber-500 hover:text-amber-700 dark:text-amber-400"
-                    onClick={(e) => handleSetReview(e, todo.id)}
-                    title="Set to Review"
-                  >
-                    <FaExclamationCircle />
-                  </button>
-                )}
-                {isReview && (
-                  <button
-                    className="p-1 text-green-500 hover:text-green-700 dark:text-green-400"
-                    onClick={(e) => handleApproveReview(e, todo.id)}
-                    title="Approve"
-                  >
-                    <FaCheck />
-                  </button>
-                )}
-                <button
-                  className="p-1 text-blue-500 hover:text-blue-700 dark:text-blue-400"
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    router.push(`/todo/${todo.id}/edit`)
-                  }}
-                >
-                  <FaEdit />
-                </button>
-                <button
-                  className="p-1 text-red-500 hover:text-red-700 dark:text-red-400"
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    handleDeleteTodo(todo.id, todo.title)
-                  }}
-                >
-                  <FaTrash />
-                </button>
-              </div>
+    return (
+      <div
+        key={todo.id}
+        className={`cursor-pointer overflow-hidden rounded-lg bg-white shadow-md transition-shadow hover:shadow-lg dark:bg-gray-800 
+          ${isReview ? 'border-l-4 border-amber-500' : ''} 
+          flex flex-col h-64 w-62 sm:w-full min-w-0`}
+        onClick={() => handleTodoClick(todo.id)}
+      >
+        <div className="p-4 flex-grow flex flex-col overflow-hidden">
+          <div className="mb-2 flex items-start justify-between">
+            <div className="flex items-center overflow-hidden mr-2">
+              <div
+                className={`h-5 w-5 flex-shrink-0 rounded-full ${priority.color} mr-2`}
+              ></div>
+              <h3 
+                title={todo.title}
+                className={`text-lg font-medium truncate ${
+                  todo.is_completed
+                    ? 'text-gray-500 line-through'
+                    : isReview
+                      ? 'text-amber-600 dark:text-amber-400'
+                      : 'text-gray-900 dark:text-white'
+                }`}
+              >
+                {todo.title}
+              </h3>
             </div>
-          )
-        })}
-
-        {/* Add new todo button */}
-        <div
-          className="flex h-64 cursor-pointer items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-white transition-colors hover:border-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:hover:border-blue-500"
-          onClick={() => router.push('/todo/new')}
-        >
-          <div className="text-center">
-            <div className="mb-2 flex justify-center">
-              <FiPlus className="text-xl text-gray-400 dark:text-gray-500" />
+            <div className="flex-shrink-0">
+              <input
+                type="checkbox"
+                checked={todo.is_completed}
+                onChange={(e) =>
+                  handleCheckboxChange(e, todo.id, todo.is_completed)
+                }
+                onClick={(e) => e.stopPropagation()}
+                className="h-4 w-4 rounded text-blue-600"
+              />
             </div>
-            <p className="text-gray-500 dark:text-gray-400">Add New Task</p>
+          </div>
+
+          {isReview && (
+            <div className="mb-2 flex items-center text-sm text-amber-600 dark:text-amber-400">
+              <FaExclamationCircle className="mr-1 flex-shrink-0" />
+              <span>In Review</span>
+            </div>
+          )}
+
+          <div className="flex-grow overflow-hidden">
+            {todo.description && (
+              <p
+                className={`text-sm line-clamp-3 ${todo.is_completed ? 'text-gray-500' : 'text-gray-700 dark:text-gray-300'}`}
+              >
+                {todo.description}
+              </p>
+            )}
+          </div>
+
+          <div className="mt-auto pt-2 flex flex-wrap items-center justify-between text-xs text-gray-500 dark:text-gray-400 gap-2">
+            <div className="flex items-center">
+              <FaFlag className={`mr-1 ${priority.textColor}`} />
+              <span>Priority: {priority.label}</span>
+            </div>
+
+            {dueDate && (
+              <div className="flex items-center">
+                <FaClock className="mr-1" />
+                <span>{dueDate}</span>
+              </div>
+            )}
           </div>
         </div>
+
+        <div className="flex justify-end space-x-2 border-t border-gray-200 p-2 dark:border-gray-700 mt-auto">
+          {!isReview && !todo.is_completed && (
+            <button
+              className="p-1 text-amber-500 hover:text-amber-700 dark:text-amber-400"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleSetReview(e, todo.id);
+              }}
+              title="Set to Review"
+            >
+              <FaExclamationCircle />
+            </button>
+          )}
+          {isReview && (
+            <button
+              className="p-1 text-green-500 hover:text-green-700 dark:text-green-400"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleApproveReview(e, todo.id);
+              }}
+              title="Approve"
+            >
+              <FaCheck />
+            </button>
+          )}
+          <button
+            className="p-1 text-blue-500 hover:text-blue-700 dark:text-blue-400"
+            onClick={(e) => {
+              e.stopPropagation()
+              router.push(`/todo/${todo.id}/edit`)
+            }}
+          >
+            <FaEdit />
+          </button>
+          <button
+            className="p-1 text-red-500 hover:text-red-700 dark:text-red-400"
+            onClick={(e) => {
+              e.stopPropagation()
+              handleDeleteTodo(todo.id, todo.title)
+            }}
+          >
+            <FaTrash />
+          </button>
+        </div>
       </div>
+    )
+  })}
+
+  {/* Add new todo button */}
+  <div
+    className="flex h-64 w-62 sm:w-full cursor-pointer items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-white transition-colors hover:border-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:hover:border-blue-500"
+    onClick={() => router.push('/todo/new')}
+  >
+    <div className="text-center">
+      <div className="mb-2 flex justify-center">
+        <FiPlus className="text-xl text-gray-400 dark:text-gray-500" />
+      </div>
+      <p className="text-gray-500 dark:text-gray-400">Add New Task</p>
+    </div>
+  </div>
+</div>
 
       {/* Confirmation Dialog */}
       <ConfirmationDialog

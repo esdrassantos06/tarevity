@@ -95,7 +95,7 @@ export default function EnhancedForgotPasswordForm() {
 
   // Show different UI based on submission status
   return (
-    <div className="mx-auto w-full max-w-md rounded-lg bg-white p-6 shadow-md dark:bg-gray-800">
+    <div className="mx-auto w-full max-w-md rounded-lg bg-white p-6 shadow-md dark:bg-BlackLight">
       <div className="mb-6 text-center">
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
           Forgot your password?
