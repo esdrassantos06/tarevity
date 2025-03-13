@@ -300,7 +300,7 @@ const TodoDetailPage: React.FC<TodoDetailPageProps> = ({ todoId }) => {
                   id: todo.id,
                   data: { status: 'active' }
                 })}
-                className="flex items-center px-4 py-2 bg-green-100 rounded-md hover:bg-green-200 dark:bg-green-900 text-green-100 dark:hover:bg-green-800"
+                className="flex items-center px-4 py-2 rounded-md bg-green-800 text-green-100 hover:bg-green-700"
               >
                 <FaCheck className="mr-2" />
                 Approve
