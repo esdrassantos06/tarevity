@@ -484,17 +484,17 @@ const RedesignedTodoList: React.FC = () => {
           return (
             <div
               key={todo.id}
-              className={`cursor-pointer overflow-hidden rounded-lg bg-white shadow-md transition-shadow hover:shadow-lg dark:bg-gray-800 ${isReview ? 'border-l-4 border-amber-500' : ''}`}
+              className={`cursor-pointer overflow-hidden rounded-lg bg-white shadow-md transition-shadow hover:shadow-lg dark:bg-gray-800 ${isReview ? 'border-l-4 border-amber-500' : ''} flex flex-col h-64`}
               onClick={() => handleTodoClick(todo.id)}
             >
-              <div className="p-4">
+              <div className="p-4 flex-grow flex flex-col">
                 <div className="mb-2 flex items-start justify-between">
                   <div className="flex items-center">
                     <div
                       className={`h-5 w-5 rounded-full ${priority.color} mr-2 flex-shrink-0`}
                     ></div>
                     <h3
-                      className={`text-lg font-medium ${
+                      className={`text-lg font-medium truncate max-w-[200px] ${
                         todo.is_completed
                           ? 'text-gray-500 line-through'
                           : isReview
@@ -520,22 +520,22 @@ const RedesignedTodoList: React.FC = () => {
 
                 {isReview && (
                   <div className="mb-2 flex items-center text-sm text-amber-600 dark:text-amber-400">
-                    <FaExclamationCircle className="mr-1" />
+                    <FaExclamationCircle className="mr-1 flex-shrink-0" />
                     <span>In Review</span>
                   </div>
                 )}
 
-                {todo.description && (
-                  <p
-                    className={`mb-3 text-sm ${todo.is_completed ? 'text-gray-500' : 'text-gray-700 dark:text-gray-300'}`}
-                  >
-                    {todo.description.length > 100
-                      ? `${todo.description.substring(0, 100)}...`
-                      : todo.description}
-                  </p>
-                )}
+                <div className="flex-grow overflow-hidden">
+                  {todo.description && (
+                    <p
+                      className={`text-sm line-clamp-3 ${todo.is_completed ? 'text-gray-500' : 'text-gray-700 dark:text-gray-300'}`}
+                    >
+                      {todo.description}
+                    </p>
+                  )}
+                </div>
 
-                <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
+                <div className="mt-auto pt-2 flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
                   <div className="flex items-center">
                     <FaFlag className={`mr-1 ${priority.textColor}`} />
                     <span>Priority: {priority.label}</span>
@@ -550,7 +550,7 @@ const RedesignedTodoList: React.FC = () => {
                 </div>
               </div>
 
-              <div className="flex justify-end space-x-2 border-t border-gray-200 p-2 dark:border-gray-700">
+              <div className="flex justify-end space-x-2 border-t border-gray-200 p-2 dark:border-gray-700 mt-auto">
                 {!isReview && !todo.is_completed && (
                   <button
                     className="p-1 text-amber-500 hover:text-amber-700 dark:text-amber-400"
@@ -594,7 +594,7 @@ const RedesignedTodoList: React.FC = () => {
 
         {/* Add new todo button */}
         <div
-          className="flex h-48 cursor-pointer items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-white transition-colors hover:border-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:hover:border-blue-500"
+          className="flex h-64 cursor-pointer items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-white transition-colors hover:border-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:hover:border-blue-500"
           onClick={() => router.push('/todo/new')}
         >
           <div className="text-center">

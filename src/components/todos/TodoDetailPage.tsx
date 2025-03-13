@@ -174,7 +174,7 @@ const TodoDetailPage: React.FC<TodoDetailPageProps> = ({ todoId }) => {
                 <FaFlag />
               </div>
               <div>
-                <h1 className={`text-2xl font-bold ${todo.is_completed ? 'line-through text-gray-500' : 'text-gray-900 dark:text-white'}`}>
+                <h1 className={`text-2xl mr-4 font-bold ${todo.is_completed ? 'line-through text-gray-500' : 'text-gray-900 dark:text-white'}`}>
                   {todo.title}
                 </h1>
                 <div className="flex items-center space-x-3 mt-1 text-sm text-gray-600 dark:text-gray-400">
