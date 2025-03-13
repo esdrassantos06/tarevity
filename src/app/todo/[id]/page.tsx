@@ -9,8 +9,13 @@ export const metadata: Metadata = {
   robots: 'noindex, nofollow',
 }
 
-// Update the component to accept params as a non-Promise object
-export default function TodoDetailPageRoute({ params }: { params: { id: string } }) {
+interface PageProps {
+  params: { id: string }
+}
+
+export default async function TodoDetailPageRoute(props: PageProps) {
+  const { id } = props.params;
+  
   return (
     <Layout>
       <Suspense fallback={
@@ -18,7 +23,7 @@ export default function TodoDetailPageRoute({ params }: { params: { id: string }
           <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
         </div>
       }>
-        <TodoDetailPage todoId={params.id} />
+        <TodoDetailPage todoId={id} />
       </Suspense>
     </Layout>
   )
