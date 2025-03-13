@@ -9,12 +9,9 @@ export const metadata: Metadata = {
   robots: 'noindex, nofollow',
 }
 
-export default function TodoDetailPageRoute({ params }: { params: unknown }) {
-  // Extract the id safely, with type checking
-  const todoId = typeof params === 'object' && params !== null && 'id' in params
-    ? String((params as Record<string, unknown>).id)
-    : '';
-
+export default async function TodoDetailPageRoute(props: { params: Promise<{ id: string }> }) {
+  const { id } = await props.params;
+  
   return (
     <Layout>
       <Suspense fallback={
@@ -22,7 +19,7 @@ export default function TodoDetailPageRoute({ params }: { params: unknown }) {
           <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
         </div>
       }>
-        <TodoDetailPage todoId={todoId} />
+        <TodoDetailPage todoId={id} />
       </Suspense>
     </Layout>
   )
