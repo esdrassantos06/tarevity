@@ -1,5 +1,3 @@
-Here's an enhanced version of the README with additional features and details that are present in the code but were missing from the original README:
-
 # Tarevity - Task Manager
 
 ![Tarevity Logo](public/logo.png)
