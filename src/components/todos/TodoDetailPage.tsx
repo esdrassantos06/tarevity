@@ -1,7 +1,17 @@
 'use client';
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { FaArrowLeft, FaPencilAlt, FaTrash, FaClock, FaFlag, FaCheck, FaShare, FaUser } from 'react-icons/fa';
+import { 
+  FaArrowLeft, 
+  FaPencilAlt, 
+  FaTrash, 
+  FaClock, 
+  FaFlag, 
+  FaCheck, 
+  FaShare, 
+  FaUser,
+  FaExclamationCircle 
+} from 'react-icons/fa';
 import { useTodosQuery, useUpdateTodoMutation, useDeleteTodoMutation } from '@/hooks/useTodosQuery';
 import { Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogDescription } from '@/components/common/Dialog';
 
@@ -74,14 +84,46 @@ const TodoDetailPage: React.FC<TodoDetailPageProps> = ({ todoId }) => {
     }
   };
   
+  // New function to get status information
+  const getStatusInfo = (status?: string) => {
+    switch (status) {
+      case 'review':
+        return { 
+          color: 'bg-amber-500', 
+          label: 'In Review', 
+          textColor: 'text-amber-500',
+          bgColor: 'bg-amber-100 dark:bg-amber-900/30'
+        };
+      case 'completed':
+        return { 
+          color: 'bg-green-500', 
+          label: 'Completed', 
+          textColor: 'text-green-500',
+          bgColor: 'bg-green-100 dark:bg-green-900/30' 
+        };
+      case 'active':
+      default:
+        return { 
+          color: 'bg-blue-500', 
+          label: 'Active', 
+          textColor: 'text-blue-500',
+          bgColor: 'bg-blue-100 dark:bg-blue-900/30'
+        };
+    }
+  };
+  
   const priority = getPriorityColor(todo.priority);
+  const status = getStatusInfo(todo.status);
   const dueDate = todo.due_date ? formatDate(todo.due_date) : 'No due date';
   const createdDate = formatDate(todo.created_at);
   
   const handleToggleComplete = () => {
     updateTodoMutation.mutate({
       id: todo.id,
-      data: { ...todo, is_completed: !todo.is_completed }
+      data: { 
+        is_completed: !todo.is_completed,
+        status: !todo.is_completed ? 'completed' : 'active'
+      }
     });
   };
   
@@ -92,6 +134,8 @@ const TodoDetailPage: React.FC<TodoDetailPageProps> = ({ todoId }) => {
       }
     });
   };
+
+  const isInReview = todo.status === 'review';
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-6">
@@ -121,7 +165,7 @@ const TodoDetailPage: React.FC<TodoDetailPageProps> = ({ todoId }) => {
       </div>
       
       {/* Main content */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
+      <div className={`bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden ${isInReview ? 'border-l-4 border-amber-500' : ''}`}>
         {/* Company header - resembling job detail layout */}
         <div className="p-6 border-b border-gray-200 dark:border-gray-700">
           <div className="flex justify-between items-start">
@@ -141,6 +185,11 @@ const TodoDetailPage: React.FC<TodoDetailPageProps> = ({ todoId }) => {
                   <span className="flex items-center">
                     <FaFlag className={`mr-1 ${priority.textColor}`} /> 
                     {priority.label} Priority
+                  </span>
+                  {/* Status indicator */}
+                  <span className={`flex items-center ${status.textColor}`}>
+                    {isInReview ? <FaExclamationCircle className="mr-1" /> : <FaCheck className="mr-1" />}
+                    {status.label}
                   </span>
                 </div>
               </div>
@@ -173,15 +222,33 @@ const TodoDetailPage: React.FC<TodoDetailPageProps> = ({ todoId }) => {
           </div>
         </div>
         
+        {/* Status note for review tasks */}
+        {isInReview && (
+          <div className={`mx-6 p-4 rounded-md ${status.bgColor} mb-4`}>
+            <div className="flex items-start">
+              <FaExclamationCircle className={`mr-2 mt-1 ${status.textColor}`} />
+              <div>
+                <h3 className="font-medium text-amber-800 dark:text-amber-300">This task is currently under review</h3>
+                <p className="text-amber-700 dark:text-amber-400 text-sm mt-1">
+                  The task has been submitted for review. Once approved, it will return to active status.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+        
         {/* Details section */}
         <div className="p-6 bg-gray-50 dark:bg-gray-900">
           <h2 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Details</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="bg-white dark:bg-gray-800 p-4 rounded-md shadow">
               <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Status</h3>
-              <p className="text-gray-900 dark:text-white font-medium">
-                {todo.is_completed ? 'Completed' : 'In Progress'}
-              </p>
+              <div className="flex items-center">
+                <div className={`h-3 w-3 rounded-full ${status.color} mr-2`}></div>
+                <p className="text-gray-900 dark:text-white font-medium">
+                  {status.label}
+                </p>
+              </div>
             </div>
             <div className="bg-white dark:bg-gray-800 p-4 rounded-md shadow">
               <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Due Date</h3>
@@ -212,6 +279,33 @@ const TodoDetailPage: React.FC<TodoDetailPageProps> = ({ todoId }) => {
               <FaShare className="mr-2" />
               Share
             </button>
+            
+            {/* Status change action buttons */}
+            {!isInReview && !todo.is_completed && (
+              <button 
+                onClick={() => updateTodoMutation.mutate({
+                  id: todo.id,
+                  data: { status: 'review' }
+                })}
+                className="flex items-center px-4 py-2 bg-amber-100 text-amber-800 rounded-md hover:bg-amber-200 dark:bg-amber-900 dark:text-amber-100 dark:hover:bg-amber-800"
+              >
+                <FaExclamationCircle className="mr-2" />
+                Submit for Review
+              </button>
+            )}
+            
+            {isInReview && (
+              <button 
+                onClick={() => updateTodoMutation.mutate({
+                  id: todo.id,
+                  data: { status: 'active' }
+                })}
+                className="flex items-center px-4 py-2 bg-green-100 rounded-md hover:bg-green-200 dark:bg-green-900 text-green-100 dark:hover:bg-green-800"
+              >
+                <FaCheck className="mr-2" />
+                Approve
+              </button>
+            )}
           </div>
         </div>
       </div>

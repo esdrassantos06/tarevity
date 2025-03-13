@@ -9,13 +9,21 @@ import {
   FaClock,
   FaFlag,
   FaExclamationCircle,
-  FaCheck
+  FaCheck,
+  FaSortAmountDown,
+  FaSortAmountUp,
 } from 'react-icons/fa'
 import { Todo } from '@/lib/api'
 import { FiPlus } from 'react-icons/fi'
-import { useTodosQuery, useUpdateTodoMutation, useDeleteTodoMutation } from '@/hooks/useTodosQuery'
+import {
+  useTodosQuery,
+  useUpdateTodoMutation,
+  useDeleteTodoMutation,
+} from '@/hooks/useTodosQuery'
 import ExpandableSearch from '@/components/todos/ExpandableSearch'
-import ConfirmationDialog, { useConfirmationDialog } from '@/components/common/ConfirmationDialog'
+import ConfirmationDialog, {
+  useConfirmationDialog,
+} from '@/components/common/ConfirmationDialog'
 
 // Simple date formatter function
 const formatDate = (dateString: string | null) => {
@@ -40,15 +48,15 @@ const formatDate = (dateString: string | null) => {
 
 // Interface para os segmentos do gráfico
 interface PieSegment {
-  dasharray: number;
-  dashoffset: number;
+  dasharray: number
+  dashoffset: number
 }
 
 interface PieSegments {
-  circumference: number;
-  active: PieSegment;
-  completed: PieSegment;
-  review: PieSegment;
+  circumference: number
+  active: PieSegment
+  completed: PieSegment
+  review: PieSegment
 }
 
 const RedesignedTodoList: React.FC = () => {
@@ -56,9 +64,12 @@ const RedesignedTodoList: React.FC = () => {
   const queryClient = useQueryClient()
   const [activeTab, setActiveTab] = useState('all')
   const [searchQuery, setSearchQuery] = useState('')
+  // Add a new state for priority sorting direction
+  const [prioritySortDirection, setPrioritySortDirection] = useState<'asc' | 'desc'>('desc')
 
   // Dialog state management
-  const { dialogState, openConfirmDialog, closeConfirmDialog, setLoading } = useConfirmationDialog()
+  const { dialogState, openConfirmDialog, closeConfirmDialog, setLoading } =
+    useConfirmationDialog()
 
   // React Query hooks
   const { data: todos = [], isLoading } = useTodosQuery()
@@ -87,10 +98,15 @@ const RedesignedTodoList: React.FC = () => {
           },
           onSettled: () => {
             setLoading(false)
-          }
+          },
         })
-      }
+      },
     })
+  }
+
+  // Toggle priority sort direction
+  const togglePrioritySort = () => {
+    setPrioritySortDirection(prev => prev === 'desc' ? 'asc' : 'desc')
   }
 
   // Filter todos based on selected filter and search query
@@ -99,7 +115,9 @@ const RedesignedTodoList: React.FC = () => {
 
     // Filter by status tab
     if (activeTab === 'active') {
-      result = result.filter((todo) => !todo.is_completed && todo.status !== 'review')
+      result = result.filter(
+        (todo) => !todo.is_completed && todo.status !== 'review',
+      )
     } else if (activeTab === 'completed') {
       result = result.filter((todo) => todo.is_completed)
     } else if (activeTab === 'review') {
@@ -120,16 +138,21 @@ const RedesignedTodoList: React.FC = () => {
       )
     }
 
-    // Sort by priority and completion status
-    return result.sort((a, b) => {
+    // Sort by completion status first
+    result.sort((a, b) => {
       // First sort by completion status
       if (a.is_completed !== b.is_completed) {
         return a.is_completed ? 1 : -1
       }
-      // Then by priority (higher priority first)
-      return b.priority - a.priority
+      
+      // Then by priority based on sort direction
+      return prioritySortDirection === 'desc' 
+        ? b.priority - a.priority 
+        : a.priority - b.priority
     })
-  }, [todos, activeTab, searchQuery])
+    
+    return result
+  }, [todos, activeTab, searchQuery, prioritySortDirection])
 
   // Handle todo item click to navigate to detail page
   const handleTodoClick = (id: string) => {
@@ -142,89 +165,78 @@ const RedesignedTodoList: React.FC = () => {
     id: string,
     isCompleted: boolean,
   ) => {
-    e.stopPropagation() // Prevent navigation
+    e.stopPropagation()
     const todoToUpdate = todos.find((todo) => todo.id === id)
     if (!todoToUpdate) return
 
-    updateTodoMutation.mutate({
-      id,
-      data: { ...todoToUpdate, is_completed: !isCompleted },
-    }, {
-      onSuccess: () => {
-        // Force a refetch to ensure client state is in sync
-        queryClient.invalidateQueries({ queryKey: ['todos'] })
-      }
-    })
+    updateTodoMutation.mutate(
+      {
+        id,
+        data: {
+          is_completed: !isCompleted,
+          status: !isCompleted ? 'completed' : 'active',
+        },
+      },
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries({ queryKey: ['todos'] })
+        },
+      },
+    )
   }
+
   const handleSetReview = (e: React.MouseEvent, id: string) => {
     e.stopPropagation() // Prevent navigation
-    
+
     const todoToUpdate = todos.find((todo) => todo.id === id)
     if (!todoToUpdate) return
-    
-    console.log('Setting todo to review:', todoToUpdate)
-    
+
     // Only update the status field to minimize conflicts
-    updateTodoMutation.mutate({
-      id,
-      data: { status: 'review' }
-    }, {
-      onSuccess: (data) => {
-        console.log('Successfully set todo to review:', data)
-        
-        // Force a local update to ensure UI consistency
-        queryClient.setQueryData<Todo[]>(['todos'], old => {
-          if (!old) return []
-          
-          return old.map(todo => {
-            if (todo.id === id) {
-              console.log('Updating todo in cache after review success')
-              return { ...todo, status: 'review' }
-            }
-            return todo
-          })
-        })
+    updateTodoMutation.mutate(
+      {
+        id,
+        data: { status: 'review' },
       },
-      onError: (error) => {
-        console.error('Error setting review status:', error)
-      }
-    })
+      {
+        onError: (error) => {
+          console.error('Error setting review status:', error)
+        },
+      },
+    )
   }
 
-// Handle approving a reviewed todo
-const handleApproveReview = (e: React.MouseEvent, id: string) => {
+  // Handle approving a reviewed todo
+  const handleApproveReview = (e: React.MouseEvent, id: string) => {
     e.stopPropagation() // Prevent navigation
-    
+
     const todoToUpdate = todos.find((todo) => todo.id === id)
     if (!todoToUpdate) return
-    
-    console.log('Approving todo from review:', todoToUpdate)
-    
+
     // Only update the status field to minimize conflicts
-    updateTodoMutation.mutate({
-      id,
-      data: { status: 'active' }
-    }, {
-      onSuccess: (data) => {
-        console.log('Successfully approved todo from review:', data)
-        
-        // Force a local update to ensure UI consistency
-        queryClient.setQueryData<Todo[]>(['todos'], old => {
-          if (!old) return []
-          
-          return old.map(todo => {
-            if (todo.id === id) {
-              console.log('Updating todo in cache after approve success')
-              return { ...todo, status: 'active' }
-            }
-            return todo
-          })
-        })
+    updateTodoMutation.mutate(
+      {
+        id,
+        data: { status: 'active' },
       },
-      onError: (error) => {
-        console.error('Error approving todo:', error)
-      }
-    })
+      {
+        onSuccess: () => {
+          // Force a local update to ensure UI consistency
+          queryClient.setQueryData<Todo[]>(['todos'], (old) => {
+            if (!old) return []
+
+            return old.map((todo) => {
+              if (todo.id === id) {
+                return { ...todo, status: 'active' }
+              }
+              return todo
+            })
+          })
+        },
+        onError: (error) => {
+          console.error('Error approving todo:', error)
+        },
+      },
+    )
   }
 
   // Get priority color and label
@@ -233,17 +245,27 @@ const handleApproveReview = (e: React.MouseEvent, id: string) => {
       case 3:
         return { color: 'bg-red-500', label: 'High', textColor: 'text-red-500' }
       case 2:
-        return { color: 'bg-yellow-500', label: 'Medium', textColor: 'text-yellow-500' }
+        return {
+          color: 'bg-yellow-500',
+          label: 'Medium',
+          textColor: 'text-yellow-500',
+        }
       case 1:
       default:
-        return { color: 'bg-green-500', label: 'Low', textColor: 'text-green-500' }
+        return {
+          color: 'bg-green-500',
+          label: 'Low',
+          textColor: 'text-green-500',
+        }
     }
   }
 
   // Calculate stats with improved review handling
   const stats = useMemo(() => {
     const total = todos.length
-    const active = todos.filter((todo) => !todo.is_completed && todo.status !== 'review').length
+    const active = todos.filter(
+      (todo) => !todo.is_completed && todo.status !== 'review',
+    ).length
     const completed = todos.filter((todo) => todo.is_completed).length
     const review = todos.filter((todo) => todo.status === 'review').length
     const toDo = todos.filter((todo) => todo.priority === 3).length
@@ -253,32 +275,36 @@ const handleApproveReview = (e: React.MouseEvent, id: string) => {
 
   // Calculate pie chart values with correct circumference
   const calculatePieSegments = (): PieSegments => {
-    const totalTodos = stats.total;
-    if (totalTodos === 0) return { 
-      circumference: 251.2, 
-      active: { dasharray: 0, dashoffset: 0 },
-      completed: { dasharray: 0, dashoffset: 0 },
-      review: { dasharray: 0, dashoffset: 0 }
-    };
-    
-    const circumference = 251.2; // 2πr where r=40
-    
-    const activeDasharray = (stats.active / totalTodos) * circumference;
-    const completedDasharray = (stats.completed / totalTodos) * circumference;
-    const reviewDasharray = (stats.review / totalTodos) * circumference;
-    
-    const completedDashoffset = -1 * activeDasharray;
-    const reviewDashoffset = -1 * (activeDasharray + completedDasharray);
-    
+    const totalTodos = stats.total
+    if (totalTodos === 0)
+      return {
+        circumference: 251.2,
+        active: { dasharray: 0, dashoffset: 0 },
+        completed: { dasharray: 0, dashoffset: 0 },
+        review: { dasharray: 0, dashoffset: 0 },
+      }
+
+    const circumference = 251.2 // 2πr where r=40
+
+    const activeDasharray = (stats.active / totalTodos) * circumference
+    const completedDasharray = (stats.completed / totalTodos) * circumference
+    const reviewDasharray = (stats.review / totalTodos) * circumference
+
+    const completedDashoffset = -1 * activeDasharray
+    const reviewDashoffset = -1 * (activeDasharray + completedDasharray)
+
     return {
       circumference,
       active: { dasharray: activeDasharray, dashoffset: 0 },
-      completed: { dasharray: completedDasharray, dashoffset: completedDashoffset },
-      review: { dasharray: reviewDasharray, dashoffset: reviewDashoffset }
-    };
-  };
-  
-  const pieSegments = calculatePieSegments();
+      completed: {
+        dasharray: completedDasharray,
+        dashoffset: completedDashoffset,
+      },
+      review: { dasharray: reviewDasharray, dashoffset: reviewDashoffset },
+    }
+  }
+
+  const pieSegments = calculatePieSegments()
 
   if (isLoading) {
     return (
@@ -291,14 +317,14 @@ const handleApproveReview = (e: React.MouseEvent, id: string) => {
   return (
     <div className="max-w-full px-4">
       <div className="mb-8">
-        <div className="flex sm:flex-row flex-col sm:items-center justify-between">
+        <div className="flex flex-col justify-between sm:flex-row sm:items-center">
           <h1 className="mb-2 text-5xl font-bold text-gray-900 dark:text-white">
             Projects
           </h1>
-          <div className='flex sm:flex-row max-xs:flex-col justify-around sm:mt-0 mt-4 sm:items-center items-start gap-4'>
+          <div className="max-xs:flex-col mt-4 flex items-start justify-around gap-4 sm:mt-0 sm:flex-row sm:items-center">
             <button
               onClick={() => router.push('/todo/new')}
-              className="flex cursor-pointer items-center justify-center w-40 gap-2 rounded-lg bg-blue-600 py-2 text-white transition-colors hover:bg-blue-700"
+              className="flex w-40 cursor-pointer items-center justify-center gap-2 rounded-lg bg-blue-600 py-2 text-white transition-colors hover:bg-blue-700"
             >
               <FiPlus size={25} /> Create Project
             </button>
@@ -318,7 +344,7 @@ const handleApproveReview = (e: React.MouseEvent, id: string) => {
 
             <div className="mb-4 flex items-center gap-10">
               <div className="relative h-16">
-                <svg viewBox="0 0 100 100" className="h-16 w-16">
+                <svg viewBox="0 0 100 100" className="h-20 w-20">
                   <circle
                     cx="50"
                     cy="50"
@@ -401,33 +427,49 @@ const handleApproveReview = (e: React.MouseEvent, id: string) => {
           </div>
         </div>
 
-        {/* Filtering tabs */}
-        <div className="mb-4 flex space-x-4 overflow-x-auto pb-2">
-          <button
-            className={`flex items-center px-4 py-2 ${activeTab === 'all' ? 'bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300' : 'text-gray-700 dark:text-gray-300'} rounded-md font-medium`}
-            onClick={() => setActiveTab('all')}
+        {/* Filtering tabs and sorting controls */}
+        <div className="mb-4 flex flex-wrap items-center justify-between">
+          <div className="flex space-x-4 overflow-x-auto pb-2">
+            <button
+              className={`flex items-center px-4 py-2 ${activeTab === 'all' ? 'bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300' : 'text-gray-700 dark:text-gray-300'} rounded-md font-medium`}
+              onClick={() => setActiveTab('all')}
+            >
+              <span className="mr-2 h-3 w-3 rounded-full bg-blue-600"></span>
+              All
+            </button>
+            <div className="border-r border-gray-300 dark:border-gray-600"></div>
+            <button
+              className={`px-4 py-2 ${activeTab === 'active' ? 'bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300' : 'text-gray-700 dark:text-gray-300'} rounded-md font-medium`}
+              onClick={() => setActiveTab('active')}
+            >
+              <span className="mr-1">•</span> Active
+            </button>
+            <button
+              className={`px-4 py-2 ${activeTab === 'completed' ? 'bg-green-100 text-green-600 dark:bg-green-900 dark:text-green-300' : 'text-gray-700 dark:text-gray-300'} rounded-md font-medium`}
+              onClick={() => setActiveTab('completed')}
+            >
+              <span className="mr-1">•</span> Completed
+            </button>
+            <button
+              className={`px-4 py-2 ${activeTab === 'review' ? 'bg-amber-100 text-amber-600 dark:bg-amber-900 dark:text-amber-300' : 'text-gray-700 dark:text-gray-300'} rounded-md font-medium`}
+              onClick={() => setActiveTab('review')}
+            >
+              <span className="mr-1">•</span> Review
+            </button>
+          </div>
+
+          {/* Priority Sort Button */}
+          <button 
+            onClick={togglePrioritySort}
+            className="mt-2 flex items-center rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm shadow-sm hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600 sm:mt-0"
           >
-            <span className="mr-2 h-3 w-3 rounded-full bg-blue-600"></span>
-            All
-          </button>
-          <div className="border-r border-gray-300 dark:border-gray-600"></div>
-          <button
-            className={`px-4 py-2 ${activeTab === 'active' ? 'bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300' : 'text-gray-700 dark:text-gray-300'} rounded-md font-medium`}
-            onClick={() => setActiveTab('active')}
-          >
-            <span className="mr-1">•</span> Active
-          </button>
-          <button
-            className={`px-4 py-2 ${activeTab === 'completed' ? 'bg-green-100 text-green-600 dark:bg-green-900 dark:text-green-300' : 'text-gray-700 dark:text-gray-300'} rounded-md font-medium`}
-            onClick={() => setActiveTab('completed')}
-          >
-            <span className="mr-1">•</span> Completed
-          </button>
-          <button
-            className={`px-4 py-2 ${activeTab === 'review' ? 'bg-amber-100 text-amber-600 dark:bg-amber-900 dark:text-amber-300' : 'text-gray-700 dark:text-gray-300'} rounded-md font-medium`}
-            onClick={() => setActiveTab('review')}
-          >
-            <span className="mr-1">•</span> Review
+            <FaFlag className="mr-2 text-gray-500 dark:text-gray-400" />
+            Sort by Priority
+            {prioritySortDirection === 'desc' ? (
+              <FaSortAmountDown className="ml-2 text-gray-500 dark:text-gray-400" />
+            ) : (
+              <FaSortAmountUp className="ml-2 text-gray-500 dark:text-gray-400" />
+            )}
           </button>
         </div>
       </div>
@@ -453,10 +495,10 @@ const handleApproveReview = (e: React.MouseEvent, id: string) => {
                     ></div>
                     <h3
                       className={`text-lg font-medium ${
-                        todo.is_completed 
-                          ? 'text-gray-500 line-through' 
-                          : isReview 
-                            ? 'text-amber-600 dark:text-amber-400' 
+                        todo.is_completed
+                          ? 'text-gray-500 line-through'
+                          : isReview
+                            ? 'text-amber-600 dark:text-amber-400'
                             : 'text-gray-900 dark:text-white'
                       }`}
                     >
@@ -470,13 +512,14 @@ const handleApproveReview = (e: React.MouseEvent, id: string) => {
                       onChange={(e) =>
                         handleCheckboxChange(e, todo.id, todo.is_completed)
                       }
+                      onClick={(e) => e.stopPropagation()}
                       className="h-4 w-4 rounded text-blue-600"
                     />
                   </div>
                 </div>
 
                 {isReview && (
-                  <div className="mb-2 flex items-center text-amber-600 dark:text-amber-400 text-sm">
+                  <div className="mb-2 flex items-center text-sm text-amber-600 dark:text-amber-400">
                     <FaExclamationCircle className="mr-1" />
                     <span>In Review</span>
                   </div>
@@ -494,9 +537,7 @@ const handleApproveReview = (e: React.MouseEvent, id: string) => {
 
                 <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
                   <div className="flex items-center">
-                    <FaFlag
-                      className={`mr-1 ${priority.textColor}`}
-                    />
+                    <FaFlag className={`mr-1 ${priority.textColor}`} />
                     <span>Priority: {priority.label}</span>
                   </div>
 

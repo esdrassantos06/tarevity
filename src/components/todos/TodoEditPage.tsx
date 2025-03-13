@@ -1,145 +1,173 @@
-'use client';
-import React, { useState, useEffect, ChangeEvent, FormEvent } from 'react';
-import { useRouter } from 'next/navigation';
-import { FaArrowLeft, FaSave, FaTimes, FaFlag, FaClock } from 'react-icons/fa';
-import { useTodosQuery, useUpdateTodoMutation } from '@/hooks/useTodosQuery';
+'use client'
+import React, { useState, useEffect, ChangeEvent, FormEvent } from 'react'
+import { useRouter } from 'next/navigation'
+import {
+  FaArrowLeft,
+  FaSave,
+  FaTimes,
+  FaFlag,
+  FaClock,
+  FaExclamationCircle,
+} from 'react-icons/fa'
+import { useTodosQuery, useUpdateTodoMutation } from '@/hooks/useTodosQuery'
 
 // Define interface for our Todo item
 interface Todo {
-  id: string;
-  title: string;
-  description: string | null;
-  priority: number;
-  due_date: string | null;
-  is_completed: boolean;
+  id: string
+  title: string
+  description: string | null
+  priority: number
+  due_date: string | null
+  is_completed: boolean
+  status?: 'active' | 'review' | 'completed' // Added status field
 }
 
 // Define form data interface
 interface TodoFormData {
-  title: string;
-  description: string;
-  priority: number;
-  due_date: string;
-  is_completed: boolean;
+  title: string
+  description: string
+  priority: number
+  due_date: string
+  is_completed: boolean
+  status: 'active' | 'review' | 'completed'
 }
 
 // Define props interface
 interface TodoEditPageProps {
-  todoId: string;
+  todoId: string
 }
 
 const formatDateForInput = (dateString: string | null): string => {
-  if (!dateString) return '';
+  if (!dateString) return ''
   // Convert date to yyyy-MM-dd format for date input
-  const date = new Date(dateString);
-  return date.toISOString().split('T')[0];
-};
+  const date = new Date(dateString)
+  return date.toISOString().split('T')[0]
+}
 
 const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
-  const router = useRouter();
-  const { data: todos = [] as Todo[], isLoading } = useTodosQuery();
-  const updateTodoMutation = useUpdateTodoMutation();
-  
+  const router = useRouter()
+  const { data: todos = [] as Todo[], isLoading } = useTodosQuery()
+  const updateTodoMutation = useUpdateTodoMutation()
+
   const [formData, setFormData] = useState<TodoFormData>({
     title: '',
     description: '',
     priority: 1,
     due_date: '',
-    is_completed: false
-  });
-  
-  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
-  
+    is_completed: false,
+    status: 'active',
+  })
+
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
+
   // Find the todo when data is loaded
   useEffect(() => {
     if (todos.length > 0) {
-      const todo = todos.find(t => t.id === todoId);
+      const todo = todos.find((t) => t.id === todoId)
       if (todo) {
         setFormData({
           title: todo.title || '',
           description: todo.description || '',
           priority: todo.priority || 1,
           due_date: todo.due_date ? formatDateForInput(todo.due_date) : '',
-          is_completed: todo.is_completed || false
-        });
+          is_completed: todo.is_completed || false,
+          status: todo.status || 'active',
+        })
       } else {
         // Todo not found, redirect to dashboard
-        router.push('/dashboard');
+        router.push('/dashboard')
       }
     }
-  }, [todos, todoId, router]);
-  
+  }, [todos, todoId, router])
+
   // Check for unsaved changes
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
       if (hasUnsavedChanges) {
-        e.preventDefault();
-        e.returnValue = 'You have unsaved changes. Are you sure you want to leave?';
+        e.preventDefault()
+        e.returnValue =
+          'You have unsaved changes. Are you sure you want to leave?'
       }
-    };
-    
-    window.addEventListener('beforeunload', handleBeforeUnload);
-    
-    return () => {
-      window.removeEventListener('beforeunload', handleBeforeUnload);
-    };
-  }, [hasUnsavedChanges]);
-  
-  const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value, type } = e.target;
-    const checked = (e.target as HTMLInputElement).checked;
+    }
 
-    setFormData({
-      ...formData,
-      [name]: type === 'checkbox' ? checked : value
-    });
-    setHasUnsavedChanges(true);
-  };
-  
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+    window.addEventListener('beforeunload', handleBeforeUnload)
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload)
+    }
+  }, [hasUnsavedChanges])
+
+  const handleChange = (
+    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
+  ) => {
+    const { name, value, type } = e.target
+    const checked = (e.target as HTMLInputElement).checked
+
+    // If checkbox is checked, set status to completed
+    if (name === 'is_completed' && type === 'checkbox') {
+      setFormData({
+        ...formData,
+        [name]: checked,
+        status: checked ? 'completed' : 'active',
+      })
+    } else {
+      setFormData({
+        ...formData,
+        [name]: type === 'checkbox' ? checked : value,
+      })
+    }
     
+    setHasUnsavedChanges(true)
+  }
+
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+
     // Format the data for submission
     const updateData = {
       ...formData,
       priority: Number(formData.priority),
-      due_date: formData.due_date || null
-    };
-    
+      due_date: formData.due_date || null,
+    }
+
     updateTodoMutation.mutate(
       { id: todoId, data: updateData },
       {
         onSuccess: () => {
-          setHasUnsavedChanges(false);
-          router.push(`/todo/${todoId}`);
-        }
-      }
-    );
-  };
-  
+          setHasUnsavedChanges(false)
+          router.push(`/todo/${todoId}`)
+        },
+      },
+    )
+  }
+
   const handleCancel = () => {
     if (hasUnsavedChanges) {
-      if (window.confirm('You have unsaved changes. Are you sure you want to leave?')) {
-        router.push(`/todo/${todoId}`);
+      if (
+        window.confirm(
+          'You have unsaved changes. Are you sure you want to leave?',
+        )
+      ) {
+        router.push(`/todo/${todoId}`)
       }
     } else {
-      router.push(`/todo/${todoId}`);
+      router.push(`/todo/${todoId}`)
     }
-  };
-  
+  }
+
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+      <div className="flex h-64 items-center justify-center">
+        <div className="h-12 w-12 animate-spin rounded-full border-4 border-blue-500 border-t-transparent"></div>
       </div>
-    );
+    )
   }
-  
+
   return (
-    <div className="max-w-3xl mx-auto px-4 py-6">
+    <div className="mx-auto max-w-3xl px-4 py-6">
       {/* Header */}
-      <div className="mb-6 flex justify-between items-center">
-        <button 
+      <div className="mb-6 flex items-center justify-between">
+        <button
           onClick={handleCancel}
           className="flex items-center text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white"
         >
@@ -150,13 +178,16 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
           Edit Task
         </div>
       </div>
-      
+
       {/* Edit Form */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
+      <div className="overflow-hidden rounded-lg bg-white shadow-lg dark:bg-gray-800">
         <form onSubmit={handleSubmit} className="p-6">
           {/* Title field */}
           <div className="mb-4">
-            <label htmlFor="title" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            <label
+              htmlFor="title"
+              className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
+            >
               Title*
             </label>
             <input
@@ -166,14 +197,17 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
               value={formData.title}
               onChange={handleChange}
               required
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+              className="w-full rounded-md border border-gray-300 px-4 py-2 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
               placeholder="Task title"
             />
           </div>
-          
+
           {/* Description field */}
           <div className="mb-4">
-            <label htmlFor="description" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            <label
+              htmlFor="description"
+              className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
+            >
               Description
             </label>
             <textarea
@@ -182,16 +216,19 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
               value={formData.description}
               onChange={handleChange}
               rows={5}
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+              className="w-full rounded-md border border-gray-300 px-4 py-2 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
               placeholder="Task description"
             ></textarea>
           </div>
-          
-          {/* Priority and due date */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+
+          {/* Priority, Status and Due date */}
+          <div className="mb-4 grid grid-cols-1 gap-4 md:grid-cols-3">
             <div>
-              <label htmlFor="priority" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                <FaFlag className="inline mr-1 text-blue-500" /> 
+              <label
+                htmlFor="priority"
+                className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
+              >
+                <FaFlag className="mr-1 inline text-blue-500" />
                 Priority
               </label>
               <select
@@ -199,17 +236,46 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
                 name="priority"
                 value={formData.priority}
                 onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                className="w-full rounded-md border border-gray-300 px-4 py-2 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
               >
                 <option value="1">Low Priority</option>
                 <option value="2">Medium Priority</option>
                 <option value="3">High Priority</option>
               </select>
             </div>
-            
+
             <div>
-              <label htmlFor="due_date" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                <FaClock className="inline mr-1 text-blue-500" /> 
+              <label
+                htmlFor="status"
+                className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
+              >
+                <FaExclamationCircle className="mr-1 inline text-blue-500" />
+                Status
+              </label>
+              <select
+                id="status"
+                name="status"
+                value={formData.status === 'completed' ? 'active' : formData.status}
+                onChange={handleChange}
+                disabled={formData.is_completed}
+                className="w-full rounded-md border border-gray-300 px-4 py-2 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white disabled:cursor-not-allowed disabled:opacity-70"
+              >
+                <option value="active">Active</option>
+                <option value="review">In Review</option>
+              </select>
+              {formData.is_completed && (
+                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                  Status is set to completed because the task is marked as complete
+                </p>
+              )}
+            </div>
+
+            <div>
+              <label
+                htmlFor="due_date"
+                className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
+              >
+                <FaClock className="mr-1 inline text-blue-500" />
                 Due Date
               </label>
               <input
@@ -218,11 +284,11 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
                 name="due_date"
                 value={formData.due_date}
                 onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                className="w-full rounded-md border border-gray-300 px-4 py-2 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
               />
             </div>
           </div>
-          
+
           {/* Status checkbox */}
           <div className="mb-6">
             <div className="flex items-center">
@@ -232,39 +298,58 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
                 name="is_completed"
                 checked={formData.is_completed}
                 onChange={handleChange}
-                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
               />
-              <label htmlFor="is_completed" className="ml-2 block text-sm text-gray-700 dark:text-gray-300">
+              <label
+                htmlFor="is_completed"
+                className="ml-2 block text-sm text-gray-700 dark:text-gray-300"
+              >
                 Mark as completed
               </label>
             </div>
           </div>
-          
+
           {/* Form buttons */}
           <div className="flex justify-end space-x-3">
             <button
               type="button"
               onClick={handleCancel}
-              className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
+              className="rounded-md border border-gray-300 px-4 py-2 text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
             >
-              <FaTimes className="inline mr-1" /> Cancel
+              <FaTimes className="mr-1 inline" /> Cancel
             </button>
             <button
               type="submit"
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+              className="rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
               disabled={updateTodoMutation.isPending}
             >
               {updateTodoMutation.isPending ? (
                 <>
-                  <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  <svg
+                    className="mr-2 -ml-1 inline h-4 w-4 animate-spin text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
                   </svg>
                   Saving...
                 </>
               ) : (
                 <>
-                  <FaSave className="inline mr-1" /> Save Changes
+                  <FaSave className="mr-1 inline" /> Save Changes
                 </>
               )}
             </button>
@@ -272,7 +357,7 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
         </form>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default TodoEditPage;
+export default TodoEditPage

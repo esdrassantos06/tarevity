@@ -118,19 +118,11 @@ export default function EnhancedRegisterForm() {
   // Watch form fields
   const watchedPassword = watch('password')
   const watchedEmail = watch('email')
-  const watchedName = watch('name')
+ 
   const watchedConfirmPassword = watch('confirmPassword')
   
   // React Query hook for registration
   const registerMutation = useRegisterMutation()
-
-  // Optional: If you want to use watchedName, here's an example of validation or logging
-  useEffect(() => {
-    // Optional name validation beyond the schema
-    if (watchedName.length > 0 && watchedName.length < 2) {
-      console.log('Name is too short')
-    }
-  }, [watchedName])
 
   // Handle password validation feedback
   const handlePasswordValidation = (isValid: boolean, isStrong: boolean) => {

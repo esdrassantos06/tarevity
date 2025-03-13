@@ -8,9 +8,6 @@ export function useTodosQuery() {
       const result = await todoAPI.getAllTodos()
       if (result.error) throw new Error(result.error.message)
       
-      // Log the data to see what's being returned
-      console.log('Fetched todos data:', result.data)
-      
       return result.data || []
     },
     staleTime: 1 * 60 * 1000, // 1 minute
@@ -78,7 +75,6 @@ export function useUpdateTodoMutation() {
   
   return useMutation({
     mutationFn: ({ id, data }: { id: string, data: Partial<Todo> }) => {
-      console.log('Updating todo with data:', data)
       return todoAPI.updateTodo(id, data)
     },
     
@@ -89,8 +85,6 @@ export function useUpdateTodoMutation() {
       // Snapshot the previous value
       const previousTodos = queryClient.getQueryData<Todo[]>(['todos'])
       
-      // Log what we're trying to update
-      console.log(`Optimistically updating todo ${id} with:`, data)
       
       // Optimistically update to the new value
       queryClient.setQueryData<Todo[]>(['todos'], old => {
@@ -99,7 +93,6 @@ export function useUpdateTodoMutation() {
         return old.map(todo => {
           if (todo.id === id) {
             const updatedTodo = { ...todo, ...data }
-            console.log('Updated todo in cache:', updatedTodo)
             return updatedTodo
           }
           return todo
@@ -118,7 +111,6 @@ export function useUpdateTodoMutation() {
     },
     
     onSuccess: (result, variables) => {
-      console.log('Update successful, server returned:', result.data)
       
       if (result.data) {
         // Ensure the server response is applied to the cache

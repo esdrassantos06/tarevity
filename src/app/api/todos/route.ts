@@ -18,7 +18,7 @@ export async function GET() {
     const { data, error } = await supabaseAdmin
       .from('todos')
       .select(
-        'id, title, description, is_completed, priority, due_date, created_at',
+        '*',
       )
       .eq('user_id', userId)
       .order('created_at', { ascending: false })
@@ -46,7 +46,8 @@ const todoSchema = z.object({
   priority: z.number().int().min(1).max(3),
   due_date: z.string().nullable().optional(),
   is_completed: z.boolean().optional(),
-})
+  status: z.enum(['active', 'review', 'completed']).optional()
+});
 
 export async function POST(req: NextRequest) {
   try {
@@ -56,6 +57,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ message: 'Unauthorized' }, { status: 401 })
     }
 
+    // Parse and validate the request in one go
     const validation = await validateRequest(
       req,
       todoSchema,
@@ -63,20 +65,20 @@ export async function POST(req: NextRequest) {
     )
     if (validation instanceof NextResponse) return validation
 
+    // If we got here, validation passed and returned the parsed data
+    const validatedData = validation.data
     const userId = session.user.id
-
-    // Parse the request body
-    const body = await req.json()
 
     // Prepare the data with proper NULL handling
     const todoData = {
       user_id: userId,
-      title: body.title.trim(),
-      description: body.description === '' ? null : body.description,
-      priority: Number(body.priority) || 1,
-      due_date: body.due_date === '' ? null : body.due_date,
-      is_completed: !!body.is_completed,
-    }
+      title: validatedData.title.trim(),
+      description: validatedData.description === '' ? null : validatedData.description,
+      priority: Number(validatedData.priority) || 1,
+      due_date: validatedData.due_date === '' ? null : validatedData.due_date,
+      is_completed: !!validatedData.is_completed,
+      status: validatedData.status || 'active',
+    };
 
     const { data, error } = await supabaseAdmin
       .from('todos')

@@ -1,8 +1,8 @@
-'use client';
-import React, { useState, ChangeEvent, FormEvent } from 'react';
-import { useRouter } from 'next/navigation';
-import { FaArrowLeft, FaSave, FaTimes, FaFlag, FaClock } from 'react-icons/fa';
-import { useCreateTodoMutation } from '@/hooks/useTodosQuery';
+'use client'
+import React, { useState, ChangeEvent, FormEvent } from 'react'
+import { useRouter } from 'next/navigation'
+import { FaArrowLeft, FaSave, FaTimes, FaFlag, FaClock } from 'react-icons/fa'
+import { useCreateTodoMutation } from '@/hooks/useTodosQuery'
 
 // Define interface for our form data
 interface TodoFormData {
@@ -11,75 +11,79 @@ interface TodoFormData {
   priority: number;
   due_date: string;
   is_completed: boolean;
+  status: 'active' | 'review' | 'completed';
 }
 
 // Define the Todo interface that matches your API
 interface Todo {
-  id: string;
-  title: string;
-  description: string | null; // Allow null for description
-  priority: number;
-  due_date: string | null;
-  is_completed: boolean;
-  // Include any other fields your Todo entity has
+  id: string
+  title: string
+  description: string | null
+  priority: number
+  due_date: string | null
+  is_completed: boolean
 }
 
 // Define interface for API response with generic type parameter
 interface ApiResult<T = Todo> {
-  data: T | null;
-  error?: unknown; // Using unknown instead of any for type safety
+  data: T | null
+  error?: unknown // Using unknown instead of any for type safety
 }
 
 const NewTodoPage: React.FC = () => {
-  const router = useRouter();
-  const createTodoMutation = useCreateTodoMutation();
-  
+  const router = useRouter()
+  const createTodoMutation = useCreateTodoMutation()
+
   const [formData, setFormData] = useState<TodoFormData>({
     title: '',
     description: '',
     priority: 2, // Default to medium priority
     due_date: '',
-    is_completed: false
+    is_completed: false,
+    status: 'active' // Default to active
   });
-  
-  const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value, type } = e.target;
-    const checked = type === 'checkbox' ? (e.target as HTMLInputElement).checked : undefined;
-    
+
+  const handleChange = (
+    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
+  ) => {
+    const { name, value, type } = e.target
+    const checked =
+      type === 'checkbox' ? (e.target as HTMLInputElement).checked : undefined
+
     setFormData({
       ...formData,
-      [name]: type === 'checkbox' ? checked : value
-    });
-  };
-  
+      [name]: type === 'checkbox' ? checked : value,
+    })
+  }
+
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    
+    e.preventDefault()
+
     // Format the data for submission
     const todoData = {
       ...formData,
       priority: Number(formData.priority),
-      due_date: formData.due_date || null
-    };
-    
+      due_date: formData.due_date || null,
+    }
+
     createTodoMutation.mutate(todoData, {
       onSuccess: (data: ApiResult<Todo>) => {
         if (data.data && data.data.id) {
           // Navigate to the new todo detail page
-          router.push(`/todo/${data.data.id}`);
+          router.push(`/todo/${data.data.id}`)
         } else {
           // Fallback to dashboard
-          router.push('/dashboard');
+          router.push('/dashboard')
         }
-      }
-    });
-  };
-  
+      },
+    })
+  }
+
   return (
-    <div className="max-w-3xl mx-auto px-4 py-6">
+    <div className="mx-auto max-w-3xl px-4 py-6">
       {/* Header */}
-      <div className="mb-6 flex justify-between items-center">
-        <button 
+      <div className="mb-6 flex items-center justify-between">
+        <button
           onClick={() => router.push('/dashboard')}
           className="flex items-center text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white"
         >
@@ -90,13 +94,16 @@ const NewTodoPage: React.FC = () => {
           Create New Task
         </div>
       </div>
-      
+
       {/* Create Form */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
+      <div className="overflow-hidden rounded-lg bg-white shadow-lg dark:bg-gray-800">
         <form onSubmit={handleSubmit} className="p-6">
           {/* Title field */}
           <div className="mb-4">
-            <label htmlFor="title" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            <label
+              htmlFor="title"
+              className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
+            >
               Title*
             </label>
             <input
@@ -106,14 +113,17 @@ const NewTodoPage: React.FC = () => {
               value={formData.title}
               onChange={handleChange}
               required
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+              className="w-full rounded-md border border-gray-300 px-4 py-2 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
               placeholder="Enter task title"
             />
           </div>
-          
+
           {/* Description field */}
           <div className="mb-4">
-            <label htmlFor="description" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            <label
+              htmlFor="description"
+              className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
+            >
               Description
             </label>
             <textarea
@@ -122,16 +132,19 @@ const NewTodoPage: React.FC = () => {
               value={formData.description}
               onChange={handleChange}
               rows={5}
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+              className="w-full rounded-md border border-gray-300 px-4 py-2 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
               placeholder="Enter task description (optional)"
             ></textarea>
           </div>
-          
+
           {/* Priority and due date */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <div className="mb-4 grid grid-cols-1 gap-4 md:grid-cols-2">
             <div>
-              <label htmlFor="priority" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                <FaFlag className="inline mr-1 text-blue-500" /> 
+              <label
+                htmlFor="priority"
+                className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
+              >
+                <FaFlag className="mr-1 inline text-blue-500" />
                 Priority
               </label>
               <select
@@ -139,17 +152,20 @@ const NewTodoPage: React.FC = () => {
                 name="priority"
                 value={formData.priority}
                 onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                className="w-full rounded-md border border-gray-300 px-4 py-2 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
               >
                 <option value="1">Low Priority</option>
                 <option value="2">Medium Priority</option>
                 <option value="3">High Priority</option>
               </select>
             </div>
-            
+
             <div>
-              <label htmlFor="due_date" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                <FaClock className="inline mr-1 text-blue-500" /> 
+              <label
+                htmlFor="due_date"
+                className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
+              >
+                <FaClock className="mr-1 inline text-blue-500" />
                 Due Date
               </label>
               <input
@@ -158,11 +174,11 @@ const NewTodoPage: React.FC = () => {
                 name="due_date"
                 value={formData.due_date}
                 onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                className="w-full rounded-md border border-gray-300 px-4 py-2 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
               />
             </div>
           </div>
-          
+
           {/* Status checkbox */}
           <div className="mb-6">
             <div className="flex items-center">
@@ -172,39 +188,58 @@ const NewTodoPage: React.FC = () => {
                 name="is_completed"
                 checked={formData.is_completed}
                 onChange={handleChange}
-                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
               />
-              <label htmlFor="is_completed" className="ml-2 block text-sm text-gray-700 dark:text-gray-300">
+              <label
+                htmlFor="is_completed"
+                className="ml-2 block text-sm text-gray-700 dark:text-gray-300"
+              >
                 Mark as completed
               </label>
             </div>
           </div>
-          
+
           {/* Form buttons */}
           <div className="flex justify-end space-x-3">
             <button
               type="button"
               onClick={() => router.push('/dashboard')}
-              className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
+              className="rounded-md border border-gray-300 px-4 py-2 text-gray-700 hover:bg-gray-50 focus:ring-2 focus:ring-gray-500 focus:outline-none dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
             >
-              <FaTimes className="inline mr-1" /> Cancel
+              <FaTimes className="mr-1 inline" /> Cancel
             </button>
             <button
               type="submit"
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+              className="rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
               disabled={createTodoMutation.isPending}
             >
               {createTodoMutation.isPending ? (
                 <>
-                  <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  <svg
+                    className="mr-2 -ml-1 inline h-4 w-4 animate-spin text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
                   </svg>
                   Creating...
                 </>
               ) : (
                 <>
-                  <FaSave className="inline mr-1" /> Create Task
+                  <FaSave className="mr-1 inline" /> Create Task
                 </>
               )}
             </button>
@@ -212,7 +247,7 @@ const NewTodoPage: React.FC = () => {
         </form>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default NewTodoPage;
+export default NewTodoPage
