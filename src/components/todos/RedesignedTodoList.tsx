@@ -493,7 +493,7 @@ const RedesignedTodoList: React.FC = () => {
                     <div
                       className={`h-5 w-5 rounded-full ${priority.color} mr-2 flex-shrink-0`}
                     ></div>
-                    <h3
+                    <h3 title={todo.title}
                       className={`text-lg font-medium truncate max-w-[200px] ${
                         todo.is_completed
                           ? 'text-gray-500 line-through'

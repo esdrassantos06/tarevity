@@ -22,7 +22,7 @@ export default function Header() {
         <div className="flex h-16 justify-between">
           <div className="flex">
             <div className="flex flex-shrink-0 items-center">
-              <Link href={session ? '/dashboard' : '/'}>
+              <Link href={session ? '/dashboard' : '/'} title='Tarevity'>
                 <TarevityLogo className="hidden w-30 fill-black sm:flex dark:fill-white" />
                 <TarevityIcon className="flex w-12 fill-black sm:hidden dark:fill-white" />
               </Link>
