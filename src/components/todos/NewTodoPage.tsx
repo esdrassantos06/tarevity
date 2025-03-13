@@ -3,6 +3,7 @@ import React, { useState, ChangeEvent, FormEvent } from 'react'
 import { useRouter } from 'next/navigation'
 import { FaArrowLeft, FaSave, FaTimes, FaFlag, FaClock } from 'react-icons/fa'
 import { useCreateTodoMutation } from '@/hooks/useTodosQuery'
+import { showError, showLoading, updateToast, showInfo } from '@/lib/toast'
 
 // Define interface for our form data
 interface TodoFormData {
@@ -59,6 +60,14 @@ const NewTodoPage: React.FC = () => {
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
+    // Validation check
+    if (!formData.title.trim()) {
+      showError('Please enter a title for the task')
+      return
+    }
+
+    const toastId = showLoading('Creating task...')
+
     // Format the data for submission
     const todoData = {
       ...formData,
@@ -68,6 +77,12 @@ const NewTodoPage: React.FC = () => {
 
     createTodoMutation.mutate(todoData, {
       onSuccess: (data: ApiResult<Todo>) => {
+        updateToast(toastId, 'Task created successfully!', {
+          type: 'success',
+          isLoading: false,
+          autoClose: 3000
+        })
+        
         if (data.data && data.data.id) {
           // Navigate to the new todo detail page
           router.push(`/todo/${data.data.id}`)
@@ -76,7 +91,28 @@ const NewTodoPage: React.FC = () => {
           router.push('/dashboard')
         }
       },
+      onError: (error) => {
+        updateToast(toastId, 'Failed to create task', {
+          type: 'error',
+          isLoading: false,
+          autoClose: 5000
+        })
+        
+        showError(error instanceof Error ? error.message : 'An error occurred while creating the task')
+      },
     })
+  }
+
+  const handleCancel = () => {
+    // Show confirmation if form has data
+    if (formData.title.trim() || formData.description.trim() || formData.due_date) {
+      if (window.confirm('Discard changes? Any unsaved changes will be lost.')) {
+        showInfo('Changes discarded')
+        router.push('/dashboard')
+      }
+    } else {
+      router.push('/dashboard')
+    }
   }
 
   return (
@@ -203,7 +239,7 @@ const NewTodoPage: React.FC = () => {
           <div className="flex justify-end space-x-3">
             <button
               type="button"
-              onClick={() => router.push('/dashboard')}
+              onClick={handleCancel}
               className="rounded-md border border-gray-300 px-4 py-2 text-gray-700 hover:bg-gray-50 focus:ring-2 focus:ring-gray-500 focus:outline-none dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
             >
               <FaTimes className="mr-1 inline" /> Cancel

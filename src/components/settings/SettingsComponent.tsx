@@ -3,13 +3,13 @@
 import { useState } from 'react'
 import { useSession, signOut } from 'next-auth/react'
 import { useTheme } from 'next-themes'
-import { toast } from 'react-toastify'
 import { FaMoon, FaSun, FaDesktop, FaUserCircle } from 'react-icons/fa'
 import { useRouter } from 'next/navigation'
 import ConfirmationDialog, {
   useConfirmationDialog,
 } from '@/components/common/ConfirmationDialog'
 import { useProfileQuery, useDeleteAccountMutation } from '@/hooks/useProfileQuery'
+import { showSuccess, showError, showLoading, updateToast } from '@/lib/toast'
 
 export default function SettingsComponent() {
   const { data: session } = useSession()
@@ -37,16 +37,16 @@ export default function SettingsComponent() {
   // Display query errors if they occur
   if (profileError) {
     console.error('Error fetching profile:', profileError)
-    toast.error('Could not load your profile information')
+    showError('Could not load your profile information')
   }
 
   // Function to handle theme change
   const handleThemeChange = (newTheme: string) => {
     setTheme(newTheme)
-    toast.success(
+    showSuccess(
       `Theme changed to ${
         newTheme === 'dark' ? 'dark' : newTheme === 'light' ? 'light' : 'system'
-      }`,
+      }`
     )
   }
 
@@ -75,9 +75,18 @@ export default function SettingsComponent() {
               try {
                 setDialogLoading(true)
                 
+                const toastId = showLoading('Deleting your account...')
+                
                 // Use React Query mutation instead of direct axios call
                 deleteAccountMutation.mutate(undefined, {
                   onSuccess: async () => {
+                    // Update the toast message
+                    updateToast(toastId, 'Account deleted successfully', {
+                      type: 'success',
+                      isLoading: false,
+                      autoClose: 3000
+                    })
+                    
                     // Sign out the user
                     await signOut({ redirect: false })
                     // Redirect to home page
@@ -85,7 +94,15 @@ export default function SettingsComponent() {
                   },
                   onError: (error) => {
                     console.error('Error deleting account:', error)
-                    toast.error(
+                    
+                    // Update the toast message
+                    updateToast(toastId, 'Failed to delete account', {
+                      type: 'error',
+                      isLoading: false,
+                      autoClose: 5000
+                    })
+                    
+                    showError(
                       error instanceof Error
                         ? error.message
                         : 'An error occurred while deleting your account'
@@ -93,12 +110,14 @@ export default function SettingsComponent() {
                   },
                   onSettled: () => {
                     setDialogLoading(false)
+                    closeConfirmDialog()
                   }
                 })
               } catch (error) {
                 console.error('Error initiating account deletion:', error)
                 setDialogLoading(false)
-                toast.error('Failed to initiate account deletion')
+                closeConfirmDialog()
+                showError('Failed to initiate account deletion')
               }
             },
           })
@@ -285,7 +304,7 @@ export default function SettingsComponent() {
                     <button
                       className="flex items-center text-sm font-medium text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
                       onClick={() => {
-                        toast.success('Redirecting to profile page')
+                        showSuccess('Redirecting to profile page')
                         router.push('/profile')
                       }}
                     >

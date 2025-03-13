@@ -1,5 +1,6 @@
 import axios, { AxiosError } from 'axios'
 import { getSession, getCsrfToken } from 'next-auth/react'
+import { showError, showWarning } from '@/lib/toast'
 
 // Define the expected structure of API error responses
 export interface APIErrorResponse {
@@ -48,7 +49,7 @@ axiosClient.interceptors.request.use(
   (error) => Promise.reject(error),
 )
 
-// Response interceptor with improved error handling
+// Response interceptor with improved error handling and toast notifications
 axiosClient.interceptors.response.use(
   (response) => response,
   (error: AxiosError<APIErrorResponse>) => {
@@ -64,6 +65,7 @@ axiosClient.interceptors.response.use(
       switch (status) {
         case 401:
           // Handle unauthorized - redirect to login
+          showError('Your session has expired. Please log in again.')
           if (typeof window !== 'undefined') {
             window.location.href = '/auth/login?error=session_expired'
           }
@@ -71,11 +73,25 @@ axiosClient.interceptors.response.use(
 
         case 429:
           // Rate limiting
-          console.warn('Request limit exceeded. Please try again later.')
+          const retryAfter = error.response.headers['retry-after']
+          const waitTime = retryAfter ? parseInt(retryAfter, 10) : 60
+          
+          showWarning(
+            `Too many requests. Please try again in ${Math.ceil(waitTime / 60)} minute${
+              Math.ceil(waitTime / 60) > 1 ? 's' : ''
+            }.`
+          )
           break
 
         case 500:
-          console.error('Internal server error')
+          showError('A server error occurred. Please try again later.')
+          break
+          
+        default:
+          // For other error statuses
+          if (errorData?.message) {
+            showError(errorData.message)
+          }
           break
       }
 
@@ -89,6 +105,7 @@ axiosClient.interceptors.response.use(
 
     // Network errors
     if (error.request) {
+      showError('Unable to connect to server. Please check your internet connection.')
       return Promise.reject({
         message:
           'Unable to connect to server. Please check your internet connection.',

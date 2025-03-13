@@ -1,17 +1,25 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { todoAPI, Todo, TodoFormData } from '@/lib/api'
+import { showSuccess, showError } from '@/lib/toast'
 
 export function useTodosQuery() {
   return useQuery({
     queryKey: ['todos'],
     queryFn: async () => {
-      const result = await todoAPI.getAllTodos()
-      if (result.error) throw new Error(result.error.message)
-      
-      return result.data || []
+      try {
+        const result = await todoAPI.getAllTodos()
+        if (result.error) throw new Error(result.error.message)
+        
+        return result.data || []
+      } catch (error) {
+        // Show the error toast inside the queryFn
+        showError(error instanceof Error ? error.message : 'Failed to load tasks')
+        // Re-throw to let React Query know the query failed
+        throw error
+      }
     },
     staleTime: 1 * 60 * 1000, // 1 minute
-    gcTime: 5 * 60 * 1000,
+    gcTime: 5 * 60 * 1000
   })
 }
 
@@ -49,6 +57,7 @@ export function useCreateTodoMutation() {
       if (context?.previousTodos) {
         queryClient.setQueryData(['todos'], context.previousTodos)
       }
+      showError(err instanceof Error ? err.message : 'Error creating task')
     },
     
     onSuccess: (result, variables, context) => {
@@ -58,6 +67,7 @@ export function useCreateTodoMutation() {
             todo.id === context.tempId ? result.data! : todo
           )
         )
+        showSuccess('Task created successfully')
       }
     },
     
@@ -108,10 +118,11 @@ export function useUpdateTodoMutation() {
       if (context?.previousTodos) {
         queryClient.setQueryData(['todos'], context.previousTodos)
       }
+      
+      showError(err instanceof Error ? err.message : 'Error updating task')
     },
     
     onSuccess: (result, variables) => {
-      
       if (result.data) {
         // Ensure the server response is applied to the cache
         queryClient.setQueryData<Todo[]>(['todos'], (old = []) => {
@@ -122,6 +133,23 @@ export function useUpdateTodoMutation() {
             return todo
           })
         })
+        
+        // Show different messages based on what was updated
+        if ('is_completed' in variables.data) {
+          const isCompleted = variables.data.is_completed
+          showSuccess(isCompleted ? 'Task marked as completed' : 'Task marked as active')
+        } else if ('status' in variables.data) {
+          const status = variables.data.status
+          if (status === 'review') {
+            showSuccess('Task moved to review')
+          } else if (status === 'active') {
+            showSuccess('Task approved and moved to active')
+          } else {
+            showSuccess('Task status updated')
+          }
+        } else {
+          showSuccess('Task updated successfully')
+        }
       }
     },
     
@@ -156,6 +184,12 @@ export function useDeleteTodoMutation() {
       if (context?.previousTodos) {
         queryClient.setQueryData(['todos'], context.previousTodos)
       }
+      
+      showError(err instanceof Error ? err.message : 'Error deleting task')
+    },
+    
+    onSuccess: () => {
+      showSuccess('Task deleted successfully')
     },
     
     onSettled: () => {

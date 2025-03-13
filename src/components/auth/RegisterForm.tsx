@@ -6,15 +6,14 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { toast } from 'react-toastify'
 import { 
   FaEnvelope, 
   FaLock, 
   FaExclamationTriangle, 
-  FaCheck,
   FaUserCircle
 } from 'react-icons/fa'
 import { useRegisterMutation } from '@/hooks/useAuthQuery'
+import { showSuccess, showError, showWarning } from '@/lib/toast'
 
 // Import custom components
 import ValidatedInput from './ValidatedInput'
@@ -102,7 +101,6 @@ export default function EnhancedRegisterForm() {
     watch,
     setError: setFormError,
     clearErrors,
-    // Removed trigger as it was unused
   } = useForm<RegisterFormValues>({
     resolver: zodResolver(registerSchema),
     mode: 'onChange',
@@ -171,6 +169,7 @@ export default function EnhancedRegisterForm() {
         type: 'manual',
         message: 'Please choose a stronger password',
       })
+      showWarning('Please choose a stronger password for better security')
       return
     }
 
@@ -180,6 +179,7 @@ export default function EnhancedRegisterForm() {
         type: 'manual',
         message: 'Please enter a valid email address',
       })
+      showWarning('Please enter a valid email address')
       return
     }
     
@@ -192,9 +192,7 @@ export default function EnhancedRegisterForm() {
       },
       {
         onSuccess: () => {
-          toast.success('Account created successfully! Please log in to continue.', {
-            icon: <FaCheck className="text-green-500" />,
-          })
+          showSuccess('Account created successfully! Please log in to continue.')
           router.push('/auth/login?registered=true')
         },
         onError: (error) => {
@@ -209,22 +207,16 @@ export default function EnhancedRegisterForm() {
             )
             // Focus back on the password field
             document.getElementById('password')?.focus()
-            toast.error('Password security issue detected. Please choose a different password.', {
-              icon: <FaExclamationTriangle className="text-red-500" />,
-            })
+            showError('Password security issue detected. Please choose a different password.')
           } else if (errorMessage.toLowerCase().includes('email already')) {
             setFormError('email', {
               type: 'manual',
               message: 'This email is already registered. Please log in or use a different email.',
             })
-            toast.error('Email already registered', {
-              icon: <FaExclamationTriangle className="text-red-500" />,
-            })
+            showWarning('Email already registered. Please log in or use a different email.')
           } else {
             setError(errorMessage)
-            toast.error(errorMessage || 'Registration failed. Please try again.', {
-              icon: <FaExclamationTriangle className="text-red-500" />,
-            })
+            showError(errorMessage || 'Registration failed. Please try again.')
           }
         }
       }

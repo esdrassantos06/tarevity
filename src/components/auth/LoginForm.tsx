@@ -7,8 +7,8 @@ import { z } from 'zod'
 import { signIn } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
-import { toast } from 'react-toastify'
 import { FaEnvelope, FaLock, FaExclamationTriangle } from 'react-icons/fa'
+import { showSuccess, showError, showWarning } from '@/lib/toast'
 
 import ValidatedInput from './ValidatedInput'
 import EmailValidator from './EmailValidator'
@@ -102,10 +102,7 @@ export default function EnhancedLoginForm() {
   // Show success message if coming from registration
   useEffect(() => {
     if (registeredParam === 'true') {
-      toast.success('Account created successfully! Please log in with your new credentials.', {
-        position: "top-center",
-        autoClose: 5000,
-      })
+      showSuccess('Account created successfully! Please log in with your new credentials.')
     }
   }, [registeredParam])
 
@@ -157,12 +154,7 @@ export default function EnhancedLoginForm() {
   // Form submission handler
   const onSubmit = async (data: LoginFormValues) => {
     if (isLocked) {
-      toast.error(
-        `Account is locked. Please try again in ${formatLockoutTime(lockoutTime)}.`,
-        {
-          icon: <FaExclamationTriangle />,
-        }
-      )
+      showWarning(`Account is locked. Please try again in ${formatLockoutTime(lockoutTime)}.`)
       return
     }
 
@@ -193,7 +185,8 @@ export default function EnhancedLoginForm() {
           setError(
             `Too many failed attempts. Your account is locked for ${formatLockoutTime(lockoutTime)}.`,
           )
-
+          
+          showWarning(`Too many failed attempts. Account locked for ${formatLockoutTime(lockoutTime)}.`)
           reset()
         } else {
           const attemptsMessage = MAX_ATTEMPTS - newAttemptCount === 1 
@@ -203,6 +196,8 @@ export default function EnhancedLoginForm() {
           setError(
             `Invalid email or password. ${attemptsMessage} remaining before temporary lockout.`,
           )
+          
+          showError(`Invalid email or password. ${attemptsMessage} remaining before temporary lockout.`)
         }
         return
       }
@@ -211,10 +206,7 @@ export default function EnhancedLoginForm() {
       setFailedAttempts(0)
       localStorage.removeItem('loginLockout')
 
-      toast.success('Login successful! Redirecting...', {
-        position: "top-center",
-        autoClose: 2000,
-      })
+      showSuccess('Login successful! Redirecting...')
 
       // Delayed redirect for better UX
       setTimeout(() => {
@@ -223,8 +215,10 @@ export default function EnhancedLoginForm() {
     } catch (error: unknown) {
       if (error instanceof Error) {
         setError(error.message || 'An unexpected error occurred while logging in')
+        showError(error.message || 'An unexpected error occurred while logging in')
       } else {
         setError('Unknown error while logging in')
+        showError('Unknown error while logging in')
       }
     } finally {
       setIsLoading(false)
