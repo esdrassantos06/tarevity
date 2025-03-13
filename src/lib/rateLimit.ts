@@ -9,8 +9,8 @@ const redis = new Redis({
 export async function rateLimiter(
   req: NextRequest,
   options: {
-    limit: number // Maximum number of requests
-    window: number // Time window in seconds
+    limit: number
+    window: number
     identifier?: string // Custom identifier (defaults to IP)
   },
 ) {
