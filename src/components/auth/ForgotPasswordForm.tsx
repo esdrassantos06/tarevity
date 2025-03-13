@@ -6,25 +6,30 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import Link from 'next/link'
 import { toast } from 'react-toastify'
-import { FaEnvelope, FaArrowLeft } from 'react-icons/fa'
+import { FaEnvelope, FaArrowLeft, FaCheck, FaSpinner } from 'react-icons/fa'
 import { authAPI } from '@/lib/api'
+import ValidatedInput from './ValidatedInput'
+import EmailValidator from './EmailValidator'
 
 // Define the form validation schema
 const forgotPasswordSchema = z.object({
-  email: z.string().email('Please enter a valid email'),
+  email: z.string().email('Please enter a valid email address').min(1, 'Email is required'),
 })
 
 type ForgotPasswordFormValues = z.infer<typeof forgotPasswordSchema>
 
-export default function ForgotPasswordForm() {
+export default function EnhancedForgotPasswordForm() {
   const [isLoading, setIsLoading] = useState(false)
   const [isSubmitted, setIsSubmitted] = useState(false)
+  const [emailValid, setEmailValid] = useState(false)
 
   // Initialize form with React Hook Form
   const {
     register,
     handleSubmit,
     formState: { errors },
+    watch,
+    setError: setFormError,
   } = useForm<ForgotPasswordFormValues>({
     resolver: zodResolver(forgotPasswordSchema),
     defaultValues: {
@@ -32,27 +37,60 @@ export default function ForgotPasswordForm() {
     },
   })
 
+  const watchedEmail = watch('email')
+
+  // Email validation handler
+  const handleEmailValidation = (isValid: boolean) => {
+    setEmailValid(isValid)
+  }
+
   // Handle form submission
   const onSubmit = async (data: ForgotPasswordFormValues) => {
-    setIsLoading(true)
-
-    const result = await authAPI.forgotPassword(data.email)
-
-    if (result.error) {
-      console.error('Error in forgot password:', result.error)
-      toast.error(
-        result.error.message ||
-          'An error occurred while processing your request',
-      )
-    } else {
-      // If successful, update UI to show success message
-      setIsSubmitted(true)
-      toast.success(
-        result.data?.message || 'Recovery instructions sent to your email',
-      )
+    if (!emailValid) {
+      setFormError('email', {
+        type: 'manual',
+        message: 'Please enter a valid email address',
+      })
+      return
     }
 
-    setIsLoading(false)
+    setIsLoading(true)
+
+    try {
+      const result = await authAPI.forgotPassword(data.email)
+
+      if (result.error) {
+        console.error('Error in forgot password:', result.error)
+        toast.error(
+          result.error.message ||
+            'An error occurred while processing your request',
+          {
+            position: "top-center",
+          }
+        )
+      } else {
+        // If successful, update UI to show success message
+        setIsSubmitted(true)
+        toast.success(
+          result.data?.message || 'Recovery instructions sent to your email',
+          {
+            position: "top-center",
+            icon: <FaCheck />,
+          }
+        )
+      }
+    } catch (error) {
+      toast.error(
+        error instanceof Error 
+          ? error.message 
+          : 'An unexpected error occurred',
+        {
+          position: "top-center",
+        }
+      )
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   // Show different UI based on submission status
@@ -95,7 +133,7 @@ export default function ForgotPasswordForm() {
 
             <Link
               href="/auth/login"
-              className="mt-4 block w-full text-center text-sm text-blue-600 hover:text-blue-500 dark:text-blue-400"
+              className="mt-4 flex w-full items-center justify-center text-center text-sm text-blue-600 hover:text-blue-500 dark:text-blue-400"
             >
               <FaArrowLeft className="mr-1 inline" />
               Back to login
@@ -105,40 +143,39 @@ export default function ForgotPasswordForm() {
       ) : (
         // Show form when not yet submitted
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <div>
-            <label
-              htmlFor="email"
-              className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-            >
-              Email
-            </label>
-            <input
-              id="email"
-              type="email"
-              {...register('email')}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-              placeholder="your@email.com"
-              disabled={isLoading}
-            />
-            {errors.email && (
-              <p className="mt-1 text-sm text-red-600 dark:text-red-400">
-                {errors.email.message}
-              </p>
-            )}
-          </div>
+          <ValidatedInput
+            id="email"
+            type="email"
+            label="Email"
+            registration={register('email')}
+            error={errors.email?.message}
+            placeholder="your@email.com"
+            disabled={isLoading}
+            required
+            icon={<FaEnvelope />}
+            validator={<EmailValidator email={watchedEmail} onValidation={handleEmailValidation} />}
+            autoComplete="email"
+          />
 
           <button
             type="submit"
             disabled={isLoading}
-            className="flex w-full justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none dark:bg-blue-700 dark:hover:bg-blue-800"
+            className="flex w-full items-center justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none dark:bg-blue-700 dark:hover:bg-blue-800"
           >
-            {isLoading ? 'Sending...' : 'Send instructions'}
+            {isLoading ? (
+              <>
+                <FaSpinner className="mr-2 h-4 w-4 animate-spin" />
+                Sending...
+              </>
+            ) : (
+              'Send Instructions'
+            )}
           </button>
 
           <div className="mt-4 text-center">
             <Link
               href="/auth/login"
-              className="text-sm text-blue-600 hover:text-blue-500 dark:text-blue-400"
+              className="flex items-center justify-center text-sm text-blue-600 hover:text-blue-500 dark:text-blue-400"
             >
               <FaArrowLeft className="mr-1 inline" />
               Back to login

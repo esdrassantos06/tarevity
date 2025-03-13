@@ -7,29 +7,63 @@ import { z } from 'zod'
 import { signIn } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
-import OAuthButtons from './OAuthButtons'
 import { toast } from 'react-toastify'
+import { FaEnvelope, FaLock, FaExclamationTriangle } from 'react-icons/fa'
 
+import ValidatedInput from './ValidatedInput'
+import EmailValidator from './EmailValidator'
+import OAuthButtons from '@/components/auth/OAuthButtons'
+
+// Form validation schema
 const loginSchema = z.object({
-  email: z.string().email('Invalid email'),
+  email: z.string().email('Please enter a valid email').min(1, 'Email is required'),
   password: z.string().min(6, 'Password must be at least 6 characters'),
+  rememberMe: z.boolean().optional(),
 })
 
 type LoginFormValues = z.infer<typeof loginSchema>
 
-export default function LoginForm() {
+export default function EnhancedLoginForm() {
+  // State management
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [error, setError] = useState<string | null>(null)
   const [failedAttempts, setFailedAttempts] = useState<number>(0)
   const [isLocked, setIsLocked] = useState<boolean>(false)
   const [lockoutTime, setLockoutTime] = useState<number>(0)
+  const [emailValid, setEmailValid] = useState(false)
+
+  // Router and URL parameters
   const router = useRouter()
   const searchParams = useSearchParams()
   const callbackUrl = searchParams?.get('callbackUrl') || '/dashboard'
+  const registeredParam = searchParams?.get('registered')
 
+  // Constants
   const MAX_ATTEMPTS = 5
   const BASE_LOCKOUT_TIME = 30
 
+  // Initialize form
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+    watch,
+    setError: setFormError,
+    clearErrors,
+  } = useForm<LoginFormValues>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: '',
+      password: '',
+      rememberMe: false,
+    },
+  })
+
+  const watchedEmail = watch('email')
+  const watchedPassword = watch('password')
+
+  // Check if there was a previous lockout
   useEffect(() => {
     const storedLockoutData = localStorage.getItem('loginLockout')
 
@@ -65,19 +99,33 @@ export default function LoginForm() {
     }
   }, [])
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    reset,
-  } = useForm<LoginFormValues>({
-    resolver: zodResolver(loginSchema),
-    defaultValues: {
-      email: '',
-      password: '',
-    },
-  })
+  // Show success message if coming from registration
+  useEffect(() => {
+    if (registeredParam === 'true') {
+      toast.success('Account created successfully! Please log in with your new credentials.', {
+        position: "top-center",
+        autoClose: 5000,
+      })
+    }
+  }, [registeredParam])
 
+  // Email validation handler
+  const handleEmailValidation = (isValid: boolean) => {
+    setEmailValid(isValid)
+    // Clear email error if validation passes
+    if (isValid) {
+      clearErrors('email')
+    }
+  }
+
+  // Use effect to clear errors when input changes
+  useEffect(() => {
+    if (errors.email || errors.password) {
+      clearErrors()
+    }
+  }, [watchedEmail, watchedPassword, clearErrors, errors])
+
+  // Set login lockout
   const setLoginLockout = (attempts: number) => {
     const lockoutMultiplier = Math.min(Math.pow(2, attempts - MAX_ATTEMPTS), 32)
     const lockoutDuration = BASE_LOCKOUT_TIME * lockoutMultiplier * 1000
@@ -106,11 +154,23 @@ export default function LoginForm() {
     }, 1000)
   }
 
+  // Form submission handler
   const onSubmit = async (data: LoginFormValues) => {
     if (isLocked) {
       toast.error(
-        `Account is locked. Please try again in ${lockoutTime} seconds.`,
+        `Account is locked. Please try again in ${formatLockoutTime(lockoutTime)}.`,
+        {
+          icon: <FaExclamationTriangle />,
+        }
       )
+      return
+    }
+
+    if (!emailValid) {
+      setFormError('email', {
+        type: 'manual',
+        message: 'Please enter a valid email address',
+      })
       return
     }
 
@@ -131,25 +191,38 @@ export default function LoginForm() {
         if (newAttemptCount >= MAX_ATTEMPTS) {
           setLoginLockout(newAttemptCount)
           setError(
-            `Too many failed attempts. Your account is locked for ${Math.ceil(lockoutTime)} seconds.`,
+            `Too many failed attempts. Your account is locked for ${formatLockoutTime(lockoutTime)}.`,
           )
 
           reset()
         } else {
+          const attemptsMessage = MAX_ATTEMPTS - newAttemptCount === 1 
+            ? '1 attempt' 
+            : `${MAX_ATTEMPTS - newAttemptCount} attempts`;
+            
           setError(
-            `Invalid credentials. ${MAX_ATTEMPTS - newAttemptCount} attempts remaining.`,
+            `Invalid email or password. ${attemptsMessage} remaining before temporary lockout.`,
           )
         }
         return
       }
 
+      // Success - reset counters and redirect
       setFailedAttempts(0)
       localStorage.removeItem('loginLockout')
 
-      router.push(callbackUrl)
+      toast.success('Login successful! Redirecting...', {
+        position: "top-center",
+        autoClose: 2000,
+      })
+
+      // Delayed redirect for better UX
+      setTimeout(() => {
+        router.push(callbackUrl)
+      }, 1000)
     } catch (error: unknown) {
       if (error instanceof Error) {
-        setError(error.message || 'An error occurred while logging in')
+        setError(error.message || 'An unexpected error occurred while logging in')
       } else {
         setError('Unknown error while logging in')
       }
@@ -176,16 +249,21 @@ export default function LoginForm() {
 
   return (
     <div className="dark:bg-BlackLight mx-auto w-full max-w-md rounded-2xl bg-white p-6 shadow-md">
-      <h1 className="mb-6 text-center text-2xl font-bold dark:text-white">
-        Login - Tarevity
+      <h1 className="mb-6 text-center text-2xl font-bold text-gray-900 dark:text-white">
+        Login to Tarevity
       </h1>
 
+      {/* Error message banner */}
       {error && (
         <div className="mb-4 rounded border border-red-400 bg-red-100 px-4 py-3 text-red-700 dark:border-red-800 dark:bg-red-900/30 dark:text-red-400">
-          {error}
+          <div className="flex items-center">
+            <FaExclamationTriangle className="mr-2" />
+            <span>{error}</span>
+          </div>
         </div>
       )}
 
+      {/* Lockout warning banner */}
       {isLocked && (
         <div className="mb-4 rounded border border-yellow-400 bg-yellow-100 px-4 py-3 text-yellow-700 dark:border-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400">
           <p>Account is temporarily locked due to too many failed attempts.</p>
@@ -196,49 +274,53 @@ export default function LoginForm() {
       )}
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        <div>
-          <label
-            htmlFor="email"
-            className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-          >
-            Email
-          </label>
-          <input
-            id="email"
-            type="email"
-            {...register('email')}
-            className="mt-1 block w-full rounded-md p-2 shadow-sm outline-none dark:bg-gray-700 dark:text-white"
-            disabled={isLoading || isLocked}
-          />
-          {errors.email && (
-            <p className="mt-1 text-sm text-red-600 dark:text-red-400">
-              {errors.email.message}
-            </p>
-          )}
-        </div>
+        {/* Email Input */}
+        <ValidatedInput
+          id="email"
+          type="email"
+          label="Email Address"
+          registration={register('email')}
+          error={errors.email?.message}
+          placeholder="you@example.com"
+          disabled={isLoading || isLocked}
+          required
+          icon={<FaEnvelope />}
+          autoComplete="email"
+          validator={<EmailValidator email={watchedEmail} onValidation={handleEmailValidation} />}
+        />
 
-        <div>
-          <label
-            htmlFor="password"
-            className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-          >
-            Password
-          </label>
-          <input
-            id="password"
-            type="password"
-            {...register('password')}
-            className="mt-1 block w-full rounded-md p-2 shadow-sm outline-none dark:bg-gray-700 dark:text-white"
-            disabled={isLoading || isLocked}
-          />
-          {errors.password && (
-            <p className="mt-1 text-sm text-red-600 dark:text-red-400">
-              {errors.password.message}
-            </p>
-          )}
-        </div>
+        {/* Password Input */}
+        <ValidatedInput
+          id="password"
+          type="password"
+          label="Password"
+          registration={register('password')}
+          error={errors.password?.message}
+          placeholder="Your password"
+          disabled={isLoading || isLocked}
+          required
+          icon={<FaLock />}
+          autoComplete="current-password"
+        />
 
+        {/* Remember Me & Forgot Password */}
         <div className="flex items-center justify-between">
+          <div className="flex items-center">
+            <input
+              id="rememberMe"
+              type="checkbox"
+              {...register('rememberMe')}
+              className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700"
+              disabled={isLoading || isLocked}
+            />
+            <label
+              htmlFor="rememberMe"
+              className="ml-2 block text-sm text-gray-700 dark:text-gray-300"
+            >
+              Remember me
+            </label>
+          </div>
+          
           <div className="text-sm">
             <Link
               href="/auth/forgot-password"
@@ -249,6 +331,7 @@ export default function LoginForm() {
           </div>
         </div>
 
+        {/* Submit Button */}
         <button
           type="submit"
           disabled={isLoading || isLocked}
@@ -258,10 +341,35 @@ export default function LoginForm() {
               : 'bg-blue-600 hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:bg-blue-700 dark:hover:bg-blue-800'
           }`}
         >
-          {isLoading ? 'Logging in...' : isLocked ? 'Account Locked' : 'Log in'}
+          {isLoading ? (
+            <>
+              <svg className="mr-2 h-4 w-4 animate-spin" viewBox="0 0 24 24">
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                  fill="none"
+                />
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                />
+              </svg>
+              Logging in...
+            </>
+          ) : isLocked ? (
+            'Account Locked'
+          ) : (
+            'Log in'
+          )}
         </button>
       </form>
 
+      {/* OAuth Sign-in Section */}
       <div className="mt-6">
         <div className="relative">
           <div className="absolute inset-0 flex items-center">
@@ -279,6 +387,7 @@ export default function LoginForm() {
         </div>
       </div>
 
+      {/* Register Link */}
       <div className="mt-6 text-center">
         <p className="text-sm text-gray-600 dark:text-gray-400">
           Don&apos;t have an account?{' '}

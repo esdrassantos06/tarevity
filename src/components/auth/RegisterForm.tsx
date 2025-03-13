@@ -7,11 +7,30 @@ import { z } from 'zod'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { toast } from 'react-toastify'
-import { FaLock, FaExclamationTriangle, FaCheck, FaTimes } from 'react-icons/fa'
-import OAuthButtons from './OAuthButtons'
-import { usePasswordCheckQuery, useRegisterMutation } from '@/hooks/useAuthQuery'
+import { 
+  FaEnvelope, 
+  FaLock, 
+  FaExclamationTriangle, 
+  FaCheck,
+  FaUserCircle
+} from 'react-icons/fa'
+import { useRegisterMutation } from '@/hooks/useAuthQuery'
 
-// Form validation schema
+// Import custom components
+import ValidatedInput from './ValidatedInput'
+import PasswordStrengthMeter from './PasswordStrengthMeter'
+import EmailValidator from './EmailValidator'
+import OAuthButtons from '@/components/auth/OAuthButtons'
+
+// Password regex patterns
+const passwordPattern = {
+  uppercase: /[A-Z]/,
+  lowercase: /[a-z]/,
+  number: /[0-9]/,
+  special: /[^A-Za-z0-9]/,
+}
+
+// Form validation schema with improved error messages
 const registerSchema = z
   .object({
     name: z
@@ -20,56 +39,73 @@ const registerSchema = z
       .max(50, 'Name is too long (maximum 50 characters)')
       .regex(
         /^[a-zA-Z0-9\s\u00C0-\u00FF]+$/,
-        'Name contains invalid characters',
+        'Name contains invalid characters'
       )
       .transform((val) => val.trim()),
 
     email: z
       .string()
-      .email('Invalid email')
+      .email('Please enter a valid email address')
       .toLowerCase()
       .transform((val) => val.trim()),
 
     password: z
       .string()
-      .min(6, 'Password must be at least 6 characters')
-      .max(100, 'Password is too long')
-      .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
-      .regex(/[a-z]/, 'Password must contain at least one lowercase letter')
-      .regex(/[0-9]/, 'Password must contain at least one number')
+      .min(8, 'Password must be at least 8 characters')
+      .max(100, 'Password is too long (maximum 100 characters)')
       .regex(
-        /[^A-Za-z0-9]/,
-        'Password must contain at least one special character',
+        passwordPattern.uppercase, 
+        'Password must contain at least one uppercase letter'
+      )
+      .regex(
+        passwordPattern.lowercase, 
+        'Password must contain at least one lowercase letter'
+      )
+      .regex(
+        passwordPattern.number, 
+        'Password must contain at least one number'
+      )
+      .regex(
+        passwordPattern.special,
+        'Password must contain at least one special character'
       ),
 
-    confirmPassword: z.string().min(1, 'Password confirmation is required'),
+    confirmPassword: z
+      .string()
+      .min(1, 'Please confirm your password'),
 
-    acceptTerms: z.boolean().refine((val) => val === true, {
-      message: 'You must accept the terms to continue',
-    }),
+    acceptTerms: z
+      .boolean()
+      .refine((val) => val === true, {
+        message: 'You must accept the Terms of Service and Privacy Policy',
+      }),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: 'Passwords do not match',
     path: ['confirmPassword'],
-  })
+  });
 
 type RegisterFormValues = z.infer<typeof registerSchema>
 
-
-export default function RegisterForm() {
+export default function EnhancedRegisterForm() {
   const [error, setError] = useState<string | null>(null)
-  const [passwordValue, setPasswordValue] = useState<string>('')
+  const [passwordValid, setPasswordValid] = useState(false)
+  const [passwordStrong, setPasswordStrong] = useState(false)
+  const [emailValid, setEmailValid] = useState(false)
   const router = useRouter()
 
+  // Form initialization with React Hook Form
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitting },
     watch,
     setError: setFormError,
     clearErrors,
+    // Removed trigger as it was unused
   } = useForm<RegisterFormValues>({
     resolver: zodResolver(registerSchema),
+    mode: 'onChange',
     defaultValues: {
       name: '',
       email: '',
@@ -79,70 +115,83 @@ export default function RegisterForm() {
     },
   });
 
-  // Watch password field for changes
+  // Watch form fields
   const watchedPassword = watch('password')
-
-  // React Query hooks
-  const { 
-    data: passwordCheck, 
-    isLoading: isCheckingPassword, 
-    error: passwordCheckError 
-  } = usePasswordCheckQuery(watchedPassword, watchedPassword?.length >= 8)
-
+  const watchedEmail = watch('email')
+  const watchedName = watch('name')
+  const watchedConfirmPassword = watch('confirmPassword')
+  
+  // React Query hook for registration
   const registerMutation = useRegisterMutation()
 
+  // Optional: If you want to use watchedName, here's an example of validation or logging
   useEffect(() => {
-    if (watchedPassword && watchedPassword.length >= 8) {
-      setPasswordValue(watchedPassword)
+    // Optional name validation beyond the schema
+    if (watchedName.length > 0 && watchedName.length < 2) {
+      console.log('Name is too short')
     }
-  }, [watchedPassword])
+  }, [watchedName])
 
-  useEffect(() => {
-    if (!passwordCheck) return
-
-    if (passwordCheck.isCompromised) {
+  // Handle password validation feedback
+  const handlePasswordValidation = (isValid: boolean, isStrong: boolean) => {
+    setPasswordValid(isValid)
+    setPasswordStrong(isStrong)
+    
+    if (!isValid && watchedPassword.length >= 8) {
+      // Custom validation message for compromised passwords
       setFormError('password', {
         type: 'manual',
-        message: 'This password was found in data breaches. Please choose another.',
+        message: 'This password is not secure enough. Please choose another.',
       })
-    } else if (!passwordCheck.isStrong) {
-      setFormError('password', {
-        type: 'manual',
-        message: 'This password is not strong enough. Add more varied characters.',
-      })
-    } else {
-      // Clear only manual errors, not Zod errors
-      if (errors.password?.type === 'manual') {
-        clearErrors('password')
-      }
+    } else if (errors.password?.type === 'manual') {
+      clearErrors('password')
     }
-  }, [passwordCheck, setFormError, clearErrors, errors.password?.type])
+  }
 
+  // Handle email validation feedback
+  const handleEmailValidation = (isValid: boolean) => {
+    setEmailValid(isValid)
+  }
+
+  // Effect to validate confirm password when password changes
   useEffect(() => {
-    if (passwordCheckError) {
-      console.error('Error checking password strength:', passwordCheckError)
-      toast.error('Error checking password security. Please try again.')
+    if (watchedConfirmPassword && watchedPassword !== watchedConfirmPassword) {
+      setFormError('confirmPassword', {
+        type: 'manual',
+        message: 'Passwords do not match',
+      })
+    } else if (
+      errors.confirmPassword?.type === 'manual' && 
+      watchedPassword === watchedConfirmPassword
+    ) {
+      clearErrors('confirmPassword')
     }
-  }, [passwordCheckError])
+  }, [watchedPassword, watchedConfirmPassword, setFormError, clearErrors, errors.confirmPassword?.type])
 
+  // Form submission handler
   const onSubmit = async (data: RegisterFormValues) => {
     // Reset any previous errors
     setError(null)
 
-    // Check if password is strong and not compromised
-    if (
-      passwordCheck &&
-      (passwordCheck.isCompromised || !passwordCheck.isStrong)
-    ) {
+    // Verify password security
+    if (!passwordValid || !passwordStrong) {
       setFormError('password', {
         type: 'manual',
-        message: passwordCheck.isCompromised
-          ? 'This password was found in data breaches. Please choose another.'
-          : 'This password is not strong enough. Add more varied characters.',
+        message: 'Please choose a stronger password',
+      })
+      return
+    }
+
+    // Verify email validity
+    if (!emailValid) {
+      setFormError('email', {
+        type: 'manual',
+        message: 'Please enter a valid email address',
       })
       return
     }
     
+    // Submit registration
     registerMutation.mutate(
       { 
         name: data.name, 
@@ -151,7 +200,9 @@ export default function RegisterForm() {
       },
       {
         onSuccess: () => {
-          toast.success('Account created successfully! Please log in to continue.')
+          toast.success('Account created successfully! Please log in to continue.', {
+            icon: <FaCheck className="text-green-500" />,
+          })
           router.push('/auth/login?registered=true')
         },
         onError: (error) => {
@@ -166,47 +217,40 @@ export default function RegisterForm() {
             )
             // Focus back on the password field
             document.getElementById('password')?.focus()
-            toast.error('Password security issue detected. Please choose a different password.')
+            toast.error('Password security issue detected. Please choose a different password.', {
+              icon: <FaExclamationTriangle className="text-red-500" />,
+            })
+          } else if (errorMessage.toLowerCase().includes('email already')) {
+            setFormError('email', {
+              type: 'manual',
+              message: 'This email is already registered. Please log in or use a different email.',
+            })
+            toast.error('Email already registered', {
+              icon: <FaExclamationTriangle className="text-red-500" />,
+            })
           } else {
             setError(errorMessage)
-            toast.error(errorMessage || 'Registration failed. Please try again.')
+            toast.error(errorMessage || 'Registration failed. Please try again.', {
+              icon: <FaExclamationTriangle className="text-red-500" />,
+            })
           }
         }
       }
     )
   }
 
-  // Function to get color based on password strength
-  function getStrengthColor(strength: number): string {
-    if (strength < 40) return 'bg-red-500'
-    if (strength < 70) return 'bg-yellow-500'
-    return 'bg-green-500'
-  }
-
-  // Function to get text color based on password strength
-  function getStrengthTextColor(strength: number): string {
-    if (strength < 40) return 'text-red-500 dark:text-red-400'
-    if (strength < 70) return 'text-yellow-500 dark:text-yellow-400'
-    return 'text-green-500 dark:text-green-400'
-  }
-
-  // Function to get password strength label
-  function getStrengthLabel(strength: number, isCompromised: boolean): string {
-    if (isCompromised) return 'Compromised Password'
-    if (strength < 40) return 'Weak Password'
-    if (strength < 70) return 'Moderate Password'
-    return 'Strong Password'
-  }
-
   return (
     <div className="dark:bg-BlackLight mx-auto w-full max-w-md rounded-lg bg-white p-6 shadow-md">
-      <h1 className="mb-6 text-center text-2xl font-bold dark:text-white">
-        Registration - Tarevity
+      <h1 className="mb-6 text-center text-2xl font-bold text-gray-900 dark:text-white">
+        Create Your Account
       </h1>
 
       {error && (
         <div className="mb-4 rounded border border-red-400 bg-red-100 px-4 py-3 text-red-700 dark:border-red-800 dark:bg-red-900/30 dark:text-red-400">
-          {error}
+          <div className="flex items-start">
+            <FaExclamationTriangle className="mr-2 mt-0.5" />
+            <span>{error}</span>
+          </div>
         </div>
       )}
 
@@ -214,215 +258,88 @@ export default function RegisterForm() {
         onSubmit={handleSubmit(onSubmit)}
         autoComplete="off"
         className="space-y-4"
+        noValidate
       >
-        <div>
-          <label
-            htmlFor="name"
-            className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-          >
-            Name
-          </label>
-          <input
-            id="name"
-            type="text"
-            {...register('name')}
-            className="mt-1 block w-full rounded-md border-gray-300 p-2 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-            disabled={registerMutation.isPending}
-          />
-          {errors.name && (
-            <p className="mt-1 text-sm text-red-600 dark:text-red-400">
-              {errors.name.message}
-            </p>
-          )}
-        </div>
+        {/* Name Input */}
+        <ValidatedInput
+          id="name"
+          type="text"
+          label="Full Name"
+          registration={register('name')}
+          error={errors.name?.message}
+          placeholder="John Doe"
+          disabled={isSubmitting}
+          helperText="Your name as you'd like it to appear"
+          required
+          icon={<FaUserCircle />}
+          maxLength={50}
+          autoComplete="name"
+        />
 
-        <div>
-          <label
-            htmlFor="email"
-            className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-          >
-            Email
-          </label>
-          <input
-            id="email"
-            type="email"
-            {...register('email')}
-            className="mt-1 block w-full rounded-md border-gray-300 p-2 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-            disabled={registerMutation.isPending}
-          />
-          {errors.email && (
-            <p className="mt-1 text-sm text-red-600 dark:text-red-400">
-              {errors.email.message}
-            </p>
-          )}
-        </div>
+        {/* Email Input */}
+        <ValidatedInput
+          id="email"
+          type="email"
+          label="Email Address"
+          registration={register('email')}
+          error={errors.email?.message}
+          placeholder="you@example.com"
+          disabled={isSubmitting}
+          required
+          validator={<EmailValidator email={watchedEmail} onValidation={handleEmailValidation} />}
+          icon={<FaEnvelope />}
+          autoComplete="email"
+        />
 
-        <div>
-          <label
-            htmlFor="password"
-            className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-          >
-            Password
-          </label>
-          <div className="relative">
-            <input
-              id="password"
-              type="password"
-              {...register('password')}
-              className={`mt-1 block w-full rounded-md border-gray-300 p-2 pr-10 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white ${
-                passwordCheck && passwordValue === watchedPassword
-                  ? passwordCheck.isStrong && !passwordCheck.isCompromised
-                    ? 'border-green-500 dark:border-green-500'
-                    : passwordCheck.isCompromised
-                      ? 'border-red-500 dark:border-red-500'
-                      : 'border-yellow-500 dark:border-yellow-500'
-                  : ''
-              }`}
-              disabled={registerMutation.isPending}
+        {/* Password Input */}
+        <ValidatedInput
+          id="password"
+          type="password"
+          label="Password"
+          registration={register('password')}
+          error={errors.password?.message}
+          placeholder="Create a secure password"
+          disabled={isSubmitting}
+          required
+          validator={
+            <PasswordStrengthMeter 
+              password={watchedPassword} 
+              onValidation={handlePasswordValidation} 
             />
-            <div className="absolute inset-y-0 right-0 flex items-center pt-1 pr-3">
-              {isCheckingPassword ? (
-                <div className="h-4 w-4 animate-spin rounded-full border-2 border-gray-300 border-t-blue-600"></div>
-              ) : passwordCheck && passwordValue === watchedPassword ? (
-                passwordCheck.isStrong && !passwordCheck.isCompromised ? (
-                  <FaCheck className="text-green-500" />
-                ) : (
-                  <FaExclamationTriangle
-                    className={
-                      passwordCheck.isCompromised
-                        ? 'text-red-500'
-                        : 'text-yellow-500'
-                    }
-                  />
-                )
-              ) : null}
-            </div>
-          </div>
-          {errors.password && (
-            <p className="mt-1 text-sm text-red-600 dark:text-red-400">
-              {errors.password.message}
-            </p>
-          )}
+          }
+          icon={<FaLock />}
+          autoComplete="new-password"
+        />
 
-          {/* Password strength indicator */}
-          {passwordCheck && passwordValue === watchedPassword && (
-            <div className="mt-2">
-              <div className="h-2 w-full rounded-full bg-gray-200 dark:bg-gray-700">
-                <div
-                  className={`h-2 rounded-full ${getStrengthColor(passwordCheck.strength)}`}
-                  style={{ width: `${passwordCheck.strength}%` }}
-                ></div>
-              </div>
-              <div className="mt-1 flex items-center">
-                <span
-                  className={`text-xs ${getStrengthTextColor(passwordCheck.strength)}`}
-                >
-                  {getStrengthLabel(
-                    passwordCheck.strength,
-                    passwordCheck.isCompromised,
-                  )}
-                </span>
+        {/* Confirm Password Input */}
+        <ValidatedInput
+          id="confirmPassword"
+          type="password"
+          label="Confirm Password"
+          registration={register('confirmPassword')}
+          error={errors.confirmPassword?.message}
+          placeholder="Confirm your password"
+          disabled={isSubmitting}
+          required
+          icon={<FaLock />}
+          autoComplete="new-password"
+        />
 
-                {passwordCheck.isCompromised && (
-                  <div className="ml-2 flex items-center text-xs text-red-500">
-                    <FaLock className="mr-1" />
-                    <span>Password leaked in databases</span>
-                  </div>
-                )}
-              </div>
-
-              {/* Password requirements */}
-              <div className="mt-2 grid grid-cols-2 gap-1 text-xs">
-                <div
-                  className={`flex items-center ${/[A-Z]/.test(watchedPassword) ? 'text-green-500' : 'text-gray-500'}`}
-                >
-                  {/[A-Z]/.test(watchedPassword) ? (
-                    <FaCheck className="mr-1" />
-                  ) : (
-                    <FaTimes className="mr-1" />
-                  )}
-                  <span>One uppercase letter</span>
-                </div>
-                <div
-                  className={`flex items-center ${/[a-z]/.test(watchedPassword) ? 'text-green-500' : 'text-gray-500'}`}
-                >
-                  {/[a-z]/.test(watchedPassword) ? (
-                    <FaCheck className="mr-1" />
-                  ) : (
-                    <FaTimes className="mr-1" />
-                  )}
-                  <span>One lowercase letter</span>
-                </div>
-                <div
-                  className={`flex items-center ${/[0-9]/.test(watchedPassword) ? 'text-green-500' : 'text-gray-500'}`}
-                >
-                  {/[0-9]/.test(watchedPassword) ? (
-                    <FaCheck className="mr-1" />
-                  ) : (
-                    <FaTimes className="mr-1" />
-                  )}
-                  <span>One number</span>
-                </div>
-                <div
-                  className={`flex items-center ${/[^A-Za-z0-9]/.test(watchedPassword) ? 'text-green-500' : 'text-gray-500'}`}
-                >
-                  {/[^A-Za-z0-9]/.test(watchedPassword) ? (
-                    <FaCheck className="mr-1" />
-                  ) : (
-                    <FaTimes className="mr-1" />
-                  )}
-                  <span>One special character</span>
-                </div>
-                <div
-                  className={`flex items-center ${watchedPassword.length >= 6 ? 'text-green-500' : 'text-gray-500'}`}
-                >
-                  {watchedPassword.length >= 6 ? (
-                    <FaCheck className="mr-1" />
-                  ) : (
-                    <FaTimes className="mr-1" />
-                  )}
-                  <span>Minimum 6 characters</span>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-
-        <div>
-          <label
-            htmlFor="confirmPassword"
-            className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-          >
-            Confirm Password
-          </label>
-          <input
-            id="confirmPassword"
-            type="password"
-            {...register('confirmPassword')}
-            className="mt-1 block w-full rounded-md border-gray-300 p-2 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-            disabled={registerMutation.isPending}
-          />
-          {errors.confirmPassword && (
-            <p className="mt-1 text-sm text-red-600 dark:text-red-400">
-              {errors.confirmPassword.message}
-            </p>
-          )}
-        </div>
-
+        {/* Terms of Service Agreement */}
         <div className="mt-4">
           <div className="flex items-start">
             <div className="flex h-5 items-center">
               <input
-                id="terms"
+                id="acceptTerms"
                 type="checkbox"
                 {...register('acceptTerms')}
                 className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700"
-                disabled={registerMutation.isPending}
+                disabled={isSubmitting}
               />
             </div>
             <div className="ml-3 text-sm">
               <label
-                htmlFor="terms"
+                htmlFor="acceptTerms"
                 className="text-gray-600 dark:text-gray-400"
               >
                 I agree to the{' '}
@@ -449,15 +366,41 @@ export default function RegisterForm() {
           </div>
         </div>
 
+        {/* Submit Button */}
         <button
           type="submit"
-          disabled={registerMutation.isPending}
-          className="flex w-full justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none dark:bg-blue-700 dark:hover:bg-blue-800"
+          disabled={isSubmitting}
+          className={`flex w-full items-center justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none dark:bg-blue-700 dark:hover:bg-blue-800
+            ${isSubmitting ? 'cursor-not-allowed opacity-70' : ''}
+          `}
         >
-          {registerMutation.isPending ? 'Registering...' : 'Register'}
+          {isSubmitting ? (
+            <>
+              <svg className="mr-2 h-4 w-4 animate-spin" viewBox="0 0 24 24">
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                  fill="none"
+                />
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                />
+              </svg>
+              Creating Account...
+            </>
+          ) : (
+            'Create Account'
+          )}
         </button>
       </form>
 
+      {/* OAuth Sign-in Section */}
       <div className="mt-6">
         <div className="relative">
           <div className="absolute inset-0 flex items-center">
@@ -475,6 +418,7 @@ export default function RegisterForm() {
         </div>
       </div>
 
+      {/* Login link */}
       <div className="mt-6 text-center">
         <p className="text-sm text-gray-600 dark:text-gray-400">
           Already have an account?{' '}

@@ -7,14 +7,49 @@ import { z } from 'zod'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { toast } from 'react-toastify'
-import { FaCheck, FaArrowLeft, FaExclamationTriangle } from 'react-icons/fa'
+import {
+  FaCheck,
+  FaArrowLeft,
+  FaExclamationTriangle,
+  FaSpinner,
+  FaLock,
+} from 'react-icons/fa'
 import { authAPI } from '@/lib/api'
+import ValidatedInput from './ValidatedInput'
+import PasswordStrengthMeter from './PasswordStrengthMeter'
+
+// Password regex patterns
+const passwordPattern = {
+  uppercase: /[A-Z]/,
+  lowercase: /[a-z]/,
+  number: /[0-9]/,
+  special: /[^A-Za-z0-9]/,
+}
 
 // Define the form validation schema
 const resetPasswordSchema = z
   .object({
-    password: z.string().min(8, 'Password must be at least 8 characters'),
-    confirmPassword: z.string(),
+    password: z
+      .string()
+      .min(8, 'Password must be at least 8 characters')
+      .max(100, 'Password is too long (maximum 100 characters)')
+      .regex(
+        passwordPattern.uppercase,
+        'Password must contain at least one uppercase letter',
+      )
+      .regex(
+        passwordPattern.lowercase,
+        'Password must contain at least one lowercase letter',
+      )
+      .regex(
+        passwordPattern.number,
+        'Password must contain at least one number',
+      )
+      .regex(
+        passwordPattern.special,
+        'Password must contain at least one special character',
+      ),
+    confirmPassword: z.string().min(1, 'Password confirmation is required'),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: 'Passwords do not match',
@@ -23,14 +58,16 @@ const resetPasswordSchema = z
 
 type ResetPasswordFormValues = z.infer<typeof resetPasswordSchema>
 
-export default function ResetPasswordForm() {
+export default function EnhancedResetPasswordForm() {
   const [isLoading, setIsLoading] = useState(false)
   const [isSubmitted, setIsSubmitted] = useState(false)
   const [isValidToken, setIsValidToken] = useState<boolean | null>(null)
   const [isCurrentPassword, setIsCurrentPassword] = useState<boolean | null>(
     null,
   )
-  const [isCheckingPassword, setIsCheckingPassword] = useState(false)
+  const [passwordValid, setPasswordValid] = useState(false)
+  const [passwordStrong, setPasswordStrong] = useState(false)
+  const [tokenError, setTokenError] = useState<string | null>(null)
   const router = useRouter()
   const searchParams = useSearchParams()
   const token = searchParams?.get('token')
@@ -41,7 +78,7 @@ export default function ResetPasswordForm() {
     handleSubmit,
     formState: { errors },
     watch,
-    setError,
+    setError: setFormError,
     clearErrors,
   } = useForm<ResetPasswordFormValues>({
     resolver: zodResolver(resetPasswordSchema),
@@ -52,33 +89,51 @@ export default function ResetPasswordForm() {
   })
 
   const watchedPassword = watch('password')
+  const watchedConfirmPassword = watch('confirmPassword')
 
   // Validate token when component mounts
   useEffect(() => {
     const validateToken = async () => {
       if (!token) {
         setIsValidToken(false)
+        setTokenError(
+          'No reset token provided. Please request a new reset link.',
+        )
         return
       }
 
-      const result = await authAPI.validateResetToken(token)
+      try {
+        const result = await authAPI.validateResetToken(token)
 
-      if (result.error) {
+        if (result.error) {
+          setIsValidToken(false)
+          setTokenError(result.error.message || 'Invalid or expired token')
+        } else {
+          setIsValidToken(true)
+        }
+      } catch (error) {
         setIsValidToken(false)
-      } else {
-        setIsValidToken(true)
+        setTokenError(
+          error instanceof Error
+            ? error.message
+            : 'An error occurred while validating the token',
+        )
       }
     }
 
     validateToken()
   }, [token])
 
+  // Handle password validation feedback
+  const handlePasswordValidation = (isValid: boolean, isStrong: boolean) => {
+    setPasswordValid(isValid)
+    setPasswordStrong(isStrong)
+  }
+
   // Check if password matches current one
   const checkCurrentPassword = useCallback(
     async (password: string) => {
       if (!token || password.length < 8) return null
-
-      setIsCheckingPassword(true)
 
       try {
         const result = await authAPI.checkCurrentPassword(token, password)
@@ -92,8 +147,6 @@ export default function ResetPasswordForm() {
       } catch (error) {
         console.error('Exception checking password:', error)
         return null
-      } finally {
-        setIsCheckingPassword(false)
       }
     },
     [token],
@@ -111,7 +164,7 @@ export default function ResetPasswordForm() {
 
       if (result === true) {
         setIsCurrentPassword(true)
-        setError('password', {
+        setFormError('password', {
           type: 'manual',
           message: 'New password cannot be the same as your current password',
         })
@@ -128,48 +181,94 @@ export default function ResetPasswordForm() {
   }, [
     watchedPassword,
     checkCurrentPassword,
-    setError,
+    setFormError,
     clearErrors,
     errors.password?.type,
   ])
 
+  // Effect to validate confirm password when password changes
+  useEffect(() => {
+    if (watchedConfirmPassword && watchedPassword !== watchedConfirmPassword) {
+      setFormError('confirmPassword', {
+        type: 'manual',
+        message: 'Passwords do not match',
+      })
+    } else if (
+      errors.confirmPassword?.type === 'manual' &&
+      watchedPassword === watchedConfirmPassword
+    ) {
+      clearErrors('confirmPassword')
+    }
+  }, [
+    watchedPassword,
+    watchedConfirmPassword,
+    setFormError,
+    clearErrors,
+    errors.confirmPassword?.type,
+  ])
+
   // Handle form submission
   const onSubmit = async (data: ResetPasswordFormValues) => {
-    if (!token) return
-
-    setIsLoading(true)
-
-    // Double-check if password is current
-    const isCurrent = await checkCurrentPassword(data.password)
-
-    if (isCurrent) {
-      setError('password', {
-        type: 'manual',
-        message: 'New password cannot be the same as your current password',
-      })
-      setIsLoading(false)
+    if (!token) {
+      toast.error('Reset token is missing')
       return
     }
 
-    // Submit the form
-    const result = await authAPI.resetPassword(token, data.password)
-
-    if (result.error) {
-      console.error('Error in reset password:', result.error)
-      toast.error(
-        result.error.message ||
-          'An error occurred while resetting your password',
-      )
-    } else {
-      setIsSubmitted(true)
-      toast.success('Password reset successfully')
-
-      setTimeout(() => {
-        router.push('/auth/login')
-      }, 3000)
+    if (!passwordValid || !passwordStrong) {
+      setFormError('password', {
+        type: 'manual',
+        message: 'Please choose a stronger password',
+      })
+      return
     }
 
-    setIsLoading(false)
+    // Double-check if password is current
+    if (isCurrentPassword === true) {
+      setFormError('password', {
+        type: 'manual',
+        message: 'New password cannot be the same as your current password',
+      })
+      return
+    }
+
+    setIsLoading(true)
+
+    try {
+      // Submit the form
+      const result = await authAPI.resetPassword(token, data.password)
+
+      if (result.error) {
+        console.error('Error in reset password:', result.error)
+        toast.error(
+          result.error.message ||
+            'An error occurred while resetting your password',
+          {
+            position: 'top-center',
+            icon: <FaExclamationTriangle />,
+          },
+        )
+      } else {
+        setIsSubmitted(true)
+        toast.success('Password reset successfully', {
+          position: 'top-center',
+          icon: <FaCheck />,
+        })
+
+        // Redirect to login page after successful password reset
+        setTimeout(() => {
+          router.push('/auth/login')
+        }, 3000)
+      }
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : 'An unexpected error occurred',
+        {
+          position: 'top-center',
+        },
+      )
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   // Show different UI based on token validation status
@@ -177,7 +276,7 @@ export default function ResetPasswordForm() {
     return (
       <div className="mx-auto w-full max-w-md rounded-lg bg-white p-6 shadow-md dark:bg-gray-800">
         <div className="text-center">
-          <div className="mx-auto h-12 w-12 animate-spin rounded-full border-b-2 border-blue-500"></div>
+          <FaSpinner className="mx-auto h-12 w-12 animate-spin text-blue-500" />
           <p className="mt-4 text-gray-600 dark:text-gray-400">
             Verifying password reset link...
           </p>
@@ -190,12 +289,13 @@ export default function ResetPasswordForm() {
     return (
       <div className="mx-auto w-full max-w-md rounded-lg bg-white p-6 shadow-md dark:bg-gray-800">
         <div className="mb-6 text-center">
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+          <FaExclamationTriangle className="mx-auto h-16 w-16 text-red-500" />
+          <h1 className="mt-4 text-2xl font-bold text-gray-900 dark:text-white">
             Invalid or expired link
           </h1>
           <p className="mt-2 text-gray-600 dark:text-gray-400">
-            This password reset link is invalid or has expired. Please request a
-            new link.
+            {tokenError ||
+              'This password reset link is invalid or has expired. Please request a new link.'}
           </p>
         </div>
         <div className="text-center">
@@ -253,81 +353,55 @@ export default function ResetPasswordForm() {
       ) : (
         // Show form when not yet submitted
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <div>
-            <label
-              htmlFor="password"
-              className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-            >
-              New password
-            </label>
-            <div className="relative">
-              <input
-                id="password"
-                type="password"
-                {...register('password')}
-                aria-invalid={errors.password ? 'true' : 'false'}
-                aria-describedby={
-                  errors.password ? 'password-error' : undefined
-                }
-                className={`mt-1 block w-full rounded-md border-gray-300 p-2 pr-10 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white ${
-                  isCurrentPassword === true
-                    ? 'border-red-500 dark:border-red-500'
-                    : ''
-                }`}
-                disabled={isLoading}
+          <ValidatedInput
+            id="password"
+            type="password"
+            label="New password"
+            registration={register('password')}
+            error={errors.password?.message}
+            placeholder="Create a secure password"
+            disabled={isLoading}
+            required
+            icon={<FaLock />}
+            autoComplete="new-password"
+            validator={
+              <PasswordStrengthMeter
+                password={watchedPassword}
+                onValidation={handlePasswordValidation}
               />
-              {isCheckingPassword && (
-                <div className="absolute inset-y-0 right-0 flex items-center pt-1 pr-3">
-                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-gray-300 border-t-blue-600"></div>
-                </div>
-              )}
-              {isCurrentPassword === true && !isCheckingPassword && (
-                <div className="absolute inset-y-0 right-0 flex items-center pt-1 pr-3">
-                  <FaExclamationTriangle className="text-red-500" />
-                </div>
-              )}
-            </div>
-            {errors.password && (
-              <p
-                className="mt-1 text-sm text-red-600 dark:text-red-400"
-                id="password-error"
-              >
-                {errors.password.message}
-              </p>
-            )}
-          </div>
+            }
+          />
 
-          <div>
-            <label
-              htmlFor="confirmPassword"
-              className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-            >
-              Confirm new password
-            </label>
-            <input
-              id="confirmPassword"
-              type="password"
-              {...register('confirmPassword')}
-              className="mt-1 block w-full rounded-md border-gray-300 p-2 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-              disabled={isLoading}
-            />
-            {errors.confirmPassword && (
-              <p className="mt-1 text-sm text-red-600 dark:text-red-400">
-                {errors.confirmPassword.message}
-              </p>
-            )}
-          </div>
+          <ValidatedInput
+            id="confirmPassword"
+            type="password"
+            label="Confirm new password"
+            registration={register('confirmPassword')}
+            error={errors.confirmPassword?.message}
+            placeholder="Confirm your password"
+            disabled={isLoading}
+            required
+            icon={<FaLock />}
+            autoComplete="new-password"
+          />
 
           <button
             type="submit"
             disabled={isLoading || isCurrentPassword === true}
-            className={`flex w-full justify-center rounded-md border border-transparent px-4 py-2 text-sm font-medium text-white shadow-sm focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none ${
+            className={`flex w-full items-center justify-center rounded-md border border-transparent px-4 py-2 text-sm font-medium text-white shadow-sm focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none ${
               isLoading || isCurrentPassword === true
                 ? 'cursor-not-allowed bg-gray-400'
                 : 'bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800'
             }`}
           >
-            {isLoading ? 'Processing...' : 'Reset Password'}
+            {isLoading ? (
+              <>
+                <FaSpinner className="mr-2 h-4 w-4 animate-spin" />
+                Processing...
+              </>
+            ) : (
+              'Reset Password'
+            )}
           </button>
         </form>
       )}
