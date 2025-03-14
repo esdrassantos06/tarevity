@@ -218,7 +218,6 @@ Tarevity implements sophisticated data handling:
 - [ ] Calendar view with drag-and-drop interface
 - [ ] Advanced statistics and productivity insights
 - [ ] Notifications and reminders
-- [ ] Task comments and attachments
 - [ ] Integration with third-party calendars
 
 ## 🤝 Contributing
