@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation'
 import { FaArrowLeft, FaSave, FaTimes, FaFlag, FaClock } from 'react-icons/fa'
 import { useCreateTodoMutation } from '@/hooks/useTodosQuery'
 import { showError, showLoading, updateToast, showInfo } from '@/lib/toast'
+import ConfirmationDialog, { useConfirmationDialog } from '@/components/common/ConfirmationDialog'
 
 // Define interface for our form data
 interface TodoFormData {
@@ -103,13 +104,23 @@ const NewTodoPage: React.FC = () => {
     })
   }
 
+const { dialogState, openConfirmDialog, closeConfirmDialog } = useConfirmationDialog()
+
   const handleCancel = () => {
     // Show confirmation if form has data
     if (formData.title.trim() || formData.description.trim() || formData.due_date) {
-      if (window.confirm('Discard changes? Any unsaved changes will be lost.')) {
+      openConfirmDialog({
+      title: 'Discard Changes',
+      description: 'Discard changes? Any unsaved changes will be lost.',
+      variant: 'warning',
+      confirmText: 'Discard',
+      cancelText: 'Cancel',
+      onConfirm: () => {
         showInfo('Changes discarded')
         router.push('/dashboard')
+        closeConfirmDialog()
       }
+    })
     } else {
       router.push('/dashboard')
     }
@@ -282,6 +293,17 @@ const NewTodoPage: React.FC = () => {
           </div>
         </form>
       </div>
+<ConfirmationDialog
+  isOpen={dialogState.isOpen}
+  onClose={closeConfirmDialog}
+  onConfirm={dialogState.onConfirm}
+  title={dialogState.title}
+  description={dialogState.description}
+  confirmText={dialogState.confirmText}
+  cancelText={dialogState.cancelText}
+  variant={dialogState.variant}
+  isLoading={dialogState.isLoading}
+/>
     </div>
   )
 }
