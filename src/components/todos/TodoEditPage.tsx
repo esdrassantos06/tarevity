@@ -10,6 +10,7 @@ import {
   FaExclamationCircle,
 } from 'react-icons/fa'
 import { useTodosQuery, useUpdateTodoMutation } from '@/hooks/useTodosQuery'
+import ConfirmationDialog, { useConfirmationDialog } from '@/components/common/ConfirmationDialog'
 
 // Define interface for our Todo item
 interface Todo {
@@ -141,21 +142,28 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
     )
   }
 
-  const handleCancel = () => {
-    if (hasUnsavedChanges) {
-      if (
-        window.confirm(
-          'You have unsaved changes. Are you sure you want to leave?',
-        )
-      ) {
-        router.push(`/todo/${todoId}`)
-      }
-    } else {
-      router.push(`/todo/${todoId}`)
-    }
-  }
+const { dialogState, openConfirmDialog, closeConfirmDialog } = useConfirmationDialog()
 
-  if (isLoading) {
+  const handleCancel = () => {
+  if (hasUnsavedChanges) {
+    openConfirmDialog({
+      title: 'Discard Changes',
+      description: 'You have unsaved changes. Are you sure you want to leave?',
+      variant: 'warning',
+      confirmText: 'Discard',
+      cancelText: 'Stay',
+      onConfirm: () => {
+        router.push(`/todo/${todoId}`)
+        closeConfirmDialog()
+      }
+    })
+  } else {
+    router.push(`/todo/${todoId}`)
+  }
+}
+
+
+if (isLoading) {
     return (
       <div className="flex h-64 items-center justify-center">
         <div className="h-12 w-12 animate-spin rounded-full border-4 border-blue-500 border-t-transparent"></div>
@@ -356,6 +364,17 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
           </div>
         </form>
       </div>
+<ConfirmationDialog
+  isOpen={dialogState.isOpen}
+  onClose={closeConfirmDialog}
+  onConfirm={dialogState.onConfirm}
+  title={dialogState.title}
+  description={dialogState.description}
+  confirmText={dialogState.confirmText}
+  cancelText={dialogState.cancelText}
+  variant={dialogState.variant}
+  isLoading={dialogState.isLoading}
+/>
     </div>
   )
 }
