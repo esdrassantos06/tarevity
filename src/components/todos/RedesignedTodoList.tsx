@@ -12,6 +12,8 @@ import {
   FaCheck,
   FaSortAmountDown,
   FaSortAmountUp,
+  FaChevronLeft,
+  FaChevronRight,
 } from 'react-icons/fa'
 import { FiPlus } from 'react-icons/fi'
 import { Todo } from '@/lib/api'
@@ -66,6 +68,10 @@ const RedesignedTodoList: React.FC = () => {
   const [prioritySortDirection, setPrioritySortDirection] = useState<
     'asc' | 'desc'
   >('desc')
+  
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1)
+  const todosPerPage = 9 // Number of todos to show per page (3x3 grid)
 
   // Dialog state management
   const { dialogState, openConfirmDialog, closeConfirmDialog, setLoading } =
@@ -144,6 +150,37 @@ const RedesignedTodoList: React.FC = () => {
 
     return result
   }, [todos, activeTab, searchQuery, prioritySortDirection])
+
+  // Calculate pagination
+  const totalPages = Math.ceil(filteredTodos.length / todosPerPage)
+  
+  // Make sure current page is valid
+  const pageToShow = Math.min(Math.max(1, currentPage), Math.max(1, totalPages))
+  
+  // Get current todos
+  const currentTodos = useMemo(() => {
+    const indexOfLastTodo = pageToShow * todosPerPage
+    const indexOfFirstTodo = indexOfLastTodo - todosPerPage
+    return filteredTodos.slice(indexOfFirstTodo, indexOfLastTodo)
+  }, [filteredTodos, pageToShow, todosPerPage])
+
+  // Change page
+  const paginate = (pageNumber: number) => {
+    if (pageNumber >= 1 && pageNumber <= totalPages) {
+      setCurrentPage(pageNumber)
+      // Scroll to top of the grid for better UX
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    }
+  }
+  
+  // Previous and next page handlers
+  const goToPreviousPage = () => paginate(pageToShow - 1)
+  const goToNextPage = () => paginate(pageToShow + 1)
+
+  // Reset to first page when filter, search, or tab changes
+  React.useEffect(() => {
+    setCurrentPage(1)
+  }, [activeTab, searchQuery, prioritySortDirection])
 
   const handleTodoClick = (id: string) => {
     router.push(`/todo/${id}`)
@@ -416,7 +453,7 @@ const RedesignedTodoList: React.FC = () => {
               className={`flex items-center rounded-md px-4 py-2 font-medium ${
                 activeTab === 'all'
                   ? 'bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300'
-                  : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700'
+                  : 'text-gray-700 hover:bg-gray-300 dark:text-gray-300 dark:hover:bg-gray-700'
               }`}
               onClick={() => setActiveTab('all')}
             >
@@ -430,7 +467,7 @@ const RedesignedTodoList: React.FC = () => {
               className={`flex items-center rounded-md px-4 py-2 font-medium ${
                 activeTab === 'active'
                   ? 'bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300'
-                  : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700'
+                  : 'text-gray-700 hover:bg-gray-300 dark:text-gray-300 dark:hover:bg-gray-700'
               }`}
               onClick={() => setActiveTab('active')}
             >
@@ -442,7 +479,7 @@ const RedesignedTodoList: React.FC = () => {
               className={`flex items-center rounded-md px-4 py-2 font-medium ${
                 activeTab === 'completed'
                   ? 'bg-green-100 text-green-600 dark:bg-green-900 dark:text-green-300'
-                  : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700'
+                  : 'text-gray-700 hover:bg-gray-300 dark:text-gray-300 dark:hover:bg-gray-700'
               }`}
               onClick={() => setActiveTab('completed')}
             >
@@ -454,7 +491,7 @@ const RedesignedTodoList: React.FC = () => {
               className={`flex items-center rounded-md px-4 py-2 font-medium ${
                 activeTab === 'review'
                   ? 'bg-amber-100 text-amber-600 dark:bg-amber-900 dark:text-amber-300'
-                  : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700'
+                  : 'text-gray-700 hover:bg-gray-300 dark:text-gray-300 dark:hover:bg-gray-700'
               }`}
               onClick={() => setActiveTab('review')}
             >
@@ -479,144 +516,289 @@ const RedesignedTodoList: React.FC = () => {
         </div>
       </div>
 
+      {/* Pagination - Task Count */}
+      {filteredTodos.length > 0 && (
+        <div className="mb-4 flex items-center text-sm text-gray-600 dark:text-gray-400">
+          Showing {Math.min(filteredTodos.length, (pageToShow - 1) * todosPerPage + 1)}-
+          {Math.min(pageToShow * todosPerPage, filteredTodos.length)} of {filteredTodos.length} tasks
+        </div>
+      )}
+
+      {/* Empty state message */}
+      {filteredTodos.length === 0 && (
+        <div className="my-10 flex flex-col items-center justify-center text-center">
+          <div className="mb-2 rounded-full bg-gray-100 p-4 dark:bg-gray-800">
+            <FaFlag className="h-8 w-8 text-gray-400" />
+          </div>
+          <h3 className="text-lg font-medium text-gray-900 dark:text-white">No tasks found</h3>
+          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+            {searchQuery 
+              ? "No tasks match your search. Try adjusting your filters."
+              : "Get started by creating your first task."}
+          </p>
+          <button
+            onClick={() => router.push('/todo/new')}
+            className="mt-4 flex items-center rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
+          >
+            <FiPlus className="mr-1" /> Create New Task
+          </button>
+        </div>
+      )}
+
       {/* Todo Items Grid with Review functionality */}
-      <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {filteredTodos.map((todo) => {
-          const priority = getPriorityInfo(todo.priority)
-          const dueDate = todo.due_date ? formatDate(todo.due_date) : null
-          const isReview = todo.status === 'review'
+      {filteredTodos.length > 0 && (
+        <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {currentTodos.map((todo) => {
+            const priority = getPriorityInfo(todo.priority)
+            const dueDate = todo.due_date ? formatDate(todo.due_date) : null
+            const isReview = todo.status === 'review'
 
-          return (
-            <div
-              key={todo.id}
-              className={`dark:bg-BlackLight flex h-64 cursor-pointer flex-col overflow-hidden rounded-lg bg-white shadow-md transition-shadow hover:shadow-lg ${isReview ? 'border-l-4 border-amber-500' : ''} `}
-              onClick={() => handleTodoClick(todo.id)}
-            >
-              <div className="flex flex-grow flex-col overflow-hidden p-4">
-                <div className="mb-2 flex items-start justify-between">
-                  <div className="mr-2 flex items-center overflow-hidden">
-                    <div
-                      className={`h-5 w-5 flex-shrink-0 rounded-full ${priority.color} mr-2`}
-                    ></div>
-                    <h3
-                      title={todo.title}
-                      className={`truncate text-lg font-medium ${
-                        todo.is_completed
-                          ? 'text-gray-500 line-through'
-                          : isReview
-                            ? 'text-amber-600 dark:text-amber-400'
-                            : 'text-gray-900 dark:text-white'
-                      }`}
-                    >
-                      {todo.title}
-                    </h3>
-                  </div>
-                  <div className="flex-shrink-0">
-                    <input
-                      type="checkbox"
-                      checked={todo.is_completed}
-                      onChange={(e) =>
-                        handleCheckboxChange(e, todo.id, todo.is_completed)
-                      }
-                      onClick={(e) => e.stopPropagation()}
-                      className="h-4 w-4 rounded text-blue-600"
-                    />
-                  </div>
-                </div>
-
-                {isReview && (
-                  <div className="mb-2 flex items-center text-sm text-amber-600 dark:text-amber-400">
-                    <FaExclamationCircle className="mr-1 flex-shrink-0" />
-                    <span>In Review</span>
-                  </div>
-                )}
-
-                <div className="flex-grow overflow-hidden">
-                  {todo.description && (
-                    <p
-                      className={`line-clamp-3 text-sm ${todo.is_completed ? 'text-gray-500' : 'text-gray-700 dark:text-gray-300'}`}
-                    >
-                      {todo.description}
-                    </p>
-                  )}
-                </div>
-
-                <div className="mt-auto flex flex-wrap items-center justify-between gap-2 pt-2 text-xs text-gray-500 dark:text-gray-400">
-                  <div className="flex items-center">
-                    <FaFlag className={`mr-1 ${priority.textColor}`} />
-                    <span>Priority: {priority.label}</span>
+            return (
+              <div
+                key={todo.id}
+                className={`dark:bg-BlackLight flex h-64 cursor-pointer flex-col overflow-hidden rounded-lg bg-white shadow-md transition-shadow hover:shadow-lg ${isReview ? 'border-l-4 border-amber-500' : ''} `}
+                onClick={() => handleTodoClick(todo.id)}
+              >
+                <div className="flex flex-grow flex-col overflow-hidden p-4">
+                  <div className="mb-2 flex items-start justify-between">
+                    <div className="mr-2 flex items-center overflow-hidden">
+                      <div
+                        className={`h-5 w-5 flex-shrink-0 rounded-full ${priority.color} mr-2`}
+                      ></div>
+                      <h3
+                        title={todo.title}
+                        className={`truncate text-lg font-medium ${
+                          todo.is_completed
+                            ? 'text-gray-500 line-through'
+                            : isReview
+                              ? 'text-amber-600 dark:text-amber-400'
+                              : 'text-gray-900 dark:text-white'
+                        }`}
+                      >
+                        {todo.title}
+                      </h3>
+                    </div>
+                    <div className="flex-shrink-0">
+                      <input
+                        type="checkbox"
+                        checked={todo.is_completed}
+                        onChange={(e) =>
+                          handleCheckboxChange(e, todo.id, todo.is_completed)
+                        }
+                        onClick={(e) => e.stopPropagation()}
+                        className="h-4 w-4 rounded text-blue-600"
+                      />
+                    </div>
                   </div>
 
-                  {dueDate && (
-                    <div className="flex items-center">
-                      <FaClock className="mr-1" />
-                      <span>{dueDate}</span>
+                  {isReview && (
+                    <div className="mb-2 flex items-center text-sm text-amber-600 dark:text-amber-400">
+                      <FaExclamationCircle className="mr-1 flex-shrink-0" />
+                      <span>In Review</span>
                     </div>
                   )}
+
+                  <div className="flex-grow overflow-hidden">
+                    {todo.description && (
+                      <p
+                        className={`line-clamp-3 text-sm ${todo.is_completed ? 'text-gray-500' : 'text-gray-700 dark:text-gray-300'}`}
+                      >
+                        {todo.description}
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="mt-auto flex flex-wrap items-center justify-between gap-2 pt-2 text-xs text-gray-500 dark:text-gray-400">
+                    <div className="flex items-center">
+                      <FaFlag className={`mr-1 ${priority.textColor}`} />
+                      <span>Priority: {priority.label}</span>
+                    </div>
+
+                    {dueDate && (
+                      <div className="flex items-center">
+                        <FaClock className="mr-1" />
+                        <span>{dueDate}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="mt-auto flex justify-end space-x-2 border-t border-gray-200 p-2 dark:border-gray-700">
+                  {!isReview && !todo.is_completed && (
+                    <button
+                      className="p-1 text-amber-500 hover:text-amber-700 dark:text-amber-400"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        handleSetReview(e, todo.id)
+                      }}
+                      title="Set to Review"
+                    >
+                      <FaExclamationCircle />
+                    </button>
+                  )}
+                  {isReview && (
+                    <button
+                      className="p-1 text-green-500 hover:text-green-700 dark:text-green-400"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        handleApproveReview(e, todo.id)
+                      }}
+                      title="Approve"
+                    >
+                      <FaCheck />
+                    </button>
+                  )}
+                  <button
+                    className="p-1 text-blue-500 hover:text-blue-700 dark:text-blue-400"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      router.push(`/todo/${todo.id}/edit`)
+                    }}
+                  >
+                    <FaEdit />
+                  </button>
+                  <button
+                    className="p-1 text-red-500 hover:text-red-700 dark:text-red-400"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      handleDeleteTodo(todo.id, todo.title)
+                    }}
+                  >
+                    <FaTrash />
+                  </button>
                 </div>
               </div>
+            )
+          })}
 
-              <div className="mt-auto flex justify-end space-x-2 border-t border-gray-200 p-2 dark:border-gray-700">
-                {!isReview && !todo.is_completed && (
-                  <button
-                    className="p-1 text-amber-500 hover:text-amber-700 dark:text-amber-400"
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      handleSetReview(e, todo.id)
-                    }}
-                    title="Set to Review"
-                  >
-                    <FaExclamationCircle />
-                  </button>
-                )}
-                {isReview && (
-                  <button
-                    className="p-1 text-green-500 hover:text-green-700 dark:text-green-400"
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      handleApproveReview(e, todo.id)
-                    }}
-                    title="Approve"
-                  >
-                    <FaCheck />
-                  </button>
-                )}
-                <button
-                  className="p-1 text-blue-500 hover:text-blue-700 dark:text-blue-400"
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    router.push(`/todo/${todo.id}/edit`)
-                  }}
-                >
-                  <FaEdit />
-                </button>
-                <button
-                  className="p-1 text-red-500 hover:text-red-700 dark:text-red-400"
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    handleDeleteTodo(todo.id, todo.title)
-                  }}
-                >
-                  <FaTrash />
-                </button>
+          {/* Add new todo button */}
+          <div
+            className="dark:border-BorderDark dark:bg-BlackLight flex h-64 cursor-pointer items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-white transition-colors hover:border-blue-500 dark:hover:border-blue-500"
+            onClick={() => router.push('/todo/new')}
+          >
+            <div className="text-center">
+              <div className="mb-2 flex justify-center">
+                <FiPlus className="text-xl text-gray-400 dark:text-gray-500" />
               </div>
+              <p className="text-gray-500 dark:text-gray-400">Add New Task</p>
             </div>
-          )
-        })}
-
-        {/* Add new todo button */}
-        <div
-          className="dark:border-BorderDark dark:bg-BlackLight flex h-64 cursor-pointer items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-white transition-colors hover:border-blue-500 dark:hover:border-blue-500"
-          onClick={() => router.push('/todo/new')}
-        >
-          <div className="text-center">
-            <div className="mb-2 flex justify-center">
-              <FiPlus className="text-xl text-gray-400 dark:text-gray-500" />
-            </div>
-            <p className="text-gray-500 dark:text-gray-400">Add New Task</p>
           </div>
         </div>
-      </div>
+      )}
+
+      {/* Pagination Controls */}
+      {totalPages > 1 && (
+        <div className="mt-8 flex items-center justify-center gap-2">
+          <button
+            onClick={goToPreviousPage}
+            disabled={pageToShow === 1}
+            className={`rounded-md flex items-center gap-2 p-2  ${
+              pageToShow === 1
+                ? 'cursor-not-allowed text-gray-600/50 dark:text-gray-400/50'
+                : 'hover:bg-gray-300 group hover:text-primary  dark:hover:bg-gray-700'
+            }`}
+            aria-label="Previous page"
+          >
+            <FaChevronLeft className="h-4 w-4 group-hover:text-primary text-gray-600 dark:text-gray-400" /> Prev
+          </button>
+          
+          {/* Pagination numbers */}
+          <div className="flex gap-2 items-center">
+            {totalPages <= 7 ? (
+              // If we have 7 or fewer pages, show all of them
+              [...Array(totalPages)].map((_, i) => (
+                <button
+                  key={i + 1}
+                  onClick={() => paginate(i + 1)}
+                  className={`h-9 w-9 rounded-md ${
+                    pageToShow === i + 1
+                      ? 'bg-primary text-white'
+                      : 'text-gray-700 hover:bg-gray-300 dark:text-gray-300 dark:hover:bg-gray-700'
+                  }`}
+                >
+                  {i + 1}
+                </button>
+              ))
+            ) : (
+              // If we have more than 7 pages, show a subset with ellipsis
+              <>
+                {/* Always show first page */}
+                <button
+                  onClick={() => paginate(1)}
+                  className={`h-9 w-9 rounded-md ${
+                    pageToShow === 1
+                      ? 'bg-blue-600 text-white'
+                      : 'text-gray-700 hover:bg-gray-300 dark:text-gray-300 dark:hover:bg-gray-700'
+                  }`}
+                >
+                  1
+                                  </button>
+                
+                {/* Show ellipsis if not on pages 1-3 */}
+                {pageToShow > 3 && <span className="px-2 text-gray-500 dark:text-gray-400">...</span>}
+                
+                {/* Show pages around current page */}
+                {Array.from({ length: 3 }, (_, i) => {
+                  // Calculate which pages to show around current page
+                  const pageNum = pageToShow > 3 
+                    ? (pageToShow + i - 1 > totalPages - 3 
+                      ? totalPages - 4 + i 
+                      : pageToShow + i - 1) 
+                    : i + 2;
+                    
+                  // Only show if the page is between 2 and totalPages-1
+                  if (pageNum > 1 && pageNum < totalPages) {
+                    return (
+                      <button
+                        key={pageNum}
+                        onClick={() => paginate(pageNum)}
+                        className={`h-9 w-9 rounded-md ${
+                          pageToShow === pageNum
+                            ? 'bg-blue-600 text-white'
+                            : 'text-gray-700 hover:bg-gray-300 dark:text-gray-300 dark:hover:bg-gray-700'
+                        }`}
+                      >
+                        {pageNum}
+                      </button>
+                    );
+                  }
+                  return null;
+                })}
+                
+                {/* Show ellipsis if not on last 3 pages */}
+                {pageToShow < totalPages - 2 && (
+                  <span className="px-2 text-gray-500 dark:text-gray-400">...</span>
+                )}
+                
+                {/* Always show last page */}
+                <button
+                  onClick={() => paginate(totalPages)}
+                  className={`h-9 w-9 rounded-md ${
+                    pageToShow === totalPages
+                      ? 'bg-blue-600 text-white'
+                      : 'text-gray-700 hover:bg-gray-300 dark:text-gray-300 dark:hover:bg-gray-700'
+                  }`}
+                >
+                  {totalPages}
+                </button>
+              </>
+            )}
+          </div>
+          
+          <button
+            onClick={goToNextPage}
+            disabled={pageToShow === totalPages}
+            className={`rounded-md flex items-center gap-2 p-2 ${
+              pageToShow === totalPages
+                ? 'cursor-not-allowed text-gray-600/50 dark:text-gray-400/50'
+                : 'hover:bg-gray-300 hover:text-primary group dark:hover:bg-gray-700'
+            }`}
+            aria-label="Next page"
+          >
+            Next <FaChevronRight className="h-4 w-4 group-hover:text-primary text-gray-600 dark:text-gray-400" />
+          </button>
+        </div>
+      )}
 
       {/* Confirmation Dialog */}
       <ConfirmationDialog
