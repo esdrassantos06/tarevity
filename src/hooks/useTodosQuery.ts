@@ -12,9 +12,7 @@ export function useTodosQuery() {
         
         return result.data || []
       } catch (error) {
-        // Show the error toast inside the queryFn
         showError(error instanceof Error ? error.message : 'Failed to load tasks')
-        // Re-throw to let React Query know the query failed
         throw error
       }
     },
@@ -67,15 +65,13 @@ export function useCreateTodoMutation() {
             todo.id === context.tempId ? result.data! : todo
           )
         )
-        showSuccess('Task created successfully')
       }
     },
     
     onSettled: () => {
-      // Don't automatically refetch as it may override our optimistic update
       setTimeout(() => {
         queryClient.invalidateQueries({ queryKey: ['todos'] })
-      }, 300) // Small delay to avoid race conditions
+      }, 300)
     },
   })
 }
@@ -144,8 +140,6 @@ export function useUpdateTodoMutation() {
             showSuccess('Task moved to review')
           } else if (status === 'active') {
             showSuccess('Task approved and moved to active')
-          } else {
-            showSuccess('Task status updated')
           }
         } else {
           showSuccess('Task updated successfully')

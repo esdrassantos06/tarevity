@@ -149,34 +149,33 @@ export default function ProfileComponent() {
 
   // Handle delete image confirmation
   const confirmDeleteImage = () => {
-    setSelectedImage(null)
+    setSelectedImage(null);
     if (previewUrl) {
-      URL.revokeObjectURL(previewUrl)
-      setPreviewUrl(null)
+      URL.revokeObjectURL(previewUrl);
+      setPreviewUrl(null);
     }
-
+  
     deleteProfileImageMutation.mutate(undefined, {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      onSuccess: async (response) => {
-        // If there's a session, update it to reflect the image change
+      onSuccess: async () => {
+
         if (update && session) {
           await update({
             ...session,
             user: {
               ...session.user,
-              image: null, // Remove the image from the session
+              image: null, // Remover a imagem da sessão
             },
-          })
+          });
         }
-        setImageError(false)
-        refetchProfile() // Refresh profile data
-        toast.success('Profile image removed successfully')
+        setImageError(false);
+        refetchProfile(); // Atualizar os dados do perfil
+        toast.success('Profile image removed successfully');
       },
-    })
-
-    // Close the dialog
-    setIsDeleteDialogOpen(false)
-  }
+    });
+  
+    // Fechar o diálogo
+    setIsDeleteDialogOpen(false);
+  };
 
   // Handle opening the discard changes dialog
   const openDiscardDialog = () => {
@@ -233,26 +232,26 @@ export default function ProfileComponent() {
 
   // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-
+    e.preventDefault();
+  
     try {
       // First check if we have an image to upload
       if (selectedImage) {
         // Start loading state
-        const loadingToastId = toast.loading('Uploading image...')
-
+        const loadingToastId = toast.loading('Uploading image...');
+  
         // Upload the image first
         uploadImageMutation.mutate(selectedImage, {
           onSuccess: (response) => {
             // Only proceed if we got a valid URL
             if (response.data?.url) {
-              const imageUrl = ensureAbsoluteUrl(response.data.url)
+              const imageUrl = ensureAbsoluteUrl(response.data.url);
               // Update toast to show progress
               toast.update(loadingToastId, {
                 render: 'Updating profile...',
                 isLoading: true,
-              })
-
+              });
+  
               // Now update the profile with the new image URL
               updateProfileMutation.mutate(
                 {
@@ -262,8 +261,8 @@ export default function ProfileComponent() {
                 {
                   onSuccess: async (response) => {
                     // Clear loading toast
-                    toast.dismiss(loadingToastId)
-
+                    toast.dismiss(loadingToastId);
+  
                     if (update && response?.data) {
                       // Update the session with the new user data
                       await update({
@@ -273,39 +272,39 @@ export default function ProfileComponent() {
                           name: response.data.name,
                           image: response.data.image,
                         },
-                      })
-
+                      });
+  
                       // Refetch profile data to ensure we have the latest
-                      refetchProfile()
+                      refetchProfile();
                     }
-
-                    toast.success('Profile updated successfully!')
-                    setIsEditing(false)
-                    setSelectedImage(null)
+  
+                    toast.success('Profile updated successfully!');
+                    setIsEditing(false);
+                    setSelectedImage(null);
                     if (previewUrl) {
-                      URL.revokeObjectURL(previewUrl)
-                      setPreviewUrl(null)
+                      URL.revokeObjectURL(previewUrl);
+                      setPreviewUrl(null);
                     }
                   },
                   onError: (error) => {
-                    toast.dismiss(loadingToastId)
-                    toast.error('Error updating profile')
-                    console.error('Error updating profile:', error)
+                    toast.dismiss(loadingToastId);
+                    toast.error('Error updating profile');
+                    console.error('Error updating profile:', error);
                   },
                 },
-              )
+              );
             } else {
-              toast.dismiss(loadingToastId)
-              toast.error('Failed to upload image: No URL returned')
-              console.error('Upload response missing URL:', response)
+              toast.dismiss(loadingToastId);
+              toast.error('Failed to upload image: No URL returned');
+              console.error('Upload response missing URL:', response);
             }
           },
           onError: (error: unknown) => {
-            toast.dismiss(loadingToastId)
-            toast.error('Error uploading image')
-            console.error('Error uploading image:', error)
+            toast.dismiss(loadingToastId);
+            toast.error('Error uploading image');
+            console.error('Error uploading image:', error);
           },
-        })
+        });
       } else {
         // No image to upload, just update the profile with existing image
         updateProfileMutation.mutate(
@@ -323,26 +322,26 @@ export default function ProfileComponent() {
                     name: response.data.name,
                     image: response.data.image,
                   },
-                })
-
+                });
+  
                 // Refetch profile data
-                refetchProfile()
+                refetchProfile();
               }
-              toast.success('Profile updated successfully!')
-              setIsEditing(false)
+              toast.success('Profile updated successfully!');
+              setIsEditing(false);
             },
             onError: (error) => {
-              toast.error('Error updating profile')
-              console.error('Error updating profile:', error)
+              toast.error('Error updating profile');
+              console.error('Error updating profile:', error);
             },
           },
-        )
+        );
       }
     } catch (error) {
-      toast.error('An error occurred while updating your profile')
-      console.error('Error in form submission:', error)
+      toast.error('An error occurred while updating your profile');
+      console.error('Error in form submission:', error);
     }
-  }
+  };
 
   // Show loading state
   if (
@@ -464,7 +463,7 @@ export default function ProfileComponent() {
         priority
         unoptimized={
           true
-        } /* Disable Next.js image optimization for external URLs */
+        }
         onError={handleImageError}
       />
     ) : (
@@ -599,22 +598,6 @@ export default function ProfileComponent() {
           </div>
         </div>
       </div>
-
-      {/* Debug info section (only in development) */}
-      {process.env.NODE_ENV === 'development' && profileImageUrl && (
-        <div className="border-t border-gray-200 px-6 py-6 text-xs text-gray-500 dark:border-gray-700">
-          <h4 className="mb-2 font-bold">Debug Info</h4>
-          <p>Image URL: {profileImageUrl}</p>
-          <p>Has image error: {imageError ? 'Yes' : 'No'}</p>
-          <p>Provider: {profileData.provider || 'email'}</p>
-          <button
-            onClick={() => setImageError(false)}
-            className="mt-2 rounded bg-blue-500 px-2 py-1 text-white"
-          >
-            Reset image error
-          </button>
-        </div>
-      )}
 
       {/* Delete Profile Image Confirmation Dialog */}
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>

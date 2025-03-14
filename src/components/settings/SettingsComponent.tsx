@@ -191,7 +191,7 @@ export default function SettingsComponent() {
                       onClick={() => handleThemeChange('light')}
                     >
                       <FaSun
-                        className={`h-5 w-5 ${
+                        className={`h-5 hidden xs:flex w-5 ${
                           theme === 'light'
                             ? 'text-blue-600 dark:text-blue-400'
                             : 'text-gray-500 dark:text-gray-400'
@@ -209,7 +209,7 @@ export default function SettingsComponent() {
                       onClick={() => handleThemeChange('dark')}
                     >
                       <FaMoon
-                        className={`h-5 w-5 ${
+                        className={`h-5 hidden xs:flex w-5 ${
                           theme === 'dark'
                             ? 'text-blue-600 dark:text-blue-400'
                             : 'text-gray-500 dark:text-gray-400'
@@ -227,7 +227,7 @@ export default function SettingsComponent() {
                       onClick={() => handleThemeChange('system')}
                     >
                       <FaDesktop
-                        className={`h-5 w-5 ${
+                        className={`h-5 hidden xs:flex w-5 ${
                           theme === 'system'
                             ? 'text-blue-600 dark:text-blue-400'
                             : 'text-gray-500 dark:text-gray-400'

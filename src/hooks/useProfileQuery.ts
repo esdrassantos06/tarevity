@@ -52,7 +52,6 @@ export function useUpdateProfileMutation() {
         onSuccess: (response) => {
             queryClient.setQueryData(['profile'], response.data);
             queryClient.invalidateQueries({ queryKey: ['profile'] });
-            showSuccess('Profile updated successfully!');
         },
         onError: (error: Error) => {
             showError('Failed to update profile: ' + error.message);
@@ -64,9 +63,6 @@ export function useUpdateProfileMutation() {
 export function useUploadImageMutation() {
     return useMutation({
         mutationFn: (file: File) => profileAPI.uploadProfileImage(file),
-        onSuccess: () => {
-            showSuccess('Image uploaded successfully!');
-        },
         onError: (error: Error) => {
             showError('Failed to upload image: ' + error.message);
             console.error('Error uploading image:', error);
@@ -80,9 +76,7 @@ export function useDeleteProfileImageMutation() {
     return useMutation({
       mutationFn: () => profileAPI.deleteProfileImage(),
       onSuccess: () => {
-        // Invalidate profile query to refetch with updated data
         queryClient.invalidateQueries({ queryKey: ['profile'] });
-        showSuccess('Profile image removed successfully');
       },
       onError: (error: Error) => {
         showError('Failed to remove profile image: ' + error.message);

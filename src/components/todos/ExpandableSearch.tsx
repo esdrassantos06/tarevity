@@ -9,7 +9,7 @@ interface ExpandableSearchProps {
 
 const ExpandableSearch: React.FC<ExpandableSearchProps> = ({ value, onChange }) => {
   const [isExpanded, setIsExpanded] = useState(false);
-  const searchRef = useRef<HTMLDivElement | null>(null);
+  const searchRef = useRef<HTMLDivElement>(null);
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
@@ -37,30 +37,33 @@ const ExpandableSearch: React.FC<ExpandableSearchProps> = ({ value, onChange }) 
     setIsExpanded(!isExpanded);
   };
 
+  // Use grid for perfect icon centralization
   return (
     <div className="relative" ref={searchRef}>
       <div 
         className={`
-          flex items-center rounded-md border-2 border-BorderLight dark:border-BorderDark
+          grid grid-cols-[40px_1fr_auto] items-center
+          rounded-md border-2 border-BorderLight dark:border-BorderDark
           bg-white dark:bg-BlackLight overflow-hidden
           transition-all duration-300 ease-in-out
           ${isMobile ? 'w-40' : isExpanded ? 'w-60' : 'w-10'}
         `}
       >
-        <button
-          onClick={toggleSearch}
-          className="flex items-center justify-center h-10 w-10 flex-shrink-0 cursor-pointer"
-          aria-label={isExpanded ? "Collapse search" : "Expand search"}
-          type="button"
-        >
-          <FaSearch className="text-gray-400  transition-transform duration-300" />
-        </button>
+        <div className="grid relative place-items-center h-9 w-9">
+          <button
+            onClick={toggleSearch}
+            aria-label={isExpanded ? "Close search" : "Expand search"}
+            type="button"
+          >
+            <FaSearch className="text-gray-400" />
+          </button>
+        </div>
         
-        <div className="flex-grow transition-all duration-300 ease-in-out">
+        <div className="overflow-hidden transition-all duration-300">
           <input
             type="text"
             placeholder="Search..."
-            className="w-full bg-transparent outline-none dark:text-white"
+            className="w-full h-10 bg-transparent outline-none py-2 dark:text-white"
             value={value}
             onChange={onChange}
             tabIndex={isExpanded || isMobile ? 0 : -1}
@@ -69,17 +72,20 @@ const ExpandableSearch: React.FC<ExpandableSearchProps> = ({ value, onChange }) 
         </div>
         
         {!isMobile && (
-          <button 
-            onClick={toggleSearch}
-            className={`
-              px-2 text-gray-400 hover:text-gray-600 transition-all duration-300
-              ${isExpanded ? 'opacity-100 w-8' : 'opacity-0 w-0 pointer-events-none'}
-            `}
-            aria-label="Collapse search"
-            type="button"
-          >
-            ×
-          </button>
+          <div className={`
+            transition-all duration-300
+            ${isExpanded ? 'opacity-100 w-8' : 'opacity-0 w-0'}
+          `}>
+            <button 
+              onClick={toggleSearch}
+              className="h-10 w-8 flex items-center justify-center text-gray-400 hover:text-gray-600"
+              aria-label="Close search"
+              type="button"
+              tabIndex={isExpanded ? 0 : -1}
+            >
+              ×
+            </button>
+          </div>
         )}
       </div>
     </div>
