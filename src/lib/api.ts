@@ -222,6 +222,7 @@ export const profileAPI = {
       })
 
 
+
       return { data: response.data, error: null, loading: false }
     } catch (error) {
       return {
@@ -229,6 +230,21 @@ export const profileAPI = {
         error: isAPIError(error)
           ? error
           : { message: 'Error uploading profile image' },
+        loading: false,
+      }
+    }
+  },
+  
+  async deleteProfileImage(): Promise<ApiResult<{ message: string, provider: string | null }>> {
+    try {
+      const response = await axiosClient.delete('/api/profile/delete-image')
+      return { data: response.data, error: null, loading: false }
+    } catch (error) {
+      return {
+        data: null,
+        error: isAPIError(error)
+          ? error
+          : { message: 'Error deleting profile image' },
         loading: false,
       }
     }

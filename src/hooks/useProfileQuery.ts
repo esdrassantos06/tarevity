@@ -74,6 +74,23 @@ export function useUploadImageMutation() {
     });
 }
 
+export function useDeleteProfileImageMutation() {
+    const queryClient = useQueryClient();
+    
+    return useMutation({
+      mutationFn: () => profileAPI.deleteProfileImage(),
+      onSuccess: () => {
+        // Invalidate profile query to refetch with updated data
+        queryClient.invalidateQueries({ queryKey: ['profile'] });
+        showSuccess('Profile image removed successfully');
+      },
+      onError: (error: Error) => {
+        showError('Failed to remove profile image: ' + error.message);
+        console.error('Error deleting profile image:', error);
+      }
+    });
+  }
+
 export function useDeleteAccountMutation() {
     const queryClient = useQueryClient();
     

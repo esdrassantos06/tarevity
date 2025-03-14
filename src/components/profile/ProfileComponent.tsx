@@ -13,9 +13,24 @@ import {
   FaClipboardList,
   FaClipboardCheck,
   FaClock,
-  FaCamera
+  FaCamera,
+  FaTrash,
 } from 'react-icons/fa'
-import { useProfileQuery, useStatsQuery, useUpdateProfileMutation, useUploadImageMutation } from '@/hooks/useProfileQuery'
+import {
+  useProfileQuery,
+  useStatsQuery,
+  useUpdateProfileMutation,
+  useUploadImageMutation,
+  useDeleteProfileImageMutation,
+} from '@/hooks/useProfileQuery'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from '@/components/common/Dialog'
 
 export default function ProfileComponent() {
   const { data: session, update } = useSession()
@@ -29,21 +44,23 @@ export default function ProfileComponent() {
   // Add state to track image loading errors
   const [imageError, setImageError] = useState(false)
 
+  // Dialog states
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
+  const [isDiscardDialogOpen, setIsDiscardDialogOpen] = useState(false)
+
   // React Query hooks
-  const { 
-    data: profileData, 
-    isLoading: isLoadingProfile, 
+  const {
+    data: profileData,
+    isLoading: isLoadingProfile,
     error: profileError,
-    refetch: refetchProfile
+    refetch: refetchProfile,
   } = useProfileQuery()
-  
-  const { 
-    data: userStats, 
-    error: statsError 
-  } = useStatsQuery()
-  
+
+  const { data: userStats, error: statsError } = useStatsQuery()
+
   const updateProfileMutation = useUpdateProfileMutation()
   const uploadImageMutation = useUploadImageMutation()
+  const deleteProfileImageMutation = useDeleteProfileImageMutation()
 
   // Update the form when profile data is loaded
   useEffect(() => {
@@ -81,7 +98,6 @@ export default function ProfileComponent() {
     }
   }, [previewUrl])
 
-
   // Handle form input changes
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
@@ -106,7 +122,9 @@ export default function ProfileComponent() {
     // Check file type
     const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp']
     if (!allowedTypes.includes(file.type)) {
-      toast.error('Invalid file type. Please select a JPG, PNG, GIF, or WebP image.')
+      toast.error(
+        'Invalid file type. Please select a JPG, PNG, GIF, or WebP image.',
+      )
       return
     }
 
@@ -123,49 +141,90 @@ export default function ProfileComponent() {
     fileInputRef.current?.click()
   }
 
-  // Handle cancel edit
-  const handleCancelEdit = () => {
-    if (formData.name !== profileData?.name || selectedImage) {
-      if (
-        window.confirm(
-          'You have unsaved changes. Are you sure you want to discard them?',
-        )
-      ) {
-        setFormData({
-          name: profileData?.name || '',
-        })
-        setIsEditing(false)
-        setSelectedImage(null)
-        if (previewUrl) {
-          URL.revokeObjectURL(previewUrl)
-          setPreviewUrl(null)
+  // Handle opening the delete dialog
+  const openDeleteDialog = (e: React.MouseEvent) => {
+    e.stopPropagation() // Prevent triggering the file upload click
+    setIsDeleteDialogOpen(true)
+  }
+
+  // Handle delete image confirmation
+  const confirmDeleteImage = () => {
+    setSelectedImage(null)
+    if (previewUrl) {
+      URL.revokeObjectURL(previewUrl)
+      setPreviewUrl(null)
+    }
+
+    deleteProfileImageMutation.mutate(undefined, {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      onSuccess: async (response) => {
+        // If there's a session, update it to reflect the image change
+        if (update && session) {
+          await update({
+            ...session,
+            user: {
+              ...session.user,
+              image: null, // Remove the image from the session
+            },
+          })
         }
-      }
+        setImageError(false)
+        refetchProfile() // Refresh profile data
+        toast.success('Profile image removed successfully')
+      },
+    })
+
+    // Close the dialog
+    setIsDeleteDialogOpen(false)
+  }
+
+  // Handle opening the discard changes dialog
+  const openDiscardDialog = () => {
+    if (formData.name !== profileData?.name || selectedImage) {
+      setIsDiscardDialogOpen(true)
     } else {
       setIsEditing(false)
     }
   }
 
+  // Handle cancel edit confirmation
+  const confirmDiscardChanges = () => {
+    setFormData({
+      name: profileData?.name || '',
+    })
+    setIsEditing(false)
+    setSelectedImage(null)
+    if (previewUrl) {
+      URL.revokeObjectURL(previewUrl)
+      setPreviewUrl(null)
+    }
+    setIsDiscardDialogOpen(false)
+  }
+
   // Helper to ensure image URL has proper protocol
   const ensureAbsoluteUrl = (url: string | null | undefined): string | null => {
     if (!url) return null
-    
+
     // If URL doesn't have protocol, try to add it
     if (!url.startsWith('http')) {
       // Check if it's a Supabase storage URL
       if (url.includes('/storage/v1/object/')) {
-        const baseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://your-supabase-project.supabase.co'
+        const baseUrl =
+          process.env.NEXT_PUBLIC_SUPABASE_URL ||
+          'https://your-supabase-project.supabase.co'
         return `${baseUrl}${url.startsWith('/') ? '' : '/'}${url}`
       }
       // Return the URL with https protocol as a fallback
       return `https:${url.startsWith('//') ? '' : '//'}${url}`
     }
-    
+
     return url
   }
 
   // Handle image load error
-  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+  const handleImageError = (
+    e: React.SyntheticEvent<HTMLImageElement, Event>,
+  ) => {
     console.error('Image failed to load:', e.currentTarget.src)
     setImageError(true)
     // We could set a default avatar here if needed
@@ -174,14 +233,14 @@ export default function ProfileComponent() {
 
   // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-  
+    e.preventDefault()
+
     try {
       // First check if we have an image to upload
       if (selectedImage) {
         // Start loading state
-        const loadingToastId = toast.loading('Uploading image...');
-        
+        const loadingToastId = toast.loading('Uploading image...')
+
         // Upload the image first
         uploadImageMutation.mutate(selectedImage, {
           onSuccess: (response) => {
@@ -189,24 +248,23 @@ export default function ProfileComponent() {
             if (response.data?.url) {
               const imageUrl = ensureAbsoluteUrl(response.data.url)
               // Update toast to show progress
-              toast.update(loadingToastId, { 
-                render: 'Updating profile...', 
-                isLoading: true 
-              });
-              
+              toast.update(loadingToastId, {
+                render: 'Updating profile...',
+                isLoading: true,
+              })
+
               // Now update the profile with the new image URL
               updateProfileMutation.mutate(
-                { 
+                {
                   name: formData.name,
-                  image: imageUrl // Use the processed URL
-                }, 
+                  image: imageUrl, // Use the processed URL
+                },
                 {
                   onSuccess: async (response) => {
                     // Clear loading toast
-                    toast.dismiss(loadingToastId);
-                    
+                    toast.dismiss(loadingToastId)
+
                     if (update && response?.data) {
-                      
                       // Update the session with the new user data
                       await update({
                         ...session,
@@ -215,50 +273,49 @@ export default function ProfileComponent() {
                           name: response.data.name,
                           image: response.data.image,
                         },
-                      });
-                      
+                      })
+
                       // Refetch profile data to ensure we have the latest
-                      refetchProfile();
+                      refetchProfile()
                     }
-                    
-                    toast.success('Profile updated successfully!');
-                    setIsEditing(false);
-                    setSelectedImage(null);
+
+                    toast.success('Profile updated successfully!')
+                    setIsEditing(false)
+                    setSelectedImage(null)
                     if (previewUrl) {
-                      URL.revokeObjectURL(previewUrl);
-                      setPreviewUrl(null);
+                      URL.revokeObjectURL(previewUrl)
+                      setPreviewUrl(null)
                     }
                   },
                   onError: (error) => {
-                    toast.dismiss(loadingToastId);
-                    toast.error('Error updating profile');
-                    console.error('Error updating profile:', error);
-                  }
-                }
-              );
+                    toast.dismiss(loadingToastId)
+                    toast.error('Error updating profile')
+                    console.error('Error updating profile:', error)
+                  },
+                },
+              )
             } else {
-              toast.dismiss(loadingToastId);
-              toast.error('Failed to upload image: No URL returned');
-              console.error('Upload response missing URL:', response);
+              toast.dismiss(loadingToastId)
+              toast.error('Failed to upload image: No URL returned')
+              console.error('Upload response missing URL:', response)
             }
           },
           onError: (error: unknown) => {
-            toast.dismiss(loadingToastId);
-            toast.error('Error uploading image');
-            console.error('Error uploading image:', error);
-          }
-        });
+            toast.dismiss(loadingToastId)
+            toast.error('Error uploading image')
+            console.error('Error uploading image:', error)
+          },
+        })
       } else {
         // No image to upload, just update the profile with existing image
         updateProfileMutation.mutate(
-          { 
+          {
             name: formData.name,
-            image: profileData?.image
-          }, 
+            image: profileData?.image,
+          },
           {
             onSuccess: async (response) => {
               if (update && response?.data) {
-                
                 await update({
                   ...session,
                   user: {
@@ -266,29 +323,34 @@ export default function ProfileComponent() {
                     name: response.data.name,
                     image: response.data.image,
                   },
-                });
-                
+                })
+
                 // Refetch profile data
-                refetchProfile();
+                refetchProfile()
               }
-              toast.success('Profile updated successfully!');
-              setIsEditing(false);
+              toast.success('Profile updated successfully!')
+              setIsEditing(false)
             },
             onError: (error) => {
-              toast.error('Error updating profile');
-              console.error('Error updating profile:', error);
-            }
-          }
-        );
+              toast.error('Error updating profile')
+              console.error('Error updating profile:', error)
+            },
+          },
+        )
       }
     } catch (error) {
-      toast.error('An error occurred while updating your profile');
-      console.error('Error in form submission:', error);
+      toast.error('An error occurred while updating your profile')
+      console.error('Error in form submission:', error)
     }
-  };
+  }
 
   // Show loading state
-  if ((isLoadingProfile && !profileData) || updateProfileMutation.isPending || uploadImageMutation.isPending) {
+  if (
+    (isLoadingProfile && !profileData) ||
+    updateProfileMutation.isPending ||
+    uploadImageMutation.isPending ||
+    deleteProfileImageMutation.isPending
+  ) {
     return (
       <div className="flex h-64 items-center justify-center">
         <div className="h-12 w-12 animate-spin rounded-full border-4 border-blue-500 border-t-transparent"></div>
@@ -310,92 +372,108 @@ export default function ProfileComponent() {
   const profileImageUrl = ensureAbsoluteUrl(profileData.image)
 
   return (
-    <div className="bg-white dark:bg-BlackLight overflow-hidden rounded-lg shadow">
+    <div className="dark:bg-BlackLight overflow-hidden rounded-lg bg-white shadow">
       {/* Profile Header */}
       <div className="bg-primary h-32"></div>
 
       <div className="px-6 py-8">
         <div className="flex flex-col items-center md:flex-row">
-          {/* Profile Image */}
-          <div className="relative -mt-16 mb-4 md:mr-6 md:mb-0">
-            <div className="bg-bg-white border-BorderLight dark:border-BorderDark h-24 w-24 overflow-hidden rounded-full border-4 relative">
-              {isEditing ? (
-                <div className="relative">
-                  {/* Preview image or current image */}
-                  {previewUrl ? (
-                    <div
-                      className="h-full w-full cursor-pointer"
-                      onClick={handleImageClick}
-                    >
-                      <Image
-                        src={previewUrl}
-                        alt="Preview"
-                        width={96}
-                        height={96}
-                        className="h-full w-full object-cover"
-                        onError={handleImageError}
-                      />
-                    </div>
-                  ) : profileImageUrl && !imageError ? (
-                    <div
-                      className="h-full w-full cursor-pointer"
-                      onClick={handleImageClick}
-                    >
-                      <Image
-                        src={profileImageUrl}
-                        alt={profileData.name || 'Profile Picture'}
-                        width={96}
-                        height={96}
-                        className="h-full w-full object-cover"
-                        onError={handleImageError}
-                      />
-                    </div>
-                  ) : (
-                    <div
-                      className="flex h-full w-full cursor-pointer items-center justify-center bg-blue-100 dark:bg-blue-900"
-                      onClick={handleImageClick}
-                    >
-                      <FaUser className="h-12 w-12 text-blue-500 dark:text-blue-300" />
-                    </div>
-                  )}
-                  
-                  {/* Camera overlay */}
-                  <div
-                    className="absolute inset-0 flex items-center justify-center bg-black/50 cursor-pointer"
-                    onClick={handleImageClick}
-                  >
-                    <FaCamera className="h-8 w-8 text-white" />
-                  </div>
-                  
-                  {/* Hidden file input */}
-                  <input
-                    type="file"
-                    ref={fileInputRef}
-                    onChange={handleImageSelect}
-                    accept="image/jpeg,image/png,image/gif,image/webp"
-                    className="hidden"
-                  />
-                </div>
-              ) : (
-                profileImageUrl && !imageError ? (
-                  <Image
-                    src={profileImageUrl}
-                    alt={profileData.name || 'Profile Picture'}
-                    width={96}
-                    height={96}
-                    className="h-full w-full object-cover"
-                    priority
-                    unoptimized={true} /* Disable Next.js image optimization for external URLs */
-                    onError={handleImageError}
-                  />
-                ) : (
-                  <div className="flex h-full w-full items-center justify-center bg-blue-100 dark:bg-blue-900">
-                    <FaUser className="h-12 w-12 text-blue-500 dark:text-blue-300" />
-                  </div>
-                )
-              )}
-            </div>
+
+{/* Profile Image */}
+<div className="relative -mt-16 mb-4 md:mr-6 md:mb-0">
+  {/* Delete button positioned outside of the avatar container */}
+  {isEditing && profileImageUrl && !imageError && (
+    <button
+      className="absolute right-3 bottom-3 z-50 p-1.5 translate-x-1/2 translate-y-1/2 flex items-center justify-center rounded-full border-2 border-white bg-red-500 text-white shadow-md hover:bg-red-600 dark:border-gray-800"
+      onClick={(e) => {
+        e.stopPropagation();
+        openDeleteDialog(e);
+      }}
+      title="Remove profile image"
+      type="button"
+    >
+      <FaTrash className="h-4 w-4" />
+    </button>
+  )}
+  
+  <div className="bg-bgLight border-BorderLight dark:border-BorderDark relative h-24 w-24 overflow-hidden rounded-full border-4">
+    {isEditing ? (
+      <div className="relative w-full h-full">
+        {/* Preview image or current image */}
+        {previewUrl ? (
+          <div
+            className="h-full w-full cursor-pointer"
+            onClick={handleImageClick}
+          >
+            <Image
+              src={previewUrl}
+              alt="Preview"
+              width={96}
+              height={96}
+              className="h-full w-full object-cover"
+              onError={handleImageError}
+            />
           </div>
+        ) : profileImageUrl && !imageError ? (
+          <div
+            className="h-full w-full cursor-pointer"
+            onClick={handleImageClick}
+          >
+            <Image
+              src={profileImageUrl}
+              alt={profileData.name || 'Profile Picture'}
+              width={96}
+              height={96}
+              className="h-full w-full object-cover"
+              onError={handleImageError}
+            />
+          </div>
+        ) : (
+          <div
+            className="flex h-full w-full cursor-pointer items-center justify-center bg-blue-100 dark:bg-blue-900"
+            onClick={handleImageClick}
+          >
+            <FaUser className="h-12 w-12 text-blue-500 dark:text-blue-300" />
+          </div>
+        )}
+
+        {/* Camera overlay */}
+        <div
+          className="absolute inset-0 flex cursor-pointer items-center justify-center bg-black/50"
+          onClick={handleImageClick}
+        >
+          <FaCamera className="h-8 w-8 text-white" />
+        </div>
+
+        {/* Hidden file input */}
+        <input
+          type="file"
+          ref={fileInputRef}
+          onChange={handleImageSelect}
+          accept="image/jpeg,image/png,image/gif,image/webp"
+          className="hidden"
+        />
+      </div>
+    ) : profileImageUrl && !imageError ? (
+      <Image
+        src={profileImageUrl}
+        alt={profileData.name || 'Profile Picture'}
+        width={96}
+        height={96}
+        className="h-full w-full object-cover"
+        priority
+        unoptimized={
+          true
+        } /* Disable Next.js image optimization for external URLs */
+        onError={handleImageError}
+      />
+    ) : (
+      <div className="flex h-full w-full items-center justify-center bg-blue-100 dark:bg-blue-900">
+        <FaUser className="h-12 w-12 text-blue-500 dark:text-blue-300" />
+      </div>
+    )}
+  </div>
+</div>
 
           {/* Profile Info & Form */}
           <div className="flex-1">
@@ -415,7 +493,11 @@ export default function ProfileComponent() {
                     value={formData.name}
                     onChange={handleChange}
                     className="mt-1 block w-full rounded-md p-2 shadow-sm outline-none focus:border-blue-500 focus:ring-blue-500 dark:bg-zinc-700 dark:text-white"
-                    disabled={updateProfileMutation.isPending || uploadImageMutation.isPending}
+                    disabled={
+                      updateProfileMutation.isPending ||
+                      uploadImageMutation.isPending ||
+                      deleteProfileImageMutation.isPending
+                    }
                     required
                   />
                 </div>
@@ -423,15 +505,23 @@ export default function ProfileComponent() {
                 <div className="flex space-x-3">
                   <button
                     type="submit"
-                    disabled={updateProfileMutation.isPending || uploadImageMutation.isPending}
+                    disabled={
+                      updateProfileMutation.isPending ||
+                      uploadImageMutation.isPending ||
+                      deleteProfileImageMutation.isPending
+                    }
                     className="bg-primary hover:bg-primaryHover inline-flex items-center rounded-md border border-transparent px-4 py-2 text-sm font-medium text-white shadow-sm outline-none"
                   >
                     <FaSave className="mr-2 -ml-1 h-4 w-4" />
-                    {updateProfileMutation.isPending || uploadImageMutation.isPending ? 'Saving...' : 'Save'}
+                    {updateProfileMutation.isPending ||
+                    uploadImageMutation.isPending ||
+                    deleteProfileImageMutation.isPending
+                      ? 'Saving...'
+                      : 'Save'}
                   </button>
                   <button
                     type="button"
-                    onClick={handleCancelEdit}
+                    onClick={openDiscardDialog}
                     className="inline-flex items-center rounded-md bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm outline-none hover:bg-gray-50 dark:bg-zinc-600 dark:text-gray-200 dark:hover:bg-zinc-700"
                   >
                     <FaTimes className="mr-2 -ml-1 h-4 w-4" />
@@ -516,7 +606,8 @@ export default function ProfileComponent() {
           <h4 className="mb-2 font-bold">Debug Info</h4>
           <p>Image URL: {profileImageUrl}</p>
           <p>Has image error: {imageError ? 'Yes' : 'No'}</p>
-          <button 
+          <p>Provider: {profileData.provider || 'email'}</p>
+          <button
             onClick={() => setImageError(false)}
             className="mt-2 rounded bg-blue-500 px-2 py-1 text-white"
           >
@@ -524,6 +615,59 @@ export default function ProfileComponent() {
           </button>
         </div>
       )}
+
+      {/* Delete Profile Image Confirmation Dialog */}
+      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <DialogContent onClick={(e) => e.stopPropagation()}>
+          <DialogHeader>
+            <DialogTitle>Delete Profile Image</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to remove your profile image? This action
+              cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <button
+              onClick={() => setIsDeleteDialogOpen(false)}
+              className="rounded-md border border-gray-300 px-4 py-2 text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={confirmDeleteImage}
+              className="rounded-md bg-red-600 px-4 py-2 text-white hover:bg-red-700"
+            >
+              Delete
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Discard Changes Confirmation Dialog */}
+      <Dialog open={isDiscardDialogOpen} onOpenChange={setIsDiscardDialogOpen}>
+        <DialogContent onClick={(e) => e.stopPropagation()}>
+          <DialogHeader>
+            <DialogTitle>Discard Changes</DialogTitle>
+            <DialogDescription>
+              You have unsaved changes. Are you sure you want to discard them?
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <button
+              onClick={() => setIsDiscardDialogOpen(false)}
+              className="rounded-md border border-gray-300 px-4 py-2 text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={confirmDiscardChanges}
+              className="rounded-md bg-amber-600 px-4 py-2 text-white hover:bg-amber-700"
+            >
+              Discard Changes
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
