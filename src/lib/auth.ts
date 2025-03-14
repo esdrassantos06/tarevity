@@ -13,12 +13,10 @@ export function validatePasswordStrength(password: string): {
   const errors: string[] = []
   let score = 0
 
-  // Length check
   if (password.length >= 8) score += 10
   if (password.length >= 12) score += 10
   if (password.length < 8) errors.push('Password must be at least 8 characters')
 
-  // Character variety checks
   const hasUppercase = /[A-Z]/.test(password)
   const hasLowercase = /[a-z]/.test(password)
   const hasDigit = /[0-9]/.test(password)
@@ -35,7 +33,7 @@ export function validatePasswordStrength(password: string): {
   if (!hasSpecial) errors.push('Password must contain special characters')
 
   // Check for common patterns
-  const hasRepeatingChars = /(.)\1{2,}/.test(password) // e.g., 'aaa'
+  const hasRepeatingChars = /(.)\1{2,}/.test(password)
   const hasSequentialChars =
     /(abc|bcd|cde|def|efg|fgh|ghi|hij|ijk|jkl|klm|lmn|mno|nop|opq|pqr|qrs|rst|stu|tuv|uvw|vwx|wxy|xyz|012|123|234|345|456|567|678|789)/i.test(
       password,
@@ -82,7 +80,6 @@ export async function emailExists(email: string): Promise<boolean> {
     .single()
 
   if (error && error.code !== 'PGRST116') {
-    // PGRST116 is the "no rows returned" error
     console.error('Error checking if email exists:', error)
   }
 

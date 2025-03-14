@@ -14,7 +14,6 @@ import ConfirmationDialog, {
   useConfirmationDialog,
 } from '@/components/common/ConfirmationDialog'
 
-// Define interface for our Todo item
 interface Todo {
   id: string
   title: string
@@ -22,10 +21,9 @@ interface Todo {
   priority: number
   due_date: string | null
   is_completed: boolean
-  status?: 'active' | 'review' | 'completed' // Added status field
+  status?: 'active' | 'review' | 'completed'
 }
 
-// Define form data interface
 interface TodoFormData {
   title: string
   description: string
@@ -35,14 +33,12 @@ interface TodoFormData {
   status: 'active' | 'review' | 'completed'
 }
 
-// Define props interface
 interface TodoEditPageProps {
   todoId: string
 }
 
 const formatDateForInput = (dateString: string | null): string => {
   if (!dateString) return ''
-  // Convert date to yyyy-MM-dd format for date input
   const date = new Date(dateString)
   return date.toISOString().split('T')[0]
 }
@@ -63,7 +59,6 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
 
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
 
-  // Find the todo when data is loaded
   useEffect(() => {
     if (todos.length > 0) {
       const todo = todos.find((t) => t.id === todoId)
@@ -77,7 +72,6 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
           status: todo.status || 'active',
         })
       } else {
-        // Todo not found, redirect to dashboard
         router.push('/dashboard')
       }
     }
@@ -106,7 +100,6 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
     const { name, value, type } = e.target
     const checked = (e.target as HTMLInputElement).checked
 
-    // If checkbox is checked, set status to completed
     if (name === 'is_completed' && type === 'checkbox') {
       setFormData({
         ...formData,
@@ -126,7 +119,6 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
-    // Format the data for submission
     const updateData = {
       ...formData,
       priority: Number(formData.priority),

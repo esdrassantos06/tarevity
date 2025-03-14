@@ -13,7 +13,6 @@ export async function GET(req: Request) {
       )
     }
 
-    // Find the token directly in the database - no caching
     const { data, error } = await supabaseAdmin
       .from('password_reset_tokens')
       .select('*')
@@ -28,12 +27,10 @@ export async function GET(req: Request) {
       )
     }
 
-    // Check if the token has expired
     const expiresAt = new Date(data.expires_at)
     const now = new Date()
 
     if (now > expiresAt) {
-      // Mark the token as used since it expired
       await supabaseAdmin
         .from('password_reset_tokens')
         .update({ used: true })

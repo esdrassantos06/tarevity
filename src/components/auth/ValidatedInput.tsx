@@ -48,16 +48,12 @@ export default function ValidatedInput({
   const [isTouched, setIsTouched] = useState(false)
   const [inputValue, setInputValue] = useState('')
 
-  // Handle input focus
   const handleFocus = () => {
     setIsFocused(true)
   }
 
-  // Fix TypeScript errors by properly handling event registration
-  // First, destructure only the ref from registration to avoid conflicts
   const { ref, ...restRegistration } = registration
 
-  // Handle our own events, but make sure to call the original handlers too
   const handleBlur = () => {
     setIsFocused(false)
     setIsTouched(true)
@@ -67,12 +63,10 @@ export default function ValidatedInput({
     setInputValue(e.target.value)
   }
 
-  // Toggle password visibility
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword)
   }
 
-  // Determine input type (for password visibility)
   const inputType = type === 'password' && showPassword ? 'text' : type
 
   return (
@@ -121,7 +115,6 @@ export default function ValidatedInput({
             error ? `${id}-error` : helperText ? `${id}-helper` : undefined
           }
           ref={ref}
-          // These handlers run BEFORE the react-hook-form handlers
           onFocus={handleFocus}
           onBlur={(e) => {
             handleBlur()
@@ -131,7 +124,6 @@ export default function ValidatedInput({
             handleChange(e)
             if (restRegistration.onChange) restRegistration.onChange(e)
           }}
-          // Spread the remaining registration props
           name={restRegistration.name}
         />
 

@@ -35,11 +35,9 @@ export function useRegisterMutation() {
     }) => authAPI.register(name, email, password),
     onSuccess: () => {
       toast.success('Account created successfully! Please log in to continue.')
-      // Optionally clear cached password checks after successful registration
       queryClient.invalidateQueries({ queryKey: ['passwordCheck'] })
     },
     onError: (error: Error) => {
-      // Error handling is handled in the component to maintain custom logic
       console.error('Registration error:', error)
     },
   })

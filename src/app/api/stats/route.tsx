@@ -13,7 +13,6 @@ export async function GET() {
 
     const userId = session.user.id
 
-    // Get total tasks count
     const { count: totalCount, error: totalError } = await supabaseAdmin
       .from('todos')
       .select('*', { count: 'exact', head: true })
@@ -23,7 +22,6 @@ export async function GET() {
       throw totalError
     }
 
-    // Get completed tasks count
     const { count: completedCount, error: completedError } = await supabaseAdmin
       .from('todos')
       .select('*', { count: 'exact', head: true })
@@ -34,7 +32,6 @@ export async function GET() {
       throw completedError
     }
 
-    // Calculate pending tasks
     const pendingCount = (totalCount || 0) - (completedCount || 0)
 
     return NextResponse.json(

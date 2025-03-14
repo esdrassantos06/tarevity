@@ -183,7 +183,6 @@ export const authOptions: NextAuthOptions = {
               refreshTokenStored: true,
             }
           } else {
-            // Create new user
             const { data: newUser, error: insertError } = await supabase
               .from('users')
               .insert([
@@ -231,7 +230,6 @@ export const authOptions: NextAuthOptions = {
           }
         } catch (error) {
           console.error('Unexpected error in JWT callback:', error)
-          // Fallback to ensure a valid token is returned
           return {
             ...token,
             id: user.id,

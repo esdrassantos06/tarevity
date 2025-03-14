@@ -44,7 +44,6 @@ export async function POST(req: Request) {
 
 async function checkPasswordWithHIBP(password: string): Promise<boolean> {
   try {
-    // Compute the SHA-1 hash of the password
     const encoder = new TextEncoder()
     const data = encoder.encode(password)
     const hashBuffer = await crypto.subtle.digest('SHA-1', data)
@@ -67,10 +66,8 @@ async function checkPasswordWithHIBP(password: string): Promise<boolean> {
       },
     )
 
-    // Get the response text (list of hash suffixes and counts)
     const text = await response.data
 
-    // Check if the password is in the results
     const lines = text.split(/\r?\n/)
     for (const line of lines) {
       const parts = line.split(':')

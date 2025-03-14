@@ -17,9 +17,8 @@ export default function Logo({
       height={height}
       className={className}
       preserveAspectRatio="xMidYMid meet"
-      id="beabbeha"
     >
-      <g id="SvgjsG1319" transform="matrix(0.95,0,0,0.95,0,0)">
+      <g transform="matrix(0.95,0,0,0.95,0,0)">
         <path
           xmlns="http://www.w3.org/2000/svg"
           fillRule="evenodd"
@@ -28,7 +27,6 @@ export default function Logo({
         ></path>
       </g>
       <g
-        id="SvgjsG1320"
         className={className}
         transform="matrix(3,0,0,3,90,10)"
       >

@@ -19,7 +19,6 @@ export async function POST(req: NextRequest) {
 
     if (rateLimit) return rateLimit
 
-    // Validate input
     if (!email || typeof email !== 'string') {
       return NextResponse.json(
         { message: 'Email is required' },
@@ -27,7 +26,6 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // Check if the user exists
     const { data: user, error: userError } = await supabaseAdmin
       .from('users')
       .select('id, email')
@@ -44,23 +42,19 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // Generate a secure token
     const resetToken = Array.from(crypto.getRandomValues(new Uint8Array(32)))
       .map((byte) => byte.toString(16).padStart(2, '0'))
       .join('')
 
-    // Set expiration (1 hour from now)
     const expiresAt = new Date()
     expiresAt.setHours(expiresAt.getHours() + 1)
 
-    // Invalidate previous tokens for this user
     await supabaseAdmin
       .from('password_reset_tokens')
       .update({ used: true })
       .eq('user_id', user.id)
       .eq('used', false)
 
-    // Save the new token in the database
     const { error: tokenError } = await supabaseAdmin
       .from('password_reset_tokens')
       .insert([
@@ -76,7 +70,6 @@ export async function POST(req: NextRequest) {
       throw new Error('Error generating reset token')
     }
 
-    // Send email with the reset link
     await sendPasswordResetEmail(user.email, resetToken)
 
     return NextResponse.json(
@@ -87,7 +80,6 @@ export async function POST(req: NextRequest) {
       { status: 200 },
     )
   } catch (error: unknown) {
-    // Check if the error is an instance of Error
     if (error instanceof Error) {
       console.error('Error in forgot password API:', error)
       return NextResponse.json(

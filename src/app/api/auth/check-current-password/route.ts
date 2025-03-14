@@ -6,7 +6,6 @@ export async function POST(req: Request) {
   try {
     const { token, password } = await req.json()
 
-    // Validate input
     if (!token || !password) {
       return NextResponse.json(
         { message: 'Token and password are required' },
@@ -28,7 +27,6 @@ export async function POST(req: Request) {
       )
     }
 
-    // Get the current user's password hash directly
     const { data: userData, error: userError } = await supabaseAdmin
       .from('users')
       .select('password')
@@ -42,7 +40,6 @@ export async function POST(req: Request) {
       )
     }
 
-    // Check if the new password matches the current one
     const isCurrentPassword = await verifyPassword(password, userData.password)
 
     return NextResponse.json({ isCurrentPassword }, { status: 200 })

@@ -2,11 +2,9 @@ import axios, { AxiosError } from 'axios'
 import { getSession, getCsrfToken } from 'next-auth/react'
 import { showError, showWarning } from '@/lib/toast'
 
-// Define the expected structure of API error responses
 export interface APIErrorResponse {
   message: string
   code?: string
-  // Add any other fields your API might return in errors
   details?: Record<string, unknown>
 }
 
@@ -28,10 +26,8 @@ const axiosClient = axios.create({
   withCredentials: true,
 })
 
-// Request interceptor
 axiosClient.interceptors.request.use(
   async (config) => {
-    // Only run in browser environment
     if (typeof window !== 'undefined') {
       try {
         const session = await getSession()
@@ -49,7 +45,6 @@ axiosClient.interceptors.request.use(
   (error) => Promise.reject(error),
 )
 
-// Response interceptor with improved error handling and toast notifications
 axiosClient.interceptors.response.use(
   (response) => response,
   (error: AxiosError<APIErrorResponse>) => {
@@ -59,12 +54,10 @@ axiosClient.interceptors.response.use(
 
     if (error.response) {
       const status = error.response.status
-      // Properly typed errorData
       const errorData = error.response.data
 
       switch (status) {
         case 401:
-          // Handle unauthorized - redirect to login
           showError('Your session has expired. Please log in again.')
           if (typeof window !== 'undefined') {
             window.location.href = '/auth/login?error=session_expired'
@@ -72,7 +65,6 @@ axiosClient.interceptors.response.use(
           break
 
         case 429:
-          // Rate limiting
           const retryAfter = error.response.headers['retry-after']
           const waitTime = retryAfter ? parseInt(retryAfter, 10) : 60
 
@@ -88,14 +80,12 @@ axiosClient.interceptors.response.use(
           break
 
         default:
-          // For other error statuses
           if (errorData?.message) {
             showError(errorData.message)
           }
           break
       }
 
-      // Return standardized error object
       return Promise.reject({
         message: errorData?.message || 'An error occurred',
         status,
@@ -103,7 +93,6 @@ axiosClient.interceptors.response.use(
       } as APIError)
     }
 
-    // Network errors
     if (error.request) {
       showError(
         'Unable to connect to server. Please check your internet connection.',
@@ -115,7 +104,6 @@ axiosClient.interceptors.response.use(
       } satisfies APIError)
     }
 
-    // Other errors
     return Promise.reject({
       message: error.message || 'Unknown error occurred',
       status: undefined,

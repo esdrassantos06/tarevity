@@ -11,11 +11,9 @@ export function useProfileQuery() {
         if (result.error) throw new Error(result.error.message)
         return result.data
       } catch (error) {
-        // Handle and transform the error
         showError(
           error instanceof Error ? error.message : 'Failed to load profile',
         )
-        // Re-throw to let React Query know the query failed
         throw error
       }
     },
@@ -34,11 +32,9 @@ export function useStatsQuery() {
         if (result.error) throw new Error(result.error.message)
         return result.data
       } catch (error) {
-        // Handle and transform the error
         showError(
           error instanceof Error ? error.message : 'Failed to load statistics',
         )
-        // Re-throw to let React Query know the query failed
         throw error
       }
     },

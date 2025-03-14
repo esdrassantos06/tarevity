@@ -5,7 +5,6 @@ import { supabaseAdmin } from '@/lib/supabaseAdmin'
 
 export async function DELETE() {
   try {
-    // Get the authenticated user's session
     const session = await getServerSession(authOptions)
 
     if (!session?.user?.id) {
@@ -13,10 +12,6 @@ export async function DELETE() {
     }
 
     const userId = session.user.id
-
-    // Start a transaction to ensure all deletions succeed or fail together
-    // Since Supabase JS client doesn't directly support transactions,
-    // we'll do this in sequential steps with careful error handling
 
     // Step 1: Delete all todos belonging to the user
     const { error: todosError } = await supabaseAdmin

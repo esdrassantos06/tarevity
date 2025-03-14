@@ -22,7 +22,7 @@ const defaultOptions: ToastOptions = {
 export const showSuccess = (message: string, options?: ToastOptions) => {
   return toast.success(message, {
     ...defaultOptions,
-    icon: <FaCheck />, // ✅ JSX correto
+    icon: <FaCheck />,
     ...options,
   })
 }
@@ -39,7 +39,6 @@ export const showError = (message: string, options?: ToastOptions) => {
   })
 }
 
-// Warning toast with triangle icon
 export const showWarning = (message: string, options?: ToastOptions) => {
   return toast.warning(message, {
     ...defaultOptions,
@@ -48,7 +47,6 @@ export const showWarning = (message: string, options?: ToastOptions) => {
   })
 }
 
-// Info toast with info icon
 export const showInfo = (message: string, options?: ToastOptions) => {
   return toast.info(message, {
     ...defaultOptions,
@@ -57,7 +55,6 @@ export const showInfo = (message: string, options?: ToastOptions) => {
   })
 }
 
-// Update an existing toast (for loading states)
 export const updateToast = (
   toastId: string | number,
   message: string,
@@ -69,7 +66,6 @@ export const updateToast = (
   })
 }
 
-// Loading toast that can be updated later
 export const showLoading = (message: string, options?: ToastOptions) => {
   return toast.loading(message, {
     ...defaultOptions,
@@ -78,12 +74,10 @@ export const showLoading = (message: string, options?: ToastOptions) => {
   })
 }
 
-// Dismiss all toasts
 export const dismissAll = () => {
   toast.dismiss()
 }
 
-// Helper to handle common error patterns
 export const handleError = (
   error: unknown,
   fallbackMessage: string = 'An unexpected error occurred',

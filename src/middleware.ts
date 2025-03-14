@@ -63,10 +63,8 @@ export async function middleware(request: NextRequest) {
     .trim()
   const response = NextResponse.next()
 
-  // Set Security Headers
   response.headers.set('Content-Security-Policy', cspHeader)
 
-  // CORS Configuration
   const origin = request.headers.get('origin')
   const allowedOrigins = [
     process.env.NEXT_PUBLIC_APP_URL || 'https://www.tarevity.pt',
@@ -74,9 +72,7 @@ export async function middleware(request: NextRequest) {
     'https://github.com',
   ]
 
-  // Only set CORS headers for API routes
   if (pathname.startsWith('/api/')) {
-    // Only set the CORS headers if the origin is in our allowed list
     if (origin && allowedOrigins.includes(origin)) {
       response.headers.set('Access-Control-Allow-Origin', origin)
       response.headers.set(
@@ -90,7 +86,6 @@ export async function middleware(request: NextRequest) {
       response.headers.set('Access-Control-Allow-Credentials', 'true')
     }
 
-    // Handle preflight requests
     if (request.method === 'OPTIONS') {
       return new NextResponse(null, {
         status: 200,
@@ -99,12 +94,10 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // Skip authentication logic for API routes
   if (pathname.startsWith('/api/')) {
     return response
   }
 
-  // Authentication logic
   const token = await getToken({
     req: request,
     secureCookie: process.env.NODE_ENV === 'production',
@@ -145,7 +138,6 @@ export async function middleware(request: NextRequest) {
   return response
 }
 
-// Make sure your matcher includes all API paths but excludes OAuth callback paths
 export const config = {
   matcher: [
     '/dashboard/:path*',
@@ -154,7 +146,6 @@ export const config = {
     '/auth/login',
     '/auth/register',
     '/((?!api/auth/callback).*)',
-    // Include specific API routes
     '/api/todos/:path*',
     '/api/profile/:path*',
     '/api/stats/:path*',

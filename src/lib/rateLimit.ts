@@ -11,22 +11,18 @@ export async function rateLimiter(
   options: {
     limit: number
     window: number
-    identifier?: string // Custom identifier (defaults to IP)
+    identifier?: string
   },
 ) {
   const { limit, window, identifier } = options
 
-  // Get identifier - use IP if not provided
   const ip = req.headers.get('x-forwarded-for')?.split(',')[0] || 'anonymous'
   const id = identifier || ip
 
-  // Create a unique key for this rate limit
   const key = `rate-limit:${req.nextUrl.pathname}:${id}`
 
-  // Get current count
   const count = ((await redis.get(key)) as number) || 0
 
-  // Check if limit is exceeded
   if (count >= limit) {
     return NextResponse.json(
       { error: 'Too many requests', retryAfter: window },
@@ -34,13 +30,11 @@ export async function rateLimiter(
     )
   }
 
-  // Increment count and set expiry if it's the first request
   if (count === 0) {
     await redis.set(key, 1, { ex: window })
   } else {
     await redis.incr(key)
   }
 
-  // Continue to the actual handler
   return null
 }

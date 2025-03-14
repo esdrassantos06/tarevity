@@ -42,12 +42,10 @@ export default function EnhancedForgotPasswordForm() {
 
   const watchedEmail = watch('email')
 
-  // Email validation handler
   const handleEmailValidation = (isValid: boolean) => {
     setEmailValid(isValid)
   }
 
-  // Handle form submission
   const onSubmit = async (data: ForgotPasswordFormValues) => {
     if (!emailValid) {
       setFormError('email', {
@@ -72,7 +70,6 @@ export default function EnhancedForgotPasswordForm() {
           },
         )
       } else {
-        // If successful, update UI to show success message
         setIsSubmitted(true)
         toast.success(
           result.data?.message || 'Recovery instructions sent to your email',
@@ -94,7 +91,6 @@ export default function EnhancedForgotPasswordForm() {
     }
   }
 
-  // Show different UI based on submission status
   return (
     <div className="dark:bg-BlackLight mx-auto w-full max-w-md rounded-lg bg-white p-6 shadow-md">
       <div className="mb-6 text-center">

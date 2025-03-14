@@ -4,6 +4,7 @@ import React from 'react'
 import CookieConsent from 'react-cookie-consent'
 import { useTheme } from 'next-themes'
 import TarevityIcon from '@/components/logo/TarevityIcon'
+import Link from 'next/link'
 
 export default function CookieBanner() {
   const { resolvedTheme } = useTheme()
@@ -43,7 +44,7 @@ export default function CookieBanner() {
       <TarevityIcon className="mr-4 inline w-10 dark:fill-white" />
       We use cookies to improve your experience on our site. By continuing to
       browse, you agree to our{' '}
-      <a
+      <Link
         href="/privacy"
         style={{
           color: '#003cff',
@@ -51,7 +52,7 @@ export default function CookieBanner() {
         }}
       >
         Privacy Policy
-      </a>
+      </Link>
       .
     </CookieConsent>
   )

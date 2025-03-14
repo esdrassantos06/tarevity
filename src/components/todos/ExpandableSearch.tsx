@@ -43,7 +43,6 @@ const ExpandableSearch: React.FC<ExpandableSearchProps> = ({
     setIsExpanded(!isExpanded)
   }
 
-  // Use grid for perfect icon centralization
   return (
     <div className="relative" ref={searchRef}>
       <div

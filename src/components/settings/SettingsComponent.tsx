@@ -20,7 +20,7 @@ export default function SettingsComponent() {
   const [activeTab, setActiveTab] = useState('appearance')
   const router = useRouter()
 
-  // Use our confirmation dialog hook
+
   const {
     dialogState,
     openConfirmDialog,
@@ -28,7 +28,7 @@ export default function SettingsComponent() {
     setLoading: setDialogLoading,
   } = useConfirmationDialog()
 
-  // Use React Query hooks instead of direct API calls
+
   const {
     data: profileData,
     isLoading: isLoadingProfile,
@@ -37,13 +37,11 @@ export default function SettingsComponent() {
 
   const deleteAccountMutation = useDeleteAccountMutation()
 
-  // Display query errors if they occur
   if (profileError) {
     console.error('Error fetching profile:', profileError)
     showError('Could not load your profile information')
   }
 
-  // Function to handle theme change
   const handleThemeChange = (newTheme: string) => {
     setTheme(newTheme)
     showSuccess(
@@ -53,9 +51,7 @@ export default function SettingsComponent() {
     )
   }
 
-  // Function to handle account deletion
   const handleDeleteAccount = () => {
-    // First confirmation
     openConfirmDialog({
       title: 'Delete Account',
       description:
@@ -80,19 +76,15 @@ export default function SettingsComponent() {
 
                 const toastId = showLoading('Deleting your account...')
 
-                // Use React Query mutation instead of direct axios call
                 deleteAccountMutation.mutate(undefined, {
                   onSuccess: async () => {
-                    // Update the toast message
                     updateToast(toastId, 'Account deleted successfully', {
                       type: 'success',
                       isLoading: false,
                       autoClose: 3000,
                     })
 
-                    // Sign out the user
                     await signOut({ redirect: false })
-                    // Redirect to home page
                     router.push('/')
                   },
                   onError: (error) => {

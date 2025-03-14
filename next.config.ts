@@ -14,7 +14,6 @@ const nextConfig: NextConfig = {
       {
         source: '/:path*',
         headers: [
-          // Security Headers
           {
             key: 'X-Content-Type-Options',
             value: 'nosniff',
@@ -44,7 +43,6 @@ const nextConfig: NextConfig = {
             key: 'Cache-Control',
             value: 'no-store, max-age=0',
           },
-          // Performance Headers
           {
             key: 'Timing-Allow-Origin',
             value: '*',

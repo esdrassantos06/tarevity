@@ -14,7 +14,6 @@ import ValidatedInput from './ValidatedInput'
 import EmailValidator from './EmailValidator'
 import OAuthButtons from '@/components/auth/OAuthButtons'
 
-// Form validation schema
 const loginSchema = z.object({
   email: z
     .string()
@@ -27,7 +26,6 @@ const loginSchema = z.object({
 type LoginFormValues = z.infer<typeof loginSchema>
 
 export default function EnhancedLoginForm() {
-  // State management
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [error, setError] = useState<string | null>(null)
   const [failedAttempts, setFailedAttempts] = useState<number>(0)
@@ -35,17 +33,14 @@ export default function EnhancedLoginForm() {
   const [lockoutTime, setLockoutTime] = useState<number>(0)
   const [emailValid, setEmailValid] = useState(false)
 
-  // Router and URL parameters
   const router = useRouter()
   const searchParams = useSearchParams()
   const callbackUrl = searchParams?.get('callbackUrl') || '/dashboard'
   const registeredParam = searchParams?.get('registered')
 
-  // Constants
   const MAX_ATTEMPTS = 5
   const BASE_LOCKOUT_TIME = 30
 
-  // Initialize form
   const {
     register,
     handleSubmit,
@@ -66,7 +61,6 @@ export default function EnhancedLoginForm() {
   const watchedEmail = watch('email')
   const watchedPassword = watch('password')
 
-  // Check if there was a previous lockout
   useEffect(() => {
     const storedLockoutData = localStorage.getItem('loginLockout')
 
@@ -102,7 +96,6 @@ export default function EnhancedLoginForm() {
     }
   }, [])
 
-  // Show success message if coming from registration
   useEffect(() => {
     if (registeredParam === 'true') {
       showSuccess(
@@ -111,23 +104,19 @@ export default function EnhancedLoginForm() {
     }
   }, [registeredParam])
 
-  // Email validation handler
   const handleEmailValidation = (isValid: boolean) => {
     setEmailValid(isValid)
-    // Clear email error if validation passes
     if (isValid) {
       clearErrors('email')
     }
   }
 
-  // Use effect to clear errors when input changes
   useEffect(() => {
     if (errors.email || errors.password) {
       clearErrors()
     }
   }, [watchedEmail, watchedPassword, clearErrors, errors])
 
-  // Set login lockout
   const setLoginLockout = (attempts: number) => {
     const lockoutMultiplier = Math.min(Math.pow(2, attempts - MAX_ATTEMPTS), 32)
     const lockoutDuration = BASE_LOCKOUT_TIME * lockoutMultiplier * 1000
@@ -156,7 +145,6 @@ export default function EnhancedLoginForm() {
     }, 1000)
   }
 
-  // Form submission handler
   const onSubmit = async (data: LoginFormValues) => {
     if (isLocked) {
       showWarning(
@@ -214,13 +202,11 @@ export default function EnhancedLoginForm() {
         return
       }
 
-      // Success - reset counters and redirect
       setFailedAttempts(0)
       localStorage.removeItem('loginLockout')
 
       showSuccess('Login successful! Redirecting...')
 
-      // Delayed redirect for better UX
       setTimeout(() => {
         router.push(callbackUrl)
       }, 1000)
@@ -241,7 +227,6 @@ export default function EnhancedLoginForm() {
     }
   }
 
-  // Format the lockout time in a readable format
   const formatLockoutTime = (seconds: number): string => {
     if (seconds < 60) {
       return `${seconds} seconds`

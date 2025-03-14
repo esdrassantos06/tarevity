@@ -46,7 +46,6 @@ const formatDate = (dateString: string | null) => {
   return `${months[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`
 }
 
-// Interface para os segmentos do gráfico
 interface PieSegment {
   dasharray: number
   dashoffset: number
@@ -64,7 +63,6 @@ const RedesignedTodoList: React.FC = () => {
   const queryClient = useQueryClient()
   const [activeTab, setActiveTab] = useState('all')
   const [searchQuery, setSearchQuery] = useState('')
-  // Add a new state for priority sorting direction
   const [prioritySortDirection, setPrioritySortDirection] = useState<
     'asc' | 'desc'
   >('desc')
@@ -73,12 +71,10 @@ const RedesignedTodoList: React.FC = () => {
   const { dialogState, openConfirmDialog, closeConfirmDialog, setLoading } =
     useConfirmationDialog()
 
-  // React Query hooks
   const { data: todos = [], isLoading } = useTodosQuery()
   const updateTodoMutation = useUpdateTodoMutation()
   const deleteTodoMutation = useDeleteTodoMutation()
 
-  // Handle delete todo
   const handleDeleteTodo = (id: string, title: string) => {
     openConfirmDialog({
       title: 'Delete Task',
@@ -91,7 +87,6 @@ const RedesignedTodoList: React.FC = () => {
         deleteTodoMutation.mutate(id, {
           onSuccess: () => {
             closeConfirmDialog()
-            // Force a refetch to ensure client state is in sync
             queryClient.invalidateQueries({ queryKey: ['todos'] })
           },
           onError: (error) => {
@@ -106,16 +101,13 @@ const RedesignedTodoList: React.FC = () => {
     })
   }
 
-  // Toggle priority sort direction
   const togglePrioritySort = () => {
     setPrioritySortDirection((prev) => (prev === 'desc' ? 'asc' : 'desc'))
   }
 
-  // Filter todos based on selected filter and search query
   const filteredTodos = useMemo(() => {
     let result = [...todos]
 
-    // Filter by status tab
     if (activeTab === 'active') {
       result = result.filter(
         (todo) => !todo.is_completed && todo.status !== 'review',
@@ -125,11 +117,9 @@ const RedesignedTodoList: React.FC = () => {
     } else if (activeTab === 'review') {
       result = result.filter((todo) => todo.status === 'review')
     } else if (activeTab === 'todo') {
-      // Let's consider "todo" as high priority tasks
       result = result.filter((todo) => todo.priority === 3)
     }
 
-    // Filter by search query
     if (searchQuery) {
       const lowerCaseQuery = searchQuery.toLowerCase()
       result = result.filter(
@@ -147,7 +137,6 @@ const RedesignedTodoList: React.FC = () => {
         return a.is_completed ? 1 : -1
       }
 
-      // Then by priority based on sort direction
       return prioritySortDirection === 'desc'
         ? b.priority - a.priority
         : a.priority - b.priority
@@ -156,12 +145,10 @@ const RedesignedTodoList: React.FC = () => {
     return result
   }, [todos, activeTab, searchQuery, prioritySortDirection])
 
-  // Handle todo item click to navigate to detail page
   const handleTodoClick = (id: string) => {
     router.push(`/todo/${id}`)
   }
 
-  // Handle checkbox change event
   const handleCheckboxChange = (
     e: React.ChangeEvent<HTMLInputElement>,
     id: string,
@@ -188,12 +175,11 @@ const RedesignedTodoList: React.FC = () => {
   }
 
   const handleSetReview = (e: React.MouseEvent, id: string) => {
-    e.stopPropagation() // Prevent navigation
+    e.stopPropagation()
 
     const todoToUpdate = todos.find((todo) => todo.id === id)
     if (!todoToUpdate) return
 
-    // Only update the status field to minimize conflicts
     updateTodoMutation.mutate(
       {
         id,
@@ -207,14 +193,12 @@ const RedesignedTodoList: React.FC = () => {
     )
   }
 
-  // Handle approving a reviewed todo
   const handleApproveReview = (e: React.MouseEvent, id: string) => {
-    e.stopPropagation() // Prevent navigation
+    e.stopPropagation()
 
     const todoToUpdate = todos.find((todo) => todo.id === id)
     if (!todoToUpdate) return
 
-    // Only update the status field to minimize conflicts
     updateTodoMutation.mutate(
       {
         id,
@@ -222,7 +206,6 @@ const RedesignedTodoList: React.FC = () => {
       },
       {
         onSuccess: () => {
-          // Force a local update to ensure UI consistency
           queryClient.setQueryData<Todo[]>(['todos'], (old) => {
             if (!old) return []
 
@@ -241,7 +224,6 @@ const RedesignedTodoList: React.FC = () => {
     )
   }
 
-  // Get priority color and label
   const getPriorityInfo = (priority: number) => {
     switch (priority) {
       case 3:
@@ -262,7 +244,6 @@ const RedesignedTodoList: React.FC = () => {
     }
   }
 
-  // Calculate stats with improved review handling
   const stats = useMemo(() => {
     const total = todos.length
     const active = todos.filter(
@@ -275,7 +256,6 @@ const RedesignedTodoList: React.FC = () => {
     return { total, active, completed, review, toDo }
   }, [todos])
 
-  // Calculate pie chart values with correct circumference
   const calculatePieSegments = (): PieSegments => {
     const totalTodos = stats.total
     if (totalTodos === 0)

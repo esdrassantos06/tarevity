@@ -28,11 +28,9 @@ export default function PasswordStrengthMeter({
     errors: [] as string[],
   })
 
-  // Constants
   const MIN_LENGTH = 8
   const STRONG_LENGTH = 12
 
-  // Memoized criteria calculation
   const criteria = useMemo(() => {
     return {
       hasLength: password.length >= MIN_LENGTH,
@@ -48,7 +46,6 @@ export default function PasswordStrengthMeter({
     }
   }, [password])
 
-  // Stable local strength calculation
   const calculateLocalStrength = useCallback(() => {
     if (!password) return 0
 
@@ -68,7 +65,6 @@ export default function PasswordStrengthMeter({
     return Math.min(100, localScore)
   }, [password, criteria])
 
-  // Memoized password check function to prevent infinite loops
   const checkPassword = useMemo(() => {
     return async () => {
       const currentPassword = passwordRef.current
@@ -142,13 +138,11 @@ export default function PasswordStrengthMeter({
     }
   }, [calculateLocalStrength])
 
-  // Update refs when props change
   useEffect(() => {
     passwordRef.current = password
     onValidationRef.current = onValidation
   }, [password, onValidation])
 
-  // Main effect for password checking
   useEffect(() => {
     if (checkTimeoutRef.current) {
       clearTimeout(checkTimeoutRef.current)
@@ -169,7 +163,6 @@ export default function PasswordStrengthMeter({
       return
     }
 
-    // Use a stable timeout to trigger password check
     checkTimeoutRef.current = setTimeout(() => {
       if (passwordRef.current) {
         checkPassword()
@@ -183,7 +176,6 @@ export default function PasswordStrengthMeter({
     }
   }, [password, calculateLocalStrength, checkPassword])
 
-  // Don't render anything for empty password
   if (!password) return null
 
   return (

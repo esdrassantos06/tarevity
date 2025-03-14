@@ -20,7 +20,6 @@ const DialogPortal = ({
 )
 DialogPortal.displayName = DialogPrimitive.Portal.displayName
 
-// Dialog Overlay component with animations
 const DialogOverlay = React.forwardRef<
   React.ComponentRef<typeof DialogPrimitive.Overlay>,
   React.ComponentPropsWithoutRef<typeof DialogPrimitive.Overlay>
@@ -34,7 +33,6 @@ const DialogOverlay = React.forwardRef<
 ))
 DialogOverlay.displayName = DialogPrimitive.Overlay.displayName
 
-// Dialog Content component with animations
 const DialogContent = React.forwardRef<
   React.ComponentRef<typeof DialogPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content>
@@ -57,7 +55,6 @@ const DialogContent = React.forwardRef<
 ))
 DialogContent.displayName = DialogPrimitive.Content.displayName
 
-// Dialog Header component
 const DialogHeader = ({
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   className,
@@ -70,7 +67,6 @@ const DialogHeader = ({
 )
 DialogHeader.displayName = 'DialogHeader'
 
-// Dialog Footer component
 const DialogFooter = ({
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   className,
@@ -83,7 +79,6 @@ const DialogFooter = ({
 )
 DialogFooter.displayName = 'DialogFooter'
 
-// Dialog Title component
 const DialogTitle = React.forwardRef<
   React.ComponentRef<typeof DialogPrimitive.Title>,
   React.ComponentPropsWithoutRef<typeof DialogPrimitive.Title>
@@ -97,7 +92,6 @@ const DialogTitle = React.forwardRef<
 ))
 DialogTitle.displayName = DialogPrimitive.Title.displayName
 
-// Dialog Description component
 const DialogDescription = React.forwardRef<
   React.ComponentRef<typeof DialogPrimitive.Description>,
   React.ComponentPropsWithoutRef<typeof DialogPrimitive.Description>

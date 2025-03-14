@@ -15,13 +15,11 @@ import {
 import { useRegisterMutation } from '@/hooks/useAuthQuery'
 import { showSuccess, showError, showWarning } from '@/lib/toast'
 
-// Import custom components
 import ValidatedInput from './ValidatedInput'
 import PasswordStrengthMeter from './PasswordStrengthMeter'
 import EmailValidator from './EmailValidator'
 import OAuthButtons from '@/components/auth/OAuthButtons'
 
-// Password regex patterns
 const passwordPattern = {
   uppercase: /[A-Z]/,
   lowercase: /[a-z]/,
@@ -29,7 +27,6 @@ const passwordPattern = {
   special: /[^A-Za-z0-9]/,
 }
 
-// Form validation schema with improved error messages
 const registerSchema = z
   .object({
     name: z
@@ -89,7 +86,6 @@ export default function EnhancedRegisterForm() {
   const [emailValid, setEmailValid] = useState(false)
   const router = useRouter()
 
-  // Form initialization with React Hook Form
   const {
     register,
     handleSubmit,
@@ -109,22 +105,18 @@ export default function EnhancedRegisterForm() {
     },
   })
 
-  // Watch form fields
   const watchedPassword = watch('password')
   const watchedEmail = watch('email')
 
   const watchedConfirmPassword = watch('confirmPassword')
 
-  // React Query hook for registration
   const registerMutation = useRegisterMutation()
 
-  // Handle password validation feedback
   const handlePasswordValidation = (isValid: boolean, isStrong: boolean) => {
     setPasswordValid(isValid)
     setPasswordStrong(isStrong)
 
     if (!isValid && watchedPassword.length >= 8) {
-      // Custom validation message for compromised passwords
       setFormError('password', {
         type: 'manual',
         message: 'This password is not secure enough. Please choose another.',
@@ -134,12 +126,10 @@ export default function EnhancedRegisterForm() {
     }
   }
 
-  // Handle email validation feedback
   const handleEmailValidation = (isValid: boolean) => {
     setEmailValid(isValid)
   }
 
-  // Effect to validate confirm password when password changes
   useEffect(() => {
     if (watchedConfirmPassword && watchedPassword !== watchedConfirmPassword) {
       setFormError('confirmPassword', {
@@ -160,12 +150,9 @@ export default function EnhancedRegisterForm() {
     errors.confirmPassword?.type,
   ])
 
-  // Form submission handler
   const onSubmit = async (data: RegisterFormValues) => {
-    // Reset any previous errors
     setError(null)
 
-    // Verify password security
     if (!passwordValid || !passwordStrong) {
       setFormError('password', {
         type: 'manual',
@@ -175,7 +162,6 @@ export default function EnhancedRegisterForm() {
       return
     }
 
-    // Verify email validity
     if (!emailValid) {
       setFormError('email', {
         type: 'manual',
@@ -185,7 +171,6 @@ export default function EnhancedRegisterForm() {
       return
     }
 
-    // Submit registration
     registerMutation.mutate(
       {
         name: data.name,

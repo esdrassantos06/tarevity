@@ -55,7 +55,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ message: 'Unauthorized' }, { status: 401 })
     }
 
-    // Parse and validate the request in one go
     const validation = await validateRequest(
       req,
       todoSchema,
@@ -63,11 +62,9 @@ export async function POST(req: NextRequest) {
     )
     if (validation instanceof NextResponse) return validation
 
-    // If we got here, validation passed and returned the parsed data
     const validatedData = validation.data
     const userId = session.user.id
 
-    // Prepare the data with proper NULL handling
     const todoData = {
       user_id: userId,
       title: validatedData.title.trim(),

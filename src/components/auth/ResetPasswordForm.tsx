@@ -18,7 +18,6 @@ import { authAPI } from '@/lib/api'
 import ValidatedInput from './ValidatedInput'
 import PasswordStrengthMeter from './PasswordStrengthMeter'
 
-// Password regex patterns
 const passwordPattern = {
   uppercase: /[A-Z]/,
   lowercase: /[a-z]/,
@@ -26,7 +25,6 @@ const passwordPattern = {
   special: /[^A-Za-z0-9]/,
 }
 
-// Define the form validation schema
 const resetPasswordSchema = z
   .object({
     password: z
@@ -72,7 +70,6 @@ export default function EnhancedResetPasswordForm() {
   const searchParams = useSearchParams()
   const token = searchParams?.get('token')
 
-  // Initialize form with React Hook Form
   const {
     register,
     handleSubmit,
@@ -91,7 +88,6 @@ export default function EnhancedResetPasswordForm() {
   const watchedPassword = watch('password')
   const watchedConfirmPassword = watch('confirmPassword')
 
-  // Validate token when component mounts
   useEffect(() => {
     const validateToken = async () => {
       if (!token) {
@@ -124,13 +120,11 @@ export default function EnhancedResetPasswordForm() {
     validateToken()
   }, [token])
 
-  // Handle password validation feedback
   const handlePasswordValidation = (isValid: boolean, isStrong: boolean) => {
     setPasswordValid(isValid)
     setPasswordStrong(isStrong)
   }
 
-  // Check if password matches current one
   const checkCurrentPassword = useCallback(
     async (password: string) => {
       if (!token || password.length < 8) return null
@@ -152,7 +146,6 @@ export default function EnhancedResetPasswordForm() {
     [token],
   )
 
-  // Check password when it changes
   useEffect(() => {
     if (!watchedPassword || watchedPassword.length < 8) {
       setIsCurrentPassword(null)
@@ -170,7 +163,6 @@ export default function EnhancedResetPasswordForm() {
         })
       } else if (result === false) {
         setIsCurrentPassword(false)
-        // Only clear manual errors
         if (errors.password?.type === 'manual') {
           clearErrors('password')
         }
@@ -186,7 +178,6 @@ export default function EnhancedResetPasswordForm() {
     errors.password?.type,
   ])
 
-  // Effect to validate confirm password when password changes
   useEffect(() => {
     if (watchedConfirmPassword && watchedPassword !== watchedConfirmPassword) {
       setFormError('confirmPassword', {
@@ -207,7 +198,6 @@ export default function EnhancedResetPasswordForm() {
     errors.confirmPassword?.type,
   ])
 
-  // Handle form submission
   const onSubmit = async (data: ResetPasswordFormValues) => {
     if (!token) {
       toast.error('Reset token is missing')
@@ -222,7 +212,6 @@ export default function EnhancedResetPasswordForm() {
       return
     }
 
-    // Double-check if password is current
     if (isCurrentPassword === true) {
       setFormError('password', {
         type: 'manual',
@@ -234,7 +223,6 @@ export default function EnhancedResetPasswordForm() {
     setIsLoading(true)
 
     try {
-      // Submit the form
       const result = await authAPI.resetPassword(token, data.password)
 
       if (result.error) {
@@ -254,7 +242,6 @@ export default function EnhancedResetPasswordForm() {
           icon: <FaCheck />,
         })
 
-        // Redirect to login page after successful password reset
         setTimeout(() => {
           router.push('/auth/login')
         }, 3000)

@@ -5,12 +5,10 @@ export async function POST(req: Request) {
   try {
     const { name, email, password } = await req.json()
 
-    // Validate data
     if (!name || !email || !password) {
       return NextResponse.json({ message: 'Incomplete data' }, { status: 400 })
     }
 
-    // Check if user already exists
     const existingUser = await getUserByEmail(email)
     if (existingUser) {
       return NextResponse.json(
@@ -19,7 +17,6 @@ export async function POST(req: Request) {
       )
     }
 
-    // Create new user
     const newUser = await createUser(name, email, password)
 
     return NextResponse.json(

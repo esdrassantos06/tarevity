@@ -6,7 +6,6 @@ export async function POST(req: Request) {
   try {
     const { token, password } = await req.json()
 
-    // Validate input
     if (!token || !password) {
       return NextResponse.json(
         { message: 'Token and password are required' },
@@ -21,7 +20,6 @@ export async function POST(req: Request) {
       )
     }
 
-    // Find the token in the database
     const { data: tokenData, error: tokenError } = await supabaseAdmin
       .from('password_reset_tokens')
       .select('*')
@@ -68,7 +66,6 @@ export async function POST(req: Request) {
 
     const hashedPassword = await hashPassword(password)
 
-    // Update the user's password
     const { error: updateError } = await supabaseAdmin
       .from('users')
       .update({
@@ -82,7 +79,6 @@ export async function POST(req: Request) {
       throw new Error('Failed to update password')
     }
 
-    // Mark the token as used
     await supabaseAdmin
       .from('password_reset_tokens')
       .update({ used: true })

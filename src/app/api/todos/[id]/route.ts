@@ -20,7 +20,6 @@ export async function GET(
     const userId = session.user.id
     const taskId = resolvedParams.id
 
-    // Fetch task data and perform authorization check in one query
     const { data, error } = await supabaseAdmin
       .from('todos')
       .select('*')

@@ -90,13 +90,10 @@ export function useUpdateTodoMutation() {
     },
 
     onMutate: async ({ id, data }) => {
-      // Cancel any outgoing refetches
       await queryClient.cancelQueries({ queryKey: ['todos'] })
 
-      // Snapshot the previous value
       const previousTodos = queryClient.getQueryData<Todo[]>(['todos'])
 
-      // Optimistically update to the new value
       queryClient.setQueryData<Todo[]>(['todos'], (old) => {
         if (!old) return []
 
@@ -124,7 +121,6 @@ export function useUpdateTodoMutation() {
 
     onSuccess: (result, variables) => {
       if (result.data) {
-        // Ensure the server response is applied to the cache
         queryClient.setQueryData<Todo[]>(['todos'], (old = []) => {
           return old.map((todo) => {
             if (todo.id === variables.id) {
@@ -134,7 +130,6 @@ export function useUpdateTodoMutation() {
           })
         })
 
-        // Show different messages based on what was updated
         if ('is_completed' in variables.data) {
           const isCompleted = variables.data.is_completed
           showSuccess(
@@ -154,7 +149,6 @@ export function useUpdateTodoMutation() {
     },
 
     onSettled: () => {
-      // Delay the refetch to avoid race conditions
       setTimeout(() => {
         queryClient.invalidateQueries({ queryKey: ['todos'] })
       }, 300)
@@ -193,7 +187,6 @@ export function useDeleteTodoMutation() {
     },
 
     onSettled: () => {
-      // Delay the refetch to avoid race conditions
       setTimeout(() => {
         queryClient.invalidateQueries({ queryKey: ['todos'] })
       }, 300)

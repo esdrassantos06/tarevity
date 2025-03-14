@@ -62,18 +62,15 @@ export default function ProfileComponent() {
   const uploadImageMutation = useUploadImageMutation()
   const deleteProfileImageMutation = useDeleteProfileImageMutation()
 
-  // Update the form when profile data is loaded
   useEffect(() => {
     if (profileData) {
       setFormData({
         name: profileData.name || '',
       })
-      // Reset image error state when profile data is refreshed
       setImageError(false)
     }
   }, [profileData])
 
-  // Display query errors if they occur
   useEffect(() => {
     if (profileError) {
       console.error('Error fetching profile:', profileError)
@@ -81,7 +78,6 @@ export default function ProfileComponent() {
     }
   }, [profileError])
 
-  // Display stats errors if they occur
   useEffect(() => {
     if (statsError) {
       console.error('Error fetching stats:', statsError)
@@ -89,7 +85,7 @@ export default function ProfileComponent() {
     }
   }, [statsError])
 
-  // Clean up preview URL when component unmounts
+
   useEffect(() => {
     return () => {
       if (previewUrl) {
@@ -98,7 +94,6 @@ export default function ProfileComponent() {
     }
   }, [previewUrl])
 
-  // Handle form input changes
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
     setFormData((prev) => ({
@@ -107,19 +102,16 @@ export default function ProfileComponent() {
     }))
   }
 
-  // Handle image selection
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
 
-    // Check file size (limit to 5MB)
-    const maxSize = 5 * 1024 * 1024 // 5MB in bytes
+    const maxSize = 5 * 1024 * 1024
     if (file.size > maxSize) {
       toast.error('Image is too large. Maximum size is 5MB.')
       return
     }
 
-    // Check file type
     const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp']
     if (!allowedTypes.includes(file.type)) {
       toast.error(
@@ -128,22 +120,18 @@ export default function ProfileComponent() {
       return
     }
 
-    // Create preview
     const objectUrl = URL.createObjectURL(file)
     setPreviewUrl(objectUrl)
     setSelectedImage(file)
-    // Reset image error state when a new image is selected
     setImageError(false)
   }
 
-  // Handle clicking the image placeholder to open file selector
   const handleImageClick = () => {
     fileInputRef.current?.click()
   }
 
-  // Handle opening the delete dialog
   const openDeleteDialog = (e: React.MouseEvent) => {
-    e.stopPropagation() // Prevent triggering the file upload click
+    e.stopPropagation() 
     setIsDeleteDialogOpen(true)
   }
 
@@ -162,21 +150,19 @@ export default function ProfileComponent() {
             ...session,
             user: {
               ...session.user,
-              image: null, // Remover a imagem da sessão
+              image: null,
             },
           })
         }
         setImageError(false)
-        refetchProfile() // Atualizar os dados do perfil
+        refetchProfile() 
         toast.success('Profile image removed successfully')
       },
     })
 
-    // Fechar o diálogo
     setIsDeleteDialogOpen(false)
   }
 
-  // Handle opening the discard changes dialog
   const openDiscardDialog = () => {
     if (formData.name !== profileData?.name || selectedImage) {
       setIsDiscardDialogOpen(true)
@@ -185,7 +171,6 @@ export default function ProfileComponent() {
     }
   }
 
-  // Handle cancel edit confirmation
   const confirmDiscardChanges = () => {
     setFormData({
       name: profileData?.name || '',
@@ -199,20 +184,16 @@ export default function ProfileComponent() {
     setIsDiscardDialogOpen(false)
   }
 
-  // Helper to ensure image URL has proper protocol
   const ensureAbsoluteUrl = (url: string | null | undefined): string | null => {
     if (!url) return null
 
-    // If URL doesn't have protocol, try to add it
     if (!url.startsWith('http')) {
-      // Check if it's a Supabase storage URL
       if (url.includes('/storage/v1/object/')) {
         const baseUrl =
           process.env.NEXT_PUBLIC_SUPABASE_URL ||
           'https://your-supabase-project.supabase.co'
         return `${baseUrl}${url.startsWith('/') ? '' : '/'}${url}`
       }
-      // Return the URL with https protocol as a fallback
       return `https:${url.startsWith('//') ? '' : '//'}${url}`
     }
 
@@ -225,45 +206,34 @@ export default function ProfileComponent() {
   ) => {
     console.error('Image failed to load:', e.currentTarget.src)
     setImageError(true)
-    // We could set a default avatar here if needed
-    // e.currentTarget.src = '/default-avatar.png'
   }
 
-  // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
     try {
-      // First check if we have an image to upload
       if (selectedImage) {
-        // Start loading state
         const loadingToastId = toast.loading('Uploading image...')
 
-        // Upload the image first
         uploadImageMutation.mutate(selectedImage, {
           onSuccess: (response) => {
-            // Only proceed if we got a valid URL
             if (response.data?.url) {
               const imageUrl = ensureAbsoluteUrl(response.data.url)
-              // Update toast to show progress
               toast.update(loadingToastId, {
                 render: 'Updating profile...',
                 isLoading: true,
               })
 
-              // Now update the profile with the new image URL
               updateProfileMutation.mutate(
                 {
                   name: formData.name,
-                  image: imageUrl, // Use the processed URL
+                  image: imageUrl, 
                 },
                 {
                   onSuccess: async (response) => {
-                    // Clear loading toast
                     toast.dismiss(loadingToastId)
 
                     if (update && response?.data) {
-                      // Update the session with the new user data
                       await update({
                         ...session,
                         user: {
@@ -273,7 +243,6 @@ export default function ProfileComponent() {
                         },
                       })
 
-                      // Refetch profile data to ensure we have the latest
                       refetchProfile()
                     }
 

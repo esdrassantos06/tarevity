@@ -36,11 +36,11 @@ export interface UserStats {
 }
 
 export interface PasswordCheckResponse {
-  isCompromised: boolean // Whether the password was found in data breaches
-  strength: number // Numeric strength score (0-100)
-  isStrong: boolean // Whether the password is considered strong
-  isValid?: boolean // Whether the password meets validation criteria
-  errors?: string[] // Any validation error messages
+  isCompromised: boolean
+  strength: number
+  isStrong: boolean
+  isValid?: boolean
+  errors?: string[]
 }
 
 export interface ImageUploadResponse {
@@ -48,14 +48,12 @@ export interface ImageUploadResponse {
   filename: string
 }
 
-// Result type for all API functions with better error handling
 export interface ApiResult<T> {
   data: T | null
   error: APIError | null
   loading: boolean
 }
 
-// Auth API with improved error handling
 export const authAPI = {
   async register(
     name: string,
@@ -197,7 +195,6 @@ export const profileAPI = {
     image?: string | null
   }): Promise<ApiResult<ProfileData>> {
     try {
-      // Log the data being sent to the API
 
       const response = await axiosClient.put('/api/profile', data)
       return { data: response.data, error: null, loading: false }

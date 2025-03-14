@@ -43,7 +43,6 @@ export async function DELETE() {
       newImageValue = null
     }
 
-    // Update the user's image in the database
     const { error: updateError } = await supabaseAdmin
       .from('users')
       .update({
@@ -60,7 +59,6 @@ export async function DELETE() {
       )
     }
 
-    // If we have an image file to delete from storage, do it now
     if (imageToDelete) {
       const { error: storageError } = await supabaseAdmin.storage
         .from('user_uploads')

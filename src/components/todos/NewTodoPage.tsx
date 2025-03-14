@@ -8,7 +8,6 @@ import ConfirmationDialog, {
   useConfirmationDialog,
 } from '@/components/common/ConfirmationDialog'
 
-// Define interface for our form data
 interface TodoFormData {
   title: string
   description: string
@@ -18,7 +17,6 @@ interface TodoFormData {
   status: 'active' | 'review' | 'completed'
 }
 
-// Define the Todo interface that matches your API
 interface Todo {
   id: string
   title: string
@@ -28,10 +26,9 @@ interface Todo {
   is_completed: boolean
 }
 
-// Define interface for API response with generic type parameter
 interface ApiResult<T = Todo> {
   data: T | null
-  error?: unknown // Using unknown instead of any for type safety
+  error?: unknown
 }
 
 const NewTodoPage: React.FC = () => {
@@ -41,10 +38,10 @@ const NewTodoPage: React.FC = () => {
   const [formData, setFormData] = useState<TodoFormData>({
     title: '',
     description: '',
-    priority: 2, // Default to medium priority
+    priority: 2, 
     due_date: '',
     is_completed: false,
-    status: 'active', // Default to active
+    status: 'active',
   })
 
   const handleChange = (

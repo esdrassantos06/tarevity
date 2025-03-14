@@ -17,25 +17,18 @@ export default function EmailValidator({
   const [isValid, setIsValid] = useState(false)
   const [errors, setErrors] = useState<string[]>([])
 
-  // Common email validation patterns - using useMemo to prevent recreation on each render
   const patterns = useMemo(
     () => ({
-      // Basic format validation
       format: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-      // No consecutive special characters
       noConsecutiveSpecials: /^(?!.*[._%+-]{2})[^\s@]+@[^\s@]+\.[^\s@]+$/,
-      // Valid domain format
       domainFormat: /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/,
-      // Common disposable email domains
       disposableDomains:
         /^[^\s@]+@(mailinator\.com|guerrillamail\.com|temp-mail\.org|10minutemail\.com|yopmail\.com)$/i,
-      // No numeric-only local part
       noNumericOnly: /^(?!\d+@)[^\s@]+@[^\s@]+\.[^\s@]+$/,
     }),
     [],
-  ) // Empty dependency array since these patterns never change
+  )
 
-  // Common typo corrections - also memoized
   const commonTypos = useMemo(
     () => ({
       'gmial.com': 'gmail.com',
@@ -51,7 +44,6 @@ export default function EmailValidator({
     [],
   )
 
-  // Validate the email with all rules - using useCallback to memoize
   const validateEmail = useCallback(() => {
     if (!email || email.length === 0) {
       setIsValid(false)
@@ -62,37 +54,30 @@ export default function EmailValidator({
 
     const newErrors: string[] = []
 
-    // Check basic format (user@domain.tld)
     if (!patterns.format.test(email)) {
       newErrors.push('Invalid email format')
     }
 
-    // Check for consecutive special characters
     if (email.length > 0 && !patterns.noConsecutiveSpecials.test(email)) {
       newErrors.push('Email should not contain consecutive special characters')
     }
 
-    // Check domain format
     if (email.length > 0 && !patterns.domainFormat.test(email)) {
       newErrors.push('Email domain should be valid (e.g., example.com)')
     }
 
-    // Check for disposable email domains
     if (patterns.disposableDomains.test(email)) {
       newErrors.push('Disposable email addresses are not allowed')
     }
 
-    // Check for numeric-only local part
     if (!patterns.noNumericOnly.test(email)) {
       newErrors.push('Email username should not be numbers only')
     }
 
-    // Calculate length limitations
     if (email.length > 254) {
       newErrors.push('Email is too long (maximum 254 characters)')
     }
 
-    // Check local part length (before the @)
     const localPart = email.split('@')[0]
     if (localPart && localPart.length > 64) {
       newErrors.push(
@@ -100,7 +85,6 @@ export default function EmailValidator({
       )
     }
 
-    // Simple typo detection for common domains
     const domain = email.split('@')[1]?.toLowerCase()
     if (domain && commonTypos[domain as keyof typeof commonTypos]) {
       newErrors.push(
@@ -110,7 +94,6 @@ export default function EmailValidator({
 
     const isValidEmail = newErrors.length === 0
 
-    // Only update state if the values have changed
     setIsValid((prevIsValid) => {
       if (prevIsValid !== isValidEmail) {
         return isValidEmail
@@ -119,7 +102,6 @@ export default function EmailValidator({
     })
 
     setErrors((prevErrors) => {
-      // Compare new errors with previous errors
       if (JSON.stringify(prevErrors) !== JSON.stringify(newErrors)) {
         return newErrors
       }
@@ -131,13 +113,11 @@ export default function EmailValidator({
     }
   }, [email, onValidation, patterns, commonTypos])
 
-  // Simplified useEffect with direct validation call
   useEffect(() => {
     const timeoutId = setTimeout(validateEmail, 300)
     return () => clearTimeout(timeoutId)
   }, [validateEmail])
 
-  // No display if email is empty
   if (!email) return null
 
   return (
