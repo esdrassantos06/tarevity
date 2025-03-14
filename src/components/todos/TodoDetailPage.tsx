@@ -165,7 +165,7 @@ const TodoDetailPage: React.FC<TodoDetailPageProps> = ({ todoId }) => {
       </div>
       
       {/* Main content */}
-      <div className={`bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden ${isInReview ? 'border-l-4 border-amber-500' : ''}`}>
+      <div className={`bg-white dark:bg-BlackLight rounded-lg shadow-lg overflow-hidden ${isInReview ? 'border-l-4 border-amber-500' : ''}`}>
         {/* Company header - resembling job detail layout */}
         <div className="p-6 border-b border-gray-200 dark:border-gray-700">
           <div className="flex justify-between items-start">
@@ -238,7 +238,7 @@ const TodoDetailPage: React.FC<TodoDetailPageProps> = ({ todoId }) => {
         )}
         
         {/* Details section */}
-        <div className="p-6 bg-gray-50 dark:bg-gray-900">
+        <div className="p-6">
           <h2 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Details</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="bg-white dark:bg-gray-800 p-4 rounded-md shadow">

@@ -188,7 +188,7 @@ if (isLoading) {
       </div>
 
       {/* Edit Form */}
-      <div className="overflow-hidden rounded-lg bg-white shadow-lg dark:bg-gray-800">
+      <div className="overflow-hidden rounded-lg bg-white shadow-lg dark:bg-BlackLight">
         <form onSubmit={handleSubmit} className="p-6">
           {/* Title field */}
           <div className="mb-4">
