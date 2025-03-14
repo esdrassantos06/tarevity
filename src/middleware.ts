@@ -42,24 +42,25 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
-  // Create a comprehensive CSP policy with nonce
-  const cspHeader = `
-    default-src 'self';
-    script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com;
-    style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com;
-    img-src 'self' blob: data: https://lh3.googleusercontent.com https://avatars.githubusercontent.com;
-    font-src 'self' https://cdnjs.cloudflare.com;
-    object-src 'none';
-    base-uri 'self';
-    form-action 'self';
-    frame-ancestors 'none';
-    connect-src 'self' ${process.env.NEXT_PUBLIC_SUPABASE_URL || ''};
-    upgrade-insecure-requests;
-    block-all-mixed-content;
-  `
-    .replace(/\s{2,}/g, ' ')
-    .trim()
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+const supabaseDomain = supabaseUrl ? new URL(supabaseUrl).hostname : '';
 
+const cspHeader = `
+  default-src 'self';
+  script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com;
+  style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com;
+  img-src 'self' blob: data: https://lh3.googleusercontent.com https://avatars.githubusercontent.com ${supabaseDomain ? `https://${supabaseDomain}` : ''};
+  font-src 'self' https://cdnjs.cloudflare.com;
+  object-src 'none';
+  base-uri 'self';
+  form-action 'self';
+  frame-ancestors 'none';
+  connect-src 'self' ${supabaseUrl};
+  upgrade-insecure-requests;
+  block-all-mixed-content;
+`
+  .replace(/\s{2,}/g, ' ')
+  .trim()
   const response = NextResponse.next()
 
   // Set Security Headers
@@ -152,8 +153,6 @@ export const config = {
     '/profile/:path*',
     '/auth/login',
     '/auth/register',
-    // Do NOT include any OAuth callback routes
-    // Explicit exclusion pattern for OAuth callbacks
     '/((?!api/auth/callback).*)',
     // Include specific API routes
     '/api/todos/:path*',

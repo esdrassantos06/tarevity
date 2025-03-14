@@ -9,6 +9,7 @@ const MAX_FILE_SIZE = 5 * 1024 * 1024
 
 export async function POST(request: NextRequest) {
   try {
+    
     // Check authentication
     const session = await getServerSession(authOptions)
     if (!session?.user?.id) {
@@ -27,6 +28,7 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       )
     }
+
 
     // Validate file size
     if (imageFile.size > MAX_FILE_SIZE) {
@@ -54,6 +56,7 @@ export async function POST(request: NextRequest) {
     const fileName = `${userId}_${uuidv4()}.${fileExtension}`
     const filePath = `profile_images/${fileName}`
 
+
     // Upload to Supabase Storage
     const { error } = await supabaseAdmin
       .storage
@@ -77,10 +80,19 @@ export async function POST(request: NextRequest) {
       .from('user_uploads')
       .getPublicUrl(filePath)
 
+    
+    // Make sure the URL is absolute
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
+    // Check if we need to construct a fully qualified URL
+    const absoluteUrl = publicUrl.startsWith('http') 
+      ? publicUrl 
+      : `${supabaseUrl}/storage/v1/object/public/user_uploads/${filePath}`
+
+
     return NextResponse.json(
       { 
         message: 'Image uploaded successfully',
-        url: publicUrl,
+        url: absoluteUrl,
         filename: fileName
       },
       { status: 200 }

@@ -192,8 +192,11 @@ export const profileAPI = {
     }
   },
 
+
   async updateProfile(data: { name: string, image?: string | null }): Promise<ApiResult<ProfileData>> {
     try {
+      // Log the data being sent to the API
+      
       const response = await axiosClient.put('/api/profile', data)
       return { data: response.data, error: null, loading: false }
     } catch (error) {
@@ -217,6 +220,7 @@ export const profileAPI = {
           'Content-Type': 'multipart/form-data',
         },
       })
+
 
       return { data: response.data, error: null, loading: false }
     } catch (error) {

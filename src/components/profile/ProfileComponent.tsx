@@ -26,12 +26,15 @@ export default function ProfileComponent() {
   const [selectedImage, setSelectedImage] = useState<File | null>(null)
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  // Add state to track image loading errors
+  const [imageError, setImageError] = useState(false)
 
   // React Query hooks
   const { 
     data: profileData, 
     isLoading: isLoadingProfile, 
-    error: profileError 
+    error: profileError,
+    refetch: refetchProfile
   } = useProfileQuery()
   
   const { 
@@ -48,6 +51,8 @@ export default function ProfileComponent() {
       setFormData({
         name: profileData.name || '',
       })
+      // Reset image error state when profile data is refreshed
+      setImageError(false)
     }
   }, [profileData])
 
@@ -75,6 +80,7 @@ export default function ProfileComponent() {
       }
     }
   }, [previewUrl])
+
 
   // Handle form input changes
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -108,6 +114,8 @@ export default function ProfileComponent() {
     const objectUrl = URL.createObjectURL(file)
     setPreviewUrl(objectUrl)
     setSelectedImage(file)
+    // Reset image error state when a new image is selected
+    setImageError(false)
   }
 
   // Handle clicking the image placeholder to open file selector
@@ -138,29 +146,68 @@ export default function ProfileComponent() {
     }
   }
 
+  // Helper to ensure image URL has proper protocol
+  const ensureAbsoluteUrl = (url: string | null | undefined): string | null => {
+    if (!url) return null
+    
+    // If URL doesn't have protocol, try to add it
+    if (!url.startsWith('http')) {
+      // Check if it's a Supabase storage URL
+      if (url.includes('/storage/v1/object/')) {
+        const baseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://your-supabase-project.supabase.co'
+        return `${baseUrl}${url.startsWith('/') ? '' : '/'}${url}`
+      }
+      // Return the URL with https protocol as a fallback
+      return `https:${url.startsWith('//') ? '' : '//'}${url}`
+    }
+    
+    return url
+  }
+
+  // Handle image load error
+  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+    console.error('Image failed to load:', e.currentTarget.src)
+    setImageError(true)
+    // We could set a default avatar here if needed
+    // e.currentTarget.src = '/default-avatar.png'
+  }
+
   // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-
+    e.preventDefault();
+  
     try {
-      // First upload the image if selected
-      let imageUrl = profileData?.image
-      
+      // First check if we have an image to upload
       if (selectedImage) {
+        // Start loading state
+        const loadingToastId = toast.loading('Uploading image...');
+        
+        // Upload the image first
         uploadImageMutation.mutate(selectedImage, {
           onSuccess: (response) => {
-            // After image upload, update the profile with the new image URL
+            // Only proceed if we got a valid URL
             if (response.data?.url) {
-              imageUrl = response.data.url
+              const imageUrl = ensureAbsoluteUrl(response.data.url)
+              // Update toast to show progress
+              toast.update(loadingToastId, { 
+                render: 'Updating profile...', 
+                isLoading: true 
+              });
               
+              // Now update the profile with the new image URL
               updateProfileMutation.mutate(
                 { 
                   name: formData.name,
-                  image: imageUrl
+                  image: imageUrl // Use the processed URL
                 }, 
                 {
                   onSuccess: async (response) => {
+                    // Clear loading toast
+                    toast.dismiss(loadingToastId);
+                    
                     if (update && response?.data) {
+                      
+                      // Update the session with the new user data
                       await update({
                         ...session,
                         user: {
@@ -168,39 +215,50 @@ export default function ProfileComponent() {
                           name: response.data.name,
                           image: response.data.image,
                         },
-                      })
+                      });
+                      
+                      // Refetch profile data to ensure we have the latest
+                      refetchProfile();
                     }
-                    toast.success('Profile updated successfully!')
-                    setIsEditing(false)
-                    setSelectedImage(null)
+                    
+                    toast.success('Profile updated successfully!');
+                    setIsEditing(false);
+                    setSelectedImage(null);
                     if (previewUrl) {
-                      URL.revokeObjectURL(previewUrl)
-                      setPreviewUrl(null)
+                      URL.revokeObjectURL(previewUrl);
+                      setPreviewUrl(null);
                     }
                   },
                   onError: (error) => {
-                    toast.error('Error updating profile')
-                    console.error('Error updating profile:', error)
+                    toast.dismiss(loadingToastId);
+                    toast.error('Error updating profile');
+                    console.error('Error updating profile:', error);
                   }
                 }
-              )
+              );
+            } else {
+              toast.dismiss(loadingToastId);
+              toast.error('Failed to upload image: No URL returned');
+              console.error('Upload response missing URL:', response);
             }
           },
           onError: (error: unknown) => {
-            toast.error('Error uploading image')
-            console.error('Error uploading image:', error)
+            toast.dismiss(loadingToastId);
+            toast.error('Error uploading image');
+            console.error('Error uploading image:', error);
           }
-        })
+        });
       } else {
-        // If no image was selected, just update the profile
+        // No image to upload, just update the profile with existing image
         updateProfileMutation.mutate(
           { 
             name: formData.name,
-            image: imageUrl
+            image: profileData?.image
           }, 
           {
             onSuccess: async (response) => {
               if (update && response?.data) {
+                
                 await update({
                   ...session,
                   user: {
@@ -208,23 +266,26 @@ export default function ProfileComponent() {
                     name: response.data.name,
                     image: response.data.image,
                   },
-                })
+                });
+                
+                // Refetch profile data
+                refetchProfile();
               }
-              toast.success('Profile updated successfully!')
-              setIsEditing(false)
+              toast.success('Profile updated successfully!');
+              setIsEditing(false);
             },
             onError: (error) => {
-              toast.error('Error updating profile')
-              console.error('Error updating profile:', error)
+              toast.error('Error updating profile');
+              console.error('Error updating profile:', error);
             }
           }
-        )
+        );
       }
     } catch (error) {
-      toast.error('An error occurred while updating your profile')
-      console.error('Error in form submission:', error)
+      toast.error('An error occurred while updating your profile');
+      console.error('Error in form submission:', error);
     }
-  }
+  };
 
   // Show loading state
   if ((isLoadingProfile && !profileData) || updateProfileMutation.isPending || uploadImageMutation.isPending) {
@@ -237,13 +298,16 @@ export default function ProfileComponent() {
 
   if (!session?.user || !profileData) {
     return (
-      <div className="bg-cardLightMode dark:bg-cardDarkMode rounded-lg p-6 shadow">
+      <div className="rounded-lg bg-white p-6 shadow dark:bg-gray-800">
         <p className="text-gray-600 dark:text-gray-400">
           Please log in to view your profile.
         </p>
       </div>
     )
   }
+
+  // Process the image URL to ensure it's absolute
+  const profileImageUrl = ensureAbsoluteUrl(profileData.image)
 
   return (
     <div className="bg-white dark:bg-BlackLight overflow-hidden rounded-lg shadow">
@@ -269,19 +333,21 @@ export default function ProfileComponent() {
                         width={96}
                         height={96}
                         className="h-full w-full object-cover"
+                        onError={handleImageError}
                       />
                     </div>
-                  ) : profileData.image ? (
+                  ) : profileImageUrl && !imageError ? (
                     <div
                       className="h-full w-full cursor-pointer"
                       onClick={handleImageClick}
                     >
                       <Image
-                        src={profileData.image}
+                        src={profileImageUrl}
                         alt={profileData.name || 'Profile Picture'}
                         width={96}
                         height={96}
                         className="h-full w-full object-cover"
+                        onError={handleImageError}
                       />
                     </div>
                   ) : (
@@ -295,7 +361,7 @@ export default function ProfileComponent() {
                   
                   {/* Camera overlay */}
                   <div
-                    className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 cursor-pointer"
+                    className="absolute inset-0 flex items-center justify-center bg-black/50 cursor-pointer"
                     onClick={handleImageClick}
                   >
                     <FaCamera className="h-8 w-8 text-white" />
@@ -311,14 +377,16 @@ export default function ProfileComponent() {
                   />
                 </div>
               ) : (
-                profileData.image ? (
+                profileImageUrl && !imageError ? (
                   <Image
-                    src={profileData.image}
+                    src={profileImageUrl}
                     alt={profileData.name || 'Profile Picture'}
                     width={96}
                     height={96}
                     className="h-full w-full object-cover"
                     priority
+                    unoptimized={true} /* Disable Next.js image optimization for external URLs */
+                    onError={handleImageError}
                   />
                 ) : (
                   <div className="flex h-full w-full items-center justify-center bg-blue-100 dark:bg-blue-900">
@@ -441,6 +509,21 @@ export default function ProfileComponent() {
           </div>
         </div>
       </div>
+
+      {/* Debug info section (only in development) */}
+      {process.env.NODE_ENV === 'development' && profileImageUrl && (
+        <div className="border-t border-gray-200 px-6 py-6 text-xs text-gray-500 dark:border-gray-700">
+          <h4 className="mb-2 font-bold">Debug Info</h4>
+          <p>Image URL: {profileImageUrl}</p>
+          <p>Has image error: {imageError ? 'Yes' : 'No'}</p>
+          <button 
+            onClick={() => setImageError(false)}
+            className="mt-2 rounded bg-blue-500 px-2 py-1 text-white"
+          >
+            Reset image error
+          </button>
+        </div>
+      )}
     </div>
   )
 }
