@@ -5,10 +5,11 @@ import { useSession, signOut } from 'next-auth/react'
 import Link from 'next/link'
 import { FaUser, FaCog, FaSignOutAlt, FaBars, FaTimes } from 'react-icons/fa'
 import { MdSpaceDashboard } from 'react-icons/md'
-import { IoNotificationsOutline, IoCalendarClearOutline } from 'react-icons/io5'
+import { IoCalendarClearOutline } from 'react-icons/io5'
 import TarevityLogo from '../logo/TarevityLogo'
 import TarevityIcon from '../logo/TarevityIcon'
 import UserImage from '../common/UserImage'
+import NotificationDropdown from '../notifications/NotificationDropdown'
 import { useProfileQuery } from '@/hooks/useProfileQuery'
 
 export default function Header() {
@@ -44,7 +45,7 @@ export default function Header() {
   }, [])
 
   return (
-    <header className="bg-HeaderBgLightderBgLight dark:bg-HeaderBgDark shadow-sm">
+    <header className="bg-HeaderBgLight dark:bg-HeaderBgDark shadow-sm">
       <div className="mx-auto px-4 sm:px-6 lg:px-12">
         <div className="flex h-16 justify-between">
           <div className="flex">
@@ -59,10 +60,10 @@ export default function Header() {
           <div className="flex items-center">
             {session ? (
               <div className="flex items-center justify-center">
-                <div className="notifications border-BorderLight hover:bg-BorderLight dark:border-BorderDark mr-3 cursor-pointer rounded-lg border-2 p-2 transition-all duration-300">
-                  <IoNotificationsOutline className="h-5 w-5" />
-                </div>
-                <div className="notifications hover:bg-BorderLight border-BorderLight dark:border-BorderDark mr-3 cursor-pointer rounded-lg border-2 p-2 transition-all duration-300">
+                {/* Notification Dropdown Component */}
+                <NotificationDropdown />
+                
+                <div className="border-BorderLight hover:bg-BorderLight dark:hover:bg-BorderDark dark:border-BorderDark mr-3 cursor-pointer rounded-lg border-2 p-2 transition-all duration-300">
                   <IoCalendarClearOutline className="h-5 w-5" />
                 </div>
                 <div className="hidden items-center gap-2 sm:flex">
@@ -79,7 +80,7 @@ export default function Header() {
 
                     {/* Dropdown menu */}
                     {isDropdownOpen && (
-                      <div className="dark:bg-BlackLight absolute right-0 z-99 mt-2 w-60 origin-top-right rounded-md border-none bg-white p-1 shadow-lg">
+                      <div className="dark:bg-BlackLight absolute right-0 z-50 mt-2 w-60 origin-top-right rounded-md border-none bg-white p-1 shadow-lg">
                         <div className="border-b border-gray-200 px-4 py-2 dark:border-gray-700">
                           <p className="text-sm font-bold text-gray-900 dark:text-white">
                             {profileData?.name}
