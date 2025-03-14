@@ -9,12 +9,17 @@ import { IoNotificationsOutline } from 'react-icons/io5'
 import TarevityLogo from '../logo/TarevityLogo'
 import TarevityIcon from '../logo/TarevityIcon'
 import UserImage from '../common/UserImage'
+import { useProfileQuery } from '@/hooks/useProfileQuery'
+
 
 export default function Header() {
   const { data: session } = useSession()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
+  
+  const { data: profileData } = useProfileQuery();
+
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen)
@@ -76,10 +81,10 @@ export default function Header() {
                       <div className="dark:bg-BlackLight absolute right-0 z-99 mt-2 w-60 origin-top-right rounded-md border-none bg-white p-1 shadow-lg">
                         <div className="border-b border-gray-200 px-4 py-2 dark:border-gray-700">
                           <p className="text-sm font-bold text-gray-900 dark:text-white">
-                            {session.user.name}
+                          {profileData?.name}
                           </p>
                           <p className="truncate text-sm text-gray-500 dark:text-gray-400">
-                            {session.user.email}
+                          {profileData?.email}
                           </p>
                         </div>
                         <Link

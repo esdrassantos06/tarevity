@@ -24,7 +24,7 @@ export default function HomePage() {
         {/* Hero Section */}
         <div className="mx-auto max-w-7xl rounded-lg px-4 sm:px-6 lg:px-8">
           <div className="p-8 lg:text-center">
-            <h1 className="text-BlackLight dark:text-darkText text-center text-3xl font-extrabold tracking-tight sm:text-6xl md:text-7xl dark:text-white">
+            <h1 className="text-BlackLight dark:text-darkText text-center text-5xl font-extrabold tracking-tight sm:text-6xl md:text-7xl dark:text-white">
               Manage your tasks efficiently
             </h1>
             <p className="text-BlackLight dark:text-darkSecondaryText mx-auto mt-3 max-w-md text-center text-lg md:mt-5 md:max-w-3xl dark:text-white">

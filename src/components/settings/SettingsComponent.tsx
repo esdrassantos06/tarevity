@@ -186,7 +186,7 @@ export default function SettingsComponent() {
                       onClick={() => handleThemeChange('light')}
                     >
                       <FaSun
-                        className={`xs:flex hidden h-5 w-5 ${
+                        className={`xs:flex items-center hidden h-5 w-5 ${
                           theme === 'light'
                             ? 'text-blue-600 dark:text-blue-400'
                             : 'text-gray-500 dark:text-gray-400'

@@ -12,7 +12,7 @@ interface UserImageProps {
 }
 
 const UserImage: React.FC<UserImageProps> = ({
-  className = 'h-10 w-10 rounded-full object-cover',
+  className = 'h-10 w-10 cursor-pointer rounded-full object-cover',
   size = 40,
   onClick,
 }) => {
@@ -73,6 +73,7 @@ const UserImage: React.FC<UserImageProps> = ({
 
   return (
     <Image
+    title={profileData?.name}
       src={finalImageUrl}
       alt={profileData?.name || 'Profile Picture'}
       width={size}
