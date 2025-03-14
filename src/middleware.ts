@@ -42,10 +42,10 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
-const supabaseDomain = supabaseUrl ? new URL(supabaseUrl).hostname : '';
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
+  const supabaseDomain = supabaseUrl ? new URL(supabaseUrl).hostname : ''
 
-const cspHeader = `
+  const cspHeader = `
   default-src 'self';
   script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com;
   style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com;
@@ -59,8 +59,8 @@ const cspHeader = `
   upgrade-insecure-requests;
   block-all-mixed-content;
 `
-  .replace(/\s{2,}/g, ' ')
-  .trim()
+    .replace(/\s{2,}/g, ' ')
+    .trim()
   const response = NextResponse.next()
 
   // Set Security Headers

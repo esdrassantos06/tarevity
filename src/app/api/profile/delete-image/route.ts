@@ -23,7 +23,7 @@ export async function DELETE() {
       console.error('Error fetching user data:', userError)
       return NextResponse.json(
         { message: 'Error fetching user data' },
-        { status: 500 }
+        { status: 500 },
       )
     }
 
@@ -31,7 +31,7 @@ export async function DELETE() {
     if (userData.image && userData.image.includes('user_uploads')) {
       const urlParts = userData.image.split('/')
       const filename = urlParts[urlParts.length - 1]
-      
+
       if (filename) {
         imageToDelete = `profile_images/${filename}`
       }
@@ -46,9 +46,9 @@ export async function DELETE() {
     // Update the user's image in the database
     const { error: updateError } = await supabaseAdmin
       .from('users')
-      .update({ 
+      .update({
         image: newImageValue,
-        updated_at: new Date().toISOString()
+        updated_at: new Date().toISOString(),
       })
       .eq('id', userId)
 
@@ -56,36 +56,41 @@ export async function DELETE() {
       console.error('Error updating user profile:', updateError)
       return NextResponse.json(
         { message: 'Error removing profile image reference' },
-        { status: 500 }
+        { status: 500 },
       )
     }
 
     // If we have an image file to delete from storage, do it now
     if (imageToDelete) {
-      const { error: storageError } = await supabaseAdmin
-        .storage
+      const { error: storageError } = await supabaseAdmin.storage
         .from('user_uploads')
         .remove([imageToDelete])
 
       if (storageError) {
-        console.error('Warning: Could not delete image file from storage:', storageError)
+        console.error(
+          'Warning: Could not delete image file from storage:',
+          storageError,
+        )
       }
     }
 
     return NextResponse.json(
-      { 
+      {
         message: 'Profile image deleted successfully',
-        provider: userData.provider
+        provider: userData.provider,
       },
-      { status: 200 }
+      { status: 200 },
     )
   } catch (error: unknown) {
     console.error('Error in delete profile image API:', error)
     return NextResponse.json(
       {
-        message: error instanceof Error ? error.message : 'Unknown error deleting profile image',
+        message:
+          error instanceof Error
+            ? error.message
+            : 'Unknown error deleting profile image',
       },
-      { status: 500 }
+      { status: 500 },
     )
   }
 }

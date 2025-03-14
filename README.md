@@ -37,7 +37,7 @@ Tarevity is a modern task management application built with Next.js 15, React 19
 - **Date Handling**: date-fns
 - **Theme Management**: next-themes
 - **UI Components**: Radix UI primitives
-- **Data Fetching**: TanStack React Query v5 
+- **Data Fetching**: TanStack React Query v5
 - **Animations**: Tailwind CSS Animated
 
 ### Backend & Database

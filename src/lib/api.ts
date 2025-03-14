@@ -1,24 +1,24 @@
 import axiosClient, { APIError, isAPIError } from './axios'
 
 export interface Todo {
-  id: string;
-  title: string;
-  description: string | null;
-  is_completed: boolean;
-  priority: number;
-  due_date: string | null;
-  created_at: string;
-  updated_at: string;
-  status: 'active' | 'review' | 'completed';
+  id: string
+  title: string
+  description: string | null
+  is_completed: boolean
+  priority: number
+  due_date: string | null
+  created_at: string
+  updated_at: string
+  status: 'active' | 'review' | 'completed'
 }
 
 export interface TodoFormData {
-  title: string;
-  description?: string | null;
-  is_completed?: boolean;
-  priority: number;
-  due_date?: string | null;
-  status?: 'active' | 'review' | 'completed';
+  title: string
+  description?: string | null
+  is_completed?: boolean
+  priority: number
+  due_date?: string | null
+  status?: 'active' | 'review' | 'completed'
 }
 
 export interface ProfileData {
@@ -36,11 +36,11 @@ export interface UserStats {
 }
 
 export interface PasswordCheckResponse {
-  isCompromised: boolean   // Whether the password was found in data breaches
-  strength: number         // Numeric strength score (0-100)
-  isStrong: boolean        // Whether the password is considered strong
-  isValid?: boolean        // Whether the password meets validation criteria
-  errors?: string[]        // Any validation error messages
+  isCompromised: boolean // Whether the password was found in data breaches
+  strength: number // Numeric strength score (0-100)
+  isStrong: boolean // Whether the password is considered strong
+  isValid?: boolean // Whether the password meets validation criteria
+  errors?: string[] // Any validation error messages
 }
 
 export interface ImageUploadResponse {
@@ -192,11 +192,13 @@ export const profileAPI = {
     }
   },
 
-
-  async updateProfile(data: { name: string, image?: string | null }): Promise<ApiResult<ProfileData>> {
+  async updateProfile(data: {
+    name: string
+    image?: string | null
+  }): Promise<ApiResult<ProfileData>> {
     try {
       // Log the data being sent to the API
-      
+
       const response = await axiosClient.put('/api/profile', data)
       return { data: response.data, error: null, loading: false }
     } catch (error) {
@@ -210,18 +212,22 @@ export const profileAPI = {
     }
   },
 
-  async uploadProfileImage(file: File): Promise<ApiResult<ImageUploadResponse>> {
+  async uploadProfileImage(
+    file: File,
+  ): Promise<ApiResult<ImageUploadResponse>> {
     try {
       const formData = new FormData()
       formData.append('image', file)
 
-      const response = await axiosClient.post('/api/profile/upload-image', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
+      const response = await axiosClient.post(
+        '/api/profile/upload-image',
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
         },
-      })
-
-
+      )
 
       return { data: response.data, error: null, loading: false }
     } catch (error) {
@@ -234,8 +240,10 @@ export const profileAPI = {
       }
     }
   },
-  
-  async deleteProfileImage(): Promise<ApiResult<{ message: string, provider: string | null }>> {
+
+  async deleteProfileImage(): Promise<
+    ApiResult<{ message: string; provider: string | null }>
+  > {
     try {
       const response = await axiosClient.delete('/api/profile/delete-image')
       return { data: response.data, error: null, loading: false }

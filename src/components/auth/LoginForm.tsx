@@ -16,7 +16,10 @@ import OAuthButtons from '@/components/auth/OAuthButtons'
 
 // Form validation schema
 const loginSchema = z.object({
-  email: z.string().email('Please enter a valid email').min(1, 'Email is required'),
+  email: z
+    .string()
+    .email('Please enter a valid email')
+    .min(1, 'Email is required'),
   password: z.string().min(6, 'Password must be at least 6 characters'),
   rememberMe: z.boolean().optional(),
 })
@@ -102,7 +105,9 @@ export default function EnhancedLoginForm() {
   // Show success message if coming from registration
   useEffect(() => {
     if (registeredParam === 'true') {
-      showSuccess('Account created successfully! Please log in with your new credentials.')
+      showSuccess(
+        'Account created successfully! Please log in with your new credentials.',
+      )
     }
   }, [registeredParam])
 
@@ -154,7 +159,9 @@ export default function EnhancedLoginForm() {
   // Form submission handler
   const onSubmit = async (data: LoginFormValues) => {
     if (isLocked) {
-      showWarning(`Account is locked. Please try again in ${formatLockoutTime(lockoutTime)}.`)
+      showWarning(
+        `Account is locked. Please try again in ${formatLockoutTime(lockoutTime)}.`,
+      )
       return
     }
 
@@ -185,19 +192,24 @@ export default function EnhancedLoginForm() {
           setError(
             `Too many failed attempts. Your account is locked for ${formatLockoutTime(lockoutTime)}.`,
           )
-          
-          showWarning(`Too many failed attempts. Account locked for ${formatLockoutTime(lockoutTime)}.`)
+
+          showWarning(
+            `Too many failed attempts. Account locked for ${formatLockoutTime(lockoutTime)}.`,
+          )
           reset()
         } else {
-          const attemptsMessage = MAX_ATTEMPTS - newAttemptCount === 1 
-            ? '1 attempt' 
-            : `${MAX_ATTEMPTS - newAttemptCount} attempts`;
-            
+          const attemptsMessage =
+            MAX_ATTEMPTS - newAttemptCount === 1
+              ? '1 attempt'
+              : `${MAX_ATTEMPTS - newAttemptCount} attempts`
+
           setError(
             `Invalid email or password. ${attemptsMessage} remaining before temporary lockout.`,
           )
-          
-          showError(`Invalid email or password. ${attemptsMessage} remaining before temporary lockout.`)
+
+          showError(
+            `Invalid email or password. ${attemptsMessage} remaining before temporary lockout.`,
+          )
         }
         return
       }
@@ -214,8 +226,12 @@ export default function EnhancedLoginForm() {
       }, 1000)
     } catch (error: unknown) {
       if (error instanceof Error) {
-        setError(error.message || 'An unexpected error occurred while logging in')
-        showError(error.message || 'An unexpected error occurred while logging in')
+        setError(
+          error.message || 'An unexpected error occurred while logging in',
+        )
+        showError(
+          error.message || 'An unexpected error occurred while logging in',
+        )
       } else {
         setError('Unknown error while logging in')
         showError('Unknown error while logging in')
@@ -280,7 +296,12 @@ export default function EnhancedLoginForm() {
           required
           icon={<FaEnvelope />}
           autoComplete="email"
-          validator={<EmailValidator email={watchedEmail} onValidation={handleEmailValidation} />}
+          validator={
+            <EmailValidator
+              email={watchedEmail}
+              onValidation={handleEmailValidation}
+            />
+          }
         />
 
         {/* Password Input */}
@@ -314,7 +335,7 @@ export default function EnhancedLoginForm() {
               Remember me
             </label>
           </div>
-          
+
           <div className="text-sm">
             <Link
               href="/auth/forgot-password"

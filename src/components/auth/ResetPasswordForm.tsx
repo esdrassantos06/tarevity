@@ -287,7 +287,7 @@ export default function EnhancedResetPasswordForm() {
 
   if (isValidToken === false) {
     return (
-      <div className="mx-auto w-full max-w-md rounded-lg bg-white p-6 shadow-md dark:bg-BlackLight">
+      <div className="dark:bg-BlackLight mx-auto w-full max-w-md rounded-lg bg-white p-6 shadow-md">
         <div className="mb-6 text-center">
           <FaExclamationTriangle className="mx-auto h-16 w-16 text-red-500" />
           <h1 className="mt-4 text-2xl font-bold text-gray-900 dark:text-white">
@@ -319,7 +319,7 @@ export default function EnhancedResetPasswordForm() {
 
   // Show UI for valid token
   return (
-    <div className="mx-auto w-full max-w-md rounded-lg bg-white p-6 shadow-md dark:bg-BlackLight">
+    <div className="dark:bg-BlackLight mx-auto w-full max-w-md rounded-lg bg-white p-6 shadow-md">
       <div className="mb-6 text-center">
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
           Reset Password

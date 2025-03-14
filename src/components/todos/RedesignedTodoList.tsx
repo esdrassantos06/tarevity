@@ -326,9 +326,9 @@ const RedesignedTodoList: React.FC = () => {
           <div className="max-xs:flex-col mt-4 flex items-start justify-around gap-4 sm:mt-0 sm:flex-row sm:items-center">
             <button
               onClick={() => router.push('/todo/new')}
-              className="flex w-40 rounded-md cursor-pointer items-center justify-center gap-2 bg-blue-600 py-2.5 text-white transition-colors hover:bg-blue-700"
+              className="flex w-40 cursor-pointer items-center justify-center gap-2 rounded-md bg-blue-600 py-2.5 text-white transition-colors hover:bg-blue-700"
             >
-              <FiPlus className='w-5 h-5' /> Create Task
+              <FiPlus className="h-5 w-5" /> Create Task
             </button>
             <ExpandableSearch
               value={searchQuery}
@@ -431,7 +431,7 @@ const RedesignedTodoList: React.FC = () => {
 
         {/* Filtering tabs and sorting controls */}
         <div className="mb-4 flex flex-wrap items-center justify-between">
-          <div className="flex flex-wrap items-center gap-4 sm:gap-2 overflow-x-auto">
+          <div className="flex flex-wrap items-center gap-4 overflow-x-auto sm:gap-2">
             <button
               className={`flex items-center rounded-md px-4 py-2 font-medium ${
                 activeTab === 'all'
@@ -444,7 +444,7 @@ const RedesignedTodoList: React.FC = () => {
               All
             </button>
 
-            <div className="mx-2 hidden h-8 border-r border-gray-300 sm:flex items-center dark:border-gray-600"></div>
+            <div className="mx-2 hidden h-8 items-center border-r border-gray-300 sm:flex dark:border-gray-600"></div>
 
             <button
               className={`flex items-center rounded-md px-4 py-2 font-medium ${
@@ -486,7 +486,7 @@ const RedesignedTodoList: React.FC = () => {
           {/* Priority Sort Button */}
           <button
             onClick={togglePrioritySort}
-            className="mt-4 flex items-center rounded-md border border-BorderLight bg-white px-3 py-1.5 text-sm shadow-sm hover:bg-white/50 sm:mt-0 dark:border-BorderDark dark:bg-BlackLight dark:text-gray-200 dark:hover:bg-BlackLight/80"
+            className="border-BorderLight dark:border-BorderDark dark:bg-BlackLight dark:hover:bg-BlackLight/80 mt-4 flex items-center rounded-md border bg-white px-3 py-1.5 text-sm shadow-sm hover:bg-white/50 sm:mt-0 dark:text-gray-200"
           >
             <FaFlag className="mr-2 text-gray-500 dark:text-gray-400" />
             Sort by Priority

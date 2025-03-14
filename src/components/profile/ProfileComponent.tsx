@@ -149,15 +149,14 @@ export default function ProfileComponent() {
 
   // Handle delete image confirmation
   const confirmDeleteImage = () => {
-    setSelectedImage(null);
+    setSelectedImage(null)
     if (previewUrl) {
-      URL.revokeObjectURL(previewUrl);
-      setPreviewUrl(null);
+      URL.revokeObjectURL(previewUrl)
+      setPreviewUrl(null)
     }
-  
+
     deleteProfileImageMutation.mutate(undefined, {
       onSuccess: async () => {
-
         if (update && session) {
           await update({
             ...session,
@@ -165,17 +164,17 @@ export default function ProfileComponent() {
               ...session.user,
               image: null, // Remover a imagem da sessão
             },
-          });
+          })
         }
-        setImageError(false);
-        refetchProfile(); // Atualizar os dados do perfil
-        toast.success('Profile image removed successfully');
+        setImageError(false)
+        refetchProfile() // Atualizar os dados do perfil
+        toast.success('Profile image removed successfully')
       },
-    });
-  
+    })
+
     // Fechar o diálogo
-    setIsDeleteDialogOpen(false);
-  };
+    setIsDeleteDialogOpen(false)
+  }
 
   // Handle opening the discard changes dialog
   const openDiscardDialog = () => {
@@ -232,26 +231,26 @@ export default function ProfileComponent() {
 
   // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-  
+    e.preventDefault()
+
     try {
       // First check if we have an image to upload
       if (selectedImage) {
         // Start loading state
-        const loadingToastId = toast.loading('Uploading image...');
-  
+        const loadingToastId = toast.loading('Uploading image...')
+
         // Upload the image first
         uploadImageMutation.mutate(selectedImage, {
           onSuccess: (response) => {
             // Only proceed if we got a valid URL
             if (response.data?.url) {
-              const imageUrl = ensureAbsoluteUrl(response.data.url);
+              const imageUrl = ensureAbsoluteUrl(response.data.url)
               // Update toast to show progress
               toast.update(loadingToastId, {
                 render: 'Updating profile...',
                 isLoading: true,
-              });
-  
+              })
+
               // Now update the profile with the new image URL
               updateProfileMutation.mutate(
                 {
@@ -261,8 +260,8 @@ export default function ProfileComponent() {
                 {
                   onSuccess: async (response) => {
                     // Clear loading toast
-                    toast.dismiss(loadingToastId);
-  
+                    toast.dismiss(loadingToastId)
+
                     if (update && response?.data) {
                       // Update the session with the new user data
                       await update({
@@ -272,39 +271,39 @@ export default function ProfileComponent() {
                           name: response.data.name,
                           image: response.data.image,
                         },
-                      });
-  
+                      })
+
                       // Refetch profile data to ensure we have the latest
-                      refetchProfile();
+                      refetchProfile()
                     }
-  
-                    toast.success('Profile updated successfully!');
-                    setIsEditing(false);
-                    setSelectedImage(null);
+
+                    toast.success('Profile updated successfully!')
+                    setIsEditing(false)
+                    setSelectedImage(null)
                     if (previewUrl) {
-                      URL.revokeObjectURL(previewUrl);
-                      setPreviewUrl(null);
+                      URL.revokeObjectURL(previewUrl)
+                      setPreviewUrl(null)
                     }
                   },
                   onError: (error) => {
-                    toast.dismiss(loadingToastId);
-                    toast.error('Error updating profile');
-                    console.error('Error updating profile:', error);
+                    toast.dismiss(loadingToastId)
+                    toast.error('Error updating profile')
+                    console.error('Error updating profile:', error)
                   },
                 },
-              );
+              )
             } else {
-              toast.dismiss(loadingToastId);
-              toast.error('Failed to upload image: No URL returned');
-              console.error('Upload response missing URL:', response);
+              toast.dismiss(loadingToastId)
+              toast.error('Failed to upload image: No URL returned')
+              console.error('Upload response missing URL:', response)
             }
           },
           onError: (error: unknown) => {
-            toast.dismiss(loadingToastId);
-            toast.error('Error uploading image');
-            console.error('Error uploading image:', error);
+            toast.dismiss(loadingToastId)
+            toast.error('Error uploading image')
+            console.error('Error uploading image:', error)
           },
-        });
+        })
       } else {
         // No image to upload, just update the profile with existing image
         updateProfileMutation.mutate(
@@ -322,26 +321,26 @@ export default function ProfileComponent() {
                     name: response.data.name,
                     image: response.data.image,
                   },
-                });
-  
+                })
+
                 // Refetch profile data
-                refetchProfile();
+                refetchProfile()
               }
-              toast.success('Profile updated successfully!');
-              setIsEditing(false);
+              toast.success('Profile updated successfully!')
+              setIsEditing(false)
             },
             onError: (error) => {
-              toast.error('Error updating profile');
-              console.error('Error updating profile:', error);
+              toast.error('Error updating profile')
+              console.error('Error updating profile:', error)
             },
           },
-        );
+        )
       }
     } catch (error) {
-      toast.error('An error occurred while updating your profile');
-      console.error('Error in form submission:', error);
+      toast.error('An error occurred while updating your profile')
+      console.error('Error in form submission:', error)
     }
-  };
+  }
 
   // Show loading state
   if (
@@ -377,102 +376,99 @@ export default function ProfileComponent() {
 
       <div className="px-6 py-8">
         <div className="flex flex-col items-center md:flex-row">
+          {/* Profile Image */}
+          <div className="relative -mt-16 mb-4 md:mr-6 md:mb-0">
+            {/* Delete button positioned outside of the avatar container */}
+            {isEditing && profileImageUrl && !imageError && (
+              <button
+                className="absolute right-3 bottom-3 z-50 flex translate-x-1/2 translate-y-1/2 items-center justify-center rounded-full border-2 border-white bg-red-500 p-1.5 text-white shadow-md hover:bg-red-600 dark:border-gray-800"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  openDeleteDialog(e)
+                }}
+                title="Remove profile image"
+                type="button"
+              >
+                <FaTrash className="h-4 w-4" />
+              </button>
+            )}
 
-{/* Profile Image */}
-<div className="relative -mt-16 mb-4 md:mr-6 md:mb-0">
-  {/* Delete button positioned outside of the avatar container */}
-  {isEditing && profileImageUrl && !imageError && (
-    <button
-      className="absolute right-3 bottom-3 z-50 p-1.5 translate-x-1/2 translate-y-1/2 flex items-center justify-center rounded-full border-2 border-white bg-red-500 text-white shadow-md hover:bg-red-600 dark:border-gray-800"
-      onClick={(e) => {
-        e.stopPropagation();
-        openDeleteDialog(e);
-      }}
-      title="Remove profile image"
-      type="button"
-    >
-      <FaTrash className="h-4 w-4" />
-    </button>
-  )}
-  
-  <div className="bg-bgLight border-BorderLight dark:border-BorderDark relative h-24 w-24 overflow-hidden rounded-full border-4">
-    {isEditing ? (
-      <div className="relative w-full h-full">
-        {/* Preview image or current image */}
-        {previewUrl ? (
-          <div
-            className="h-full w-full cursor-pointer"
-            onClick={handleImageClick}
-          >
-            <Image
-              src={previewUrl}
-              alt="Preview"
-              width={96}
-              height={96}
-              className="h-full w-full object-cover"
-              onError={handleImageError}
-            />
-          </div>
-        ) : profileImageUrl && !imageError ? (
-          <div
-            className="h-full w-full cursor-pointer"
-            onClick={handleImageClick}
-          >
-            <Image
-              src={profileImageUrl}
-              alt={profileData.name || 'Profile Picture'}
-              width={96}
-              height={96}
-              className="h-full w-full object-cover"
-              onError={handleImageError}
-            />
-          </div>
-        ) : (
-          <div
-            className="flex h-full w-full cursor-pointer items-center justify-center bg-blue-100 dark:bg-blue-900"
-            onClick={handleImageClick}
-          >
-            <FaUser className="h-12 w-12 text-blue-500 dark:text-blue-300" />
-          </div>
-        )}
+            <div className="bg-bgLight border-BorderLight dark:border-BorderDark relative h-24 w-24 overflow-hidden rounded-full border-4">
+              {isEditing ? (
+                <div className="relative h-full w-full">
+                  {/* Preview image or current image */}
+                  {previewUrl ? (
+                    <div
+                      className="h-full w-full cursor-pointer"
+                      onClick={handleImageClick}
+                    >
+                      <Image
+                        src={previewUrl}
+                        alt="Preview"
+                        width={96}
+                        height={96}
+                        className="h-full w-full object-cover"
+                        onError={handleImageError}
+                      />
+                    </div>
+                  ) : profileImageUrl && !imageError ? (
+                    <div
+                      className="h-full w-full cursor-pointer"
+                      onClick={handleImageClick}
+                    >
+                      <Image
+                        src={profileImageUrl}
+                        alt={profileData.name || 'Profile Picture'}
+                        width={96}
+                        height={96}
+                        className="h-full w-full object-cover"
+                        onError={handleImageError}
+                      />
+                    </div>
+                  ) : (
+                    <div
+                      className="flex h-full w-full cursor-pointer items-center justify-center bg-blue-100 dark:bg-blue-900"
+                      onClick={handleImageClick}
+                    >
+                      <FaUser className="h-12 w-12 text-blue-500 dark:text-blue-300" />
+                    </div>
+                  )}
 
-        {/* Camera overlay */}
-        <div
-          className="absolute inset-0 flex cursor-pointer items-center justify-center bg-black/50"
-          onClick={handleImageClick}
-        >
-          <FaCamera className="h-8 w-8 text-white" />
-        </div>
+                  {/* Camera overlay */}
+                  <div
+                    className="absolute inset-0 flex cursor-pointer items-center justify-center bg-black/50"
+                    onClick={handleImageClick}
+                  >
+                    <FaCamera className="h-8 w-8 text-white" />
+                  </div>
 
-        {/* Hidden file input */}
-        <input
-          type="file"
-          ref={fileInputRef}
-          onChange={handleImageSelect}
-          accept="image/jpeg,image/png,image/gif,image/webp"
-          className="hidden"
-        />
-      </div>
-    ) : profileImageUrl && !imageError ? (
-      <Image
-        src={profileImageUrl}
-        alt={profileData.name || 'Profile Picture'}
-        width={96}
-        height={96}
-        className="h-full w-full object-cover"
-        priority
-        unoptimized={
-          true
-        }
-        onError={handleImageError}
-      />
-    ) : (
-      <div className="flex h-full w-full items-center justify-center bg-blue-100 dark:bg-blue-900">
-        <FaUser className="h-12 w-12 text-blue-500 dark:text-blue-300" />
-      </div>
-    )}
-  </div>
-</div>
+                  {/* Hidden file input */}
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    onChange={handleImageSelect}
+                    accept="image/jpeg,image/png,image/gif,image/webp"
+                    className="hidden"
+                  />
+                </div>
+              ) : profileImageUrl && !imageError ? (
+                <Image
+                  src={profileImageUrl}
+                  alt={profileData.name || 'Profile Picture'}
+                  width={96}
+                  height={96}
+                  className="h-full w-full object-cover"
+                  priority
+                  unoptimized={true}
+                  onError={handleImageError}
+                />
+              ) : (
+                <div className="flex h-full w-full items-center justify-center bg-blue-100 dark:bg-blue-900">
+                  <FaUser className="h-12 w-12 text-blue-500 dark:text-blue-300" />
+                </div>
+              )}
+            </div>
+          </div>
 
           {/* Profile Info & Form */}
           <div className="flex-1">

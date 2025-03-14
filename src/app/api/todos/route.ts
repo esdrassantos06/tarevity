@@ -17,9 +17,7 @@ export async function GET() {
   try {
     const { data, error } = await supabaseAdmin
       .from('todos')
-      .select(
-        '*',
-      )
+      .select('*')
       .eq('user_id', userId)
       .order('created_at', { ascending: false })
 
@@ -46,8 +44,8 @@ const todoSchema = z.object({
   priority: z.number().int().min(1).max(3),
   due_date: z.string().nullable().optional(),
   is_completed: z.boolean().optional(),
-  status: z.enum(['active', 'review', 'completed']).optional()
-});
+  status: z.enum(['active', 'review', 'completed']).optional(),
+})
 
 export async function POST(req: NextRequest) {
   try {
@@ -73,12 +71,13 @@ export async function POST(req: NextRequest) {
     const todoData = {
       user_id: userId,
       title: validatedData.title.trim(),
-      description: validatedData.description === '' ? null : validatedData.description,
+      description:
+        validatedData.description === '' ? null : validatedData.description,
       priority: Number(validatedData.priority) || 1,
       due_date: validatedData.due_date === '' ? null : validatedData.due_date,
       is_completed: !!validatedData.is_completed,
       status: validatedData.status || 'active',
-    };
+    }
 
     const { data, error } = await supabaseAdmin
       .from('todos')

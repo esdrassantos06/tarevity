@@ -2,7 +2,13 @@
 
 import React, { useState, ReactNode } from 'react'
 import { UseFormRegisterReturn } from 'react-hook-form'
-import { FaEye, FaEyeSlash, FaExclamationCircle, FaInfoCircle, FaCheck } from 'react-icons/fa'
+import {
+  FaEye,
+  FaEyeSlash,
+  FaExclamationCircle,
+  FaInfoCircle,
+  FaCheck,
+} from 'react-icons/fa'
 
 interface ValidatedInputProps {
   id: string
@@ -83,34 +89,29 @@ export default function ValidatedInput({
           {label}
           {required && <span className="ml-1 text-red-500">*</span>}
         </label>
-        
+
         {maxLength && (
           <span className="text-xs text-gray-500 dark:text-gray-400">
             {inputValue.length}/{maxLength}
           </span>
         )}
       </div>
-      
+
       <div className="relative mt-1">
         <input
           id={id}
           type={inputType}
-          className={`block w-full rounded-md p-2 shadow-sm transition-all duration-200
-            ${
-              error
-                ? 'border-red-500 focus:border-red-500 focus:ring-red-500 dark:border-red-500'
-                : isFocused
+          className={`block w-full rounded-md p-2 shadow-sm transition-all duration-200 ${
+            error
+              ? 'border-red-500 focus:border-red-500 focus:ring-red-500 dark:border-red-500'
+              : isFocused
                 ? 'border-blue-500 focus:border-blue-500 focus:ring-blue-500 dark:border-blue-500'
                 : 'border-gray-300 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600'
-            }
-            ${
-              disabled
-                ? 'cursor-not-allowed bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400'
-                : 'dark:bg-gray-700 dark:text-white'
-            }
-            ${icon ? 'pl-10' : ''}
-            ${type === 'password' ? 'pr-10' : ''}
-          `}
+          } ${
+            disabled
+              ? 'cursor-not-allowed bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400'
+              : 'dark:bg-gray-700 dark:text-white'
+          } ${icon ? 'pl-10' : ''} ${type === 'password' ? 'pr-10' : ''} `}
           placeholder={placeholder}
           disabled={disabled}
           maxLength={maxLength}
@@ -123,24 +124,24 @@ export default function ValidatedInput({
           // These handlers run BEFORE the react-hook-form handlers
           onFocus={handleFocus}
           onBlur={(e) => {
-            handleBlur();
-            if (restRegistration.onBlur) restRegistration.onBlur(e);
+            handleBlur()
+            if (restRegistration.onBlur) restRegistration.onBlur(e)
           }}
           onChange={(e) => {
-            handleChange(e);
-            if (restRegistration.onChange) restRegistration.onChange(e);
+            handleChange(e)
+            if (restRegistration.onChange) restRegistration.onChange(e)
           }}
           // Spread the remaining registration props
           name={restRegistration.name}
         />
-        
+
         {/* Left icon if provided */}
         {icon && (
           <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
             {icon}
           </div>
         )}
-        
+
         {/* Password toggle icon */}
         {type === 'password' && (
           <button
@@ -153,7 +154,7 @@ export default function ValidatedInput({
             {showPassword ? <FaEyeSlash /> : <FaEye />}
           </button>
         )}
-        
+
         {/* Valid input indicator */}
         {!error && isTouched && inputValue && type !== 'password' && (
           <div className="absolute inset-y-0 right-0 flex items-center pr-3 text-green-500">
@@ -161,7 +162,7 @@ export default function ValidatedInput({
           </div>
         )}
       </div>
-      
+
       {/* Error message */}
       {error && (
         <div
@@ -172,7 +173,7 @@ export default function ValidatedInput({
           <span>{error}</span>
         </div>
       )}
-      
+
       {/* Helper text */}
       {!error && helperText && (
         <div
@@ -183,7 +184,7 @@ export default function ValidatedInput({
           <span>{helperText}</span>
         </div>
       )}
-      
+
       {/* Validator component (e.g., password strength meter) */}
       {validator}
     </div>

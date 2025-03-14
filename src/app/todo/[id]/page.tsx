@@ -5,20 +5,25 @@ import TodoDetailPage from '@/components/todos/TodoDetailPage'
 
 export const metadata: Metadata = {
   title: 'Task Details | Tarevity',
-  description: 'View task details, update status, edit information, or share with team members.',
+  description:
+    'View task details, update status, edit information, or share with team members.',
   robots: 'noindex, nofollow',
 }
 
-export default async function TodoDetailPageRoute(props: { params: Promise<{ id: string }> }) {
-  const { id } = await props.params;
-  
+export default async function TodoDetailPageRoute(props: {
+  params: Promise<{ id: string }>
+}) {
+  const { id } = await props.params
+
   return (
     <Layout>
-      <Suspense fallback={
-        <div className="flex items-center justify-center h-64">
-          <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-        </div>
-      }>
+      <Suspense
+        fallback={
+          <div className="flex h-64 items-center justify-center">
+            <div className="h-12 w-12 animate-spin rounded-full border-4 border-blue-500 border-t-transparent"></div>
+          </div>
+        }
+      >
         <TodoDetailPage todoId={id} />
       </Suspense>
     </Layout>

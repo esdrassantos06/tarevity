@@ -75,18 +75,18 @@ axiosClient.interceptors.response.use(
           // Rate limiting
           const retryAfter = error.response.headers['retry-after']
           const waitTime = retryAfter ? parseInt(retryAfter, 10) : 60
-          
+
           showWarning(
             `Too many requests. Please try again in ${Math.ceil(waitTime / 60)} minute${
               Math.ceil(waitTime / 60) > 1 ? 's' : ''
-            }.`
+            }.`,
           )
           break
 
         case 500:
           showError('A server error occurred. Please try again later.')
           break
-          
+
         default:
           // For other error statuses
           if (errorData?.message) {
@@ -105,7 +105,9 @@ axiosClient.interceptors.response.use(
 
     // Network errors
     if (error.request) {
-      showError('Unable to connect to server. Please check your internet connection.')
+      showError(
+        'Unable to connect to server. Please check your internet connection.',
+      )
       return Promise.reject({
         message:
           'Unable to connect to server. Please check your internet connection.',

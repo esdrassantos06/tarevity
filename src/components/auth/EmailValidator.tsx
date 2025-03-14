@@ -18,31 +18,38 @@ export default function EmailValidator({
   const [errors, setErrors] = useState<string[]>([])
 
   // Common email validation patterns - using useMemo to prevent recreation on each render
-  const patterns = useMemo(() => ({
-    // Basic format validation
-    format: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-    // No consecutive special characters
-    noConsecutiveSpecials: /^(?!.*[._%+-]{2})[^\s@]+@[^\s@]+\.[^\s@]+$/,
-    // Valid domain format
-    domainFormat: /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/,
-    // Common disposable email domains
-    disposableDomains: /^[^\s@]+@(mailinator\.com|guerrillamail\.com|temp-mail\.org|10minutemail\.com|yopmail\.com)$/i,
-    // No numeric-only local part
-    noNumericOnly: /^(?!\d+@)[^\s@]+@[^\s@]+\.[^\s@]+$/,
-  }), []) // Empty dependency array since these patterns never change
+  const patterns = useMemo(
+    () => ({
+      // Basic format validation
+      format: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+      // No consecutive special characters
+      noConsecutiveSpecials: /^(?!.*[._%+-]{2})[^\s@]+@[^\s@]+\.[^\s@]+$/,
+      // Valid domain format
+      domainFormat: /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/,
+      // Common disposable email domains
+      disposableDomains:
+        /^[^\s@]+@(mailinator\.com|guerrillamail\.com|temp-mail\.org|10minutemail\.com|yopmail\.com)$/i,
+      // No numeric-only local part
+      noNumericOnly: /^(?!\d+@)[^\s@]+@[^\s@]+\.[^\s@]+$/,
+    }),
+    [],
+  ) // Empty dependency array since these patterns never change
 
   // Common typo corrections - also memoized
-  const commonTypos = useMemo(() => ({
-    'gmial.com': 'gmail.com',
-    'gmal.com': 'gmail.com',
-    'gmail.co': 'gmail.com',
-    'hotmial.com': 'hotmail.com',
-    'hotmal.com': 'hotmail.com',
-    'yaho.com': 'yahoo.com',
-    'yahooo.com': 'yahoo.com',
-    'outloo.com': 'outlook.com',
-    'outlok.com': 'outlook.com',
-  }), [])
+  const commonTypos = useMemo(
+    () => ({
+      'gmial.com': 'gmail.com',
+      'gmal.com': 'gmail.com',
+      'gmail.co': 'gmail.com',
+      'hotmial.com': 'hotmail.com',
+      'hotmal.com': 'hotmail.com',
+      'yaho.com': 'yahoo.com',
+      'yahooo.com': 'yahoo.com',
+      'outloo.com': 'outlook.com',
+      'outlok.com': 'outlook.com',
+    }),
+    [],
+  )
 
   // Validate the email with all rules - using useCallback to memoize
   const validateEmail = useCallback(() => {
@@ -88,17 +95,21 @@ export default function EmailValidator({
     // Check local part length (before the @)
     const localPart = email.split('@')[0]
     if (localPart && localPart.length > 64) {
-      newErrors.push('Username part of email is too long (maximum 64 characters)')
+      newErrors.push(
+        'Username part of email is too long (maximum 64 characters)',
+      )
     }
 
     // Simple typo detection for common domains
     const domain = email.split('@')[1]?.toLowerCase()
     if (domain && commonTypos[domain as keyof typeof commonTypos]) {
-      newErrors.push(`Did you mean ${commonTypos[domain as keyof typeof commonTypos]}?`)
+      newErrors.push(
+        `Did you mean ${commonTypos[domain as keyof typeof commonTypos]}?`,
+      )
     }
 
     const isValidEmail = newErrors.length === 0
-    
+
     // Only update state if the values have changed
     setIsValid((prevIsValid) => {
       if (prevIsValid !== isValidEmail) {
@@ -114,7 +125,7 @@ export default function EmailValidator({
       }
       return prevErrors
     })
-    
+
     if (onValidation) {
       onValidation(isValidEmail)
     }
@@ -150,8 +161,8 @@ export default function EmailValidator({
       {errors.length > 0 && (
         <div className="mt-1 text-xs text-red-500">
           {errors.map((error, index) => (
-            <div key={index} className="flex items-start mt-0.5">
-              <FaExclamationTriangle className="mr-1 mt-0.5 flex-shrink-0" />
+            <div key={index} className="mt-0.5 flex items-start">
+              <FaExclamationTriangle className="mt-0.5 mr-1 flex-shrink-0" />
               <span>{error}</span>
             </div>
           ))}

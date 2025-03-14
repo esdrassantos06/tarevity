@@ -55,7 +55,6 @@ export async function PUT(req: Request) {
     const userId = session.user.id
     const updateData = await req.json()
 
-
     // Validate data
     if (!updateData.name?.trim()) {
       return NextResponse.json({ message: 'Name is required' }, { status: 400 })
@@ -84,7 +83,6 @@ export async function PUT(req: Request) {
       console.error('Error updating user profile:', error)
       throw error
     }
-
 
     return NextResponse.json(data, { status: 200 })
   } catch (error: unknown) {

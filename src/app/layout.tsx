@@ -28,17 +28,14 @@ export const metadata: Metadata = {
   icons: {
     icon: '/icon.png',
     apple: '/apple-icon.png',
-  }
+  },
 }
-
 
 export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
-
-
   return (
     <html lang="en" suppressHydrationWarning className="overflow-x-hidden">
       <head></head>
@@ -46,8 +43,7 @@ export default async function RootLayout({
         className={`${inter.className} overflow-x-hidden`}
         suppressHydrationWarning
       >
-
-          <Providers>
+        <Providers>
           <NextAuthProvider>
             <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
               {children}
@@ -55,7 +51,7 @@ export default async function RootLayout({
               <ToastProvider />
             </ThemeProvider>
           </NextAuthProvider>
-          </Providers>
+        </Providers>
       </body>
     </html>
   )

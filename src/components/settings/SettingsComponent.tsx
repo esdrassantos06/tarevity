@@ -8,7 +8,10 @@ import { useRouter } from 'next/navigation'
 import ConfirmationDialog, {
   useConfirmationDialog,
 } from '@/components/common/ConfirmationDialog'
-import { useProfileQuery, useDeleteAccountMutation } from '@/hooks/useProfileQuery'
+import {
+  useProfileQuery,
+  useDeleteAccountMutation,
+} from '@/hooks/useProfileQuery'
 import { showSuccess, showError, showLoading, updateToast } from '@/lib/toast'
 
 export default function SettingsComponent() {
@@ -26,12 +29,12 @@ export default function SettingsComponent() {
   } = useConfirmationDialog()
 
   // Use React Query hooks instead of direct API calls
-  const { 
-    data: profileData, 
+  const {
+    data: profileData,
     isLoading: isLoadingProfile,
-    error: profileError 
+    error: profileError,
   } = useProfileQuery()
-  
+
   const deleteAccountMutation = useDeleteAccountMutation()
 
   // Display query errors if they occur
@@ -46,7 +49,7 @@ export default function SettingsComponent() {
     showSuccess(
       `Theme changed to ${
         newTheme === 'dark' ? 'dark' : newTheme === 'light' ? 'light' : 'system'
-      }`
+      }`,
     )
   }
 
@@ -74,9 +77,9 @@ export default function SettingsComponent() {
             onConfirm: async () => {
               try {
                 setDialogLoading(true)
-                
+
                 const toastId = showLoading('Deleting your account...')
-                
+
                 // Use React Query mutation instead of direct axios call
                 deleteAccountMutation.mutate(undefined, {
                   onSuccess: async () => {
@@ -84,9 +87,9 @@ export default function SettingsComponent() {
                     updateToast(toastId, 'Account deleted successfully', {
                       type: 'success',
                       isLoading: false,
-                      autoClose: 3000
+                      autoClose: 3000,
                     })
-                    
+
                     // Sign out the user
                     await signOut({ redirect: false })
                     // Redirect to home page
@@ -94,24 +97,24 @@ export default function SettingsComponent() {
                   },
                   onError: (error) => {
                     console.error('Error deleting account:', error)
-                    
+
                     // Update the toast message
                     updateToast(toastId, 'Failed to delete account', {
                       type: 'error',
                       isLoading: false,
-                      autoClose: 5000
+                      autoClose: 5000,
                     })
-                    
+
                     showError(
                       error instanceof Error
                         ? error.message
-                        : 'An error occurred while deleting your account'
+                        : 'An error occurred while deleting your account',
                     )
                   },
                   onSettled: () => {
                     setDialogLoading(false)
                     closeConfirmDialog()
-                  }
+                  },
                 })
               } catch (error) {
                 console.error('Error initiating account deletion:', error)
@@ -191,7 +194,7 @@ export default function SettingsComponent() {
                       onClick={() => handleThemeChange('light')}
                     >
                       <FaSun
-                        className={`h-5 hidden xs:flex w-5 ${
+                        className={`xs:flex hidden h-5 w-5 ${
                           theme === 'light'
                             ? 'text-blue-600 dark:text-blue-400'
                             : 'text-gray-500 dark:text-gray-400'
@@ -209,7 +212,7 @@ export default function SettingsComponent() {
                       onClick={() => handleThemeChange('dark')}
                     >
                       <FaMoon
-                        className={`h-5 hidden xs:flex w-5 ${
+                        className={`xs:flex hidden h-5 w-5 ${
                           theme === 'dark'
                             ? 'text-blue-600 dark:text-blue-400'
                             : 'text-gray-500 dark:text-gray-400'
@@ -227,7 +230,7 @@ export default function SettingsComponent() {
                       onClick={() => handleThemeChange('system')}
                     >
                       <FaDesktop
-                        className={`h-5 hidden xs:flex w-5 ${
+                        className={`xs:flex hidden h-5 w-5 ${
                           theme === 'system'
                             ? 'text-blue-600 dark:text-blue-400'
                             : 'text-gray-500 dark:text-gray-400'
@@ -316,7 +319,9 @@ export default function SettingsComponent() {
                       onClick={handleDeleteAccount}
                       disabled={deleteAccountMutation.isPending}
                     >
-                      {deleteAccountMutation.isPending ? 'Deleting...' : 'Delete my account'}
+                      {deleteAccountMutation.isPending
+                        ? 'Deleting...'
+                        : 'Delete my account'}
                     </button>
 
                     {deleteAccountMutation.isPending && (

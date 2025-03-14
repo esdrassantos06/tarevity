@@ -9,31 +9,33 @@ export function useTodosQuery() {
       try {
         const result = await todoAPI.getAllTodos()
         if (result.error) throw new Error(result.error.message)
-        
+
         return result.data || []
       } catch (error) {
-        showError(error instanceof Error ? error.message : 'Failed to load tasks')
+        showError(
+          error instanceof Error ? error.message : 'Failed to load tasks',
+        )
         throw error
       }
     },
     staleTime: 1 * 60 * 1000, // 1 minute
-    gcTime: 5 * 60 * 1000
+    gcTime: 5 * 60 * 1000,
   })
 }
 
 export function useCreateTodoMutation() {
   const queryClient = useQueryClient()
-  
+
   return useMutation({
     mutationFn: (todoData: TodoFormData) => todoAPI.createTodo(todoData),
 
     onMutate: async (newTodoData) => {
       await queryClient.cancelQueries({ queryKey: ['todos'] })
-      
+
       const previousTodos = queryClient.getQueryData<Todo[]>(['todos']) || []
-      
+
       const tempId = `temp-${Date.now()}`
-      
+
       const optimisticTodo: Todo = {
         id: tempId,
         title: newTodoData.title,
@@ -43,31 +45,34 @@ export function useCreateTodoMutation() {
         due_date: newTodoData.due_date || null,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
-        status: newTodoData.status || 'active'
+        status: newTodoData.status || 'active',
       }
-      
-      queryClient.setQueryData<Todo[]>(['todos'], old => [optimisticTodo, ...(old || [])])
-      
+
+      queryClient.setQueryData<Todo[]>(['todos'], (old) => [
+        optimisticTodo,
+        ...(old || []),
+      ])
+
       return { previousTodos, tempId }
     },
-    
+
     onError: (err, newTodo, context) => {
       if (context?.previousTodos) {
         queryClient.setQueryData(['todos'], context.previousTodos)
       }
       showError(err instanceof Error ? err.message : 'Error creating task')
     },
-    
+
     onSuccess: (result, variables, context) => {
       if (result.data && context?.tempId) {
-        queryClient.setQueryData<Todo[]>(['todos'], old => 
-          old?.map(todo => 
-            todo.id === context.tempId ? result.data! : todo
-          )
+        queryClient.setQueryData<Todo[]>(['todos'], (old) =>
+          old?.map((todo) =>
+            todo.id === context.tempId ? result.data! : todo,
+          ),
         )
       }
     },
-    
+
     onSettled: () => {
       setTimeout(() => {
         queryClient.invalidateQueries({ queryKey: ['todos'] })
@@ -78,25 +83,24 @@ export function useCreateTodoMutation() {
 
 export function useUpdateTodoMutation() {
   const queryClient = useQueryClient()
-  
+
   return useMutation({
-    mutationFn: ({ id, data }: { id: string, data: Partial<Todo> }) => {
+    mutationFn: ({ id, data }: { id: string; data: Partial<Todo> }) => {
       return todoAPI.updateTodo(id, data)
     },
-    
+
     onMutate: async ({ id, data }) => {
       // Cancel any outgoing refetches
       await queryClient.cancelQueries({ queryKey: ['todos'] })
-      
+
       // Snapshot the previous value
       const previousTodos = queryClient.getQueryData<Todo[]>(['todos'])
-      
-      
+
       // Optimistically update to the new value
-      queryClient.setQueryData<Todo[]>(['todos'], old => {
+      queryClient.setQueryData<Todo[]>(['todos'], (old) => {
         if (!old) return []
-        
-        return old.map(todo => {
+
+        return old.map((todo) => {
           if (todo.id === id) {
             const updatedTodo = { ...todo, ...data }
             return updatedTodo
@@ -104,36 +108,38 @@ export function useUpdateTodoMutation() {
           return todo
         })
       })
-      
+
       return { previousTodos }
     },
-    
+
     onError: (err, variables, context) => {
       console.error('Error updating todo:', err)
-      
+
       if (context?.previousTodos) {
         queryClient.setQueryData(['todos'], context.previousTodos)
       }
-      
+
       showError(err instanceof Error ? err.message : 'Error updating task')
     },
-    
+
     onSuccess: (result, variables) => {
       if (result.data) {
         // Ensure the server response is applied to the cache
         queryClient.setQueryData<Todo[]>(['todos'], (old = []) => {
-          return old.map(todo => {
+          return old.map((todo) => {
             if (todo.id === variables.id) {
               return { ...todo, ...result.data }
             }
             return todo
           })
         })
-        
+
         // Show different messages based on what was updated
         if ('is_completed' in variables.data) {
           const isCompleted = variables.data.is_completed
-          showSuccess(isCompleted ? 'Task marked as completed' : 'Task marked as active')
+          showSuccess(
+            isCompleted ? 'Task marked as completed' : 'Task marked as active',
+          )
         } else if ('status' in variables.data) {
           const status = variables.data.status
           if (status === 'review') {
@@ -146,7 +152,7 @@ export function useUpdateTodoMutation() {
         }
       }
     },
-    
+
     onSettled: () => {
       // Delay the refetch to avoid race conditions
       setTimeout(() => {
@@ -158,34 +164,34 @@ export function useUpdateTodoMutation() {
 
 export function useDeleteTodoMutation() {
   const queryClient = useQueryClient()
-  
+
   return useMutation({
     mutationFn: (id: string) => todoAPI.deleteTodo(id),
-    
+
     onMutate: async (id) => {
       await queryClient.cancelQueries({ queryKey: ['todos'] })
-      
+
       const previousTodos = queryClient.getQueryData<Todo[]>(['todos'])
-      
-      queryClient.setQueryData<Todo[]>(['todos'], old => 
-        old?.filter(todo => todo.id !== id)
+
+      queryClient.setQueryData<Todo[]>(['todos'], (old) =>
+        old?.filter((todo) => todo.id !== id),
       )
-      
+
       return { previousTodos }
     },
-    
+
     onError: (err, id, context) => {
       if (context?.previousTodos) {
         queryClient.setQueryData(['todos'], context.previousTodos)
       }
-      
+
       showError(err instanceof Error ? err.message : 'Error deleting task')
     },
-    
+
     onSuccess: () => {
       showSuccess('Task deleted successfully')
     },
-    
+
     onSettled: () => {
       // Delay the refetch to avoid race conditions
       setTimeout(() => {

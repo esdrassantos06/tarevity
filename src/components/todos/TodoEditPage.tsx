@@ -10,7 +10,9 @@ import {
   FaExclamationCircle,
 } from 'react-icons/fa'
 import { useTodosQuery, useUpdateTodoMutation } from '@/hooks/useTodosQuery'
-import ConfirmationDialog, { useConfirmationDialog } from '@/components/common/ConfirmationDialog'
+import ConfirmationDialog, {
+  useConfirmationDialog,
+} from '@/components/common/ConfirmationDialog'
 
 // Define interface for our Todo item
 interface Todo {
@@ -117,7 +119,7 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
         [name]: type === 'checkbox' ? checked : value,
       })
     }
-    
+
     setHasUnsavedChanges(true)
   }
 
@@ -142,28 +144,29 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
     )
   }
 
-const { dialogState, openConfirmDialog, closeConfirmDialog } = useConfirmationDialog()
+  const { dialogState, openConfirmDialog, closeConfirmDialog } =
+    useConfirmationDialog()
 
   const handleCancel = () => {
-  if (hasUnsavedChanges) {
-    openConfirmDialog({
-      title: 'Discard Changes',
-      description: 'You have unsaved changes. Are you sure you want to leave?',
-      variant: 'warning',
-      confirmText: 'Discard',
-      cancelText: 'Stay',
-      onConfirm: () => {
-        router.push(`/todo/${todoId}`)
-        closeConfirmDialog()
-      }
-    })
-  } else {
-    router.push(`/todo/${todoId}`)
+    if (hasUnsavedChanges) {
+      openConfirmDialog({
+        title: 'Discard Changes',
+        description:
+          'You have unsaved changes. Are you sure you want to leave?',
+        variant: 'warning',
+        confirmText: 'Discard',
+        cancelText: 'Stay',
+        onConfirm: () => {
+          router.push(`/todo/${todoId}`)
+          closeConfirmDialog()
+        },
+      })
+    } else {
+      router.push(`/todo/${todoId}`)
+    }
   }
-}
 
-
-if (isLoading) {
+  if (isLoading) {
     return (
       <div className="flex h-64 items-center justify-center">
         <div className="h-12 w-12 animate-spin rounded-full border-4 border-blue-500 border-t-transparent"></div>
@@ -188,7 +191,7 @@ if (isLoading) {
       </div>
 
       {/* Edit Form */}
-      <div className="overflow-hidden rounded-lg bg-white shadow-lg dark:bg-BlackLight">
+      <div className="dark:bg-BlackLight overflow-hidden rounded-lg bg-white shadow-lg">
         <form onSubmit={handleSubmit} className="p-6">
           {/* Title field */}
           <div className="mb-4">
@@ -263,17 +266,20 @@ if (isLoading) {
               <select
                 id="status"
                 name="status"
-                value={formData.status === 'completed' ? 'active' : formData.status}
+                value={
+                  formData.status === 'completed' ? 'active' : formData.status
+                }
                 onChange={handleChange}
                 disabled={formData.is_completed}
-                className="w-full rounded-md border border-gray-300 px-4 py-2 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white disabled:cursor-not-allowed disabled:opacity-70"
+                className="w-full rounded-md border border-gray-300 px-4 py-2 focus:border-blue-500 focus:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-70 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
               >
                 <option value="active">Active</option>
                 <option value="review">In Review</option>
               </select>
               {formData.is_completed && (
                 <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                  Status is set to completed because the task is marked as complete
+                  Status is set to completed because the task is marked as
+                  complete
                 </p>
               )}
             </div>
@@ -322,13 +328,13 @@ if (isLoading) {
             <button
               type="button"
               onClick={handleCancel}
-              className="rounded-md border border-gray-300 px-4 py-2 text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
+              className="rounded-md border border-gray-300 px-4 py-2 text-gray-700 hover:bg-gray-50 focus:ring-2 focus:ring-gray-500 focus:outline-none dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
             >
               <FaTimes className="mr-1 inline" /> Cancel
             </button>
             <button
               type="submit"
-              className="rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+              className="rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
               disabled={updateTodoMutation.isPending}
             >
               {updateTodoMutation.isPending ? (
@@ -364,17 +370,17 @@ if (isLoading) {
           </div>
         </form>
       </div>
-<ConfirmationDialog
-  isOpen={dialogState.isOpen}
-  onClose={closeConfirmDialog}
-  onConfirm={dialogState.onConfirm}
-  title={dialogState.title}
-  description={dialogState.description}
-  confirmText={dialogState.confirmText}
-  cancelText={dialogState.cancelText}
-  variant={dialogState.variant}
-  isLoading={dialogState.isLoading}
-/>
+      <ConfirmationDialog
+        isOpen={dialogState.isOpen}
+        onClose={closeConfirmDialog}
+        onConfirm={dialogState.onConfirm}
+        title={dialogState.title}
+        description={dialogState.description}
+        confirmText={dialogState.confirmText}
+        cancelText={dialogState.cancelText}
+        variant={dialogState.variant}
+        isLoading={dialogState.isLoading}
+      />
     </div>
   )
 }

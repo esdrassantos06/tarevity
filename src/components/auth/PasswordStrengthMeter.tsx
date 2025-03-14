@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback, useMemo, useRef } from "react"
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { FaCheck, FaTimes, FaExclamationTriangle, FaLock } from 'react-icons/fa'
 import { authAPI } from '@/lib/api'
 
@@ -25,7 +25,7 @@ export default function PasswordStrengthMeter({
     isChecking: false,
     strength: 0,
     isCompromised: false,
-    errors: [] as string[]
+    errors: [] as string[],
   })
 
   // Constants
@@ -41,128 +41,147 @@ export default function PasswordStrengthMeter({
       hasDigit: /[0-9]/.test(password),
       hasSpecial: /[^A-Za-z0-9]/.test(password),
       hasNoRepeatingChars: !/(.)\\1{2,}/.test(password),
-      hasNoSequentialChars: !/(abc|bcd|cde|def|efg|fgh|ghi|hij|ijk|jkl|klm|lmn|mno|nop|opq|pqr|qrs|rst|stu|tuv|uvw|vwx|wxy|xyz|012|123|234|345|456|567|678|789)/i.test(password)
+      hasNoSequentialChars:
+        !/(abc|bcd|cde|def|efg|fgh|ghi|hij|ijk|jkl|klm|lmn|mno|nop|opq|pqr|qrs|rst|stu|tuv|uvw|vwx|wxy|xyz|012|123|234|345|456|567|678|789)/i.test(
+          password,
+        ),
     }
   }, [password])
 
   // Stable local strength calculation
   const calculateLocalStrength = useCallback(() => {
-    if (!password) return 0;
-  
-    let localScore = 0;
-    if (password.length >= MIN_LENGTH) localScore += 10;
-    if (password.length >= STRONG_LENGTH) localScore += 10;
-    if (criteria.hasUppercase) localScore += 10;
-    if (criteria.hasLowercase) localScore += 10;
-    if (criteria.hasDigit) localScore += 10;
-    if (criteria.hasSpecial) localScore += 20;
-    if (criteria.hasNoRepeatingChars) localScore += 10;
-    if (criteria.hasNoSequentialChars) localScore += 10;
-  
-    const uniqueChars = new Set(password).size;
-    localScore += Math.min(20, uniqueChars * 2);
-  
-    return Math.min(100, localScore);
-  }, [password, criteria]);
-  
+    if (!password) return 0
+
+    let localScore = 0
+    if (password.length >= MIN_LENGTH) localScore += 10
+    if (password.length >= STRONG_LENGTH) localScore += 10
+    if (criteria.hasUppercase) localScore += 10
+    if (criteria.hasLowercase) localScore += 10
+    if (criteria.hasDigit) localScore += 10
+    if (criteria.hasSpecial) localScore += 20
+    if (criteria.hasNoRepeatingChars) localScore += 10
+    if (criteria.hasNoSequentialChars) localScore += 10
+
+    const uniqueChars = new Set(password).size
+    localScore += Math.min(20, uniqueChars * 2)
+
+    return Math.min(100, localScore)
+  }, [password, criteria])
+
   // Memoized password check function to prevent infinite loops
   const checkPassword = useMemo(() => {
     return async () => {
-      const currentPassword = passwordRef.current;
-      const currentOnValidation = onValidationRef.current;
-    
+      const currentPassword = passwordRef.current
+      const currentOnValidation = onValidationRef.current
+
       if (!currentPassword || currentPassword.length < MIN_LENGTH) {
-        if (currentOnValidation) currentOnValidation(false, false);
-        return;
+        if (currentOnValidation) currentOnValidation(false, false)
+        return
       }
-    
-      setState(prev => ({ ...prev, isChecking: true, errors: [] }));
-    
+
+      setState((prev) => ({ ...prev, isChecking: true, errors: [] }))
+
       try {
-        const result = await authAPI.checkPassword(currentPassword);
-        const localStrength = calculateLocalStrength();
-    
+        const result = await authAPI.checkPassword(currentPassword)
+        const localStrength = calculateLocalStrength()
+
         if (result.error) {
-          setState(prev => ({
+          setState((prev) => ({
             ...prev,
             isChecking: false,
             strength: localStrength,
-            errors: [result.error?.message || 'Error checking password security.']
-          }));
-          if (currentOnValidation) currentOnValidation(localStrength >= 40, localStrength >= 70);
-          return;
+            errors: [
+              result.error?.message || 'Error checking password security.',
+            ],
+          }))
+          if (currentOnValidation)
+            currentOnValidation(localStrength >= 40, localStrength >= 70)
+          return
         }
-    
+
         if (result.data) {
-          const dataStrength = result.data.strength ?? 0;
-          const responseErrors = result.data.errors ?? [];
-    
-          setState(prev => ({
+          const dataStrength = result.data.strength ?? 0
+          const responseErrors = result.data.errors ?? []
+
+          setState((prev) => ({
             ...prev,
             isChecking: false,
             strength: dataStrength,
             isCompromised: !!result.data?.isCompromised,
-            errors: responseErrors
-          }));
-    
+            errors: responseErrors,
+          }))
+
           if (currentOnValidation) {
-            const isValid = Boolean(result.data.isValid) && !result.data.isCompromised;
-            const isStrong = Boolean(result.data.isStrong) && !result.data.isCompromised;
-            currentOnValidation(isValid, isStrong);
+            const isValid =
+              Boolean(result.data.isValid) && !result.data.isCompromised
+            const isStrong =
+              Boolean(result.data.isStrong) && !result.data.isCompromised
+            currentOnValidation(isValid, isStrong)
           }
         } else {
-          setState(prev => ({ ...prev, isChecking: false, strength: localStrength }));
-          if (currentOnValidation) currentOnValidation(localStrength >= 40, localStrength >= 70);
+          setState((prev) => ({
+            ...prev,
+            isChecking: false,
+            strength: localStrength,
+          }))
+          if (currentOnValidation)
+            currentOnValidation(localStrength >= 40, localStrength >= 70)
         }
       } catch (error) {
-        console.error('Exception checking password:', error);
-        const localStrength = calculateLocalStrength();
-        setState(prev => ({ ...prev, isChecking: false, strength: localStrength, errors: ['An unexpected error occurred'] }));
-        if (currentOnValidation) currentOnValidation(localStrength >= 40, localStrength >= 70);
+        console.error('Exception checking password:', error)
+        const localStrength = calculateLocalStrength()
+        setState((prev) => ({
+          ...prev,
+          isChecking: false,
+          strength: localStrength,
+          errors: ['An unexpected error occurred'],
+        }))
+        if (currentOnValidation)
+          currentOnValidation(localStrength >= 40, localStrength >= 70)
       }
-    };
-  }, [calculateLocalStrength]);
-  
+    }
+  }, [calculateLocalStrength])
+
   // Update refs when props change
   useEffect(() => {
-    passwordRef.current = password;
-    onValidationRef.current = onValidation;
-  }, [password, onValidation]);
+    passwordRef.current = password
+    onValidationRef.current = onValidation
+  }, [password, onValidation])
 
   // Main effect for password checking
   useEffect(() => {
     if (checkTimeoutRef.current) {
-      clearTimeout(checkTimeoutRef.current);
+      clearTimeout(checkTimeoutRef.current)
     }
-  
-    const localStrength = calculateLocalStrength();
-  
+
+    const localStrength = calculateLocalStrength()
+
     if (!password || password.length < MIN_LENGTH) {
-      setState(prev => ({
+      setState((prev) => ({
         ...prev,
         strength: localStrength,
         isChecking: false,
         isCompromised: false,
-        errors: []
-      }));
-  
-      onValidationRef.current?.(false, false);
-      return;
+        errors: [],
+      }))
+
+      onValidationRef.current?.(false, false)
+      return
     }
-  
+
     // Use a stable timeout to trigger password check
     checkTimeoutRef.current = setTimeout(() => {
       if (passwordRef.current) {
-        checkPassword();
+        checkPassword()
       }
-    }, 500);
-  
+    }, 500)
+
     return () => {
       if (checkTimeoutRef.current) {
-        clearTimeout(checkTimeoutRef.current);
+        clearTimeout(checkTimeoutRef.current)
       }
-    };
-  }, [password, calculateLocalStrength, checkPassword]);
+    }
+  }, [password, calculateLocalStrength, checkPassword])
 
   // Don't render anything for empty password
   if (!password) return null
@@ -173,12 +192,12 @@ export default function PasswordStrengthMeter({
       <div className="h-2 w-full rounded-full bg-gray-200 dark:bg-gray-700">
         <div
           className={`h-2 rounded-full transition-all duration-300 ${
-            state.isCompromised 
-              ? 'bg-red-500' 
-              : state.strength < 40 
-                ? 'bg-red-500' 
-                : state.strength < 70 
-                  ? 'bg-yellow-500' 
+            state.isCompromised
+              ? 'bg-red-500'
+              : state.strength < 40
+                ? 'bg-red-500'
+                : state.strength < 70
+                  ? 'bg-yellow-500'
                   : 'bg-green-500'
           }`}
           style={{ width: `${state.strength}%` }}
@@ -187,27 +206,29 @@ export default function PasswordStrengthMeter({
 
       {/* Strength label and checking indicator */}
       <div className="mt-1 flex items-center justify-between">
-        <span className={`text-xs font-medium ${
-          state.isCompromised 
-            ? 'text-red-500 dark:text-red-400' 
-            : state.strength < 40 
-              ? 'text-red-500 dark:text-red-400' 
-              : state.strength < 70 
-                ? 'text-yellow-500 dark:text-yellow-400' 
-                : 'text-green-500 dark:text-green-400'
-        }`}>
-          {state.isCompromised 
-            ? 'Compromised Password' 
-            : state.strength < 40 
-              ? 'Weak Password' 
-              : state.strength < 70 
-                ? 'Moderate Password' 
+        <span
+          className={`text-xs font-medium ${
+            state.isCompromised
+              ? 'text-red-500 dark:text-red-400'
+              : state.strength < 40
+                ? 'text-red-500 dark:text-red-400'
+                : state.strength < 70
+                  ? 'text-yellow-500 dark:text-yellow-400'
+                  : 'text-green-500 dark:text-green-400'
+          }`}
+        >
+          {state.isCompromised
+            ? 'Compromised Password'
+            : state.strength < 40
+              ? 'Weak Password'
+              : state.strength < 70
+                ? 'Moderate Password'
                 : 'Strong Password'}
         </span>
 
         {state.isChecking && (
           <div className="flex items-center text-xs text-gray-500">
-            <div className="h-3 w-3 animate-spin rounded-full border-2 border-gray-300 border-t-blue-600 mr-1"></div>
+            <div className="mr-1 h-3 w-3 animate-spin rounded-full border-2 border-gray-300 border-t-blue-600"></div>
             <span>Checking security...</span>
           </div>
         )}
@@ -225,31 +246,31 @@ export default function PasswordStrengthMeter({
       {password.length > 0 && (
         <div className="mt-2 grid grid-cols-2 gap-1 text-xs">
           {[
-            { 
-              check: criteria.hasLength, 
+            {
+              check: criteria.hasLength,
               label: 'At least 8 characters',
-              icon: criteria.hasLength ? FaCheck : FaTimes 
+              icon: criteria.hasLength ? FaCheck : FaTimes,
             },
-            { 
-              check: criteria.hasUppercase, 
+            {
+              check: criteria.hasUppercase,
               label: 'One uppercase letter',
-              icon: criteria.hasUppercase ? FaCheck : FaTimes 
+              icon: criteria.hasUppercase ? FaCheck : FaTimes,
             },
-            { 
-              check: criteria.hasLowercase, 
+            {
+              check: criteria.hasLowercase,
               label: 'One lowercase letter',
-              icon: criteria.hasLowercase ? FaCheck : FaTimes 
+              icon: criteria.hasLowercase ? FaCheck : FaTimes,
             },
-            { 
-              check: criteria.hasDigit, 
+            {
+              check: criteria.hasDigit,
               label: 'One number',
-              icon: criteria.hasDigit ? FaCheck : FaTimes 
+              icon: criteria.hasDigit ? FaCheck : FaTimes,
             },
-            { 
-              check: criteria.hasSpecial, 
+            {
+              check: criteria.hasSpecial,
               label: 'One special character',
-              icon: criteria.hasSpecial ? FaCheck : FaTimes 
-            }
+              icon: criteria.hasSpecial ? FaCheck : FaTimes,
+            },
           ].map(({ check, label, icon: Icon }, index) => (
             <div
               key={index}
@@ -265,8 +286,8 @@ export default function PasswordStrengthMeter({
           {password.length >= MIN_LENGTH && (
             <div
               className={`flex items-center ${
-                criteria.hasNoSequentialChars 
-                  ? 'text-green-500' 
+                criteria.hasNoSequentialChars
+                  ? 'text-green-500'
                   : 'text-gray-500'
               }`}
             >
@@ -285,8 +306,8 @@ export default function PasswordStrengthMeter({
       {state.errors.length > 0 && (
         <div className="mt-2 text-xs text-red-500">
           {state.errors.map((error, index) => (
-            <div key={index} className="flex items-start mt-1">
-              <FaExclamationTriangle className="mr-1 mt-0.5 flex-shrink-0" />
+            <div key={index} className="mt-1 flex items-start">
+              <FaExclamationTriangle className="mt-0.5 mr-1 flex-shrink-0" />
               <span>{error}</span>
             </div>
           ))}

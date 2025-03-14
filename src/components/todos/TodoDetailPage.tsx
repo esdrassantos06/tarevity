@@ -1,7 +1,7 @@
 'use client'
 import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { HiPencilAlt, HiTrash  } from "react-icons/hi";
+import { HiPencilAlt, HiTrash } from 'react-icons/hi'
 import {
   FaArrowLeft,
   FaClock,
@@ -174,7 +174,7 @@ const TodoDetailPage: React.FC<TodoDetailPageProps> = ({ todoId }) => {
   return (
     <div className="mx-auto flex max-w-4xl flex-col px-4 py-6">
       {/* Header */}
-      <div className="flex items-center mb-2 justify-around sm:justify-between">
+      <div className="mb-2 flex items-center justify-around sm:justify-between">
         <button
           onClick={() => router.push('/dashboard')}
           className="flex items-center text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white"
@@ -183,12 +183,12 @@ const TodoDetailPage: React.FC<TodoDetailPageProps> = ({ todoId }) => {
           <span>Back to Dashboard</span>
         </button>
 
-        <div className="grid place-items-center grid-cols-2 gap-2">
+        <div className="grid grid-cols-2 place-items-center gap-2">
           <button
             className="bg-primary flex items-center rounded-md p-3 text-white hover:bg-blue-900"
             onClick={() => router.push(`/todo/${todo.id}/edit`)}
           >
-            <HiPencilAlt  />
+            <HiPencilAlt />
           </button>
           <button
             className="flex items-center rounded-md bg-red-500 p-3 text-white hover:bg-red-600"

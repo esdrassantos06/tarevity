@@ -6,11 +6,11 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { 
-  FaEnvelope, 
-  FaLock, 
-  FaExclamationTriangle, 
-  FaUserCircle
+import {
+  FaEnvelope,
+  FaLock,
+  FaExclamationTriangle,
+  FaUserCircle,
 } from 'react-icons/fa'
 import { useRegisterMutation } from '@/hooks/useAuthQuery'
 import { showSuccess, showError, showWarning } from '@/lib/toast'
@@ -38,7 +38,7 @@ const registerSchema = z
       .max(50, 'Name is too long (maximum 50 characters)')
       .regex(
         /^[a-zA-Z0-9\s\u00C0-\u00FF]+$/,
-        'Name contains invalid characters'
+        'Name contains invalid characters',
       )
       .transform((val) => val.trim()),
 
@@ -53,36 +53,32 @@ const registerSchema = z
       .min(8, 'Password must be at least 8 characters')
       .max(100, 'Password is too long (maximum 100 characters)')
       .regex(
-        passwordPattern.uppercase, 
-        'Password must contain at least one uppercase letter'
+        passwordPattern.uppercase,
+        'Password must contain at least one uppercase letter',
       )
       .regex(
-        passwordPattern.lowercase, 
-        'Password must contain at least one lowercase letter'
+        passwordPattern.lowercase,
+        'Password must contain at least one lowercase letter',
       )
       .regex(
-        passwordPattern.number, 
-        'Password must contain at least one number'
+        passwordPattern.number,
+        'Password must contain at least one number',
       )
       .regex(
         passwordPattern.special,
-        'Password must contain at least one special character'
+        'Password must contain at least one special character',
       ),
 
-    confirmPassword: z
-      .string()
-      .min(1, 'Please confirm your password'),
+    confirmPassword: z.string().min(1, 'Please confirm your password'),
 
-    acceptTerms: z
-      .boolean()
-      .refine((val) => val === true, {
-        message: 'You must accept the Terms of Service and Privacy Policy',
-      }),
+    acceptTerms: z.boolean().refine((val) => val === true, {
+      message: 'You must accept the Terms of Service and Privacy Policy',
+    }),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: 'Passwords do not match',
     path: ['confirmPassword'],
-  });
+  })
 
 type RegisterFormValues = z.infer<typeof registerSchema>
 
@@ -111,14 +107,14 @@ export default function EnhancedRegisterForm() {
       confirmPassword: '',
       acceptTerms: false,
     },
-  });
+  })
 
   // Watch form fields
   const watchedPassword = watch('password')
   const watchedEmail = watch('email')
- 
+
   const watchedConfirmPassword = watch('confirmPassword')
-  
+
   // React Query hook for registration
   const registerMutation = useRegisterMutation()
 
@@ -126,7 +122,7 @@ export default function EnhancedRegisterForm() {
   const handlePasswordValidation = (isValid: boolean, isStrong: boolean) => {
     setPasswordValid(isValid)
     setPasswordStrong(isStrong)
-    
+
     if (!isValid && watchedPassword.length >= 8) {
       // Custom validation message for compromised passwords
       setFormError('password', {
@@ -151,12 +147,18 @@ export default function EnhancedRegisterForm() {
         message: 'Passwords do not match',
       })
     } else if (
-      errors.confirmPassword?.type === 'manual' && 
+      errors.confirmPassword?.type === 'manual' &&
       watchedPassword === watchedConfirmPassword
     ) {
       clearErrors('confirmPassword')
     }
-  }, [watchedPassword, watchedConfirmPassword, setFormError, clearErrors, errors.confirmPassword?.type])
+  }, [
+    watchedPassword,
+    watchedConfirmPassword,
+    setFormError,
+    clearErrors,
+    errors.confirmPassword?.type,
+  ])
 
   // Form submission handler
   const onSubmit = async (data: RegisterFormValues) => {
@@ -182,44 +184,52 @@ export default function EnhancedRegisterForm() {
       showWarning('Please enter a valid email address')
       return
     }
-    
+
     // Submit registration
     registerMutation.mutate(
-      { 
-        name: data.name, 
-        email: data.email, 
-        password: data.password 
+      {
+        name: data.name,
+        email: data.email,
+        password: data.password,
       },
       {
         onSuccess: () => {
-          showSuccess('Account created successfully! Please log in to continue.')
+          showSuccess(
+            'Account created successfully! Please log in to continue.',
+          )
           router.push('/auth/login?registered=true')
         },
         onError: (error) => {
-          const errorMessage = error.message || 'An error occurred during registration'
-          
+          const errorMessage =
+            error.message || 'An error occurred during registration'
+
           if (
             errorMessage.toLowerCase().includes('compromised password') ||
             errorMessage.toLowerCase().includes('been pwned')
           ) {
             setError(
-              'This password has appeared in data breaches and cannot be used. Please choose a different password.'
+              'This password has appeared in data breaches and cannot be used. Please choose a different password.',
             )
             // Focus back on the password field
             document.getElementById('password')?.focus()
-            showError('Password security issue detected. Please choose a different password.')
+            showError(
+              'Password security issue detected. Please choose a different password.',
+            )
           } else if (errorMessage.toLowerCase().includes('email already')) {
             setFormError('email', {
               type: 'manual',
-              message: 'This email is already registered. Please log in or use a different email.',
+              message:
+                'This email is already registered. Please log in or use a different email.',
             })
-            showWarning('Email already registered. Please log in or use a different email.')
+            showWarning(
+              'Email already registered. Please log in or use a different email.',
+            )
           } else {
             setError(errorMessage)
             showError(errorMessage || 'Registration failed. Please try again.')
           }
-        }
-      }
+        },
+      },
     )
   }
 
@@ -232,7 +242,7 @@ export default function EnhancedRegisterForm() {
       {error && (
         <div className="mb-4 rounded border border-red-400 bg-red-100 px-4 py-3 text-red-700 dark:border-red-800 dark:bg-red-900/30 dark:text-red-400">
           <div className="flex items-start">
-            <FaExclamationTriangle className="mr-2 mt-0.5" />
+            <FaExclamationTriangle className="mt-0.5 mr-2" />
             <span>{error}</span>
           </div>
         </div>
@@ -270,7 +280,12 @@ export default function EnhancedRegisterForm() {
           placeholder="you@example.com"
           disabled={isSubmitting}
           required
-          validator={<EmailValidator email={watchedEmail} onValidation={handleEmailValidation} />}
+          validator={
+            <EmailValidator
+              email={watchedEmail}
+              onValidation={handleEmailValidation}
+            />
+          }
           icon={<FaEnvelope />}
           autoComplete="email"
         />
@@ -286,9 +301,9 @@ export default function EnhancedRegisterForm() {
           disabled={isSubmitting}
           required
           validator={
-            <PasswordStrengthMeter 
-              password={watchedPassword} 
-              onValidation={handlePasswordValidation} 
+            <PasswordStrengthMeter
+              password={watchedPassword}
+              onValidation={handlePasswordValidation}
             />
           }
           icon={<FaLock />}
@@ -354,9 +369,7 @@ export default function EnhancedRegisterForm() {
         <button
           type="submit"
           disabled={isSubmitting}
-          className={`flex w-full items-center justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none dark:bg-blue-700 dark:hover:bg-blue-800
-            ${isSubmitting ? 'cursor-not-allowed opacity-70' : ''}
-          `}
+          className={`flex w-full items-center justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none dark:bg-blue-700 dark:hover:bg-blue-800 ${isSubmitting ? 'cursor-not-allowed opacity-70' : ''} `}
         >
           {isSubmitting ? (
             <>

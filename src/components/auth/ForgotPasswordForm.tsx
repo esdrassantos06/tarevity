@@ -13,7 +13,10 @@ import EmailValidator from './EmailValidator'
 
 // Define the form validation schema
 const forgotPasswordSchema = z.object({
-  email: z.string().email('Please enter a valid email address').min(1, 'Email is required'),
+  email: z
+    .string()
+    .email('Please enter a valid email address')
+    .min(1, 'Email is required'),
 })
 
 type ForgotPasswordFormValues = z.infer<typeof forgotPasswordSchema>
@@ -65,8 +68,8 @@ export default function EnhancedForgotPasswordForm() {
           result.error.message ||
             'An error occurred while processing your request',
           {
-            position: "top-center",
-          }
+            position: 'top-center',
+          },
         )
       } else {
         // If successful, update UI to show success message
@@ -74,19 +77,17 @@ export default function EnhancedForgotPasswordForm() {
         toast.success(
           result.data?.message || 'Recovery instructions sent to your email',
           {
-            position: "top-center",
+            position: 'top-center',
             icon: <FaCheck />,
-          }
+          },
         )
       }
     } catch (error) {
       toast.error(
-        error instanceof Error 
-          ? error.message 
-          : 'An unexpected error occurred',
+        error instanceof Error ? error.message : 'An unexpected error occurred',
         {
-          position: "top-center",
-        }
+          position: 'top-center',
+        },
       )
     } finally {
       setIsLoading(false)
@@ -95,7 +96,7 @@ export default function EnhancedForgotPasswordForm() {
 
   // Show different UI based on submission status
   return (
-    <div className="mx-auto w-full max-w-md rounded-lg bg-white p-6 shadow-md dark:bg-BlackLight">
+    <div className="dark:bg-BlackLight mx-auto w-full max-w-md rounded-lg bg-white p-6 shadow-md">
       <div className="mb-6 text-center">
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
           Forgot your password?
@@ -153,7 +154,12 @@ export default function EnhancedForgotPasswordForm() {
             disabled={isLoading}
             required
             icon={<FaEnvelope />}
-            validator={<EmailValidator email={watchedEmail} onValidation={handleEmailValidation} />}
+            validator={
+              <EmailValidator
+                email={watchedEmail}
+                onValidation={handleEmailValidation}
+              />
+            }
             autoComplete="email"
           />
 

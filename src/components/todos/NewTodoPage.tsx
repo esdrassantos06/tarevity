@@ -4,16 +4,18 @@ import { useRouter } from 'next/navigation'
 import { FaArrowLeft, FaSave, FaTimes, FaFlag, FaClock } from 'react-icons/fa'
 import { useCreateTodoMutation } from '@/hooks/useTodosQuery'
 import { showError, showLoading, updateToast, showInfo } from '@/lib/toast'
-import ConfirmationDialog, { useConfirmationDialog } from '@/components/common/ConfirmationDialog'
+import ConfirmationDialog, {
+  useConfirmationDialog,
+} from '@/components/common/ConfirmationDialog'
 
 // Define interface for our form data
 interface TodoFormData {
-  title: string;
-  description: string;
-  priority: number;
-  due_date: string;
-  is_completed: boolean;
-  status: 'active' | 'review' | 'completed';
+  title: string
+  description: string
+  priority: number
+  due_date: string
+  is_completed: boolean
+  status: 'active' | 'review' | 'completed'
 }
 
 // Define the Todo interface that matches your API
@@ -42,8 +44,8 @@ const NewTodoPage: React.FC = () => {
     priority: 2, // Default to medium priority
     due_date: '',
     is_completed: false,
-    status: 'active' // Default to active
-  });
+    status: 'active', // Default to active
+  })
 
   const handleChange = (
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
@@ -81,9 +83,9 @@ const NewTodoPage: React.FC = () => {
         updateToast(toastId, 'Task created successfully!', {
           type: 'success',
           isLoading: false,
-          autoClose: 3000
+          autoClose: 3000,
         })
-        
+
         if (data.data && data.data.id) {
           // Navigate to the new todo detail page
           router.push(`/todo/${data.data.id}`)
@@ -96,31 +98,40 @@ const NewTodoPage: React.FC = () => {
         updateToast(toastId, 'Failed to create task', {
           type: 'error',
           isLoading: false,
-          autoClose: 5000
+          autoClose: 5000,
         })
-        
-        showError(error instanceof Error ? error.message : 'An error occurred while creating the task')
+
+        showError(
+          error instanceof Error
+            ? error.message
+            : 'An error occurred while creating the task',
+        )
       },
     })
   }
 
-const { dialogState, openConfirmDialog, closeConfirmDialog } = useConfirmationDialog()
+  const { dialogState, openConfirmDialog, closeConfirmDialog } =
+    useConfirmationDialog()
 
   const handleCancel = () => {
     // Show confirmation if form has data
-    if (formData.title.trim() || formData.description.trim() || formData.due_date) {
+    if (
+      formData.title.trim() ||
+      formData.description.trim() ||
+      formData.due_date
+    ) {
       openConfirmDialog({
-      title: 'Discard Changes',
-      description: 'Discard changes? Any unsaved changes will be lost.',
-      variant: 'warning',
-      confirmText: 'Discard',
-      cancelText: 'Cancel',
-      onConfirm: () => {
-        showInfo('Changes discarded')
-        router.push('/dashboard')
-        closeConfirmDialog()
-      }
-    })
+        title: 'Discard Changes',
+        description: 'Discard changes? Any unsaved changes will be lost.',
+        variant: 'warning',
+        confirmText: 'Discard',
+        cancelText: 'Cancel',
+        onConfirm: () => {
+          showInfo('Changes discarded')
+          router.push('/dashboard')
+          closeConfirmDialog()
+        },
+      })
     } else {
       router.push('/dashboard')
     }
@@ -143,7 +154,7 @@ const { dialogState, openConfirmDialog, closeConfirmDialog } = useConfirmationDi
       </div>
 
       {/* Create Form */}
-      <div className="overflow-hidden rounded-lg bg-white shadow-lg dark:bg-BlackLight">
+      <div className="dark:bg-BlackLight overflow-hidden rounded-lg bg-white shadow-lg">
         <form onSubmit={handleSubmit} className="p-6">
           {/* Title field */}
           <div className="mb-4">
@@ -293,17 +304,17 @@ const { dialogState, openConfirmDialog, closeConfirmDialog } = useConfirmationDi
           </div>
         </form>
       </div>
-<ConfirmationDialog
-  isOpen={dialogState.isOpen}
-  onClose={closeConfirmDialog}
-  onConfirm={dialogState.onConfirm}
-  title={dialogState.title}
-  description={dialogState.description}
-  confirmText={dialogState.confirmText}
-  cancelText={dialogState.cancelText}
-  variant={dialogState.variant}
-  isLoading={dialogState.isLoading}
-/>
+      <ConfirmationDialog
+        isOpen={dialogState.isOpen}
+        onClose={closeConfirmDialog}
+        onConfirm={dialogState.onConfirm}
+        title={dialogState.title}
+        description={dialogState.description}
+        confirmText={dialogState.confirmText}
+        cancelText={dialogState.cancelText}
+        variant={dialogState.variant}
+        isLoading={dialogState.isLoading}
+      />
     </div>
   )
 }

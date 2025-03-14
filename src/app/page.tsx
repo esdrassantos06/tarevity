@@ -36,7 +36,7 @@ export default function HomePage() {
               <div className="rounded-md shadow">
                 <Link
                   href="/auth/login"
-                  className="dark:bg-BlackLight flex w-full items-center justify-center rounded-md border border-transparent bg-white px-5 py-1.5 text-base hover:scale-105 font-medium transition-all duration-300 md:text-lg"
+                  className="dark:bg-BlackLight flex w-full items-center justify-center rounded-md border border-transparent bg-white px-5 py-1.5 text-base font-medium transition-all duration-300 hover:scale-105 md:text-lg"
                 >
                   Get Started <IoIosArrowForward size={18} className="ml-1" />
                 </Link>
