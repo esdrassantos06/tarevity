@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import axios from 'axios'
-import { /*showSuccess  , */ showError } from '@/lib/toast'
+import { showSuccess, showError } from '@/lib/toast'
 
 export interface Notification {
   id: string
@@ -53,6 +53,7 @@ export function useMarkNotificationReadMutation() {
       return axios.post('/api/notifications/mark-read', { id, all, markAsUnread })
     },
     onSuccess: () => {
+      showSuccess('Notification read status updated')
       queryClient.invalidateQueries({ queryKey: ['notifications'] })
     },
     onError: (error) => {

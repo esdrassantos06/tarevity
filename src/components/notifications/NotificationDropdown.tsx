@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { IoNotificationsOutline } from 'react-icons/io5'
-import { FaCalendar, FaBell, FaCheck, FaEnvelope, FaEnvelopeOpen } from 'react-icons/fa'
+import { FaCalendar, FaBell, FaCheck, FaEnvelope, FaEnvelopeOpen, FaTrash, FaCheckCircle } from 'react-icons/fa'
 import { formatDistanceToNow } from 'date-fns'
 import { showSuccess, showError } from '@/lib/toast'
 import { useQueryClient } from '@tanstack/react-query'
@@ -68,6 +68,46 @@ export default function NotificationDropdown() {
 
   const toggleDropdown = () => {
     setIsOpen(!isOpen)
+  }
+
+  // Function to handle marking a single notification as read/unread
+  const handleToggleRead = (notification: Notification) => {
+    markReadMutation.mutate(
+      { 
+        id: notification.id, 
+        markAsUnread: notification.read 
+      }, 
+      {
+        onSuccess: () => {
+          showSuccess(notification.read ? 
+            'Notification marked as unread' : 
+            'Notification marked as read'
+          )
+          queryClient.invalidateQueries({ queryKey: ['notifications'] })
+        },
+        onError: (error) => {
+          showError('Failed to update notification')
+          console.error('Error updating notification:', error)
+        }
+      }
+    )
+  }
+
+  // Function to handle deleting a single notification
+  const handleDeleteNotification = (notificationId: string) => {
+    dismissMutation.mutate(
+      { id: notificationId },
+      {
+        onSuccess: () => {
+          showSuccess('Notification deleted')
+          queryClient.invalidateQueries({ queryKey: ['notifications'] })
+        },
+        onError: (error) => {
+          showError('Failed to delete notification')
+          console.error('Error deleting notification:', error)
+        }
+      }
+    )
   }
 
   const toggleReadStatus = () => {
@@ -245,7 +285,7 @@ export default function NotificationDropdown() {
                         notification.read,
                       )}
                     </div>
-                    <div>
+                    <div className="flex-1">
                       <h4
                         className={`text-sm font-medium ${
                           notification.read
@@ -277,6 +317,46 @@ export default function NotificationDropdown() {
                           },
                         )}
                       </p>
+                      
+                      {/* Action buttons */}
+                      <div className="mt-2 flex justify-end space-x-2">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleToggleRead(notification);
+                          }}
+                          className={`text-xs px-2 py-1 rounded-md flex items-center ${
+                            notification.read 
+                              ? 'bg-gray-200 text-gray-600 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-400 dark:hover:bg-gray-600' 
+                              : 'bg-blue-100 text-blue-700 hover:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:hover:bg-blue-800/50'
+                          }`}
+                          title={notification.read ? "Mark as unread" : "Mark as read"}
+                        >
+                          {notification.read ? (
+                            <>
+                              <FaEnvelope className="mr-1 h-3 w-3" />
+                              <span>Unread</span>
+                            </>
+                          ) : (
+                            <>
+                              <FaCheckCircle className="mr-1 h-3 w-3" />
+                              <span>Read</span>
+                            </>
+                          )}
+                        </button>
+                        
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteNotification(notification.id);
+                          }}
+                          className="bg-red-100 text-red-700 hover:bg-red-200 dark:bg-red-900/30 dark:text-red-300 dark:hover:bg-red-800/50 text-xs px-2 py-1 rounded-md flex items-center"
+                          title="Delete notification"
+                        >
+                          <FaTrash className="mr-1 h-3 w-3" />
+                          <span>Delete</span>
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>

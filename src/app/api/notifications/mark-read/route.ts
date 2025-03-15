@@ -12,11 +12,12 @@ export async function POST(req: Request) {
     }
 
     const userId = session.user.id
-    const { all, markAsUnread } = await req.json()
+    const { id, all, markAsUnread } = await req.json()
 
+    // If handling all notifications
     if (all) {
       if (markAsUnread) {
-        // Marcar todas como não lidas
+        // Mark all as unread
         const { error, count } = await supabaseAdmin
           .from('notifications')
           .update({ read: false })
@@ -36,7 +37,7 @@ export async function POST(req: Request) {
           { status: 200 },
         )
       } else {
-        // Marcar todas como lidas
+        // Mark all as read
         const { error, count } = await supabaseAdmin
           .from('notifications')
           .update({ read: true })
@@ -56,9 +57,50 @@ export async function POST(req: Request) {
           { status: 200 },
         )
       }
-    } else {
+    } 
+    // If handling a single notification
+    else if (id) {
+      // First, get the current read status
+      const { data: notification, error: fetchError } = await supabaseAdmin
+        .from('notifications')
+        .select('read')
+        .eq('id', id)
+        .eq('user_id', userId)
+        .single();
+        
+      if (fetchError) {
+        console.error('Error fetching notification:', fetchError);
+        throw fetchError;
+      }
+      
+      // Toggle the read status (or set to the specified value if markAsUnread is provided)
+      const newReadStatus = markAsUnread !== undefined ? 
+        markAsUnread === false :  // if markAsUnread is explicitly set, use opposite value
+        !notification?.read;      // otherwise toggle the current value
+      
+      const { error, data } = await supabaseAdmin
+        .from('notifications')
+        .update({ read: newReadStatus })
+        .eq('id', id)
+        .eq('user_id', userId)
+        .select();
+
+      if (error) {
+        console.error('Error updating notification read status:', error);
+        throw error;
+      }
+
       return NextResponse.json(
-        { message: 'Missing all flag' },
+        { 
+          message: `Notification marked as ${newReadStatus ? 'read' : 'unread'}`,
+          notification: data?.[0]
+        },
+        { status: 200 },
+      );
+    } 
+    else {
+      return NextResponse.json(
+        { message: 'Missing id or all parameter' },
         { status: 400 },
       )
     }
