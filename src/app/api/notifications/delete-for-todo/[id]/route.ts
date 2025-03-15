@@ -5,10 +5,10 @@ import { supabaseAdmin } from '@/lib/supabaseAdmin'
 
 export async function DELETE(
   req: Request,
-  { params }: { params: { id: string } }
+  context: { params: { id: string } }
 ) {
   try {
-    const todoId = params.id
+    const todoId = context.params.id
     
     const session = await getServerSession(authOptions)
 
