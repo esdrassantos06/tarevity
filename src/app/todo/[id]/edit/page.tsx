@@ -1,3 +1,5 @@
+// Para src/app/todo/[id]/edit/page.tsx
+
 import { Suspense } from 'react'
 import { Metadata } from 'next'
 import Layout from '@/components/layout/Layout'
@@ -10,15 +12,13 @@ export const metadata: Metadata = {
   robots: 'noindex, nofollow',
 }
 
-// Definindo interface apropriada para os props
-interface PageParams {
-  params: {
-    id: string;
-  };
-  searchParams?: Record<string, string | string[]>;
+// Use a definição de tipo correta conforme a documentação
+type Props = {
+  params: { id: string }
+  searchParams?: { [key: string]: string | string[] | undefined }
 }
 
-export default function TodoEditPageRoute(props: PageParams) {
+export default function TodoEditPageRoute(props: Props) {
   const id = props.params.id;
 
   return (
