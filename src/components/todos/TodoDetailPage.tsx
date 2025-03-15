@@ -10,6 +10,7 @@ import {
   FaShare,
   FaUser,
   FaExclamationCircle,
+  FaCalendarTimes, // Added for clear date icon
 } from 'react-icons/fa'
 import {
   useTodosQuery,
@@ -24,6 +25,10 @@ import {
   DialogTitle,
   DialogDescription,
 } from '@/components/common/Dialog'
+import ConfirmationDialog, {
+  useConfirmationDialog,
+} from '@/components/common/ConfirmationDialog'
+import { useQueryClient } from '@tanstack/react-query'
 
 interface TodoDetailPageProps {
   todoId: string
@@ -54,8 +59,13 @@ const TodoDetailPage: React.FC<TodoDetailPageProps> = ({ todoId }) => {
   const { data: todos = [], isLoading, error } = useTodosQuery()
   const updateTodoMutation = useUpdateTodoMutation()
   const deleteTodoMutation = useDeleteTodoMutation()
+  const queryClient = useQueryClient() // Added for invalidating notifications
 
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
+  
+  // Add confirmation dialog hook
+  const { dialogState, openConfirmDialog, closeConfirmDialog, setLoading } =
+    useConfirmationDialog()
 
   if (isLoading) {
     return (
@@ -165,6 +175,57 @@ const TodoDetailPage: React.FC<TodoDetailPageProps> = ({ todoId }) => {
     deleteTodoMutation.mutate(todo.id, {
       onSuccess: () => {
         router.push('/dashboard')
+      },
+    })
+  }
+
+  // Add function to handle clearing the due date
+  const handleClearDueDate = () => {
+    // Only proceed if there's actually a due date to clear
+    if (!todo.due_date) return
+    
+    // Show confirmation dialog
+    openConfirmDialog({
+      title: 'Clear Due Date',
+      description: 'Clearing the due date will also remove all notifications for this task. Continue?',
+      variant: 'warning',
+      confirmText: 'Clear',
+      cancelText: 'Cancel',
+      onConfirm: () => {
+        setLoading(true)
+        
+        // Update the todo to remove the due date
+        updateTodoMutation.mutate(
+          {
+            id: todo.id,
+            data: { due_date: null },
+          },
+          {
+            onSuccess: () => {
+              // Delete all notifications for this todo
+              fetch(`/api/notifications/delete-for-todo/${todo.id}`, {
+                method: 'DELETE',
+              })
+                .then((response) => {
+                  if (!response.ok) throw new Error('Failed to delete notifications')
+                  return response.json()
+                })
+                .then(() => {
+                  // Invalidate notifications query to update UI
+                  queryClient.invalidateQueries({ queryKey: ['notifications'] })
+                  closeConfirmDialog()
+                })
+                .catch((error) => {
+                  console.error('Error deleting notifications:', error)
+                  closeConfirmDialog()
+                })
+            },
+            onError: (error) => {
+              console.error('Error clearing due date:', error)
+              closeConfirmDialog()
+            },
+          }
+        )
       },
     })
   }
@@ -311,9 +372,21 @@ const TodoDetailPage: React.FC<TodoDetailPageProps> = ({ todoId }) => {
               </div>
             </div>
             <div className="rounded-md bg-white p-3 sm:p-4 shadow dark:bg-gray-800">
-              <h3 className="mb-2 text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400">
-                Due Date
-              </h3>
+              <div className="flex items-center justify-between">
+                <h3 className="mb-2 text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400">
+                  Due Date
+                </h3>
+                {todo.due_date && (
+                  <button
+                    onClick={handleClearDueDate}
+                    className="mb-2 flex items-center text-xs text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
+                    title="Clear due date"
+                  >
+                    <FaCalendarTimes className="mr-1" />
+                    <span>Clear</span>
+                  </button>
+                )}
+              </div>
               <p className="font-medium text-sm sm:text-base text-gray-900 dark:text-white">
                 {dueDate}
               </p>
@@ -408,6 +481,19 @@ const TodoDetailPage: React.FC<TodoDetailPageProps> = ({ todoId }) => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      
+      {/* Confirmation Dialog for Clear Due Date */}
+      <ConfirmationDialog
+        isOpen={dialogState.isOpen}
+        onClose={closeConfirmDialog}
+        onConfirm={dialogState.onConfirm}
+        title={dialogState.title}
+        description={dialogState.description}
+        confirmText={dialogState.confirmText}
+        cancelText={dialogState.cancelText}
+        variant={dialogState.variant}
+        isLoading={dialogState.isLoading}
+      />
     </div>
   )
 }

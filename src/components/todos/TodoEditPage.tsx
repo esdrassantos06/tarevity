@@ -1,4 +1,4 @@
-'use client'
+'use client';
 import React, { useState, useEffect, ChangeEvent, FormEvent } from 'react'
 import { useRouter } from 'next/navigation'
 import { useQueryClient } from '@tanstack/react-query'
@@ -9,6 +9,7 @@ import {
   FaFlag,
   FaClock,
   FaExclamationCircle,
+  FaCalendarTimes,
 } from 'react-icons/fa'
 import { useTodosQuery, useUpdateTodoMutation } from '@/hooks/useTodosQuery'
 import { useCreateNotificationsMutation } from '@/hooks/useNotificationsQuery'
@@ -135,6 +136,15 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
     setHasUnsavedChanges(true)
   }
 
+  // Function to clear the due date
+  const handleClearDueDate = () => {
+    setFormData({
+      ...formData,
+      due_date: '',
+    })
+    setHasUnsavedChanges(true)
+  }
+
   // Function to create or update notifications for a todo based on due date
   const updateNotificationsForTodo = (todo: Todo) => {
     // Skip if todo is completed
@@ -197,6 +207,25 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
     })
   }
 
+  // Function to delete all notifications for a todo
+  const deleteNotificationsForTodo = () => {
+    // Call the API endpoint to delete notifications for this todo
+    fetch(`/api/notifications/delete-for-todo/${todoId}`, {
+      method: 'DELETE',
+    })
+      .then((response) => {
+        if (!response.ok) throw new Error('Failed to delete notifications')
+        return response.json()
+      })
+      .then(() => {
+        // Invalidate notifications query to update UI
+        queryClient.invalidateQueries({ queryKey: ['notifications'] })
+      })
+      .catch((error) => {
+        console.error('Error deleting notifications:', error)
+      })
+  }
+
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
@@ -219,57 +248,63 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
             return
           }
 
-          // Check if relevant fields have changed that would affect notifications
-          const hasDueDateChanged = originalDueDate !== updateData.due_date
-          const hasTitleChanged =
-            todos.find((t) => t.id === todoId)?.title !== updateData.title
-          const hasCompletionChanged =
-            todos.find((t) => t.id === todoId)?.is_completed !==
-            updateData.is_completed
-
-          // If todo is now completed, dismiss all its notifications
-          if (updateData.is_completed) {
-            fetch('/api/notifications/dismiss-for-todo', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({ todoId }),
-            }).catch((error) => {
-              console.error('Error dismissing notifications:', error)
-            })
+          // Check if due date was cleared - if so, delete notifications
+          if (originalDueDate && !updateData.due_date) {
+            deleteNotificationsForTodo()
           }
-          // If any relevant field changed for an incomplete todo, recreate notifications
-          else if (
-            hasDueDateChanged ||
-            hasTitleChanged ||
-            hasCompletionChanged
-          ) {
-            // First delete all existing notifications for this todo
-            fetch(`/api/notifications/delete-for-todo/${todoId}`, {
-              method: 'DELETE',
-            })
-              .then((response) => {
-                if (!response.ok)
-                  throw new Error('Failed to delete notifications')
-                return response.json()
+          // Check if relevant fields have changed that would affect notifications
+          else {
+            const hasDueDateChanged = originalDueDate !== updateData.due_date
+            const hasTitleChanged =
+              todos.find((t) => t.id === todoId)?.title !== updateData.title
+            const hasCompletionChanged =
+              todos.find((t) => t.id === todoId)?.is_completed !==
+              updateData.is_completed
+
+            // If todo is now completed, dismiss all its notifications
+            if (updateData.is_completed) {
+              fetch('/api/notifications/dismiss-for-todo', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ todoId }),
+              }).catch((error) => {
+                console.error('Error dismissing notifications:', error)
               })
-              .then(() => {
-                // Short delay to ensure deletion completes before creating new ones
-                setTimeout(() => {
-                  // Another type safety check
+            }
+            // If any relevant field changed for an incomplete todo, recreate notifications
+            else if (
+              hasDueDateChanged ||
+              hasTitleChanged ||
+              hasCompletionChanged
+            ) {
+              // First delete all existing notifications for this todo
+              fetch(`/api/notifications/delete-for-todo/${todoId}`, {
+                method: 'DELETE',
+              })
+                .then((response) => {
+                  if (!response.ok)
+                    throw new Error('Failed to delete notifications')
+                  return response.json()
+                })
+                .then(() => {
+                  // Short delay to ensure deletion completes before creating new ones
+                  setTimeout(() => {
+                    // Another type safety check
+                    if (response.data) {
+                      updateNotificationsForTodo(response.data)
+                    }
+                  }, 300)
+                })
+                .catch((error) => {
+                  console.error('Error managing notifications:', error)
+                  // Still try to update notifications as fallback, with type safety check
                   if (response.data) {
                     updateNotificationsForTodo(response.data)
                   }
-                }, 300)
-              })
-              .catch((error) => {
-                console.error('Error managing notifications:', error)
-                // Still try to update notifications as fallback, with type safety check
-                if (response.data) {
-                  updateNotificationsForTodo(response.data)
-                }
-              })
+                })
+            }
           }
 
           router.push(`/todo/${todoId}`)
@@ -297,6 +332,24 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
       })
     } else {
       router.push(`/todo/${todoId}`)
+    }
+  }
+
+  // Handle confirmation for clearing due date
+  const handleConfirmClearDueDate = () => {
+    if (formData.due_date) {
+      openConfirmDialog({
+        title: 'Clear Due Date',
+        description: 
+          'Clearing the due date will also remove all notifications for this task. Continue?',
+        variant: 'warning',
+        confirmText: 'Clear',
+        cancelText: 'Cancel',
+        onConfirm: () => {
+          handleClearDueDate()
+          closeConfirmDialog()
+        },
+      })
     }
   }
 
@@ -426,14 +479,31 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
                 <FaClock className="mr-1 inline text-blue-500" />
                 Due Date
               </label>
-              <input
-                type="date"
-                id="due_date"
-                name="due_date"
-                value={formData.due_date}
-                onChange={handleChange}
-                className="w-full rounded-md border border-gray-300 px-4 py-2 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-              />
+              <div className="flex">
+                <input
+                  type="date"
+                  id="due_date"
+                  name="due_date"
+                  value={formData.due_date}
+                  onChange={handleChange}
+                  className="w-full rounded-l-md border border-gray-300 px-4 py-2 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                />
+                {formData.due_date && (
+                  <button
+                    type="button"
+                    onClick={handleConfirmClearDueDate}
+                    className="bg-red-100 hover:bg-red-200 dark:bg-red-900 dark:hover:bg-red-800 dark:text-white rounded-r-md border border-l-0 border-gray-300 px-3 dark:border-gray-600"
+                    title="Clear due date"
+                  >
+                    <FaCalendarTimes className="text-red-500 dark:text-red-300" />
+                  </button>
+                )}
+              </div>
+              <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                {formData.due_date 
+                  ? "Clear the due date to remove deadline notifications" 
+                  : "No due date set (no notifications will be created)"}
+              </p>
             </div>
           </div>
 
