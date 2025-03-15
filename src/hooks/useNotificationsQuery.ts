@@ -10,6 +10,7 @@ export interface Notification {
   notification_type: 'warning' | 'danger' | 'info'
   due_date: string
   read: boolean
+  dismissed: boolean
   origin_id: string
 }
 
@@ -29,22 +30,20 @@ export function useNotificationsQuery() {
 }
 
 export function useCreateNotificationsMutation() {
-    const queryClient = useQueryClient()
-    
-    return useMutation({
-      mutationFn: async (notifications: unknown[]) => {
-        // This is the key part - make sure we're sending notifications correctly
-        return axios.post('/api/notifications', { notifications })
-      },
-      onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ['notifications'] })
-      },
-      onError: (error) => {
-        console.error('Error creating notifications:', error)
-        // Don't show error toast to reduce UI noise
-      },
-    })
-  }
+  const queryClient = useQueryClient()
+  
+  return useMutation({
+    mutationFn: async (notifications: unknown[]) => {
+      return axios.post('/api/notifications', { notifications })
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['notifications'] })
+    },
+    onError: (error) => {
+      console.error('Error creating notifications:', error)
+    },
+  })
+}
 
 export function useMarkNotificationReadMutation() {
   const queryClient = useQueryClient()
@@ -55,7 +54,7 @@ export function useMarkNotificationReadMutation() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['notifications'] })
-      showSuccess('Notification(s) marked as read')
+      showSuccess('Notification marked as read')
     },
     onError: (error) => {
       console.error('Error marking notification as read:', error)
@@ -77,43 +76,6 @@ export function useDismissNotificationMutation() {
     onError: (error) => {
       console.error('Error dismissing notification:', error)
       showError('Failed to dismiss notification')
-    },
-  })
-}
-
-export function useResetNotificationsMutation() {
-  const queryClient = useQueryClient()
-  
-  return useMutation({
-    mutationFn: async () => {
-      return axios.post('/api/notifications/reset')
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['notifications'] })
-      showSuccess('Notification system reset')
-    },
-    onError: (error) => {
-      console.error('Error resetting notifications:', error)
-      showError('Failed to reset notifications')
-    },
-  })
-}
-
-export function useDeleteAllNotificationsMutation() {
-  const queryClient = useQueryClient()
-  
-  return useMutation({
-    mutationFn: async () => {
-      return axios.post('/api/notifications/delete-all')
-    },
-    onSuccess: (response) => {
-      const count = response.data?.deletedCount || 0
-      queryClient.invalidateQueries({ queryKey: ['notifications'] })
-      showSuccess(`Successfully deleted ${count} notifications`)
-    },
-    onError: (error) => {
-      console.error('Error deleting all notifications:', error)
-      showError('Failed to delete all notifications')
     },
   })
 }

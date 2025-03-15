@@ -12,54 +12,38 @@ export async function POST(req: Request) {
     }
 
     const userId = session.user.id
-    const { id, all } = await req.json()
+    const { all } = await req.json()
 
     if (all) {
-      // Dismiss all notifications for this user
+      // Delete all notifications for this user
       const { error, count } = await supabaseAdmin
         .from('notifications')
-        .update({ dismissed: true })
+        .delete()
         .eq('user_id', userId)
-        .eq('dismissed', false)
 
       if (error) {
+        console.error('Error deleting all notifications:', error)
         throw error
       }
 
       return NextResponse.json(
-        { message: 'All notifications dismissed', count: count || 0 },
-        { status: 200 },
-      )
-    } else if (id) {
-      // Dismiss a specific notification
-      const { error } = await supabaseAdmin
-        .from('notifications')
-        .update({ dismissed: true })
-        .eq('id', id)
-        .eq('user_id', userId)
-
-      if (error) {
-        throw error
-      }
-
-      return NextResponse.json(
-        { message: 'Notification dismissed' },
+        { message: 'All notifications deleted', count: count || 0 },
         { status: 200 },
       )
     } else {
       return NextResponse.json(
-        { message: 'Missing notification ID or all flag' },
+        { message: 'Missing all flag' },
         { status: 400 },
       )
     }
   } catch (error: unknown) {
-    console.error('Error dismissing notification:', error)
+    console.error('Error deleting notifications:', error)
     return NextResponse.json(
       {
         message:
           error instanceof Error
             ? error.message
-            : 'Unknown error dismissing notification',
+            : 'Unknown error deleting notifications',
       },
       { status: 500 },
     )

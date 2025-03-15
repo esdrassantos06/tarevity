@@ -12,54 +12,41 @@ export async function POST(req: Request) {
     }
 
     const userId = session.user.id
-    const { id, all } = await req.json()
+    const { all } = await req.json()
 
     if (all) {
-      // Mark all notifications as read
-      const { error } = await supabaseAdmin
+      const { error, count } = await supabaseAdmin
         .from('notifications')
         .update({ read: true })
         .eq('user_id', userId)
-        .eq('dismissed', false)
+        .eq('read', false)
 
       if (error) {
+        console.error('Error marking all notifications as read:', error)
         throw error
       }
 
       return NextResponse.json(
-        { message: 'All notifications marked as read' },
-        { status: 200 },
-      )
-    } else if (id) {
-      // Mark specific notification as read
-      const { error } = await supabaseAdmin
-        .from('notifications')
-        .update({ read: true })
-        .eq('id', id)
-        .eq('user_id', userId)
-
-      if (error) {
-        throw error
-      }
-
-      return NextResponse.json(
-        { message: 'Notification marked as read' },
+        { 
+          message: 'All notifications marked as read', 
+          count: count || 0 
+        },
         { status: 200 },
       )
     } else {
       return NextResponse.json(
-        { message: 'Missing notification ID or all flag' },
+        { message: 'Missing all flag' },
         { status: 400 },
       )
     }
   } catch (error: unknown) {
-    console.error('Error marking notification as read:', error)
+    console.error('Error marking notifications as read:', error)
     return NextResponse.json(
       {
         message:
           error instanceof Error
             ? error.message
-            : 'Unknown error marking notification as read',
+            : 'Unknown error marking notifications as read',
       },
       { status: 500 },
     )

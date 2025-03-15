@@ -1,58 +1,40 @@
 'use client'
 
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { IoNotificationsOutline } from 'react-icons/io5'
-import { FaCalendar, FaBell, FaTrash, FaCheck } from 'react-icons/fa'
-import { useTodosQuery } from '@/hooks/useTodosQuery'
-import {
-  formatDistanceToNow,
-  isPast,
-  isWithinInterval,
-  addDays,
-} from 'date-fns'
+import { FaCalendar, FaBell, FaCheck } from 'react-icons/fa'
+import { formatDistanceToNow } from 'date-fns'
 import { showSuccess, showError } from '@/lib/toast'
-import { useSession } from 'next-auth/react'
 import { useQueryClient } from '@tanstack/react-query'
 import {
   useNotificationsQuery,
-  useCreateNotificationsMutation,
   useMarkNotificationReadMutation,
   useDismissNotificationMutation,
-  useResetNotificationsMutation,
-  type Notification,
 } from '@/hooks/useNotificationsQuery'
 import ConfirmationDialog, {
   useConfirmationDialog,
 } from '@/components/common/ConfirmationDialog'
 
-interface NotificationData {
+interface Notification {
+  id: string
   todo_id: string
-  notification_type: 'danger' | 'warning' | 'info'
   title: string
   message: string
+  notification_type: 'warning' | 'danger' | 'info'
   due_date: string
-  origin_id: string
+  read: boolean
+  dismissed: boolean
 }
 
 export default function NotificationDropdown() {
-  const { data: session } = useSession()
   const [isOpen, setIsOpen] = useState(false)
   const [unreadCount, setUnreadCount] = useState(0)
   const dropdownRef = useRef<HTMLDivElement>(null)
   const queryClient = useQueryClient()
-  const lastProcessedRef = useRef<Set<string>>(new Set())
-  
 
-  const [lastClearTimestamp, setLastClearTimestamp] = useState<number>(0);
-  const COOLDOWN_PERIOD = 30000; // 30 segundos de cooldown
-  const [notificationsDisabled, setNotificationsDisabled] = useState(false);
-
-  const { data: todos = [] } = useTodosQuery()
   const { data: notifications = [], isLoading } = useNotificationsQuery()
-  const createNotificationsMutation = useCreateNotificationsMutation()
   const markReadMutation = useMarkNotificationReadMutation()
   const dismissMutation = useDismissNotificationMutation()
-  const resetMutation = useResetNotificationsMutation()
 
   const { dialogState, openConfirmDialog, closeConfirmDialog, setLoading } =
     useConfirmationDialog()
@@ -61,25 +43,6 @@ export default function NotificationDropdown() {
     const unread = notifications.filter((n: Notification) => !n.read).length
     setUnreadCount(unread)
   }, [notifications])
-
-  useEffect(() => {
-    const savedTimestamp = localStorage.getItem('lastNotificationClearTime');
-    if (savedTimestamp) {
-      const timestamp = parseInt(savedTimestamp, 10);
-      setLastClearTimestamp(timestamp);
-      
-      if (Date.now() - timestamp < COOLDOWN_PERIOD) {
-        setNotificationsDisabled(true);
-        
-        const remainingTime = COOLDOWN_PERIOD - (Date.now() - timestamp);
-        const timer = setTimeout(() => {
-          setNotificationsDisabled(false);
-        }, remainingTime);
-        
-        return () => clearTimeout(timer);
-      }
-    }
-  }, [COOLDOWN_PERIOD]);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -97,185 +60,43 @@ export default function NotificationDropdown() {
     }
   }, [])
 
-  const createRelevantNotifications = useCallback(
-    (todo: {
-      id: string
-      title: string
-      is_completed: boolean
-      due_date: string | null
-    }): NotificationData[] => {
-      if (todo.is_completed || !todo.due_date) return []
-
-      const dueDate = new Date(todo.due_date)
-      const now = new Date()
-      const notifications: NotificationData[] = []
-
-      if (isPast(dueDate)) {
-        notifications.push({
-          todo_id: todo.id,
-          notification_type: 'danger',
-          title: 'Overdue Task',
-          message: `"${todo.title}" is due ${formatDistanceToNow(dueDate, { addSuffix: true })}`,
-          due_date: todo.due_date,
-          origin_id: `danger-${todo.id}`,
-        })
-      } else if (
-        isWithinInterval(dueDate, { start: now, end: addDays(now, 1) })
-      ) {
-        notifications.push({
-          todo_id: todo.id,
-          notification_type: 'warning',
-          title: 'Due Soon',
-          message: `"${todo.title}" is due ${formatDistanceToNow(dueDate, { addSuffix: true })}`,
-          due_date: todo.due_date,
-          origin_id: `warning-${todo.id}`,
-        })
-      } else if (
-        isWithinInterval(dueDate, {
-          start: addDays(now, 1),
-          end: addDays(now, 3),
-        })
-      ) {
-        notifications.push({
-          todo_id: todo.id,
-          notification_type: 'info',
-          title: 'Upcoming Deadline',
-          message: `"${todo.title}" is due ${formatDistanceToNow(dueDate, { addSuffix: true })}`,
-          due_date: todo.due_date,
-          origin_id: `info-${todo.id}`,
-        })
-      }
-
-      return notifications
-    },
-    [],
-  )
-
-  const processNotificationBatch = useCallback(
-    async (notifications: NotificationData[]) => {
-      if (notifications.length === 0) return
-
-      const batchSize = 5
-      for (let i = 0; i < notifications.length; i += batchSize) {
-        const batch = notifications.slice(i, i + batchSize)
-
-        await createNotificationsMutation.mutateAsync(batch, {
-          onError: (error) => {
-            console.error('Erro ao criar lote de notificações:', error)
-          },
-        })
-      }
-    },
-    [createNotificationsMutation],
-  )
-
-  useEffect(() => {
-    if (!session?.user?.id || todos.length === 0 || notificationsDisabled) return
-
-    // Se estamos no período de cooldown, não crie novas notificações
-    const timeSinceClear = Date.now() - lastClearTimestamp;
-    if (timeSinceClear < COOLDOWN_PERIOD) {
-      console.log(`Em período de cooldown (${Math.round((COOLDOWN_PERIOD - timeSinceClear)/1000)}s restantes). Pulando criação de notificações.`);
-      return;
-    }
-
-    const timer = setTimeout(() => {
-      console.log('Verificando notificações para criar...');
-      const allNotifications: NotificationData[] = []
-      const processedIds = new Set<string>()
-
-      todos.forEach((todo) => {
-        if (lastProcessedRef.current.has(todo.id)) return
-
-        if (!todo.is_completed && todo.due_date) {
-          const todoNotifications = createRelevantNotifications(todo)
-
-          if (todoNotifications.length > 0) {
-            allNotifications.push(...todoNotifications)
-            processedIds.add(todo.id)
-          }
-        }
-      })
-
-      // Atualiza a referência de tarefas processadas
-      lastProcessedRef.current = processedIds
-
-      // Processa as notificações em lotes
-      if (allNotifications.length > 0) {
-        console.log(`Criando ${allNotifications.length} notificações...`);
-        processNotificationBatch(allNotifications)
-          .then(() => {
-            queryClient.invalidateQueries({ queryKey: ['notifications'] })
-          })
-          .catch((error) => {
-            console.error('Erro ao processar notificações:', error)
-          })
-      }
-    }, 2000) // Espera 2 segundos antes de processar
-
-    return () => clearTimeout(timer)
-  }, [
-    todos,
-    session?.user?.id,
-    createRelevantNotifications,
-    processNotificationBatch,
-    queryClient,
-    lastClearTimestamp,
-    notificationsDisabled,
-    COOLDOWN_PERIOD
-  ])
-
   const toggleDropdown = () => {
     setIsOpen(!isOpen)
   }
 
   const markAllAsRead = () => {
-    markReadMutation.mutate({ all: true })
+    markReadMutation.mutate({ all: true }, {
+      onSuccess: () => {
+        showSuccess('All notifications marked as read')
+        queryClient.invalidateQueries({ queryKey: ['notifications'] })
+      },
+      onError: (error) => {
+        console.error('Error marking notifications as read:', error)
+        showError('Failed to mark notifications as read')
+      }
+    })
   }
 
-  const markAsRead = (id: string) => {
-    markReadMutation.mutate({ id })
-  }
-
-  const deleteNotification = (id: string) => {
-    dismissMutation.mutate({ id })
-  }
-
-  // Função para atualizar o timestamp e desabilitar notificações temporariamente
-  const disableNotificationCreation = () => {
-    const now = Date.now();
-    setLastClearTimestamp(now);
-    localStorage.setItem('lastNotificationClearTime', now.toString());
-    setNotificationsDisabled(true);
-    
-    // Configure um timer para reativar após o período de cooldown
-    setTimeout(() => {
-      setNotificationsDisabled(false);
-    }, COOLDOWN_PERIOD);
-  };
-
-  // Dismiss all notifications (mark as dismissed but keep in database)
-  const clearAllNotifications = () => {
+  const deleteAllNotifications = () => {
     openConfirmDialog({
-      title: 'Dismiss All Notifications',
-      description: 'This will hide all your current notifications. They will remain in the database but won\'t be visible anymore. Continue?',
-      variant: 'warning',
-      confirmText: 'Dismiss All',
+      title: 'Delete All Notifications',
+      description: 'This will delete all your current notifications. This action cannot be undone. Continue?',
+      variant: 'danger',
+      confirmText: 'Delete All',
       cancelText: 'Cancel',
       onConfirm: () => {
         setLoading(true)
         
         dismissMutation.mutate({ all: true }, {
           onSuccess: () => {
-            disableNotificationCreation(); // Desabilita criação temporariamente
-            lastProcessedRef.current = new Set(); // Limpa o registro de tarefas processadas
-            showSuccess('All notifications dismissed');
-            setIsOpen(false);
-            closeConfirmDialog();
+            showSuccess('All notifications deleted')
+            setIsOpen(false)
+            closeConfirmDialog()
+            queryClient.invalidateQueries({ queryKey: ['notifications'] })
           },
           onError: (error) => {
-            console.error('Error dismissing all notifications:', error)
-            showError('Failed to dismiss notifications')
+            console.error('Error deleting all notifications:', error)
+            showError('Failed to delete notifications')
             closeConfirmDialog()
           },
           onSettled: () => {
@@ -285,43 +106,8 @@ export default function NotificationDropdown() {
       }
     })
   }
-  
-  // Completely reset notifications (delete from database)
-  const resetNotifications = () => {
-    openConfirmDialog({
-      title: 'Reset Notifications',
-      description:
-        'This will permanently delete all notifications from the database. Your tasks will not be affected and new notifications will not be regenerated for 30 seconds. Continue?',
-      variant: 'danger',
-      confirmText: 'Reset',
-      cancelText: 'Cancel',
-      onConfirm: () => {
-        setLoading(true)
-        resetMutation.mutate(undefined, {
-          onSuccess: (response) => {
-            disableNotificationCreation(); // Desabilita criação temporariamente
-            lastProcessedRef.current = new Set(); // Limpa o registro de tarefas processadas
-            
-            const count = response?.data?.deletedCount || 0;
-            showSuccess(`Successfully deleted ${count} notifications from database`);
-            setIsOpen(false);
-            closeConfirmDialog();
-          },
-          onError: (error) => {
-            console.error('Error resetting notifications:', error)
-            showError('Failed to reset notifications')
-            closeConfirmDialog()
-          },
-          onSettled: () => {
-            setLoading(false)
-          },
-        })
-      },
-    })
-  }
 
-
-  // Obtem cor de fundo da notificação baseada no tipo
+  // Get notification background color based on type
   const getNotificationBgColor = (type: string, isRead: boolean) => {
     if (isRead) {
       return 'bg-gray-100 dark:bg-gray-800/50'
@@ -338,7 +124,7 @@ export default function NotificationDropdown() {
     }
   }
 
-  // Obtem ícone da notificação baseado no tipo
+  // Get notification icon based on type
   const getNotificationIcon = (type: string, isRead: boolean) => {
     if (isRead) {
       return <FaCheck className="text-gray-500" />
@@ -376,11 +162,8 @@ export default function NotificationDropdown() {
             <div className="flex items-center justify-between">
               <h3 className="font-medium text-gray-900 dark:text-white">
                 Notifications
-                {notificationsDisabled && (
-                  <span className="ml-2 text-xs text-amber-500">(Paused)</span>
-                )}
               </h3>
-              <div className="flex space-x-2">
+              <div className="flex space-x-4">
                 {notifications.length > 0 && (
                   <>
                     <button
@@ -390,19 +173,13 @@ export default function NotificationDropdown() {
                       Mark all as read
                     </button>
                     <button
-                      onClick={clearAllNotifications}
+                      onClick={deleteAllNotifications}
                       className="text-xs text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
                     >
-                      Clear all
+                      Delete all
                     </button>
                   </>
                 )}
-                <button
-                  onClick={resetNotifications}
-                  className="text-xs text-blue-500 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
-                >
-                  Reset
-                </button>
               </div>
             </div>
           </div>
@@ -420,11 +197,6 @@ export default function NotificationDropdown() {
                 <p className="text-gray-500 dark:text-gray-400">
                   No notifications
                 </p>
-                {notificationsDisabled && (
-                  <p className="mt-2 text-xs text-amber-500">
-                    Notification creation is paused for {Math.round((COOLDOWN_PERIOD - (Date.now() - lastClearTimestamp))/1000)} seconds
-                  </p>
-                )}
               </div>
             ) : (
               notifications.map((notification: Notification) => (
@@ -435,71 +207,45 @@ export default function NotificationDropdown() {
                     notification.read,
                   )} p-3`}
                 >
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-start">
-                      <div className="mt-1 mr-3">
-                        {getNotificationIcon(
-                          notification.notification_type,
-                          notification.read,
-                        )}
-                      </div>
-                      <div>
-                        <h4
-                          className={`text-sm font-medium ${
-                            notification.read
-                              ? 'text-gray-600 dark:text-gray-400'
-                              : 'text-gray-900 dark:text-white'
-                          }`}
-                        >
-                          {notification.title}
-                          {notification.read && (
-                            <span className="ml-2 text-xs text-gray-500">
-                              (Read)
-                            </span>
-                          )}
-                        </h4>
-                        <p
-                          className={`text-xs ${
-                            notification.read
-                              ? 'text-gray-500 dark:text-gray-500'
-                              : 'text-gray-600 dark:text-gray-300'
-                          }`}
-                        >
-                          {notification.message}
-                        </p>
-                        <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                          {formatDistanceToNow(
-                            new Date(notification.due_date),
-                            {
-                              addSuffix: true,
-                            },
-                          )}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex space-x-1">
-                      {!notification.read && (
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            markAsRead(notification.id)
-                          }}
-                          className="text-blue-500 hover:text-blue-700"
-                          title="Mark as read"
-                        >
-                          <FaCheck size={12} />
-                        </button>
+                  <div className="flex items-start">
+                    <div className="mt-1 mr-3">
+                      {getNotificationIcon(
+                        notification.notification_type,
+                        notification.read,
                       )}
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          deleteNotification(notification.id)
-                        }}
-                        className="text-red-500 hover:text-red-700"
-                        title="Delete notification"
+                    </div>
+                    <div>
+                      <h4
+                        className={`text-sm font-medium ${
+                          notification.read
+                            ? 'text-gray-600 dark:text-gray-400'
+                            : 'text-gray-900 dark:text-white'
+                        }`}
                       >
-                        <FaTrash size={12} />
-                      </button>
+                        {notification.title}
+                        {notification.read && (
+                          <span className="ml-2 text-xs text-gray-500">
+                            (Read)
+                          </span>
+                        )}
+                      </h4>
+                      <p
+                        className={`text-xs ${
+                          notification.read
+                            ? 'text-gray-500 dark:text-gray-500'
+                            : 'text-gray-600 dark:text-gray-300'
+                        }`}
+                      >
+                        {notification.message}
+                      </p>
+                      <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                        {formatDistanceToNow(
+                          new Date(notification.due_date),
+                          {
+                            addSuffix: true,
+                          },
+                        )}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -509,7 +255,7 @@ export default function NotificationDropdown() {
         </div>
       )}
 
-      {/* Adiciona o componente ConfirmationDialog */}
+      {/* Confirmation Dialog */}
       <ConfirmationDialog
         isOpen={dialogState.isOpen}
         onClose={closeConfirmDialog}
