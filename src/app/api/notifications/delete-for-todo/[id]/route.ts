@@ -1,7 +1,7 @@
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/app/api/auth/[...nextauth]/auth-options'
+import { NextResponse, NextRequest } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
-import { NextRequest, NextResponse } from 'next/server'
 
 export async function DELETE(
   _request: NextRequest,

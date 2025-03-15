@@ -12,19 +12,26 @@ export async function POST() {
     }
 
     const userId = session.user.id
+    console.log(`Attempting to delete notifications for user ${userId}`)
 
-    const { error } = await supabaseAdmin
-      .from('notifications')
-      .delete()
-      .eq('user_id', userId)
+    // Call the SQL function to handle deletion
+    const { data, error } = await supabaseAdmin.rpc('delete_user_notifications', {
+      user_id_param: userId
+    })
 
     if (error) {
-      console.error('Error resetting notifications:', error)
+      console.error('Error deleting notifications:', error)
       throw error
     }
 
+    const deletedCount = data || 0
+    console.log(`Successfully deleted ${deletedCount} notifications`)
+
     return NextResponse.json(
-      { message: 'Notification system reset successfully' },
+      { 
+        message: 'Notification system reset successfully',
+        deletedCount 
+      },
       { status: 200 },
     )
   } catch (error: unknown) {

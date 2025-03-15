@@ -25,7 +25,6 @@ import ConfirmationDialog, {
   useConfirmationDialog,
 } from '@/components/common/ConfirmationDialog'
 
-// Define a NotificationData interface para o que criamos e enviamos para a API
 interface NotificationData {
   todo_id: string
   notification_type: 'danger' | 'warning' | 'info'
@@ -42,8 +41,12 @@ export default function NotificationDropdown() {
   const dropdownRef = useRef<HTMLDivElement>(null)
   const queryClient = useQueryClient()
   const lastProcessedRef = useRef<Set<string>>(new Set())
+  
 
-  // Use custom hooks for notificações
+  const [lastClearTimestamp, setLastClearTimestamp] = useState<number>(0);
+  const COOLDOWN_PERIOD = 30000; // 30 segundos de cooldown
+  const [notificationsDisabled, setNotificationsDisabled] = useState(false);
+
   const { data: todos = [] } = useTodosQuery()
   const { data: notifications = [], isLoading } = useNotificationsQuery()
   const createNotificationsMutation = useCreateNotificationsMutation()
@@ -51,17 +54,33 @@ export default function NotificationDropdown() {
   const dismissMutation = useDismissNotificationMutation()
   const resetMutation = useResetNotificationsMutation()
 
-  // Use o hook de diálogo de confirmação
   const { dialogState, openConfirmDialog, closeConfirmDialog, setLoading } =
     useConfirmationDialog()
 
-  // Atualiza a contagem de não lidos quando as notificações mudam
   useEffect(() => {
     const unread = notifications.filter((n: Notification) => !n.read).length
     setUnreadCount(unread)
   }, [notifications])
 
-  // Trata clique fora para fechar o dropdown
+  useEffect(() => {
+    const savedTimestamp = localStorage.getItem('lastNotificationClearTime');
+    if (savedTimestamp) {
+      const timestamp = parseInt(savedTimestamp, 10);
+      setLastClearTimestamp(timestamp);
+      
+      if (Date.now() - timestamp < COOLDOWN_PERIOD) {
+        setNotificationsDisabled(true);
+        
+        const remainingTime = COOLDOWN_PERIOD - (Date.now() - timestamp);
+        const timer = setTimeout(() => {
+          setNotificationsDisabled(false);
+        }, remainingTime);
+        
+        return () => clearTimeout(timer);
+      }
+    }
+  }, [COOLDOWN_PERIOD]);
+
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (
@@ -151,9 +170,17 @@ export default function NotificationDropdown() {
   )
 
   useEffect(() => {
-    if (!session?.user?.id || todos.length === 0) return
+    if (!session?.user?.id || todos.length === 0 || notificationsDisabled) return
+
+    // Se estamos no período de cooldown, não crie novas notificações
+    const timeSinceClear = Date.now() - lastClearTimestamp;
+    if (timeSinceClear < COOLDOWN_PERIOD) {
+      console.log(`Em período de cooldown (${Math.round((COOLDOWN_PERIOD - timeSinceClear)/1000)}s restantes). Pulando criação de notificações.`);
+      return;
+    }
 
     const timer = setTimeout(() => {
+      console.log('Verificando notificações para criar...');
       const allNotifications: NotificationData[] = []
       const processedIds = new Set<string>()
 
@@ -175,6 +202,7 @@ export default function NotificationDropdown() {
 
       // Processa as notificações em lotes
       if (allNotifications.length > 0) {
+        console.log(`Criando ${allNotifications.length} notificações...`);
         processNotificationBatch(allNotifications)
           .then(() => {
             queryClient.invalidateQueries({ queryKey: ['notifications'] })
@@ -192,6 +220,9 @@ export default function NotificationDropdown() {
     createRelevantNotifications,
     processNotificationBatch,
     queryClient,
+    lastClearTimestamp,
+    notificationsDisabled,
+    COOLDOWN_PERIOD
   ])
 
   const toggleDropdown = () => {
@@ -210,72 +241,75 @@ export default function NotificationDropdown() {
     dismissMutation.mutate({ id })
   }
 
-  // Completely delete all notifications using the reset endpoint
+  // Função para atualizar o timestamp e desabilitar notificações temporariamente
+  const disableNotificationCreation = () => {
+    const now = Date.now();
+    setLastClearTimestamp(now);
+    localStorage.setItem('lastNotificationClearTime', now.toString());
+    setNotificationsDisabled(true);
+    
+    // Configure um timer para reativar após o período de cooldown
+    setTimeout(() => {
+      setNotificationsDisabled(false);
+    }, COOLDOWN_PERIOD);
+  };
+
+  // Dismiss all notifications (mark as dismissed but keep in database)
   const clearAllNotifications = () => {
-    // Show confirmation dialog
     openConfirmDialog({
-      title: 'Delete All Notifications',
-      description: 'This will permanently delete all notifications from your account. This action cannot be undone. Continue?',
-      variant: 'danger',
-      confirmText: 'Delete All',
+      title: 'Dismiss All Notifications',
+      description: 'This will hide all your current notifications. They will remain in the database but won\'t be visible anymore. Continue?',
+      variant: 'warning',
+      confirmText: 'Dismiss All',
       cancelText: 'Cancel',
       onConfirm: () => {
         setLoading(true)
         
-        // Use the reset endpoint which completely removes notifications from database
-        fetch('/api/notifications/reset', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          }
-        })
-          .then(response => {
-            if (!response.ok) {
-              throw new Error('Failed to delete notifications')
-            }
-            return response.json()
-          })
-          .then(() => {
-            showSuccess('All notifications deleted successfully')
-            queryClient.invalidateQueries({ queryKey: ['notifications'] })
-            setIsOpen(false)
+        dismissMutation.mutate({ all: true }, {
+          onSuccess: () => {
+            disableNotificationCreation(); // Desabilita criação temporariamente
+            lastProcessedRef.current = new Set(); // Limpa o registro de tarefas processadas
+            showSuccess('All notifications dismissed');
+            setIsOpen(false);
+            closeConfirmDialog();
+          },
+          onError: (error) => {
+            console.error('Error dismissing all notifications:', error)
+            showError('Failed to dismiss notifications')
             closeConfirmDialog()
-            // Reset the processed tasks set to allow new notifications to be created
-            lastProcessedRef.current = new Set()
-          })
-          .catch(error => {
-            console.error('Error deleting all notifications:', error)
-            showError('Failed to delete notifications')
-            closeConfirmDialog()
-          })
-          .finally(() => {
+          },
+          onSettled: () => {
             setLoading(false)
-          })
+          },
+        })
       }
     })
   }
-
+  
+  // Completely reset notifications (delete from database)
   const resetNotifications = () => {
-    // Use o diálogo personalizado em vez de window.confirm
     openConfirmDialog({
       title: 'Reset Notifications',
       description:
-        'This will reset all notifications. Your tasks will not be affected. Continue?',
-      variant: 'warning',
+        'This will permanently delete all notifications from the database. Your tasks will not be affected and new notifications will not be regenerated for 30 seconds. Continue?',
+      variant: 'danger',
       confirmText: 'Reset',
       cancelText: 'Cancel',
       onConfirm: () => {
         setLoading(true)
         resetMutation.mutate(undefined, {
-          onSuccess: () => {
-            showSuccess('Notifications reset successfully')
-            setIsOpen(false) // Fecha o dropdown após o reset
-            closeConfirmDialog()
-            // Limpa o registro de tarefas processadas para permitir recriação
-            lastProcessedRef.current = new Set()
+          onSuccess: (response) => {
+            disableNotificationCreation(); // Desabilita criação temporariamente
+            lastProcessedRef.current = new Set(); // Limpa o registro de tarefas processadas
+            
+            const count = response?.data?.deletedCount || 0;
+            showSuccess(`Successfully deleted ${count} notifications from database`);
+            setIsOpen(false);
+            closeConfirmDialog();
           },
           onError: (error) => {
             console.error('Error resetting notifications:', error)
+            showError('Failed to reset notifications')
             closeConfirmDialog()
           },
           onSettled: () => {
@@ -285,6 +319,7 @@ export default function NotificationDropdown() {
       },
     })
   }
+
 
   // Obtem cor de fundo da notificação baseada no tipo
   const getNotificationBgColor = (type: string, isRead: boolean) => {
@@ -341,6 +376,9 @@ export default function NotificationDropdown() {
             <div className="flex items-center justify-between">
               <h3 className="font-medium text-gray-900 dark:text-white">
                 Notifications
+                {notificationsDisabled && (
+                  <span className="ml-2 text-xs text-amber-500">(Paused)</span>
+                )}
               </h3>
               <div className="flex space-x-2">
                 {notifications.length > 0 && (
@@ -382,6 +420,11 @@ export default function NotificationDropdown() {
                 <p className="text-gray-500 dark:text-gray-400">
                   No notifications
                 </p>
+                {notificationsDisabled && (
+                  <p className="mt-2 text-xs text-amber-500">
+                    Notification creation is paused for {Math.round((COOLDOWN_PERIOD - (Date.now() - lastClearTimestamp))/1000)} seconds
+                  </p>
+                )}
               </div>
             ) : (
               notifications.map((notification: Notification) => (

@@ -98,3 +98,22 @@ export function useResetNotificationsMutation() {
     },
   })
 }
+
+export function useDeleteAllNotificationsMutation() {
+  const queryClient = useQueryClient()
+  
+  return useMutation({
+    mutationFn: async () => {
+      return axios.post('/api/notifications/delete-all')
+    },
+    onSuccess: (response) => {
+      const count = response.data?.deletedCount || 0
+      queryClient.invalidateQueries({ queryKey: ['notifications'] })
+      showSuccess(`Successfully deleted ${count} notifications`)
+    },
+    onError: (error) => {
+      console.error('Error deleting all notifications:', error)
+      showError('Failed to delete all notifications')
+    },
+  })
+}

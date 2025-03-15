@@ -167,15 +167,15 @@ export async function POST(req: Request) {
         const shouldCreate = shouldShowNotification(
           notification.notification_type,
           notification.due_date,
-        )
+        );
 
         // Only create if it should be active
         if (shouldCreate) {
           // Create new notification
           const { data: insertedData, error: insertError } = await supabaseAdmin
-            .from('notifications')
-            .insert([notificationWithUserId])
-            .select()
+          .from('notifications')
+          .insert([notificationWithUserId])
+          .select()
 
           if (insertError) {
             console.error('Error creating notification:', insertError)
