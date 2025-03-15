@@ -166,7 +166,7 @@ export const authOptions: NextAuthOptions = {
             }
 
             const refreshToken = crypto.randomBytes(32).toString('hex')
-            const refreshTokenExpires = Date.now() + 7 * 24 * 60 * 60 * 1000 // 7 days
+            const refreshTokenExpires = Date.now() + 7 * 24 * 60 * 60 * 1000
 
             await supabase.from('refresh_tokens').insert({
               user_id: existingUser.id,
