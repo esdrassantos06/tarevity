@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { IoNotificationsOutline } from 'react-icons/io5'
-import { FaCalendar, FaBell, FaCheck } from 'react-icons/fa'
+import { FaCalendar, FaBell, FaCheck, FaEnvelope, FaEnvelopeOpen } from 'react-icons/fa'
 import { formatDistanceToNow } from 'date-fns'
 import { showSuccess, showError } from '@/lib/toast'
 import { useQueryClient } from '@tanstack/react-query'
@@ -39,9 +39,15 @@ export default function NotificationDropdown() {
   const { dialogState, openConfirmDialog, closeConfirmDialog, setLoading } =
     useConfirmationDialog()
 
+  // Estado para verificar se todas as notificações estão lidas
+  const [allRead, setAllRead] = useState(false)
+
   useEffect(() => {
     const unread = notifications.filter((n: Notification) => !n.read).length
     setUnreadCount(unread)
+    
+    // Atualiza o estado allRead com base nas notificações
+    setAllRead(unread === 0 && notifications.length > 0)
   }, [notifications])
 
   useEffect(() => {
@@ -64,17 +70,32 @@ export default function NotificationDropdown() {
     setIsOpen(!isOpen)
   }
 
-  const markAllAsRead = () => {
-    markReadMutation.mutate({ all: true }, {
-      onSuccess: () => {
-        showSuccess('All notifications marked as read')
-        queryClient.invalidateQueries({ queryKey: ['notifications'] })
-      },
-      onError: (error) => {
-        console.error('Error marking notifications as read:', error)
-        showError('Failed to mark notifications as read')
-      }
-    })
+  const toggleReadStatus = () => {
+    if (allRead) {
+      // Marca todas como não lidas (unread)
+      markReadMutation.mutate({ all: true, markAsUnread: true }, {
+        onSuccess: () => {
+          showSuccess('All notifications marked as unread')
+          queryClient.invalidateQueries({ queryKey: ['notifications'] })
+        },
+        onError: (error) => {
+          console.error('Error marking notifications as unread:', error)
+          showError('Failed to mark notifications as unread')
+        }
+      })
+    } else {
+      // Marca todas como lidas (read)
+      markReadMutation.mutate({ all: true }, {
+        onSuccess: () => {
+          showSuccess('All notifications marked as read')
+          queryClient.invalidateQueries({ queryKey: ['notifications'] })
+        },
+        onError: (error) => {
+          console.error('Error marking notifications as read:', error)
+          showError('Failed to mark notifications as read')
+        }
+      })
+    }
   }
 
   const deleteAllNotifications = () => {
@@ -167,10 +188,20 @@ export default function NotificationDropdown() {
                 {notifications.length > 0 && (
                   <>
                     <button
-                      onClick={markAllAsRead}
-                      className="text-xs text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+                      onClick={toggleReadStatus}
+                      className="flex items-center text-xs text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
                     >
-                      Mark all as read
+                      {allRead ? (
+                        <>
+                          <FaEnvelope className="mr-1" />
+                          Mark all unread
+                        </>
+                      ) : (
+                        <>
+                          <FaEnvelopeOpen className="mr-1" />
+                          Mark all read
+                        </>
+                      )}
                     </button>
                     <button
                       onClick={deleteAllNotifications}

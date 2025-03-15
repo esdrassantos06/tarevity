@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import axios from 'axios'
-import { showSuccess, showError } from '@/lib/toast'
+import { /*showSuccess  , */ showError } from '@/lib/toast'
 
 export interface Notification {
   id: string
@@ -49,16 +49,15 @@ export function useMarkNotificationReadMutation() {
   const queryClient = useQueryClient()
   
   return useMutation({
-    mutationFn: async ({ id, all }: { id?: string; all?: boolean }) => {
-      return axios.post('/api/notifications/mark-read', { id, all })
+    mutationFn: async ({ id, all, markAsUnread }: { id?: string; all?: boolean; markAsUnread?: boolean }) => {
+      return axios.post('/api/notifications/mark-read', { id, all, markAsUnread })
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['notifications'] })
-      showSuccess('Notification marked as read')
     },
     onError: (error) => {
-      console.error('Error marking notification as read:', error)
-      showError('Failed to mark notification as read')
+      console.error('Error updating notification read status:', error)
+      showError('Failed to update notification read status')
     },
   })
 }
@@ -67,7 +66,10 @@ export function useDismissNotificationMutation() {
   const queryClient = useQueryClient()
   
   return useMutation({
-    mutationFn: async ({ id, all }: { id?: string; all?: boolean }) => {
+    mutationFn: async ({ id, all, todoId }: { id?: string; all?: boolean; todoId?: string }) => {
+      if (todoId) {
+        return axios.post('/api/notifications/dismiss-for-todo', { todoId })
+      }
       return axios.post('/api/notifications/dismiss', { id, all })
     },
     onSuccess: () => {
