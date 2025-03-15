@@ -2,6 +2,7 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/app/api/auth/[...nextauth]/auth-options'
 import { NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
+import { isPast, isWithinInterval, addDays } from 'date-fns'
 
 // GET notifications
 export async function GET() {
@@ -90,7 +91,7 @@ export async function POST(req: Request) {
       
       const { data: existingNotification, error: findError } = await supabaseAdmin
         .from('notifications')
-        .select('id')
+        .select('id, dismissed, read')
         .eq('user_id', userId)
         .eq('origin_id', notification.origin_id)
         .single()
@@ -99,8 +100,46 @@ export async function POST(req: Request) {
         console.error('Error finding notification:', findError)
       }
 
+      // Helper function to determine if a notification should be shown based on its type and due date
+      function shouldShowNotification(type: string, dueDateString: string | null): boolean {
+        if (!dueDateString) return false;
+        
+        try {
+          const now = new Date();
+          const dueDate = new Date(dueDateString);
+          const threeDaysFromNow = new Date(now);
+          threeDaysFromNow.setDate(now.getDate() + 3);
+          
+          switch (type) {
+            case 'danger':
+              // Show danger (overdue) notifications if the due date is in the past
+              return isPast(dueDate);
+            case 'warning':
+              // Show warning notifications if due within 24 hours
+              return isWithinInterval(dueDate, { start: now, end: addDays(now, 1) });
+            case 'info':
+              // Show info notifications if due within 3 days but not within 24 hours
+              return isWithinInterval(dueDate, { 
+                start: addDays(now, 1), 
+                end: threeDaysFromNow 
+              });
+            default:
+              return false;
+          }
+        } catch (error) {
+          console.error('Error checking notification date:', error);
+          return false;
+        }
+      }
+
       if (existingNotification) {
         console.log(`Updating existing notification: ${existingNotification.id}`);
+        
+        // Determine if we should re-activate this notification based on its type and due date
+        const shouldActivate = shouldShowNotification(
+          notification.notification_type, 
+          notification.due_date
+        );
         
         // Update existing notification
         const { data: updatedData, error: updateError } = await supabaseAdmin
@@ -109,6 +148,8 @@ export async function POST(req: Request) {
             title: notification.title,
             message: notification.message,
             due_date: notification.due_date,
+            // Reset dismissed state if notification should be re-activated
+            dismissed: shouldActivate ? false : existingNotification.dismissed,
             // Don't update the read status - preserve it
           })
           .eq('id', existingNotification.id)
@@ -123,17 +164,28 @@ export async function POST(req: Request) {
       } else {
         console.log('Creating new notification:', notificationWithUserId);
         
-        // Create new notification
-        const { data: insertedData, error: insertError } = await supabaseAdmin
-          .from('notifications')
-          .insert([notificationWithUserId])
-          .select()
+        // For new notifications, check if we should create it based on type and due date
+        const shouldCreate = shouldShowNotification(
+          notification.notification_type, 
+          notification.due_date
+        );
+          
+        // Only create if it should be active
+        if (shouldCreate) {
+          // Create new notification
+          const { data: insertedData, error: insertError } = await supabaseAdmin
+            .from('notifications')
+            .insert([notificationWithUserId])
+            .select()
 
-        if (insertError) {
-          console.error('Error creating notification:', insertError)
-          results.push({ status: 'error', error: insertError });
+          if (insertError) {
+            console.error('Error creating notification:', insertError)
+            results.push({ status: 'error', error: insertError });
+          } else {
+            results.push({ status: 'created', notification: insertedData });
+          }
         } else {
-          results.push({ status: 'created', notification: insertedData });
+          results.push({ status: 'skipped', message: 'Not relevant based on due date' });
         }
       }
     }

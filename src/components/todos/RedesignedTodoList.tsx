@@ -205,6 +205,31 @@ const RedesignedTodoList: React.FC = () => {
       },
       {
         onSuccess: () => {
+          // Dismiss all notifications for this todo when it's completed
+          if (!isCompleted) {
+            // Only attempt to dismiss notifications when marking as completed
+            fetch('/api/notifications/dismiss-for-todo', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ todoId: id }),
+            })
+            .then(response => {
+              if (!response.ok) {
+                console.error('Failed to dismiss notifications for completed todo');
+              }
+              return response.json();
+            })
+            .catch(error => {
+              console.error('Error dismissing notifications:', error);
+            })
+            .finally(() => {
+              // Invalidate notifications query to update UI
+              queryClient.invalidateQueries({ queryKey: ['notifications'] });
+            });
+          }
+          
           queryClient.invalidateQueries({ queryKey: ['todos'] })
         },
       },

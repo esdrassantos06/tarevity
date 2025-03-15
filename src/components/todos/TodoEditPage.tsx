@@ -1,6 +1,7 @@
 'use client'
 import React, { useState, useEffect, ChangeEvent, FormEvent } from 'react'
 import { useRouter } from 'next/navigation'
+import { useQueryClient } from '@tanstack/react-query'
 import {
   FaArrowLeft,
   FaSave,
@@ -11,7 +12,7 @@ import {
 } from 'react-icons/fa'
 import { useTodosQuery, useUpdateTodoMutation } from '@/hooks/useTodosQuery'
 import { useCreateNotificationsMutation } from '@/hooks/useNotificationsQuery'
-import { formatDistanceToNow, isPast, isWithinInterval, addDays } from 'date-fns'
+import { formatDistanceToNow } from 'date-fns'
 import ConfirmationDialog, {
   useConfirmationDialog,
 } from '@/components/common/ConfirmationDialog'
@@ -57,6 +58,7 @@ const formatDateForInput = (dateString: string | null): string => {
 
 const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
   const router = useRouter()
+  const queryClient = useQueryClient()
   const { data: todos = [] as Todo[], isLoading } = useTodosQuery()
   const updateTodoMutation = useUpdateTodoMutation()
   const createNotificationsMutation = useCreateNotificationsMutation()
@@ -135,82 +137,66 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
 
   // Function to create or update notifications for a todo based on due date
   const updateNotificationsForTodo = (todo: Todo) => {
-    // Skip if todo is completed or has no due date
-    if (todo.is_completed || !todo.due_date) return;
+    console.log('Checking if notifications should be created for todo:', todo);
     
-    const now = new Date();
+    // Skip if todo is completed
+    if (todo.is_completed) {
+      console.log('Skipping notification creation for completed todo');
+      return;
+    }
+    
+    // We need a due date to create notifications
+    if (!todo.due_date) {
+      console.log('No due date, skipping notification creation');
+      return;
+    }
+    
+    // IMPORTANT: Create all notification types regardless of date
+    // This allows the server to determine which ones should be shown
     const dueDate = new Date(todo.due_date);
-    const threeDaysFromNow = new Date(now);
-    threeDaysFromNow.setDate(now.getDate() + 3);
-    
-    // Skip if due date is more than 3 days away
-    if (dueDate > threeDaysFromNow) return;
-    
-    // Create notification objects based on due date
     const notifications: NotificationData[] = [];
     
-    // Determine notification type based on due date
-    const notificationType = isPast(dueDate) 
-      ? 'danger' 
-      : isWithinInterval(dueDate, { start: now, end: addDays(now, 1) })
-        ? 'warning'
-        : 'info';
-        
-    // Create notification object
+    // Always create all three notification types with consistent origin_ids
+    // This ensures the server has all the data it needs
+    
+    // Create danger notification (overdue)
     notifications.push({
       todo_id: todo.id,
-      notification_type: notificationType,
-      title: notificationType === 'danger' 
-        ? 'Overdue Task' 
-        : notificationType === 'warning' 
-          ? 'Due Soon' 
-          : 'Upcoming Deadline',
+      notification_type: 'danger',
+      title: 'Overdue Task',
       message: `"${todo.title}" is due ${formatDistanceToNow(dueDate, { addSuffix: true })}`,
       due_date: todo.due_date,
-      origin_id: `${notificationType}-${todo.id}`
+      origin_id: `danger-${todo.id}`
     });
     
-    // Also create or update other possible notifications for complete coverage
-    // This ensures all possible notification types are updated
-    if (notificationType !== 'danger') {
-      notifications.push({
-        todo_id: todo.id,
-        notification_type: 'danger',
-        title: 'Overdue Task',
-        message: `"${todo.title}" is due ${formatDistanceToNow(dueDate, { addSuffix: true })}`,
-        due_date: todo.due_date,
-        origin_id: `danger-${todo.id}`
-      });
-    }
+    // Create warning notification (due soon)
+    notifications.push({
+      todo_id: todo.id,
+      notification_type: 'warning',
+      title: 'Due Soon',
+      message: `"${todo.title}" is due ${formatDistanceToNow(dueDate, { addSuffix: true })}`,
+      due_date: todo.due_date,
+      origin_id: `warning-${todo.id}`
+    });
     
-    if (notificationType !== 'warning') {
-      notifications.push({
-        todo_id: todo.id,
-        notification_type: 'warning',
-        title: 'Due Soon',
-        message: `"${todo.title}" is due ${formatDistanceToNow(dueDate, { addSuffix: true })}`,
-        due_date: todo.due_date,
-        origin_id: `warning-${todo.id}`
-      });
-    }
+    // Create info notification (upcoming)
+    notifications.push({
+      todo_id: todo.id,
+      notification_type: 'info',
+      title: 'Upcoming Deadline',
+      message: `"${todo.title}" is due ${formatDistanceToNow(dueDate, { addSuffix: true })}`,
+      due_date: todo.due_date,
+      origin_id: `info-${todo.id}`
+    });
     
-    if (notificationType !== 'info') {
-      notifications.push({
-        todo_id: todo.id,
-        notification_type: 'info',
-        title: 'Upcoming Deadline',
-        message: `"${todo.title}" is due ${formatDistanceToNow(dueDate, { addSuffix: true })}`,
-        due_date: todo.due_date,
-        origin_id: `info-${todo.id}`
-      });
-    }
-    
-    console.log('Updating notifications for todo:', todo.id, notifications);
+    console.log('Creating/updating notifications for todo:', todo.id, notifications.length);
     
     // Send notifications to be created or updated
     createNotificationsMutation.mutate(notifications, {
       onSuccess: (data) => {
         console.log('Successfully updated notifications:', data);
+        // Invalidate notifications query to update UI immediately
+        queryClient.invalidateQueries({ queryKey: ['notifications'] });
       },
       onError: (error) => {
         console.error('Failed to update notifications:', error);
@@ -233,30 +219,65 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
         onSuccess: (response) => {
           setHasUnsavedChanges(false)
           
-          // Check if the due date has changed
-          const hasDueDateChanged = originalDueDate !== updateData.due_date;
+          // This is the fix for the type error - ensure response.data exists before using it
+          if (!response.data) {
+            console.error('No data returned from update mutation');
+            router.push(`/todo/${todoId}`);
+            return;
+          }
           
-          // If we have a valid response and the due date changed, update notifications
-          if (response.data && hasDueDateChanged) {
-            console.log('Due date changed, updating notifications');
+          // Check if relevant fields have changed that would affect notifications
+          const hasDueDateChanged = originalDueDate !== updateData.due_date;
+          const hasTitleChanged = todos.find(t => t.id === todoId)?.title !== updateData.title;
+          const hasCompletionChanged = todos.find(t => t.id === todoId)?.is_completed !== updateData.is_completed;
+          
+          // If todo is now completed, dismiss all its notifications
+          if (updateData.is_completed) {
+            console.log('Todo marked as completed, dismissing notifications');
+            fetch('/api/notifications/dismiss-for-todo', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ todoId }),
+            })
+            .catch(error => {
+              console.error('Error dismissing notifications:', error);
+            });
+          } 
+          // If any relevant field changed for an incomplete todo, recreate notifications
+          else if (hasDueDateChanged || hasTitleChanged || hasCompletionChanged) {
+            console.log('Relevant fields changed, recreating notifications');
             
-            // Force notification recreation by explicitly deleting old ones first
-            // This is a more reliable approach than trying to update them
+            // First delete all existing notifications for this todo
             fetch(`/api/notifications/delete-for-todo/${todoId}`, {
               method: 'DELETE',
             })
-            .then(response => response.json())
-            .then(data => {
-              setTimeout(() => updateNotificationsForTodo(response.data), 500);
+            .then(response => {
+              if (!response.ok) throw new Error('Failed to delete notifications');
+              return response.json();
+            })
+            .then(() => {
+              // Short delay to ensure deletion completes before creating new ones
+              setTimeout(() => {
+                // Another type safety check
+                if (response.data) {
+                  updateNotificationsForTodo(response.data);
+                }
+              }, 300);
             })
             .catch(error => {
-              console.error('Error deleting old notifications:', error);
-              updateNotificationsForTodo(response.data);
+              console.error('Error managing notifications:', error);
+              // Still try to update notifications as fallback, with type safety check
+              if (response.data) {
+                updateNotificationsForTodo(response.data);
+              }
             });
           } else {
+            console.log('No notification-relevant changes detected');
           }
           
-          router.push(`/todo/${todoId}`)
+          router.push(`/todo/${todoId}`);
         },
       }
     )
