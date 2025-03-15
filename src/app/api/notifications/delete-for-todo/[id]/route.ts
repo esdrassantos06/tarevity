@@ -3,18 +3,13 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/auth-options'
 import { NextResponse, NextRequest } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
 
-// Define a interface correta para os parâmetros da rota
-interface RouteParams {
-  params: {
-    id: string;
-  };
-}
-
 export async function DELETE(
   request: NextRequest,
-  { params }: RouteParams
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
+    
     const session = await getServerSession(authOptions)
 
     if (!session?.user?.id) {
@@ -22,7 +17,7 @@ export async function DELETE(
     }
 
     const userId = session.user.id
-    const todoId = params.id
+    const todoId = id
 
     if (!todoId) {
       return NextResponse.json(
