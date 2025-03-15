@@ -10,10 +10,14 @@ export const metadata: Metadata = {
   robots: 'noindex, nofollow',
 }
 
-export default async function TodoEditPageRoute(props: {
-  params: Promise<{ id: string }>
-}) {
-  const { id } = await props.params
+interface PageProps {
+  params: {
+    id: string;
+  };
+}
+
+export default function TodoEditPageRoute({ params }: PageProps) {
+  const id = params.id
 
   return (
     <Layout>
