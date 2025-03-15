@@ -8,7 +8,6 @@ import {
   FaInfoCircle,
 } from 'react-icons/fa'
 
-// Default options to ensure consistency
 const defaultOptions: ToastOptions = {
   position: 'top-right',
   autoClose: 3000,
@@ -18,7 +17,6 @@ const defaultOptions: ToastOptions = {
   draggable: true,
 }
 
-// Success toast with check icon
 export const showSuccess = (message: string, options?: ToastOptions) => {
   return toast.success(message, {
     ...defaultOptions,
@@ -27,7 +25,6 @@ export const showSuccess = (message: string, options?: ToastOptions) => {
   })
 }
 
-// Error toast with X icon
 export const showError = (message: string, options?: ToastOptions) => {
   const displayMessage =
     typeof message === 'string' ? message : 'An unexpected error occurred'

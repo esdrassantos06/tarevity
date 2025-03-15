@@ -7,11 +7,11 @@ export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname
 
   const rateLimits = {
-    '/api/auth/login': { limit: 5, window: 300 }, // 5 attempts per 5 minutes
-    '/api/auth/register': { limit: 3, window: 3600 }, // 3 attempts per hour
-    '/api/auth/forgot-password': { limit: 3, window: 3600 }, // 3 attempts per hour
-    '/api/auth/reset-password': { limit: 5, window: 3600 }, // 5 attempts per hour
-    '/api/account/delete': { limit: 3, window: 86400 }, // 3 attempts per day
+    '/api/auth/login': { limit: 5, window: 300 },
+    '/api/auth/register': { limit: 3, window: 3600 },
+    '/api/auth/forgot-password': { limit: 3, window: 3600 },
+    '/api/auth/reset-password': { limit: 5, window: 3600 },
+    '/api/account/delete': { limit: 3, window: 86400 },
   }
 
   const routeConfig = Object.entries(rateLimits).find(([route]) =>
@@ -25,7 +25,6 @@ export async function middleware(request: NextRequest) {
     if (rateLimit) return rateLimit
   }
 
-  // Skip all processing for callback routes
   if (
     pathname.startsWith('/api/auth/callback') ||
     pathname.includes('/api/auth/callback/')

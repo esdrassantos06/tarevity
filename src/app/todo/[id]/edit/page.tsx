@@ -18,7 +18,6 @@ interface PageParams {
 }
 
 export default function TodoEditPageRoute(props: PageParams) {
-  // Usando 'use' para lidar com a Promise dos params
   const params = use(props.params);
   const id = params.id;
 

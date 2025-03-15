@@ -17,7 +17,7 @@ export function useProfileQuery() {
         throw error
       }
     },
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 5 * 60 * 1000,
     retry: 1,
     gcTime: 10 * 60 * 1000,
   })

@@ -18,7 +18,7 @@ export function useTodosQuery() {
         throw error
       }
     },
-    staleTime: 1 * 60 * 1000, // 1 minute
+    staleTime: 1 * 60 * 1000,
     gcTime: 5 * 60 * 1000,
   })
 }

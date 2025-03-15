@@ -10,7 +10,6 @@ export const metadata: Metadata = {
   robots: 'noindex, nofollow',
 }
 
-// Definindo interface apropriada para os props
 interface PageParams {
   params: Promise<{
     id: string;
@@ -19,7 +18,6 @@ interface PageParams {
 }
 
 export default function TodoDetailPageRoute(props: PageParams) {
-  // Usando 'use' para lidar com a Promise dos params
   const params = use(props.params);
   const id = params.id;
 

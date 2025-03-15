@@ -1,6 +1,6 @@
 import { Metadata } from 'next'
 import Layout from '@/components/layout/Layout'
-import RedesignedTodoList from '@/components/todos/RedesignedTodoList'
+import RedesignedTodoList from '@/components/todos/TodoList'
 
 export const metadata: Metadata = {
   title: 'Your Productivity Dashboard | Tarevity',
