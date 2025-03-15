@@ -1,4 +1,4 @@
-import { useMemo, useState, useEffect } from 'react'
+import { useMemo, useState, useEffect, useCallback } from 'react'
 import { Todo } from '@/lib/api'
 
 export interface TodoFilters {
@@ -7,6 +7,9 @@ export interface TodoFilters {
   prioritySortDirection: 'asc' | 'desc'
 }
 
+/**
+ * Custom hook for filtering and sorting todos with optimized performance using memoization
+ */
 export function useTodoFilters(todos: Todo[]) {
   const [activeTab, setActiveTab] = useState('all')
   const [searchQuery, setSearchQuery] = useState('')
@@ -16,71 +19,94 @@ export function useTodoFilters(todos: Todo[]) {
   const [currentPage, setCurrentPage] = useState(1)
   const todosPerPage = 9
 
+  // Reset to page 1 when filters change
   useEffect(() => {
     setCurrentPage(1)
   }, [activeTab, searchQuery, prioritySortDirection])
 
-  const togglePrioritySort = () => {
+  // Memoize the toggle function
+  const togglePrioritySort = useCallback(() => {
     setPrioritySortDirection((prev) => (prev === 'desc' ? 'asc' : 'desc'))
-  }
+  }, [])
 
-  const filteredTodos = useMemo(() => {
-    let result = [...todos]
-
+  // Filter todos by tab (all, active, completed, review)
+  const tabFilteredTodos = useMemo(() => {
+    if (activeTab === 'all') return todos
+    
     if (activeTab === 'active') {
-      result = result.filter(
+      return todos.filter(
         (todo) => !todo.is_completed && todo.status !== 'review',
       )
-    } else if (activeTab === 'completed') {
-      result = result.filter((todo) => todo.is_completed)
-    } else if (activeTab === 'review') {
-      result = result.filter((todo) => todo.status === 'review')
-    } else if (activeTab === 'todo') {
-      result = result.filter((todo) => todo.priority === 3)
+    } 
+    
+    if (activeTab === 'completed') {
+      return todos.filter((todo) => todo.is_completed)
+    } 
+    
+    if (activeTab === 'review') {
+      return todos.filter((todo) => todo.status === 'review')
     }
-
-    if (searchQuery) {
-      const lowerCaseQuery = searchQuery.toLowerCase()
-      result = result.filter(
-        (todo) =>
-          todo.title.toLowerCase().includes(lowerCaseQuery) ||
-          (todo.description &&
-            todo.description.toLowerCase().includes(lowerCaseQuery)),
-      )
+    
+    if (activeTab === 'todo') {
+      return todos.filter((todo) => todo.priority === 3)
     }
+    
+    return todos
+  }, [todos, activeTab])
 
-    result.sort((a, b) => {
+  // Filter by search query
+  const searchFilteredTodos = useMemo(() => {
+    if (!searchQuery) return tabFilteredTodos
+    
+    const lowerCaseQuery = searchQuery.toLowerCase()
+    return tabFilteredTodos.filter(
+      (todo) =>
+        todo.title.toLowerCase().includes(lowerCaseQuery) ||
+        (todo.description &&
+          todo.description.toLowerCase().includes(lowerCaseQuery)),
+    )
+  }, [tabFilteredTodos, searchQuery])
+
+  // Sort todos by priority and completed status
+  const filteredTodos = useMemo(() => {
+    return [...searchFilteredTodos].sort((a, b) => {
+      // Always put completed todos at the bottom
       if (a.is_completed !== b.is_completed) {
         return a.is_completed ? 1 : -1
       }
 
+      // Sort by priority
       return prioritySortDirection === 'desc'
         ? b.priority - a.priority
         : a.priority - b.priority
     })
-
-    return result
-  }, [todos, activeTab, searchQuery, prioritySortDirection])
+  }, [searchFilteredTodos, prioritySortDirection])
 
   // Calculate pagination
-  const totalPages = Math.ceil(filteredTodos.length / todosPerPage)
+  const totalPages = useMemo(() => {
+    return Math.ceil(filteredTodos.length / todosPerPage)
+  }, [filteredTodos.length, todosPerPage])
 
   // Make sure current page is valid
-  const pageToShow = Math.min(Math.max(1, currentPage), Math.max(1, totalPages))
+  const pageToShow = useMemo(() => {
+    return Math.min(Math.max(1, currentPage), Math.max(1, totalPages))
+  }, [currentPage, totalPages])
 
-  // Get current todos
+  // Get current todos for display
   const currentTodos = useMemo(() => {
     const indexOfLastTodo = pageToShow * todosPerPage
     const indexOfFirstTodo = indexOfLastTodo - todosPerPage
     return filteredTodos.slice(indexOfFirstTodo, indexOfLastTodo)
   }, [filteredTodos, pageToShow, todosPerPage])
 
-  const paginate = (pageNumber: number) => {
+  // Memoize pagination handler
+  const paginate = useCallback((pageNumber: number) => {
     if (pageNumber >= 1 && pageNumber <= totalPages) {
       setCurrentPage(pageNumber)
+      // Smooth scroll to top for better UX
       window.scrollTo({ top: 0, behavior: 'smooth' })
     }
-  }
+  }, [totalPages])
 
   return {
     activeTab,

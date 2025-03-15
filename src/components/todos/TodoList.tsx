@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useMemo } from 'react'
+import React, { useMemo, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { useQueryClient } from '@tanstack/react-query'
 import { FiPlus } from 'react-icons/fi'
@@ -45,7 +45,8 @@ const RedesignedTodoList: React.FC = () => {
     paginate,
   } = useTodoFilters(todos)
 
-  const handleDeleteTodo = (id: string, title: string) => {
+  // Memoize the delete todo handler
+  const handleDeleteTodo = useCallback((id: string, title: string) => {
     openConfirmDialog({
       title: 'Delete Task',
       description: `Are you sure you want to delete "${title}"? This action cannot be undone.`,
@@ -69,9 +70,10 @@ const RedesignedTodoList: React.FC = () => {
         })
       },
     })
-  }
+  }, [openConfirmDialog, setLoading, deleteTodoMutation, closeConfirmDialog, queryClient])
 
-  const handleCheckboxChange = (
+  // Memoize the checkbox change handler
+  const handleCheckboxChange = useCallback((
     id: string,
     isCompleted: boolean,
     e: React.ChangeEvent<HTMLInputElement>,
@@ -119,9 +121,10 @@ const RedesignedTodoList: React.FC = () => {
         },
       },
     )
-  }
+  }, [todos, updateTodoMutation, queryClient])
 
-  const handleSetReview = (e: React.MouseEvent, id: string) => {
+  // Memoize the set review handler
+  const handleSetReview = useCallback((e: React.MouseEvent, id: string) => {
     e.stopPropagation()
 
     const todoToUpdate = todos.find((todo) => todo.id === id)
@@ -138,9 +141,10 @@ const RedesignedTodoList: React.FC = () => {
         },
       },
     )
-  }
+  }, [todos, updateTodoMutation])
 
-  const handleApproveReview = (e: React.MouseEvent, id: string) => {
+  // Memoize the approve review handler
+  const handleApproveReview = useCallback((e: React.MouseEvent, id: string) => {
     e.stopPropagation()
 
     const todoToUpdate = todos.find((todo) => todo.id === id)
@@ -169,8 +173,9 @@ const RedesignedTodoList: React.FC = () => {
         },
       },
     )
-  }
+  }, [todos, updateTodoMutation, queryClient])
 
+  // Memoize stats calculation
   const stats = useMemo(() => {
     const total = todos.length
     const active = todos.filter(
@@ -183,7 +188,8 @@ const RedesignedTodoList: React.FC = () => {
     return { total, active, completed, review, toDo }
   }, [todos])
 
-  const calculatePieSegments = () => {
+  // Memoize pie chart calculations
+  const calculatePieSegments = useCallback(() => {
     const totalTodos = stats.total
     if (totalTodos === 0)
       return {
@@ -211,22 +217,24 @@ const RedesignedTodoList: React.FC = () => {
       },
       review: { dasharray: reviewDasharray, dashoffset: reviewDashoffset },
     }
-  }
+  }, [stats])
 
-  const pieSegments = calculatePieSegments()
+  const pieSegments = useMemo(() => calculatePieSegments(), [calculatePieSegments])
 
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value)
-  }
+  }, [setSearchQuery])
 
-  const createNewTodo = () => {
+  const createNewTodo = useCallback(() => {
     router.push('/todo/new')
-  }
+  }, [router])
 
   if (isLoading) {
     return (
-      <div className="flex h-64 items-center justify-center">
-        <div className="h-12 w-12 animate-spin rounded-full border-4 border-blue-500 border-t-transparent"></div>
+      <div className="flex h-64 items-center justify-center" aria-label="Loading tasks">
+        <div className="h-12 w-12 animate-spin rounded-full border-4 border-blue-500 border-t-transparent" role="status">
+          <span className="sr-only">Loading...</span>
+        </div>
       </div>
     )
   }
@@ -249,7 +257,7 @@ const RedesignedTodoList: React.FC = () => {
 
       {/* Pagination - Task Count */}
       {filteredTodos.length > 0 && (
-        <div className="mb-4 flex items-center text-sm text-gray-600 dark:text-gray-400">
+        <div className="mb-4 flex items-center text-sm text-gray-600 dark:text-gray-400" aria-live="polite">
           Showing {Math.min(filteredTodos.length, (pageToShow - 1) * 9 + 1)}-
           {Math.min(pageToShow * 9, filteredTodos.length)} of{' '}
           {filteredTodos.length} tasks
@@ -258,7 +266,7 @@ const RedesignedTodoList: React.FC = () => {
 
       {/* Empty state message */}
       {filteredTodos.length === 0 && (
-        <div className="my-10 flex flex-col items-center justify-center text-center">
+        <div className="my-10 flex flex-col items-center justify-center text-center" role="status" aria-live="polite">
           <div className="mb-2 rounded-full bg-gray-100 p-4 dark:bg-gray-800">
             <svg
               className="h-8 w-8 text-gray-400"
@@ -266,6 +274,7 @@ const RedesignedTodoList: React.FC = () => {
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
+              aria-hidden="true"
             >
               <path
                 strokeLinecap="round"
@@ -285,16 +294,21 @@ const RedesignedTodoList: React.FC = () => {
           </p>
           <button
             onClick={createNewTodo}
-            className="mt-4 flex items-center rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
+            className="mt-4 flex items-center rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            aria-label="Create new task"
           >
-            <FiPlus className="mr-1" /> Create New Task
+            <FiPlus className="mr-1" aria-hidden="true" /> Create New Task
           </button>
         </div>
       )}
 
       {/* Todo Items Grid with Review functionality */}
       {filteredTodos.length > 0 && (
-        <div className="grid w-full auto-rows-fr grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div 
+          className="grid w-full auto-rows-fr grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
+          role="list"
+          aria-label="Task list"
+        >
           {currentTodos.map((todo) => (
             <TodoItem
               key={todo.id}
@@ -308,12 +322,21 @@ const RedesignedTodoList: React.FC = () => {
 
           {/* Add new todo button */}
           <div
-            className="dark:border-BorderDark dark:bg-BlackLight flex h-64 cursor-pointer items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-white transition-colors hover:border-blue-500 dark:hover:border-blue-500"
+            className="dark:border-BorderDark dark:bg-BlackLight flex h-64 cursor-pointer items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-white transition-colors hover:border-blue-500 dark:hover:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
             onClick={createNewTodo}
+            tabIndex={0}
+            role="button"
+            aria-label="Create new task"
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault()
+                createNewTodo()
+              }
+            }}
           >
             <div className="text-center">
               <div className="mb-2 flex justify-center">
-                <FiPlus className="text-xl text-gray-400 dark:text-gray-500" />
+                <FiPlus className="text-xl text-gray-400 dark:text-gray-500" aria-hidden="true" />
               </div>
               <p className="text-gray-500 dark:text-gray-400">Add New Task</p>
             </div>
@@ -346,4 +369,4 @@ const RedesignedTodoList: React.FC = () => {
   )
 }
 
-export default RedesignedTodoList
+export default React.memo(RedesignedTodoList)

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -32,6 +32,8 @@ export default function EnhancedLoginForm() {
   const [isLocked, setIsLocked] = useState<boolean>(false)
   const [lockoutTime, setLockoutTime] = useState<number>(0)
   const [emailValid, setEmailValid] = useState(false)
+  const formRef = useRef<HTMLFormElement>(null)
+  const errorRef = useRef<HTMLDivElement>(null)
 
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -60,6 +62,13 @@ export default function EnhancedLoginForm() {
 
   const watchedEmail = watch('email')
   const watchedPassword = watch('password')
+
+  // Focus on error message when it appears
+  useEffect(() => {
+    if (error && errorRef.current) {
+      errorRef.current.focus()
+    }
+  }, [error])
 
   useEffect(() => {
     const storedLockoutData = localStorage.getItem('loginLockout')
@@ -250,9 +259,15 @@ export default function EnhancedLoginForm() {
 
       {/* Error message banner */}
       {error && (
-        <div className="mb-4 rounded border border-red-400 bg-red-100 px-4 py-3 text-red-700 dark:border-red-800 dark:bg-red-900/30 dark:text-red-400">
+        <div 
+          ref={errorRef}
+          className="mb-4 rounded border border-red-400 bg-red-100 px-4 py-3 text-red-700 dark:border-red-800 dark:bg-red-900/30 dark:text-red-400"
+          role="alert"
+          tabIndex={-1}
+          aria-live="assertive"
+        >
           <div className="flex items-center">
-            <FaExclamationTriangle className="mr-2" />
+            <FaExclamationTriangle className="mr-2" aria-hidden="true" />
             <span>{error}</span>
           </div>
         </div>
@@ -260,7 +275,11 @@ export default function EnhancedLoginForm() {
 
       {/* Lockout warning banner */}
       {isLocked && (
-        <div className="mb-4 rounded border border-yellow-400 bg-yellow-100 px-4 py-3 text-yellow-700 dark:border-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400">
+        <div 
+          className="mb-4 rounded border border-yellow-400 bg-yellow-100 px-4 py-3 text-yellow-700 dark:border-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400"
+          role="alert"
+          aria-live="polite"
+        >
           <p>Account is temporarily locked due to too many failed attempts.</p>
           <p className="font-medium">
             Please try again in {formatLockoutTime(lockoutTime)}.
@@ -268,7 +287,15 @@ export default function EnhancedLoginForm() {
         </div>
       )}
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+      <form 
+        ref={formRef}
+        onSubmit={handleSubmit(onSubmit)} 
+        className="space-y-4"
+        aria-labelledby="login-heading"
+        noValidate
+      >
+        <div id="login-heading" className="sr-only">Login Form</div>
+        
         {/* Email Input */}
         <ValidatedInput
           id="email"
@@ -279,7 +306,7 @@ export default function EnhancedLoginForm() {
           placeholder="you@example.com"
           disabled={isLoading || isLocked}
           required
-          icon={<FaEnvelope />}
+          icon={<FaEnvelope aria-hidden="true" />}
           autoComplete="email"
           validator={
             <EmailValidator
@@ -287,6 +314,7 @@ export default function EnhancedLoginForm() {
               onValidation={handleEmailValidation}
             />
           }
+          aria-describedby={errors.email ? 'email-error' : undefined}
         />
 
         {/* Password Input */}
@@ -299,8 +327,9 @@ export default function EnhancedLoginForm() {
           placeholder="Your password"
           disabled={isLoading || isLocked}
           required
-          icon={<FaLock />}
+          icon={<FaLock aria-hidden="true" />}
           autoComplete="current-password"
+          aria-describedby={errors.password ? 'password-error' : undefined}
         />
 
         {/* Remember Me & Forgot Password */}
@@ -324,7 +353,8 @@ export default function EnhancedLoginForm() {
           <div className="text-sm">
             <Link
               href="/auth/forgot-password"
-              className="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400"
+              className="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400 focus:outline-none focus:underline"
+              aria-label="Forgot password? Reset it here"
             >
               Forgot password?
             </Link>
@@ -340,10 +370,15 @@ export default function EnhancedLoginForm() {
               ? 'cursor-not-allowed bg-gray-400'
               : 'bg-blue-600 hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:bg-blue-700 dark:hover:bg-blue-800'
           }`}
+          aria-disabled={isLoading || isLocked}
         >
           {isLoading ? (
             <>
-              <svg className="mr-2 h-4 w-4 animate-spin" viewBox="0 0 24 24">
+              <svg 
+                className="mr-2 h-4 w-4 animate-spin" 
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
                 <circle
                   className="opacity-25"
                   cx="12"
@@ -393,7 +428,7 @@ export default function EnhancedLoginForm() {
           Don&apos;t have an account?{' '}
           <Link
             href="/auth/register"
-            className="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400"
+            className="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400 focus:outline-none focus:underline"
           >
             Sign up
           </Link>

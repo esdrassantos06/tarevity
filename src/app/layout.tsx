@@ -1,5 +1,6 @@
+// src/app/layout.tsx
 import './globals.css'
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { Inter } from 'next/font/google'
 import { NextAuthProvider } from '@/components/auth/NextAuthProvider'
 import { ThemeProvider } from '@/components/common/ThemeProvider'
@@ -20,15 +21,78 @@ export const metadata: Metadata = {
     'productivity system',
     'priority management',
     'deadline tracking',
+    'project organization',
+    'to-do list app',
+    'work management',
+    'task tracking'
   ],
-  authors: [{ name: 'Esdras Santos' }],
+  authors: [{ name: 'Esdras Santos', url: 'https://github.com/esdrassantos06' }],
   creator: 'Esdras Santos',
   publisher: 'Tarevity',
-  robots: 'index, follow',
+  robots: {
+    index: true,
+    follow: true,
+    nocache: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-image-preview': 'large',
+      'max-video-preview': -1,
+      'max-snippet': -1,
+    },
+  },
+  alternates: {
+    canonical: 'https://tarevity.pt',
+    languages: {
+      'en-US': 'https://tarevity.pt/en-US',
+    },
+  },
+  openGraph: {
+    type: 'website',
+    locale: 'en_US',
+    url: 'https://tarevity.pt',
+    siteName: 'Tarevity',
+    title: 'Tarevity - Intelligent Task Management for Modern Professionals',
+    description: 'Elevate your productivity with Tarevity\'s secure, intuitive task management platform',
+    images: [
+      {
+        url: 'https://tarevity.pt/og-image.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'Tarevity - Task Management Platform',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Tarevity - Intelligent Task Management',
+    description: 'Elevate your productivity with Tarevity\'s secure, intuitive task management platform',
+    images: ['https://tarevity.pt/twitter-image.jpg'],
+  },
   icons: {
     icon: '/icon.png',
     apple: '/apple-icon.png',
   },
+  appleWebApp: {
+    title: 'Tarevity',
+    statusBarStyle: 'black-translucent',
+    capable: true,
+  },
+  formatDetection: {
+    telephone: false,
+  },
+  manifest: '/manifest.json',
+  category: 'productivity',
+}
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#ffffff' },
+    { media: '(prefers-color-scheme: dark)', color: '#121212' }
+  ]
 }
 
 export default async function RootLayout({
@@ -38,7 +102,9 @@ export default async function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning className="overflow-x-hidden">
-      <head></head>
+      <head>
+        <link rel="manifest" href="/manifest.json" />
+      </head>
       <body
         className={`${inter.className} overflow-x-hidden`}
         suppressHydrationWarning
@@ -46,7 +112,12 @@ export default async function RootLayout({
         <Providers>
           <NextAuthProvider>
             <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-              {children}
+              <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-white focus:text-primary focus:outline focus:outline-offset-2 focus:rounded">
+                Skip to main content
+              </a>
+              <main id="main-content">
+                {children}
+              </main>
               <CookieBanner />
               <ToastProvider />
             </ThemeProvider>

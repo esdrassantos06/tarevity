@@ -3,6 +3,7 @@
 import * as React from 'react'
 import * as DialogPrimitive from '@radix-ui/react-dialog'
 import { FaTimes } from 'react-icons/fa'
+import { useFocusTrap } from '@/hooks/useFocusTrap'
 
 const Dialog = DialogPrimitive.Root
 
@@ -37,22 +38,43 @@ const DialogContent = React.forwardRef<
   React.ComponentRef<typeof DialogPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content>
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
->(({ className, children, ...props }, ref) => (
-  <DialogPortal>
-    <DialogOverlay />
-    <DialogPrimitive.Content
-      ref={ref}
-      className="animate-in data-[state=open]:fade-in-90 data-[state=open]:slide-in-from-right dark:bg-BlackLight fixed z-101 grid w-full max-w-lg gap-4 rounded-lg bg-white p-6 shadow-lg transition-all duration-200 ease-out sm:max-w-lg sm:rounded-lg md:w-full"
-      {...props}
-    >
-      {children}
-      <DialogPrimitive.Close className="absolute top-4 right-4 rounded-sm opacity-70 ring-offset-white transition-opacity hover:opacity-100 focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 focus:outline-none disabled:pointer-events-none dark:ring-offset-gray-950 dark:focus:ring-gray-800">
-        <FaTimes className="h-4 w-4" />
-        <span className="sr-only">Close</span>
-      </DialogPrimitive.Close>
-    </DialogPrimitive.Content>
-  </DialogPortal>
-))
+>(({ className, children, ...props }, ref) => {
+  const focusTrapRef = useFocusTrap(true)
+  
+  const setRefs = React.useCallback(
+    (element: HTMLDivElement) => {
+      if (typeof ref === 'function') {
+        ref(element)
+      } else if (ref) {
+        ref.current = element
+      }
+      
+      focusTrapRef.current = element
+    },
+    [ref, focusTrapRef]
+  )
+  
+  return (
+    <DialogPortal>
+      <DialogOverlay />
+      <DialogPrimitive.Content
+        ref={setRefs}
+        className="animate-in data-[state=open]:fade-in-90 data-[state=open]:slide-in-from-right dark:bg-BlackLight fixed z-101 grid w-full max-w-lg gap-4 rounded-lg bg-white p-6 shadow-lg transition-all duration-200 ease-out sm:max-w-lg sm:rounded-lg md:w-full"
+        role="dialog"
+        aria-modal="true"
+        {...props}
+      >
+        {children}
+        <DialogPrimitive.Close 
+          className="absolute top-4 right-4 rounded-sm opacity-70 ring-offset-white transition-opacity hover:opacity-100 focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 focus:outline-none disabled:pointer-events-none dark:ring-offset-gray-950 dark:focus:ring-gray-800"
+          aria-label="Close dialog"
+        >
+          <FaTimes className="h-4 w-4" aria-hidden="true" />
+        </DialogPrimitive.Close>
+      </DialogPrimitive.Content>
+    </DialogPortal>
+  )
+})
 DialogContent.displayName = DialogPrimitive.Content.displayName
 
 const DialogHeader = ({

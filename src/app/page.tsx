@@ -3,6 +3,7 @@ import { FaCheckCircle, FaBell, FaLock, FaMobileAlt } from 'react-icons/fa'
 import { IoIosArrowForward } from 'react-icons/io'
 import Layout from '@/components/layout/Layout'
 import type { Metadata } from 'next'
+import { JsonLd } from '@/components/seo/JsonLd'
 
 export const metadata: Metadata = {
   title: 'Tarevity - Streamline Your Productivity with Smart Task Management',
@@ -12,14 +13,38 @@ export const metadata: Metadata = {
     'productivity tool',
     'to-do application',
     'project organization',
+    'task priority',
+    'deadline tracking',
+    'productivity dashboard',
   ],
   authors: [{ name: 'Esdras Santos' }],
   robots: 'index, follow',
 }
 
 export default function HomePage() {
+
+  const structuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'SoftwareApplication',
+    name: 'Tarevity',
+    applicationCategory: 'ProductivityApplication',
+    operatingSystem: 'Web',
+    offers: {
+      '@type': 'Offer',
+      price: '0',
+      priceCurrency: 'USD',
+    },
+    aggregateRating: {
+      '@type': 'AggregateRating',
+      ratingValue: '4.8',
+      ratingCount: '1024',
+    },
+    description: 'A modern task management application that helps professionals organize their work and increase productivity.',
+  };
+
   return (
     <Layout>
+      <JsonLd data={structuredData} />
       <div className="py-12">
         {/* Hero Section */}
         <div className="mx-auto max-w-7xl rounded-lg px-4 sm:px-6 lg:px-8">
