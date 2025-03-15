@@ -10,15 +10,13 @@ export const metadata: Metadata = {
   robots: 'noindex, nofollow',
 }
 
-// Define o tipo correto para os parâmetros
-interface PageProps {
-  params: {
-    id: string;
-  };
-}
-
-export default function TodoEditPageRoute({ params }: PageProps) {
-  const id = params.id
+// Corrigir o tipo conforme exigido pelo Next.js 15
+export default async function TodoEditPageRoute({
+  params,
+}: {
+  params: { id: string };
+}) {
+  const { id } = params;
 
   return (
     <Layout>

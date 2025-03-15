@@ -10,14 +10,12 @@ export const metadata: Metadata = {
   robots: 'noindex, nofollow',
 }
 
-interface PageProps {
-  params: {
-    id: string;
-  };
-}
-
-export default function TodoDetailPageRoute({ params }: PageProps) {
-  const id = params.id
+export default async function TodoDetailPageRoute({
+  params,
+}: {
+  params: { id: string };
+}) {
+  const { id } = params;
 
   return (
     <Layout>
