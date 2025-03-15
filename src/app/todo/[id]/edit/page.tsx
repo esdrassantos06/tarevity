@@ -1,5 +1,3 @@
-// Para src/app/todo/[id]/edit/page.tsx
-
 import { Suspense } from 'react'
 import { Metadata } from 'next'
 import Layout from '@/components/layout/Layout'
@@ -12,7 +10,14 @@ export const metadata: Metadata = {
   robots: 'noindex, nofollow',
 }
 
-export default function TodoEditPageRoute({ params }: any) {
+interface PageParams {
+  params: {
+    id: string;
+  };
+  searchParams?: Record<string, string | string[]>;
+}
+
+export default function TodoEditPageRoute({ params }: PageParams) {
   const id = params.id;
 
   return (

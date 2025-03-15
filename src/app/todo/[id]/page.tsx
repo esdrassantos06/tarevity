@@ -18,7 +18,6 @@ interface PageParams {
   searchParams?: Record<string, string | string[]>;
 }
 
-// @ts-ignore - Ignorando verificação de tipo para resolver o conflito com os tipos internos do Next.js
 export default function TodoDetailPageRoute(props: PageParams) {
   const id = props.params.id;
 
