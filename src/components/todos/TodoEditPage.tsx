@@ -87,7 +87,7 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
           is_completed: todo.is_completed || false,
           status: todo.status || 'active',
         })
-        
+
         // Store the original due date for comparison
         setOriginalDueDate(todo.due_date)
       } else {
@@ -137,28 +137,24 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
 
   // Function to create or update notifications for a todo based on due date
   const updateNotificationsForTodo = (todo: Todo) => {
-    console.log('Checking if notifications should be created for todo:', todo);
-    
     // Skip if todo is completed
     if (todo.is_completed) {
-      console.log('Skipping notification creation for completed todo');
-      return;
+      return
     }
-    
+
     // We need a due date to create notifications
     if (!todo.due_date) {
-      console.log('No due date, skipping notification creation');
-      return;
+      return
     }
-    
+
     // IMPORTANT: Create all notification types regardless of date
     // This allows the server to determine which ones should be shown
-    const dueDate = new Date(todo.due_date);
-    const notifications: NotificationData[] = [];
-    
+    const dueDate = new Date(todo.due_date)
+    const notifications: NotificationData[] = []
+
     // Always create all three notification types with consistent origin_ids
     // This ensures the server has all the data it needs
-    
+
     // Create danger notification (overdue)
     notifications.push({
       todo_id: todo.id,
@@ -166,9 +162,9 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
       title: 'Overdue Task',
       message: `"${todo.title}" is due ${formatDistanceToNow(dueDate, { addSuffix: true })}`,
       due_date: todo.due_date,
-      origin_id: `danger-${todo.id}`
-    });
-    
+      origin_id: `danger-${todo.id}`,
+    })
+
     // Create warning notification (due soon)
     notifications.push({
       todo_id: todo.id,
@@ -176,9 +172,9 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
       title: 'Due Soon',
       message: `"${todo.title}" is due ${formatDistanceToNow(dueDate, { addSuffix: true })}`,
       due_date: todo.due_date,
-      origin_id: `warning-${todo.id}`
-    });
-    
+      origin_id: `warning-${todo.id}`,
+    })
+
     // Create info notification (upcoming)
     notifications.push({
       todo_id: todo.id,
@@ -186,22 +182,19 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
       title: 'Upcoming Deadline',
       message: `"${todo.title}" is due ${formatDistanceToNow(dueDate, { addSuffix: true })}`,
       due_date: todo.due_date,
-      origin_id: `info-${todo.id}`
-    });
-    
-    console.log('Creating/updating notifications for todo:', todo.id, notifications.length);
-    
+      origin_id: `info-${todo.id}`,
+    })
+
     // Send notifications to be created or updated
     createNotificationsMutation.mutate(notifications, {
-      onSuccess: (data) => {
-        console.log('Successfully updated notifications:', data);
+      onSuccess: () => {
         // Invalidate notifications query to update UI immediately
-        queryClient.invalidateQueries({ queryKey: ['notifications'] });
+        queryClient.invalidateQueries({ queryKey: ['notifications'] })
       },
       onError: (error) => {
-        console.error('Failed to update notifications:', error);
-      }
-    });
+        console.error('Failed to update notifications:', error)
+      },
+    })
   }
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
@@ -218,68 +211,70 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
       {
         onSuccess: (response) => {
           setHasUnsavedChanges(false)
-          
+
           // This is the fix for the type error - ensure response.data exists before using it
           if (!response.data) {
-            console.error('No data returned from update mutation');
-            router.push(`/todo/${todoId}`);
-            return;
+            console.error('No data returned from update mutation')
+            router.push(`/todo/${todoId}`)
+            return
           }
-          
+
           // Check if relevant fields have changed that would affect notifications
-          const hasDueDateChanged = originalDueDate !== updateData.due_date;
-          const hasTitleChanged = todos.find(t => t.id === todoId)?.title !== updateData.title;
-          const hasCompletionChanged = todos.find(t => t.id === todoId)?.is_completed !== updateData.is_completed;
-          
+          const hasDueDateChanged = originalDueDate !== updateData.due_date
+          const hasTitleChanged =
+            todos.find((t) => t.id === todoId)?.title !== updateData.title
+          const hasCompletionChanged =
+            todos.find((t) => t.id === todoId)?.is_completed !==
+            updateData.is_completed
+
           // If todo is now completed, dismiss all its notifications
           if (updateData.is_completed) {
-            console.log('Todo marked as completed, dismissing notifications');
             fetch('/api/notifications/dismiss-for-todo', {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
               },
               body: JSON.stringify({ todoId }),
+            }).catch((error) => {
+              console.error('Error dismissing notifications:', error)
             })
-            .catch(error => {
-              console.error('Error dismissing notifications:', error);
-            });
-          } 
+          }
           // If any relevant field changed for an incomplete todo, recreate notifications
-          else if (hasDueDateChanged || hasTitleChanged || hasCompletionChanged) {
-            console.log('Relevant fields changed, recreating notifications');
-            
+          else if (
+            hasDueDateChanged ||
+            hasTitleChanged ||
+            hasCompletionChanged
+          ) {
             // First delete all existing notifications for this todo
             fetch(`/api/notifications/delete-for-todo/${todoId}`, {
               method: 'DELETE',
             })
-            .then(response => {
-              if (!response.ok) throw new Error('Failed to delete notifications');
-              return response.json();
-            })
-            .then(() => {
-              // Short delay to ensure deletion completes before creating new ones
-              setTimeout(() => {
-                // Another type safety check
+              .then((response) => {
+                if (!response.ok)
+                  throw new Error('Failed to delete notifications')
+                return response.json()
+              })
+              .then(() => {
+                // Short delay to ensure deletion completes before creating new ones
+                setTimeout(() => {
+                  // Another type safety check
+                  if (response.data) {
+                    updateNotificationsForTodo(response.data)
+                  }
+                }, 300)
+              })
+              .catch((error) => {
+                console.error('Error managing notifications:', error)
+                // Still try to update notifications as fallback, with type safety check
                 if (response.data) {
-                  updateNotificationsForTodo(response.data);
+                  updateNotificationsForTodo(response.data)
                 }
-              }, 300);
-            })
-            .catch(error => {
-              console.error('Error managing notifications:', error);
-              // Still try to update notifications as fallback, with type safety check
-              if (response.data) {
-                updateNotificationsForTodo(response.data);
-              }
-            });
-          } else {
-            console.log('No notification-relevant changes detected');
+              })
           }
-          
-          router.push(`/todo/${todoId}`);
+
+          router.push(`/todo/${todoId}`)
         },
-      }
+      },
     )
   }
 

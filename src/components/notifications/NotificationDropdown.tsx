@@ -1,23 +1,31 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { IoNotificationsOutline } from 'react-icons/io5'
 import { FaCalendar, FaBell, FaTrash, FaCheck } from 'react-icons/fa'
 import { useTodosQuery } from '@/hooks/useTodosQuery'
-import { formatDistanceToNow, isPast, isWithinInterval, addDays } from 'date-fns'
+import {
+  formatDistanceToNow,
+  isPast,
+  isWithinInterval,
+  addDays,
+} from 'date-fns'
 import { showSuccess } from '@/lib/toast'
 import { useSession } from 'next-auth/react'
-import { 
-  useNotificationsQuery, 
-  useCreateNotificationsMutation, 
-  useMarkNotificationReadMutation, 
-  useDismissNotificationMutation, 
+import { useQueryClient } from '@tanstack/react-query'
+import {
+  useNotificationsQuery,
+  useCreateNotificationsMutation,
+  useMarkNotificationReadMutation,
+  useDismissNotificationMutation,
   useResetNotificationsMutation,
-  type Notification
+  type Notification,
 } from '@/hooks/useNotificationsQuery'
-import ConfirmationDialog, { useConfirmationDialog } from '@/components/common/ConfirmationDialog'
+import ConfirmationDialog, {
+  useConfirmationDialog,
+} from '@/components/common/ConfirmationDialog'
 
-// Define a NotificationData interface for what we create and send to the API
+// Define a NotificationData interface para o que criamos e enviamos para a API
 interface NotificationData {
   todo_id: string
   notification_type: 'danger' | 'warning' | 'info'
@@ -32,41 +40,34 @@ export default function NotificationDropdown() {
   const [isOpen, setIsOpen] = useState(false)
   const [unreadCount, setUnreadCount] = useState(0)
   const dropdownRef = useRef<HTMLDivElement>(null)
+  const queryClient = useQueryClient()
+  const lastProcessedRef = useRef<Set<string>>(new Set())
+
+  // Use custom hooks for notificações
   const { data: todos = [] } = useTodosQuery()
-  
-  // Use custom hooks for notifications
   const { data: notifications = [], isLoading } = useNotificationsQuery()
   const createNotificationsMutation = useCreateNotificationsMutation()
   const markReadMutation = useMarkNotificationReadMutation()
   const dismissMutation = useDismissNotificationMutation()
   const resetMutation = useResetNotificationsMutation()
-  
-  // Use the confirmation dialog hook
-  const {
-    dialogState,
-    openConfirmDialog,
-    closeConfirmDialog,
-    setLoading
-  } = useConfirmationDialog()
 
-  // Add debug logging for notification creation
-  useEffect(() => {
-    // Log notifications data fetched
-    if (notifications && notifications.length > 0) {
-      console.log('Fetched notifications:', notifications.length);
-    }
-  }, [notifications]);
+  // Use o hook de diálogo de confirmação
+  const { dialogState, openConfirmDialog, closeConfirmDialog, setLoading } =
+    useConfirmationDialog()
 
-  // Update unread count whenever notifications change
+  // Atualiza a contagem de não lidos quando as notificações mudam
   useEffect(() => {
     const unread = notifications.filter((n: Notification) => !n.read).length
     setUnreadCount(unread)
   }, [notifications])
 
-  // Handle click outside to close dropdown
+  // Trata clique fora para fechar o dropdown
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
         setIsOpen(false)
       }
     }
@@ -77,79 +78,121 @@ export default function NotificationDropdown() {
     }
   }, [])
 
-  // Generate new notifications from todos
-  useEffect(() => {
-    if (!session?.user?.id || todos.length === 0) return;
-  
-    // Add a debounce mechanism to prevent excessive API calls
-    const timer = setTimeout(() => {
-      const now = new Date();
-      const newNotifications: NotificationData[] = [];
-      
-      // Limit the number of notifications created at once
-      const todosToProcess = todos.slice(0, 10); // Only process 10 todos at a time
-      
-      console.log('Processing todos for notifications:', todosToProcess.length);
-      
-      // Only create notifications for certain conditions
-      todosToProcess.forEach((todo) => {
-        if (todo.due_date && !todo.is_completed) {
-          const dueDate = new Date(todo.due_date);
-          
-          // Only create notifications for tasks due within 3 days
-          const threeDaysFromNow = new Date();
-          threeDaysFromNow.setDate(now.getDate() + 3);
-          
-          if (dueDate <= threeDaysFromNow) {
-            // Add your notification logic here, but with a limit
-            // This prevents creating too many notifications at once
-            
-            // Example: only create one notification per todo
-            const notificationType = isPast(dueDate) ? 'danger' : 
-                                    isWithinInterval(dueDate, { start: now, end: addDays(now, 1) }) ? 
-                                    'warning' : 'info';
-            
-            newNotifications.push({
-              todo_id: todo.id,
-              notification_type: notificationType,
-              title: notificationType === 'danger' ? 'Overdue Task' : 
-                    notificationType === 'warning' ? 'Due Soon' : 'Upcoming Deadline',
-              message: `"${todo.title}" is due ${formatDistanceToNow(dueDate, { addSuffix: true })}`,
-              due_date: dueDate.toISOString(),
-              origin_id: `${notificationType}-${todo.id}`
-            });
-          }
-        }
-      });
-  
-      // Only make one API call with a reasonable number of notifications
-      if (newNotifications.length > 0) {
-        // Don't send more than 5 notifications at once
-        const batchSize = 5;
-        const firstBatch = newNotifications.slice(0, batchSize);
-        
-        console.log('Sending notifications to API:', firstBatch);
-        
-        createNotificationsMutation.mutate(firstBatch, {
-          onSuccess: (data) => {
-            console.log('Successfully created notifications:', data);
-          },
-          onError: (error) => {
-            console.error('Failed to create notifications:', error);
-          }
-        });
-        
-        // Log information about batching for debugging
-        if (newNotifications.length > batchSize) {
-          console.log(`Created ${batchSize} notifications out of ${newNotifications.length} potential notifications.`);
-        }
-      } else {
-        console.log('No new notifications to create.');
+  const createRelevantNotifications = useCallback(
+    (todo: {
+      id: string
+      title: string
+      is_completed: boolean
+      due_date: string | null
+    }): NotificationData[] => {
+      if (todo.is_completed || !todo.due_date) return []
+
+      const dueDate = new Date(todo.due_date)
+      const now = new Date()
+      const notifications: NotificationData[] = []
+
+      if (isPast(dueDate)) {
+        notifications.push({
+          todo_id: todo.id,
+          notification_type: 'danger',
+          title: 'Overdue Task',
+          message: `"${todo.title}" is due ${formatDistanceToNow(dueDate, { addSuffix: true })}`,
+          due_date: todo.due_date,
+          origin_id: `danger-${todo.id}`,
+        })
+      } else if (
+        isWithinInterval(dueDate, { start: now, end: addDays(now, 1) })
+      ) {
+        notifications.push({
+          todo_id: todo.id,
+          notification_type: 'warning',
+          title: 'Due Soon',
+          message: `"${todo.title}" is due ${formatDistanceToNow(dueDate, { addSuffix: true })}`,
+          due_date: todo.due_date,
+          origin_id: `warning-${todo.id}`,
+        })
+      } else if (
+        isWithinInterval(dueDate, {
+          start: addDays(now, 1),
+          end: addDays(now, 3),
+        })
+      ) {
+        notifications.push({
+          todo_id: todo.id,
+          notification_type: 'info',
+          title: 'Upcoming Deadline',
+          message: `"${todo.title}" is due ${formatDistanceToNow(dueDate, { addSuffix: true })}`,
+          due_date: todo.due_date,
+          origin_id: `info-${todo.id}`,
+        })
       }
-    }, 2000); // Wait 2 seconds before processing
-    
-    return () => clearTimeout(timer);
-  }, [todos, session?.user?.id, createNotificationsMutation]);
+
+      return notifications
+    },
+    [],
+  )
+
+  const processNotificationBatch = useCallback(
+    async (notifications: NotificationData[]) => {
+      if (notifications.length === 0) return
+
+      const batchSize = 5
+      for (let i = 0; i < notifications.length; i += batchSize) {
+        const batch = notifications.slice(i, i + batchSize)
+
+        await createNotificationsMutation.mutateAsync(batch, {
+          onError: (error) => {
+            console.error('Erro ao criar lote de notificações:', error)
+          },
+        })
+      }
+    },
+    [createNotificationsMutation],
+  )
+
+  useEffect(() => {
+    if (!session?.user?.id || todos.length === 0) return
+
+    const timer = setTimeout(() => {
+      const allNotifications: NotificationData[] = []
+      const processedIds = new Set<string>()
+
+      todos.forEach((todo) => {
+        if (lastProcessedRef.current.has(todo.id)) return
+
+        if (!todo.is_completed && todo.due_date) {
+          const todoNotifications = createRelevantNotifications(todo)
+
+          if (todoNotifications.length > 0) {
+            allNotifications.push(...todoNotifications)
+            processedIds.add(todo.id)
+          }
+        }
+      })
+
+      // Atualiza a referência de tarefas processadas
+      lastProcessedRef.current = processedIds
+
+      // Processa as notificações em lotes
+      if (allNotifications.length > 0) {
+        processNotificationBatch(allNotifications)
+          .then(() => {
+            queryClient.invalidateQueries({ queryKey: ['notifications'] })
+          })
+          .catch((error) => {
+            console.error('Erro ao processar notificações:', error)
+          })
+      }
+    }, 2000) // Espera 2 segundos antes de processar
+
+    return () => clearTimeout(timer)
+  }, [
+    todos,
+    session?.user?.id,
+    createRelevantNotifications,
+    processNotificationBatch,
+    queryClient,
+  ])
 
   const toggleDropdown = () => {
     setIsOpen(!isOpen)
@@ -173,39 +216,42 @@ export default function NotificationDropdown() {
   }
 
   const resetNotifications = () => {
-    // Use the custom dialog instead of window.confirm
+    // Use o diálogo personalizado em vez de window.confirm
     openConfirmDialog({
       title: 'Reset Notifications',
-      description: 'This will reset all notifications. Your tasks will not be affected. Continue?',
+      description:
+        'This will reset all notifications. Your tasks will not be affected. Continue?',
       variant: 'warning',
       confirmText: 'Reset',
       cancelText: 'Cancel',
       onConfirm: () => {
-        setLoading(true);
+        setLoading(true)
         resetMutation.mutate(undefined, {
           onSuccess: () => {
-            showSuccess('Notifications reset successfully');
-            setIsOpen(false); // Close the dropdown after reset
-            closeConfirmDialog();
+            showSuccess('Notifications reset successfully')
+            setIsOpen(false) // Fecha o dropdown após o reset
+            closeConfirmDialog()
+            // Limpa o registro de tarefas processadas para permitir recriação
+            lastProcessedRef.current = new Set()
           },
           onError: (error) => {
-            console.error('Error resetting notifications:', error);
-            closeConfirmDialog();
+            console.error('Error resetting notifications:', error)
+            closeConfirmDialog()
           },
           onSettled: () => {
-            setLoading(false);
-          }
-        });
-      }
-    });
+            setLoading(false)
+          },
+        })
+      },
+    })
   }
 
-  // Get notification background color based on type
+  // Obtem cor de fundo da notificação baseada no tipo
   const getNotificationBgColor = (type: string, isRead: boolean) => {
     if (isRead) {
       return 'bg-gray-100 dark:bg-gray-800/50'
     }
-    
+
     switch (type) {
       case 'danger':
         return 'bg-red-100 dark:bg-red-900/30'
@@ -217,12 +263,12 @@ export default function NotificationDropdown() {
     }
   }
 
-  // Get notification icon based on type
+  // Obtem ícone da notificação baseado no tipo
   const getNotificationIcon = (type: string, isRead: boolean) => {
     if (isRead) {
       return <FaCheck className="text-gray-500" />
     }
-    
+
     switch (type) {
       case 'danger':
         return <FaBell className="text-red-500" />
@@ -238,7 +284,7 @@ export default function NotificationDropdown() {
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={toggleDropdown}
-        className="border-BorderLight hover:bg-BorderLight dark:border-BorderDark mr-3 cursor-pointer rounded-lg border-2 p-2 transition-all duration-300 relative"
+        className="border-BorderLight hover:bg-BorderLight dark:border-BorderDark dark:hover:bg-BorderDark relative mr-3 cursor-pointer rounded-lg border-2 p-2 transition-all duration-300"
         aria-label="Notifications"
       >
         <IoNotificationsOutline className="h-5 w-5" />
@@ -250,7 +296,7 @@ export default function NotificationDropdown() {
       </button>
 
       {isOpen && (
-        <div className="dark:bg-BlackLight absolute right-0 z-50 mt-2 w-80 rounded-lg border border-gray-200 bg-white shadow-lg dark:border-gray-700 sm:w-96">
+        <div className="dark:bg-BlackLight absolute right-0 z-50 mt-2 w-80 rounded-lg border border-gray-200 bg-white shadow-lg sm:w-96 dark:border-gray-700">
           <div className="border-b border-gray-200 px-4 py-3 dark:border-gray-700">
             <div className="flex items-center justify-between">
               <h3 className="font-medium text-gray-900 dark:text-white">
@@ -301,35 +347,50 @@ export default function NotificationDropdown() {
               notifications.map((notification: Notification) => (
                 <div
                   key={notification.id}
-                  className={`mb-2 rounded-lg ${
-                    getNotificationBgColor(notification.notification_type, notification.read)
-                  } p-3`}
+                  className={`mb-2 rounded-lg ${getNotificationBgColor(
+                    notification.notification_type,
+                    notification.read,
+                  )} p-3`}
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex items-start">
-                      <div className="mr-3 mt-1">
-                        {getNotificationIcon(notification.notification_type, notification.read)}
+                      <div className="mt-1 mr-3">
+                        {getNotificationIcon(
+                          notification.notification_type,
+                          notification.read,
+                        )}
                       </div>
                       <div>
-                        <h4 className={`text-sm font-medium ${
-                          notification.read 
-                            ? 'text-gray-600 dark:text-gray-400' 
-                            : 'text-gray-900 dark:text-white'
-                        }`}>
+                        <h4
+                          className={`text-sm font-medium ${
+                            notification.read
+                              ? 'text-gray-600 dark:text-gray-400'
+                              : 'text-gray-900 dark:text-white'
+                          }`}
+                        >
                           {notification.title}
-                          {notification.read && <span className="ml-2 text-xs text-gray-500">(Read)</span>}
+                          {notification.read && (
+                            <span className="ml-2 text-xs text-gray-500">
+                              (Read)
+                            </span>
+                          )}
                         </h4>
-                        <p className={`text-xs ${
-                          notification.read 
-                            ? 'text-gray-500 dark:text-gray-500' 
-                            : 'text-gray-600 dark:text-gray-300'
-                        }`}>
+                        <p
+                          className={`text-xs ${
+                            notification.read
+                              ? 'text-gray-500 dark:text-gray-500'
+                              : 'text-gray-600 dark:text-gray-300'
+                          }`}
+                        >
                           {notification.message}
                         </p>
                         <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                          {formatDistanceToNow(new Date(notification.due_date), {
-                            addSuffix: true,
-                          })}
+                          {formatDistanceToNow(
+                            new Date(notification.due_date),
+                            {
+                              addSuffix: true,
+                            },
+                          )}
                         </p>
                       </div>
                     </div>
@@ -337,8 +398,8 @@ export default function NotificationDropdown() {
                       {!notification.read && (
                         <button
                           onClick={(e) => {
-                            e.stopPropagation();
-                            markAsRead(notification.id);
+                            e.stopPropagation()
+                            markAsRead(notification.id)
                           }}
                           className="text-blue-500 hover:text-blue-700"
                           title="Mark as read"
@@ -348,8 +409,8 @@ export default function NotificationDropdown() {
                       )}
                       <button
                         onClick={(e) => {
-                          e.stopPropagation();
-                          deleteNotification(notification.id);
+                          e.stopPropagation()
+                          deleteNotification(notification.id)
                         }}
                         className="text-red-500 hover:text-red-700"
                         title="Delete notification"
@@ -364,8 +425,8 @@ export default function NotificationDropdown() {
           </div>
         </div>
       )}
-      
-      {/* Add the ConfirmationDialog component */}
+
+      {/* Adiciona o componente ConfirmationDialog */}
       <ConfirmationDialog
         isOpen={dialogState.isOpen}
         onClose={closeConfirmDialog}

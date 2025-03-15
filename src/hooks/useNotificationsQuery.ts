@@ -20,9 +20,11 @@ export function useNotificationsQuery() {
       const response = await axios.get('/api/notifications')
       return response.data
     },
-    // Add a retry limit and staleTime to reduce unnecessary API calls
+    staleTime: 5 * 60 * 1000, 
+    refetchOnWindowFocus: false,
+    refetchInterval: 3 * 60 * 1000,
+    refetchIntervalInBackground: false,
     retry: 1,
-    staleTime: 30000, // 30 seconds
   })
 }
 
