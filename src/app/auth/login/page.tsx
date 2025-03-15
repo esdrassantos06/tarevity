@@ -1,4 +1,3 @@
-// src/app/auth/login/page.tsx
 import { Suspense } from 'react'
 import { Metadata } from 'next'
 import dynamic from 'next/dynamic'

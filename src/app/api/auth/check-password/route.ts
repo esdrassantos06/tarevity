@@ -1,4 +1,3 @@
-// src/app/api/auth/check-password/route.ts
 import { NextResponse } from 'next/server'
 import axiosClient from '@/lib/axios'
 import { validatePasswordStrength } from '@/lib/auth'
