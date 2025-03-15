@@ -20,14 +20,14 @@ const Pagination: React.FC<PaginationProps> = ({
   const goToNextPage = () => onPageChange(currentPage + 1);
 
   return (
-    <div className="mt-8 flex items-center justify-center gap-2">
+    <div className="mt-8 flex bg-white dark:bg-BlackLight p-2 mx-auto rounded-lg items-center justify-center gap-2">
       <button
         onClick={goToPreviousPage}
         disabled={currentPage === 1}
         className={`rounded-md flex items-center gap-2 p-2 ${
           currentPage === 1
             ? 'cursor-not-allowed text-gray-600/50 dark:text-gray-400/50'
-            : 'hover:bg-gray-300 group hover:text-primary dark:hover:bg-gray-700'
+            : 'hover:bg-gray-300 group hover:text-primary dark:hover:bg-bgDark/80'
         }`}
         aria-label="Previous page"
       >
@@ -123,7 +123,7 @@ const Pagination: React.FC<PaginationProps> = ({
         className={`rounded-md flex items-center gap-2 p-2 ${
           currentPage === totalPages
             ? 'cursor-not-allowed text-gray-600/50 dark:text-gray-400/50'
-            : 'hover:bg-gray-300 hover:text-primary group dark:hover:bg-gray-700'
+            : 'hover:bg-gray-300 hover:text-primary group dark:hover:bg-bgDark/80'
         }`}
         aria-label="Next page"
       >

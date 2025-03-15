@@ -1,6 +1,7 @@
 'use client'
 import React, { useState, useRef, useEffect } from 'react'
 import { FaSearch } from 'react-icons/fa'
+import { FaXmark } from 'react-icons/fa6'
 
 interface ExpandableSearchProps {
   value: string
@@ -43,6 +44,16 @@ const ExpandableSearch: React.FC<ExpandableSearchProps> = ({
     setIsExpanded(!isExpanded)
   }
 
+  const clearSearch = () => {
+    const emptyEvent = {
+      target: { value: '' },
+    } as React.ChangeEvent<HTMLInputElement>
+
+
+    onChange(emptyEvent)
+    setIsExpanded(false)
+  }
+
   return (
     <div className="relative" ref={searchRef}>
       <div
@@ -75,13 +86,13 @@ const ExpandableSearch: React.FC<ExpandableSearchProps> = ({
             className={`transition-all duration-300 ${isExpanded ? 'w-8 opacity-100' : 'w-0 opacity-0'} `}
           >
             <button
-              onClick={toggleSearch}
+              onClick={clearSearch}
               className="flex h-10 w-8 items-center justify-center text-gray-400 hover:text-gray-600"
               aria-label="Close search"
               type="button"
               tabIndex={isExpanded ? 0 : -1}
             >
-              ×
+              <FaXmark className="h-4 w-4" />
             </button>
           </div>
         )}
