@@ -2,10 +2,11 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/app/api/auth/[...nextauth]/auth-options'
 import { NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
+import { NextRequest } from 'next/server'
 
 // The correct way to type route handlers with dynamic parameters in Next.js 15
 export async function DELETE(
-  request: Request,
+  request: NextRequest,
   context: { params: { id: string } }
 ) {
   try {
