@@ -1,4 +1,4 @@
-import { Suspense } from 'react'
+import { Suspense, use } from 'react'
 import { Metadata } from 'next'
 import Layout from '@/components/layout/Layout'
 import TodoDetailPage from '@/components/todos/TodoDetailPage'
@@ -12,14 +12,16 @@ export const metadata: Metadata = {
 
 // Definindo interface apropriada para os props
 interface PageParams {
-  params: {
+  params: Promise<{
     id: string;
-  };
-  searchParams?: Record<string, string | string[]>;
+  }>;
+  searchParams?: Promise<Record<string, string | string[]>>;
 }
 
 export default function TodoDetailPageRoute(props: PageParams) {
-  const id = props.params.id;
+  // Usando 'use' para lidar com a Promise dos params
+  const params = use(props.params);
+  const id = params.id;
 
   return (
     <Layout>

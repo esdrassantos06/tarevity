@@ -1,4 +1,4 @@
-import { Suspense } from 'react'
+import { Suspense, use } from 'react'
 import { Metadata } from 'next'
 import Layout from '@/components/layout/Layout'
 import TodoEditPage from '@/components/todos/TodoEditPage'
@@ -11,13 +11,15 @@ export const metadata: Metadata = {
 }
 
 interface PageParams {
-  params: {
+  params: Promise<{
     id: string;
-  };
-  searchParams?: Record<string, string | string[]>;
+  }>;
+  searchParams?: Promise<Record<string, string | string[]>>;
 }
 
-export default function TodoEditPageRoute({ params }: PageParams) {
+export default function TodoEditPageRoute(props: PageParams) {
+  // Usando 'use' para lidar com a Promise dos params
+  const params = use(props.params);
   const id = params.id;
 
   return (
