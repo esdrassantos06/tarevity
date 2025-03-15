@@ -20,25 +20,29 @@ export function useNotificationsQuery() {
       const response = await axios.get('/api/notifications')
       return response.data
     },
+    // Add a retry limit and staleTime to reduce unnecessary API calls
+    retry: 1,
+    staleTime: 30000, // 30 seconds
   })
 }
 
 export function useCreateNotificationsMutation() {
-  const queryClient = useQueryClient()
-  
-  return useMutation({
-    mutationFn: async (notifications: unknown[]) => {
-      return axios.post('/api/notifications', { notifications })
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['notifications'] })
-    },
-    onError: (error) => {
-      console.error('Error creating notifications:', error)
-      showError('Failed to sync notifications')
-    },
-  })
-}
+    const queryClient = useQueryClient()
+    
+    return useMutation({
+      mutationFn: async (notifications: unknown[]) => {
+        // This is the key part - make sure we're sending notifications correctly
+        return axios.post('/api/notifications', { notifications })
+      },
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ['notifications'] })
+      },
+      onError: (error) => {
+        console.error('Error creating notifications:', error)
+        // Don't show error toast to reduce UI noise
+      },
+    })
+  }
 
 export function useMarkNotificationReadMutation() {
   const queryClient = useQueryClient()

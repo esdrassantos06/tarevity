@@ -13,18 +13,18 @@ export async function POST() {
 
     const userId = session.user.id
 
-    // Delete all notifications for this user
     const { error } = await supabaseAdmin
       .from('notifications')
       .delete()
       .eq('user_id', userId)
 
     if (error) {
+      console.error('Error resetting notifications:', error)
       throw error
     }
 
     return NextResponse.json(
-      { message: 'Notification system reset' },
+      { message: 'Notification system reset successfully' },
       { status: 200 },
     )
   } catch (error: unknown) {

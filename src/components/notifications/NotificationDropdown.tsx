@@ -5,7 +5,6 @@ import { IoNotificationsOutline } from 'react-icons/io5'
 import { FaCalendar, FaBell, FaTrash, FaCheck } from 'react-icons/fa'
 import { useTodosQuery } from '@/hooks/useTodosQuery'
 import { formatDistanceToNow, isPast, isWithinInterval, addDays } from 'date-fns'
-import { Todo } from '@/lib/api'
 import { showSuccess } from '@/lib/toast'
 import { useSession } from 'next-auth/react'
 import { 
@@ -16,6 +15,17 @@ import {
   useResetNotificationsMutation,
   type Notification
 } from '@/hooks/useNotificationsQuery'
+import ConfirmationDialog, { useConfirmationDialog } from '@/components/common/ConfirmationDialog'
+
+// Define a NotificationData interface for what we create and send to the API
+interface NotificationData {
+  todo_id: string
+  notification_type: 'danger' | 'warning' | 'info'
+  title: string
+  message: string
+  due_date: string
+  origin_id: string
+}
 
 export default function NotificationDropdown() {
   const { data: session } = useSession()
@@ -30,6 +40,22 @@ export default function NotificationDropdown() {
   const markReadMutation = useMarkNotificationReadMutation()
   const dismissMutation = useDismissNotificationMutation()
   const resetMutation = useResetNotificationsMutation()
+  
+  // Use the confirmation dialog hook
+  const {
+    dialogState,
+    openConfirmDialog,
+    closeConfirmDialog,
+    setLoading
+  } = useConfirmationDialog()
+
+  // Add debug logging for notification creation
+  useEffect(() => {
+    // Log notifications data fetched
+    if (notifications && notifications.length > 0) {
+      console.log('Fetched notifications:', notifications.length);
+    }
+  }, [notifications]);
 
   // Update unread count whenever notifications change
   useEffect(() => {
@@ -53,63 +79,77 @@ export default function NotificationDropdown() {
 
   // Generate new notifications from todos
   useEffect(() => {
-    if (!session?.user?.id || todos.length === 0) return
-
-    const now = new Date()
-    const newNotifications: unknown[] = []
-
-    // Create notifications from todos
-    todos.forEach((todo: Todo) => {
-      if (todo.due_date && !todo.is_completed) {
-        const dueDate = new Date(todo.due_date)
+    if (!session?.user?.id || todos.length === 0) return;
+  
+    // Add a debounce mechanism to prevent excessive API calls
+    const timer = setTimeout(() => {
+      const now = new Date();
+      const newNotifications: NotificationData[] = [];
+      
+      // Limit the number of notifications created at once
+      const todosToProcess = todos.slice(0, 10); // Only process 10 todos at a time
+      
+      console.log('Processing todos for notifications:', todosToProcess.length);
+      
+      // Only create notifications for certain conditions
+      todosToProcess.forEach((todo) => {
+        if (todo.due_date && !todo.is_completed) {
+          const dueDate = new Date(todo.due_date);
+          
+          // Only create notifications for tasks due within 3 days
+          const threeDaysFromNow = new Date();
+          threeDaysFromNow.setDate(now.getDate() + 3);
+          
+          if (dueDate <= threeDaysFromNow) {
+            // Add your notification logic here, but with a limit
+            // This prevents creating too many notifications at once
+            
+            // Example: only create one notification per todo
+            const notificationType = isPast(dueDate) ? 'danger' : 
+                                    isWithinInterval(dueDate, { start: now, end: addDays(now, 1) }) ? 
+                                    'warning' : 'info';
+            
+            newNotifications.push({
+              todo_id: todo.id,
+              notification_type: notificationType,
+              title: notificationType === 'danger' ? 'Overdue Task' : 
+                    notificationType === 'warning' ? 'Due Soon' : 'Upcoming Deadline',
+              message: `"${todo.title}" is due ${formatDistanceToNow(dueDate, { addSuffix: true })}`,
+              due_date: dueDate.toISOString(),
+              origin_id: `${notificationType}-${todo.id}`
+            });
+          }
+        }
+      });
+  
+      // Only make one API call with a reasonable number of notifications
+      if (newNotifications.length > 0) {
+        // Don't send more than 5 notifications at once
+        const batchSize = 5;
+        const firstBatch = newNotifications.slice(0, batchSize);
         
-        // Add notification for overdue tasks
-        if (isPast(dueDate) && !todo.is_completed) {
-          newNotifications.push({
-            todo_id: todo.id,
-            type: 'danger',
-            title: 'Overdue Task',
-            message: `"${todo.title}" is overdue!`,
-            due_date: dueDate.toISOString(),
-            origin_id: `overdue-${todo.id}`
-          })
+        console.log('Sending notifications to API:', firstBatch);
+        
+        createNotificationsMutation.mutate(firstBatch, {
+          onSuccess: (data) => {
+            console.log('Successfully created notifications:', data);
+          },
+          onError: (error) => {
+            console.error('Failed to create notifications:', error);
+          }
+        });
+        
+        // Log information about batching for debugging
+        if (newNotifications.length > batchSize) {
+          console.log(`Created ${batchSize} notifications out of ${newNotifications.length} potential notifications.`);
         }
-        // Add notification for tasks due within 24 hours
-        else if (isWithinInterval(dueDate, { 
-          start: now, 
-          end: addDays(now, 1) 
-        }) && !todo.is_completed) {
-          newNotifications.push({
-            todo_id: todo.id,
-            type: 'warning',
-            title: 'Due Soon',
-            message: `"${todo.title}" is due ${formatDistanceToNow(dueDate, { addSuffix: true })}`,
-            due_date: dueDate.toISOString(),
-            origin_id: `due-soon-${todo.id}`
-          })
-        }
-        // Add notification for tasks due within 3 days
-        else if (isWithinInterval(dueDate, { 
-          start: now, 
-          end: addDays(now, 3) 
-        }) && !todo.is_completed) {
-          newNotifications.push({
-            todo_id: todo.id,
-            type: 'info',
-            title: 'Upcoming Deadline',
-            message: `"${todo.title}" is due ${formatDistanceToNow(dueDate, { addSuffix: true })}`,
-            due_date: dueDate.toISOString(),
-            origin_id: `upcoming-${todo.id}`
-          })
-        }
+      } else {
+        console.log('No new notifications to create.');
       }
-    })
-
-    // If we have new notifications, send them to the API
-    if (newNotifications.length > 0) {
-      createNotificationsMutation.mutate(newNotifications)
-    }
-  }, [todos, session?.user?.id, createNotificationsMutation])
+    }, 2000); // Wait 2 seconds before processing
+    
+    return () => clearTimeout(timer);
+  }, [todos, session?.user?.id, createNotificationsMutation]);
 
   const toggleDropdown = () => {
     setIsOpen(!isOpen)
@@ -133,7 +173,31 @@ export default function NotificationDropdown() {
   }
 
   const resetNotifications = () => {
-    resetMutation.mutate()
+    // Use the custom dialog instead of window.confirm
+    openConfirmDialog({
+      title: 'Reset Notifications',
+      description: 'This will reset all notifications. Your tasks will not be affected. Continue?',
+      variant: 'warning',
+      confirmText: 'Reset',
+      cancelText: 'Cancel',
+      onConfirm: () => {
+        setLoading(true);
+        resetMutation.mutate(undefined, {
+          onSuccess: () => {
+            showSuccess('Notifications reset successfully');
+            setIsOpen(false); // Close the dropdown after reset
+            closeConfirmDialog();
+          },
+          onError: (error) => {
+            console.error('Error resetting notifications:', error);
+            closeConfirmDialog();
+          },
+          onSettled: () => {
+            setLoading(false);
+          }
+        });
+      }
+    });
   }
 
   // Get notification background color based on type
@@ -300,6 +364,19 @@ export default function NotificationDropdown() {
           </div>
         </div>
       )}
+      
+      {/* Add the ConfirmationDialog component */}
+      <ConfirmationDialog
+        isOpen={dialogState.isOpen}
+        onClose={closeConfirmDialog}
+        onConfirm={dialogState.onConfirm}
+        title={dialogState.title}
+        description={dialogState.description}
+        confirmText={dialogState.confirmText}
+        cancelText={dialogState.cancelText}
+        variant={dialogState.variant}
+        isLoading={dialogState.isLoading}
+      />
     </div>
   )
 }
