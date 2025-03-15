@@ -12,12 +12,21 @@ Tarevity is a sophisticated task management application built with Next.js 15, R
   - Task status workflow (Active, Review, Completed)
   - Detailed task descriptions and due dates
   - Task filtering and search capabilities
+  - Pagination for better performance with large task sets
+  - Visual status indicators and progress tracking
+
+- 🔔 **Smart Notifications System**
+  - Automated deadline reminders based on due dates
+  - Priority-based notification styling
+  - Read/unread status tracking
+  - Batch notification management
 
 - 🔑 **Robust Authentication**
   - Multi-provider authentication (Email/Password, Google, GitHub) via NextAuth.js
   - Progressive account lockout after multiple failed attempts
   - Secure password reset flow with time-limited tokens
   - Password strength evaluation and breach checking via HIBP API
+  - JWT token rotation for enhanced security
 
 - 🎨 **Modern UI/UX**
   - Light/Dark modes with system preference detection
@@ -25,16 +34,19 @@ Tarevity is a sophisticated task management application built with Next.js 15, R
   - Interactive toast notifications for user feedback
   - Animated transitions and skeleton loading states
   - Priority-based color coding for visual task management
+  - Intuitive dashboard with task statistics visualization
 
 - 📊 **Personal Analytics**
   - Task statistics dashboard with completion metrics
   - Visual representation of task distribution
-  - Task status breakdown
+  - Task status breakdown with interactive charts
+  - Performance tracking and productivity insights
 
 - 👤 **User Profile Management**
   - Profile customization with image upload
   - Account settings and preferences
-  - Secure account deletion
+  - Secure account deletion with confirmation workflow
+  - Provider-specific profile management
 
 - 🛡️ **Enterprise-Grade Security**
   - Comprehensive Content Security Policy (CSP) implementation
@@ -65,12 +77,13 @@ Tarevity is a sophisticated task management application built with Next.js 15, R
 - **API Architecture**: Next.js API routes with RESTful design
 - **File Storage**: Supabase Storage
 - **Rate Limiting**: Upstash Redis
+- **Email Service**: Resend
 
 ### DevOps & Tooling
 - **Package Manager**: npm/yarn
 - **Code Formatting**: Prettier
 - **Linting**: ESLint with Next.js config
-- **Build Tool**: Next.js built-in bundler
+- **Build Tool**: Next.js built-in bundler with turbopack
 
 ## 📱 Responsive Design
 
@@ -93,6 +106,7 @@ Security is a core focus of Tarevity, featuring:
 - **Input Validation**: Comprehensive server and client-side validation using Zod
 - **Progressive Lockout**: Increasing lockout periods after failed login attempts
 - **Token Security**: Refresh token rotation and secure storage
+- **API Protection**: Request validation middleware and error handling
 
 ## 📊 Data Management
 
@@ -103,6 +117,7 @@ Tarevity implements sophisticated data handling:
 - **Form Validation**: React Hook Form with Zod schema validation
 - **API Error Handling**: Consistent error management with user feedback
 - **Data Caching**: Smart caching strategies for optimized performance
+- **Real-time Notifications**: Automatic updates based on task changes
 
 ## 🚀 Getting Started
 
@@ -170,7 +185,7 @@ Tarevity implements sophisticated data handling:
 
 4. Configure the Supabase database
 
-   - Create tables for: `users`, `todos`, `password_reset_tokens`, and `refresh_tokens`
+   - Create tables for: `users`, `todos`, `password_reset_tokens`, `refresh_tokens`, and `notifications`
    - Set up appropriate Row Level Security (RLS) policies
    - Configure storage buckets for profile images
 
@@ -202,9 +217,11 @@ Tarevity implements sophisticated data handling:
     /common              # Shared UI components
     /layout              # Layout components
     /logo                # Logo components
+    /notifications       # Notification components
     /profile             # Profile components
     /settings            # Settings components
     /todos               # Task management components
+    /ui                  # UI utility components
   /hooks                 # Custom React hooks
   /lib                   # Utility functions and services
   /types                 # TypeScript type definitions
@@ -215,9 +232,7 @@ Tarevity implements sophisticated data handling:
 
 - [ ] Categories/Tags for tasks
 - [ ] Subtasks and task dependencies
-- [ ] Calendar view with drag-and-drop interface
-- [ ] Advanced statistics and productivity insights
-- [ ] Notifications and reminders
+- [ ] Calendar view
 - [ ] Integration with third-party calendars
 
 ## 🤝 Contributing
