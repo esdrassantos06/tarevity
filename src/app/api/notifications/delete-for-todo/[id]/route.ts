@@ -3,15 +3,10 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/auth-options'
 import { NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
 
-interface RouteParams {
-  params: {
-    id: string;
-  }
-}
-
+// The correct way to type route handlers with dynamic parameters in Next.js 15
 export async function DELETE(
   request: Request,
-  { params }: RouteParams
+  context: { params: { id: string } }
 ) {
   try {
     const session = await getServerSession(authOptions)
@@ -21,7 +16,7 @@ export async function DELETE(
     }
 
     const userId = session.user.id
-    const todoId = params.id
+    const todoId = context.params.id
 
     if (!todoId) {
       return NextResponse.json(
