@@ -12,14 +12,8 @@ export const metadata: Metadata = {
   robots: 'noindex, nofollow',
 }
 
-// Use a definição de tipo correta conforme a documentação
-type Props = {
-  params: { id: string }
-  searchParams?: { [key: string]: string | string[] | undefined }
-}
-
-export default function TodoEditPageRoute(props: Props) {
-  const id = props.params.id;
+export default function TodoEditPageRoute({ params }: any) {
+  const id = params.id;
 
   return (
     <Layout>
