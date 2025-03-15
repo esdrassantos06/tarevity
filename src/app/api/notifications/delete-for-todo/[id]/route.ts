@@ -3,13 +3,8 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/auth-options'
 import { NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
 
-export async function DELETE(
-  req: Request,
-  context: { params: { id: string } }
-) {
+export async function DELETE(request: Request) {
   try {
-    const todoId = context.params.id
-    
     const session = await getServerSession(authOptions)
 
     if (!session?.user?.id) {
@@ -17,6 +12,9 @@ export async function DELETE(
     }
 
     const userId = session.user.id
+    
+    const url = new URL(request.url)
+    const todoId = url.searchParams.get('todoId')
 
     if (!todoId) {
       return NextResponse.json(
