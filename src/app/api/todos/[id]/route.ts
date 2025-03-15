@@ -4,21 +4,27 @@ import { NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
 import { NextRequest } from 'next/server'
 
+// Define a interface correta para os parâmetros da rota
+interface RouteParams {
+  params: {
+    id: string;
+  };
+}
+
 // Get a specific task
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> },
+  { params }: RouteParams,
 ) {
   try {
     const session = await getServerSession(authOptions)
-    const resolvedParams = await params
 
     if (!session?.user?.id) {
       return NextResponse.json({ message: 'Unauthorized' }, { status: 401 })
     }
 
     const userId = session.user.id
-    const taskId = resolvedParams.id
+    const taskId = params.id
 
     const { data, error } = await supabaseAdmin
       .from('todos')
@@ -58,18 +64,17 @@ export async function GET(
 // Update a task
 export async function PUT(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> },
+  { params }: RouteParams,
 ) {
   try {
     const session = await getServerSession(authOptions)
-    const resolvedParams = await params
 
     if (!session?.user?.id) {
       return NextResponse.json({ message: 'Unauthorized' }, { status: 401 })
     }
 
     const userId = session.user.id
-    const taskId = resolvedParams.id
+    const taskId = params.id
 
     // Parse the request body
     const updateData = await request.json()
@@ -120,19 +125,18 @@ export async function PUT(
 
 // Delete a task
 export async function DELETE(
-  _request: NextRequest,
-  { params }: { params: Promise<{ id: string }> },
+  request: NextRequest,
+  { params }: RouteParams,
 ) {
   try {
     const session = await getServerSession(authOptions)
-    const resolvedParams = await params
 
     if (!session?.user?.id) {
       return NextResponse.json({ message: 'Unauthorized' }, { status: 401 })
     }
 
     const userId = session.user.id
-    const taskId = resolvedParams.id
+    const taskId = params.id
 
     // Verify task belongs to user first
     const { data: existingTask, error: checkError } = await supabaseAdmin

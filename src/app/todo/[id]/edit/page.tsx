@@ -10,6 +10,7 @@ export const metadata: Metadata = {
   robots: 'noindex, nofollow',
 }
 
+// Define o tipo correto para os parâmetros
 interface PageProps {
   params: {
     id: string;
