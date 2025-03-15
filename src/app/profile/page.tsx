@@ -1,4 +1,4 @@
-import ProfileComponent from '@/components/profile/ProfileComponent'
+import ProfileComponent from '@/components/profile/main/ProfileComponent'
 import Layout from '@/components/layout/Layout'
 import { Metadata } from 'next'
 

@@ -90,7 +90,6 @@ const RedesignedTodoList: React.FC = () => {
       },
       {
         onSuccess: () => {
-          // Dismiss all notifications for this todo when it's completed
           if (!isCompleted) {
             fetch('/api/notifications/dismiss-for-todo', {
               method: 'POST',

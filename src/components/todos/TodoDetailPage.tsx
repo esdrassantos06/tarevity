@@ -233,7 +233,7 @@ const TodoDetailPage: React.FC<TodoDetailPageProps> = ({ todoId }) => {
   const isInReview = todo.status === 'review'
 
   return (
-    <div className="mx-auto flex max-w-4xl flex-col px-2 py-4 sm:px-4 sm:py-6">
+    <div className="mx-auto flex sm:w-220 w-full flex-col px-2 py-4 sm:px-4 sm:py-6">
       {/* Header */}
       <div className="mb-2 flex flex-col space-y-2 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
         <button
