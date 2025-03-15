@@ -68,9 +68,9 @@ Tarevity is a sophisticated task management application built with Next.js 15, R
 
 - **Framework**: Next.js 15 with App Router
 - **UI Library**: React 19
-- **Styling**: Tailwind CSS v4 with custom theming
+- **Styling**: TailwindCSS v4 with custom theming
 - **Type Safety**: TypeScript
-- **State Management**: TanStack React Query v5
+- **State Management**: React Query v5
 - **Form Handling**: React Hook Form with Zod validation
 - **UI Components**: Custom components with Radix UI primitives
 - **Icons**: react-icons
@@ -84,7 +84,7 @@ Tarevity is a sophisticated task management application built with Next.js 15, R
 - **Database**: Supabase (PostgreSQL)
 - **API Architecture**: Next.js API routes with RESTful design
 - **File Storage**: Supabase Storage
-- **Rate Limiting**: Upstash Redis
+- **Rate Limiting**: Redis
 - **Email Service**: Resend
 
 ### DevOps & Tooling
@@ -121,7 +121,7 @@ Security is a core focus of Tarevity, featuring:
 
 Tarevity implements sophisticated data handling:
 
-- **Query Management**: TanStack React Query for server state
+- **Query Management**: React Query for server state
 - **Optimistic Updates**: Immediate UI feedback with background synchronization
 - **Form Validation**: React Hook Form with Zod schema validation
 - **API Error Handling**: Consistent error management with user feedback
