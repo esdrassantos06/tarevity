@@ -10,12 +10,16 @@ export const metadata: Metadata = {
   robots: 'noindex, nofollow',
 }
 
-export default async function TodoDetailPageRoute({
-  params,
-}: {
-  params: { id: string };
-}) {
-  const { id } = params;
+// Definindo interface apropriada para os props
+interface PageParams {
+  params: {
+    id: string;
+  };
+  searchParams?: Record<string, string | string[]>;
+}
+
+export default function TodoDetailPageRoute(props: PageParams) {
+  const id = props.params.id;
 
   return (
     <Layout>
