@@ -12,10 +12,10 @@ export async function POST(req: Request) {
     }
 
     const userId = session.user.id
-    const { todoId, all } = await req.json()
+    const { id, all } = await req.json()
 
-    // If 'all' flag is true, dismiss all notifications for the user
     if (all) {
+      // Dismiss all notifications for this user
       const { error, count } = await supabaseAdmin
         .from('notifications')
         .update({ dismissed: true })
@@ -23,56 +23,45 @@ export async function POST(req: Request) {
         .eq('dismissed', false)
 
       if (error) {
-        console.error('Error dismissing all notifications:', error)
         throw error
       }
 
       return NextResponse.json(
-        { 
-          message: 'All notifications dismissed',
-          count: count || 0
-        },
-        { status: 200 }
+        { message: 'All notifications dismissed', count: count || 0 },
+        { status: 200 },
       )
-    } 
-    // If todoId is provided, dismiss notifications for that specific todo
-    else if (todoId) {
-      const { error, count } = await supabaseAdmin
+    } else if (id) {
+      // Dismiss a specific notification
+      const { error } = await supabaseAdmin
         .from('notifications')
         .update({ dismissed: true })
+        .eq('id', id)
         .eq('user_id', userId)
-        .eq('todo_id', todoId)
 
       if (error) {
-        console.error('Error dismissing notifications:', error)
         throw error
       }
 
       return NextResponse.json(
-        { 
-          message: 'Notifications for todo dismissed',
-          count: count || 0
-        },
-        { status: 200 }
+        { message: 'Notification dismissed' },
+        { status: 200 },
       )
-    } 
-    // If neither all nor todoId is provided
-    else {
+    } else {
       return NextResponse.json(
-        { message: 'Missing parameters: requires either all=true or todoId' },
-        { status: 400 }
+        { message: 'Missing notification ID or all flag' },
+        { status: 400 },
       )
     }
   } catch (error: unknown) {
-    console.error('Error dismissing notifications:', error)
+    console.error('Error dismissing notification:', error)
     return NextResponse.json(
       {
         message:
           error instanceof Error
             ? error.message
-            : 'Unknown error dismissing notifications',
+            : 'Unknown error dismissing notification',
       },
-      { status: 500 }
+      { status: 500 },
     )
   }
 }

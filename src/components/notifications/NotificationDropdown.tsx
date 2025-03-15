@@ -10,7 +10,7 @@ import {
   isWithinInterval,
   addDays,
 } from 'date-fns'
-import { showSuccess } from '@/lib/toast'
+import { showSuccess, showError } from '@/lib/toast'
 import { useSession } from 'next-auth/react'
 import { useQueryClient } from '@tanstack/react-query'
 import {
@@ -210,9 +210,49 @@ export default function NotificationDropdown() {
     dismissMutation.mutate({ id })
   }
 
+  // Completely delete all notifications using the reset endpoint
   const clearAllNotifications = () => {
-    dismissMutation.mutate({ all: true })
-    showSuccess('All notifications cleared')
+    // Show confirmation dialog
+    openConfirmDialog({
+      title: 'Delete All Notifications',
+      description: 'This will permanently delete all notifications from your account. This action cannot be undone. Continue?',
+      variant: 'danger',
+      confirmText: 'Delete All',
+      cancelText: 'Cancel',
+      onConfirm: () => {
+        setLoading(true)
+        
+        // Use the reset endpoint which completely removes notifications from database
+        fetch('/api/notifications/reset', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        })
+          .then(response => {
+            if (!response.ok) {
+              throw new Error('Failed to delete notifications')
+            }
+            return response.json()
+          })
+          .then(() => {
+            showSuccess('All notifications deleted successfully')
+            queryClient.invalidateQueries({ queryKey: ['notifications'] })
+            setIsOpen(false)
+            closeConfirmDialog()
+            // Reset the processed tasks set to allow new notifications to be created
+            lastProcessedRef.current = new Set()
+          })
+          .catch(error => {
+            console.error('Error deleting all notifications:', error)
+            showError('Failed to delete notifications')
+            closeConfirmDialog()
+          })
+          .finally(() => {
+            setLoading(false)
+          })
+      }
+    })
   }
 
   const resetNotifications = () => {
