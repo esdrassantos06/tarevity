@@ -229,42 +229,47 @@ export default function NotificationDropdown() {
       </button>
 
       {isOpen && (
-        <div className="dark:bg-BlackLight absolute right-0 z-50 mt-2 w-80 rounded-lg border border-gray-200 bg-white shadow-lg sm:w-96 dark:border-gray-700">
-          <div className="border-b border-gray-200 px-4 py-3 dark:border-gray-700">
-            <div className="flex items-center justify-between">
-              <h3 className="font-medium text-gray-900 dark:text-white">
-                Notifications
-              </h3>
-              <div className="flex space-x-4">
-                {notifications.length > 0 && (
-                  <>
-                    <button
-                      onClick={toggleReadStatus}
-                      className="flex items-center text-xs text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
-                    >
-                      {allRead ? (
-                        <>
-                          <FaEnvelope className="mr-1" />
-                          Mark all unread
-                        </>
-                      ) : (
-                        <>
-                          <FaEnvelopeOpen className="mr-1" />
-                          Mark all read
-                        </>
-                      )}
-                    </button>
-                    <button
-                      onClick={deleteAllNotifications}
-                      className="text-xs text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
-                    >
-                      Delete all
-                    </button>
-                  </>
-                )}
-              </div>
+        <div 
+        className="fixed inset-x-0 top-[60px] mx-auto z-50 w-[90%] max-w-md rounded-lg border border-gray-200 bg-white shadow-lg sm:absolute sm:inset-auto sm:right-0 sm:top-auto sm:mx-0 sm:w-96 dark:border-gray-700 dark:bg-BlackLight"
+        style={{
+          maxHeight: 'calc(100vh - 80px)'
+        }}
+      >
+        <div className="border-b border-gray-200 px-4 py-3 dark:border-gray-700">
+          <div className="flex items-center justify-between">
+            <h3 className="font-medium text-gray-900 dark:text-white">
+              Notifications
+            </h3>
+            <div className="flex space-x-4">
+              {notifications.length > 0 && (
+                <>
+                  <button
+                    onClick={toggleReadStatus}
+                    className="flex items-center text-xs text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+                  >
+                    {allRead ? (
+                      <>
+                        <FaEnvelope className="mr-1" />
+                        Mark all unread
+                      </>
+                    ) : (
+                      <>
+                        <FaEnvelopeOpen className="mr-1" />
+                        Mark all read
+                      </>
+                    )}
+                  </button>
+                  <button
+                    onClick={deleteAllNotifications}
+                    className="text-xs text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
+                  >
+                    Delete all
+                  </button>
+                </>
+              )}
             </div>
           </div>
+        </div>
 
           <div className="max-h-80 overflow-y-auto p-2">
             {isLoading ? (
