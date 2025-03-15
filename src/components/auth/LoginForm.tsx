@@ -304,7 +304,7 @@ export default function EnhancedLoginForm() {
         />
 
         {/* Remember Me & Forgot Password */}
-        <div className="flex gap-4 items-center justify-between">
+        <div className="flex items-center justify-between gap-4">
           <div className="flex items-center">
             <input
               id="rememberMe"
@@ -376,7 +376,7 @@ export default function EnhancedLoginForm() {
             <div className="w-full border-t border-gray-300 dark:border-gray-600"></div>
           </div>
           <div className="relative flex justify-center text-sm">
-            <span className="bg-white dark:bg-zinc-800 px-2 text-gray-500 dark:text-gray-400">
+            <span className="bg-white px-2 text-gray-500 dark:bg-zinc-800 dark:text-gray-400">
               Or continue with
             </span>
           </div>

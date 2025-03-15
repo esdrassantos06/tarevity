@@ -4,7 +4,6 @@ import { NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
 import { isPast, isWithinInterval, addDays } from 'date-fns'
 
-// GET notifications
 export async function GET() {
   try {
     const session = await getServerSession(authOptions)
@@ -14,7 +13,6 @@ export async function GET() {
     }
 
     const userId = session.user.id
-
 
     const { data, error } = await supabaseAdmin
       .from('notifications')
@@ -27,7 +25,6 @@ export async function GET() {
       console.error('Error fetching notifications:', error)
       throw error
     }
-
 
     return NextResponse.json(data || [], { status: 200 })
   } catch (error: unknown) {
@@ -44,7 +41,6 @@ export async function GET() {
   }
 }
 
-// Create or update notification
 export async function POST(req: Request) {
   try {
     const session = await getServerSession(authOptions)
@@ -56,11 +52,8 @@ export async function POST(req: Request) {
     const userId = session.user.id
     const body = await req.json()
 
-
-    // Check if we have notifications property in the body
     const notifications = body.notifications
 
-    // Check if notifications is an array
     if (!Array.isArray(notifications)) {
       console.error('Invalid notifications format: not an array', notifications)
       return NextResponse.json(
@@ -72,16 +65,12 @@ export async function POST(req: Request) {
       )
     }
 
-
-    // Process each notification
     const results = []
     for (const notification of notifications) {
-      // Add user_id to the notification object
       const notificationWithUserId = {
         ...notification,
         user_id: userId,
       }
-
 
       const { data: existingNotification, error: findError } =
         await supabaseAdmin
@@ -95,7 +84,6 @@ export async function POST(req: Request) {
         console.error('Error finding notification:', findError)
       }
 
-      // Helper function to determine if a notification should be shown based on its type and due date
       function shouldShowNotification(
         type: string,
         dueDateString: string | null,
@@ -110,16 +98,13 @@ export async function POST(req: Request) {
 
           switch (type) {
             case 'danger':
-              // Show danger (overdue) notifications if the due date is in the past
               return isPast(dueDate)
             case 'warning':
-              // Show warning notifications if due within 24 hours
               return isWithinInterval(dueDate, {
                 start: now,
                 end: addDays(now, 1),
               })
             case 'info':
-              // Show info notifications if due within 3 days but not within 24 hours
               return isWithinInterval(dueDate, {
                 start: addDays(now, 1),
                 end: threeDaysFromNow,
@@ -134,23 +119,19 @@ export async function POST(req: Request) {
       }
 
       if (existingNotification) {
-
-        // Determine if we should re-activate this notification based on its type and due date
         const shouldActivate = shouldShowNotification(
           notification.notification_type,
           notification.due_date,
         )
 
-        // Update existing notification
         const { data: updatedData, error: updateError } = await supabaseAdmin
           .from('notifications')
           .update({
             title: notification.title,
             message: notification.message,
             due_date: notification.due_date,
-            // Reset dismissed state if notification should be re-activated
+
             dismissed: shouldActivate ? false : existingNotification.dismissed,
-            // Don't update the read status - preserve it
           })
           .eq('id', existingNotification.id)
           .select()
@@ -162,20 +143,16 @@ export async function POST(req: Request) {
           results.push({ status: 'updated', notification: updatedData })
         }
       } else {
-
-        // For new notifications, check if we should create it based on type and due date
         const shouldCreate = shouldShowNotification(
           notification.notification_type,
           notification.due_date,
-        );
+        )
 
-        // Only create if it should be active
         if (shouldCreate) {
-          // Create new notification
           const { data: insertedData, error: insertError } = await supabaseAdmin
-          .from('notifications')
-          .insert([notificationWithUserId])
-          .select()
+            .from('notifications')
+            .insert([notificationWithUserId])
+            .select()
 
           if (insertError) {
             console.error('Error creating notification:', insertError)

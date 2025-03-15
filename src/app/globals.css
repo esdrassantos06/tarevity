@@ -36,6 +36,7 @@
   --color-bgLight: #f9f9f9;
 
   /* Radix UI Animation Keyframes */
+
   @keyframes fade-in {
     0% {
       opacity: 0;

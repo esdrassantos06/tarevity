@@ -10,7 +10,6 @@ import {
   DialogFooter,
 } from '@/components/common/Dialog'
 
-// Create a consistent type for variants
 type DialogVariant = 'danger' | 'warning' | 'info' | 'primary'
 
 interface ConfirmationDialogProps {

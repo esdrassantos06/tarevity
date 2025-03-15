@@ -15,7 +15,7 @@ export function usePasswordCheckQuery(
       return result.data
     },
     enabled: enabled && !!password && password.length >= 8,
-    staleTime: 10 * 60 * 1000, // Cache the result for 10 minutes
+    staleTime: 10 * 60 * 1000,
     gcTime: 15 * 60 * 1000,
   })
 }

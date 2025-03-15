@@ -20,14 +20,12 @@ export default function SettingsComponent() {
   const [activeTab, setActiveTab] = useState('appearance')
   const router = useRouter()
 
-
   const {
     dialogState,
     openConfirmDialog,
     closeConfirmDialog,
     setLoading: setDialogLoading,
   } = useConfirmationDialog()
-
 
   const {
     data: profileData,
@@ -90,7 +88,6 @@ export default function SettingsComponent() {
                   onError: (error) => {
                     console.error('Error deleting account:', error)
 
-                    // Update the toast message
                     updateToast(toastId, 'Failed to delete account', {
                       type: 'error',
                       isLoading: false,
@@ -186,7 +183,7 @@ export default function SettingsComponent() {
                       onClick={() => handleThemeChange('light')}
                     >
                       <FaSun
-                        className={`xs:flex items-center hidden h-5 w-5 ${
+                        className={`xs:flex hidden h-5 w-5 items-center ${
                           theme === 'light'
                             ? 'text-blue-600 dark:text-blue-400'
                             : 'text-gray-500 dark:text-gray-400'

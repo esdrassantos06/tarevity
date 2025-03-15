@@ -195,7 +195,6 @@ export default function EnhancedRegisterForm() {
             setError(
               'This password has appeared in data breaches and cannot be used. Please choose a different password.',
             )
-            // Focus back on the password field
             document.getElementById('password')?.focus()
             showError(
               'Password security issue detected. Please choose a different password.',

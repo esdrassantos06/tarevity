@@ -15,12 +15,10 @@ export default function PasswordStrengthMeter({
   onValidation,
   className = '',
 }: PasswordStrengthMeterProps) {
-  // Refs to maintain stable references
   const passwordRef = useRef(password)
   const checkTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const onValidationRef = useRef(onValidation)
 
-  // Consolidate state management
   const [state, setState] = useState({
     isChecking: false,
     strength: 0,

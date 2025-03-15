@@ -5,11 +5,11 @@ import { supabaseAdmin } from '@/lib/supabaseAdmin'
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    const { id } = await params;
-    
+    const { id } = await params
+
     const session = await getServerSession(authOptions)
 
     if (!session?.user?.id) {
@@ -20,13 +20,9 @@ export async function DELETE(
     const todoId = id
 
     if (!todoId) {
-      return NextResponse.json(
-        { message: 'Missing todo ID' },
-        { status: 400 }
-      )
+      return NextResponse.json({ message: 'Missing todo ID' }, { status: 400 })
     }
 
-    // Delete all notifications for this todo
     const { error, count } = await supabaseAdmin
       .from('notifications')
       .delete()
@@ -39,11 +35,11 @@ export async function DELETE(
     }
 
     return NextResponse.json(
-      { 
+      {
         message: 'Notifications for todo deleted',
-        count: count || 0
+        count: count || 0,
       },
-      { status: 200 }
+      { status: 200 },
     )
   } catch (error: unknown) {
     console.error('Error deleting notifications for todo:', error)
@@ -54,7 +50,7 @@ export async function DELETE(
             ? error.message
             : 'Unknown error deleting notifications',
       },
-      { status: 500 }
+      { status: 500 },
     )
   }
 }

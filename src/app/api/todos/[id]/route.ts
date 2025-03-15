@@ -4,14 +4,13 @@ import { NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
 import { NextRequest } from 'next/server'
 
-// Get a specific task
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    const { id } = await params;
-    
+    const { id } = await params
+
     const session = await getServerSession(authOptions)
 
     if (!session?.user?.id) {
@@ -27,17 +26,14 @@ export async function GET(
       .eq('id', taskId)
       .single()
 
-    // Check if task exists
     if (error || !data) {
       return NextResponse.json({ message: 'Task not found' }, { status: 404 })
     }
 
-    // Check if the task belongs to the current user
     if (data.user_id !== userId) {
       return NextResponse.json({ message: 'Forbidden' }, { status: 403 })
     }
 
-    // Return the task data if authorization passes
     return NextResponse.json(data, { status: 200 })
   } catch (error) {
     if (error instanceof Error) {
@@ -56,14 +52,13 @@ export async function GET(
   }
 }
 
-// Update a task
 export async function PUT(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    const { id } = await params;
-    
+    const { id } = await params
+
     const session = await getServerSession(authOptions)
 
     if (!session?.user?.id) {
@@ -73,10 +68,8 @@ export async function PUT(
     const userId = session.user.id
     const taskId = id
 
-    // Parse the request body
     const updateData = await request.json()
 
-    // Verify task belongs to user first
     const { data: existingTask, error: checkError } = await supabaseAdmin
       .from('todos')
       .select('*')
@@ -89,7 +82,6 @@ export async function PUT(
       return NextResponse.json({ message: 'Task not found' }, { status: 404 })
     }
 
-    // Update the task
     const { data, error } = await supabaseAdmin
       .from('todos')
       .update(updateData)
@@ -120,14 +112,13 @@ export async function PUT(
   }
 }
 
-// Delete a task
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    const { id } = await params;
-    
+    const { id } = await params
+
     const session = await getServerSession(authOptions)
 
     if (!session?.user?.id) {
@@ -137,7 +128,6 @@ export async function DELETE(
     const userId = session.user.id
     const taskId = id
 
-    // Verify task belongs to user first
     const { data: existingTask, error: checkError } = await supabaseAdmin
       .from('todos')
       .select('id')
@@ -149,7 +139,6 @@ export async function DELETE(
       return NextResponse.json({ message: 'Task not found' }, { status: 404 })
     }
 
-    // Delete the task
     const { error } = await supabaseAdmin
       .from('todos')
       .delete()

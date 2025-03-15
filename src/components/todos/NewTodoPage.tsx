@@ -38,7 +38,7 @@ const NewTodoPage: React.FC = () => {
   const [formData, setFormData] = useState<TodoFormData>({
     title: '',
     description: '',
-    priority: 2, 
+    priority: 2,
     due_date: '',
     is_completed: false,
     status: 'active',
@@ -60,7 +60,6 @@ const NewTodoPage: React.FC = () => {
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
-    // Validation check
     if (!formData.title.trim()) {
       showError('Please enter a title for the task')
       return
@@ -68,7 +67,6 @@ const NewTodoPage: React.FC = () => {
 
     const toastId = showLoading('Creating task...')
 
-    // Format the data for submission
     const todoData = {
       ...formData,
       priority: Number(formData.priority),
@@ -84,10 +82,8 @@ const NewTodoPage: React.FC = () => {
         })
 
         if (data.data && data.data.id) {
-          // Navigate to the new todo detail page
           router.push(`/todo/${data.data.id}`)
         } else {
-          // Fallback to dashboard
           router.push('/dashboard')
         }
       },
@@ -111,7 +107,6 @@ const NewTodoPage: React.FC = () => {
     useConfirmationDialog()
 
   const handleCancel = () => {
-    // Show confirmation if form has data
     if (
       formData.title.trim() ||
       formData.description.trim() ||

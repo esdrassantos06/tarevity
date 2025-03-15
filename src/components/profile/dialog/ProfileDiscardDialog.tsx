@@ -7,19 +7,19 @@ import {
   DialogHeader,
   DialogFooter,
   DialogTitle,
-  DialogDescription
+  DialogDescription,
 } from '@/components/common/Dialog'
 
 interface ProfileDiscardDialogProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onConfirm: () => void;
+  isOpen: boolean
+  onClose: () => void
+  onConfirm: () => void
 }
 
 export default function ProfileDiscardDialog({
   isOpen,
   onClose,
-  onConfirm
+  onConfirm,
 }: ProfileDiscardDialogProps) {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>

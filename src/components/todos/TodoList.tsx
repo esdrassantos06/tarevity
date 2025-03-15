@@ -256,70 +256,70 @@ const RedesignedTodoList: React.FC = () => {
         </div>
       )}
 
-        {/* Empty state message */}
-        {filteredTodos.length === 0 && (
-          <div className="my-10 flex flex-col items-center justify-center text-center">
-            <div className="mb-2 rounded-full bg-gray-100 p-4 dark:bg-gray-800">
-              <svg
-                className="h-8 w-8 text-gray-400"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"
-                />
-              </svg>
-            </div>
-            <h3 className="text-lg font-medium text-gray-900 dark:text-white">
-              No tasks found
-            </h3>
-            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-              {searchQuery
-                ? 'No tasks match your search. Try adjusting your filters.'
-                : 'Get started by creating your first task.'}
-            </p>
-            <button
-              onClick={createNewTodo}
-              className="mt-4 flex items-center rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
+      {/* Empty state message */}
+      {filteredTodos.length === 0 && (
+        <div className="my-10 flex flex-col items-center justify-center text-center">
+          <div className="mb-2 rounded-full bg-gray-100 p-4 dark:bg-gray-800">
+            <svg
+              className="h-8 w-8 text-gray-400"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
             >
-              <FiPlus className="mr-1" /> Create New Task
-            </button>
-          </div>
-        )}
-
-        {/* Todo Items Grid with Review functionality */}
-        {filteredTodos.length > 0 && (
-          <div className="grid w-full auto-rows-fr grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {currentTodos.map((todo) => (
-              <TodoItem
-                key={todo.id}
-                todo={todo}
-                onToggleComplete={handleCheckboxChange}
-                onSetReview={handleSetReview}
-                onApproveReview={handleApproveReview}
-                onDelete={handleDeleteTodo}
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"
               />
-            ))}
+            </svg>
+          </div>
+          <h3 className="text-lg font-medium text-gray-900 dark:text-white">
+            No tasks found
+          </h3>
+          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+            {searchQuery
+              ? 'No tasks match your search. Try adjusting your filters.'
+              : 'Get started by creating your first task.'}
+          </p>
+          <button
+            onClick={createNewTodo}
+            className="mt-4 flex items-center rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
+          >
+            <FiPlus className="mr-1" /> Create New Task
+          </button>
+        </div>
+      )}
 
-            {/* Add new todo button */}
-            <div
-              className="dark:border-BorderDark dark:bg-BlackLight flex h-64 cursor-pointer items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-white transition-colors hover:border-blue-500 dark:hover:border-blue-500"
-              onClick={createNewTodo}
-            >
-              <div className="text-center">
-                <div className="mb-2 flex justify-center">
-                  <FiPlus className="text-xl text-gray-400 dark:text-gray-500" />
-                </div>
-                <p className="text-gray-500 dark:text-gray-400">Add New Task</p>
+      {/* Todo Items Grid with Review functionality */}
+      {filteredTodos.length > 0 && (
+        <div className="grid w-full auto-rows-fr grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {currentTodos.map((todo) => (
+            <TodoItem
+              key={todo.id}
+              todo={todo}
+              onToggleComplete={handleCheckboxChange}
+              onSetReview={handleSetReview}
+              onApproveReview={handleApproveReview}
+              onDelete={handleDeleteTodo}
+            />
+          ))}
+
+          {/* Add new todo button */}
+          <div
+            className="dark:border-BorderDark dark:bg-BlackLight flex h-64 cursor-pointer items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-white transition-colors hover:border-blue-500 dark:hover:border-blue-500"
+            onClick={createNewTodo}
+          >
+            <div className="text-center">
+              <div className="mb-2 flex justify-center">
+                <FiPlus className="text-xl text-gray-400 dark:text-gray-500" />
               </div>
+              <p className="text-gray-500 dark:text-gray-400">Add New Task</p>
             </div>
           </div>
-        )}
+        </div>
+      )}
 
       {/* Pagination Controls */}
       {totalPages > 1 && (

@@ -73,7 +73,7 @@ const UserImage: React.FC<UserImageProps> = ({
 
   return (
     <Image
-    title={profileData?.name}
+      title={profileData?.name}
       src={finalImageUrl}
       alt={profileData?.name || 'Profile Picture'}
       width={size}

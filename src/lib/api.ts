@@ -195,7 +195,6 @@ export const profileAPI = {
     image?: string | null
   }): Promise<ApiResult<ProfileData>> {
     try {
-
       const response = await axiosClient.put('/api/profile', data)
       return { data: response.data, error: null, loading: false }
     } catch (error) {

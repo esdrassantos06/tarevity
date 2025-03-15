@@ -1,19 +1,19 @@
-import React from 'react';
+import React from 'react'
 
 interface TodoStatsProps {
   stats: {
-    total: number;
-    active: number;
-    completed: number;
-    review: number;
-    toDo: number;
-  };
+    total: number
+    active: number
+    completed: number
+    review: number
+    toDo: number
+  }
   pieSegments: {
-    circumference: number;
-    active: { dasharray: number; dashoffset: number };
-    completed: { dasharray: number; dashoffset: number };
-    review: { dasharray: number; dashoffset: number };
-  };
+    circumference: number
+    active: { dasharray: number; dashoffset: number }
+    completed: { dasharray: number; dashoffset: number }
+    review: { dasharray: number; dashoffset: number }
+  }
 }
 
 const TodoStats: React.FC<TodoStatsProps> = ({ stats, pieSegments }) => {
@@ -78,9 +78,7 @@ const TodoStats: React.FC<TodoStatsProps> = ({ stats, pieSegments }) => {
               <div className="flex items-center">
                 <div className="mr-2 h-3 w-3 rounded-full bg-blue-600"></div>
                 <span className="text-sm">Active</span>
-                <span className="ml-2 text-sm font-medium">
-                  {stats.active}
-                </span>
+                <span className="ml-2 text-sm font-medium">{stats.active}</span>
               </div>
               <div className="flex items-center">
                 <div className="mr-2 h-3 w-3 rounded-full bg-green-500"></div>
@@ -92,23 +90,19 @@ const TodoStats: React.FC<TodoStatsProps> = ({ stats, pieSegments }) => {
               <div className="flex items-center">
                 <div className="mr-2 h-3 w-3 rounded-full bg-amber-500"></div>
                 <span className="text-sm">Review</span>
-                <span className="ml-2 text-sm font-medium">
-                  {stats.review}
-                </span>
+                <span className="ml-2 text-sm font-medium">{stats.review}</span>
               </div>
               <div className="flex items-center">
                 <div className="mr-2 h-3 w-3 rounded-full bg-gray-400"></div>
                 <span className="text-sm">Total</span>
-                <span className="ml-2 text-sm font-medium">
-                  {stats.total}
-                </span>
+                <span className="ml-2 text-sm font-medium">{stats.total}</span>
               </div>
             </div>
           </div>
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default TodoStats;
+export default TodoStats

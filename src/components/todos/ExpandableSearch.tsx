@@ -49,7 +49,6 @@ const ExpandableSearch: React.FC<ExpandableSearchProps> = ({
       target: { value: '' },
     } as React.ChangeEvent<HTMLInputElement>
 
-
     onChange(emptyEvent)
     setIsExpanded(false)
   }

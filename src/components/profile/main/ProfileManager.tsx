@@ -2,10 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
-import { 
-  useProfileQuery,
-  useStatsQuery,
-} from '@/hooks/useProfileQuery'
+import { useProfileQuery, useStatsQuery } from '@/hooks/useProfileQuery'
 import ProfileHeader from '../ui/ProfileHeader'
 import ProfileImageManager from '../ui/ProfileImageManager'
 import ProfileForm from '../ui/ProfileForm'
@@ -20,7 +17,7 @@ export default function ProfileManager() {
   })
   const [selectedImage, setSelectedImage] = useState<File | null>(null)
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
-  
+
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const [isDiscardDialogOpen, setIsDiscardDialogOpen] = useState(false)
 
@@ -31,7 +28,6 @@ export default function ProfileManager() {
   } = useProfileQuery()
 
   const { data: userStats } = useStatsQuery()
-
 
   useEffect(() => {
     if (profileData) {
@@ -71,11 +67,13 @@ export default function ProfileManager() {
     )
   }
 
-  const typedUserStats = userStats ? {
-    total: userStats.total,
-    completed: userStats.completed,
-    pending: userStats.pending,
-  } : undefined;
+  const typedUserStats = userStats
+    ? {
+        total: userStats.total,
+        completed: userStats.completed,
+        pending: userStats.pending,
+      }
+    : undefined
 
   return (
     <div className="dark:bg-BlackLight overflow-hidden rounded-lg bg-white shadow">
@@ -85,7 +83,7 @@ export default function ProfileManager() {
       <div className="px-6 py-8">
         <div className="flex flex-col items-center md:flex-row">
           {/* Profile Image Management */}
-          <ProfileImageManager 
+          <ProfileImageManager
             profileData={profileData}
             isEditing={isEditing}
             selectedImage={selectedImage}
@@ -101,7 +99,7 @@ export default function ProfileManager() {
           {/* Profile Info & Form */}
           <div className="flex-1">
             {isEditing ? (
-              <ProfileForm 
+              <ProfileForm
                 formData={formData}
                 setFormData={setFormData}
                 profileData={profileData}
@@ -126,7 +124,6 @@ export default function ProfileManager() {
 
       {/* Profile Sections - Statistics */}
       <UserStats userStats={typedUserStats} />
-      
 
       {/* Dialogs */}
       <ProfileDiscardDialog

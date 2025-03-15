@@ -1,16 +1,16 @@
-import React from 'react';
-import { FaFlag, FaSortAmountDown, FaSortAmountUp } from 'react-icons/fa';
-import ExpandableSearch from './ExpandableSearch';
-import { FiPlus } from 'react-icons/fi';
+import React from 'react'
+import { FaFlag, FaSortAmountDown, FaSortAmountUp } from 'react-icons/fa'
+import ExpandableSearch from './ExpandableSearch'
+import { FiPlus } from 'react-icons/fi'
 
 interface TodoFiltersProps {
-  activeTab: string;
-  searchQuery: string;
-  prioritySortDirection: 'asc' | 'desc';
-  onTabChange: (tab: string) => void;
-  onSearchChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  onTogglePrioritySort: () => void;
-  createNewTodo: () => void;
+  activeTab: string
+  searchQuery: string
+  prioritySortDirection: 'asc' | 'desc'
+  onTabChange: (tab: string) => void
+  onSearchChange: (e: React.ChangeEvent<HTMLInputElement>) => void
+  onTogglePrioritySort: () => void
+  createNewTodo: () => void
 }
 
 const TodoFilters: React.FC<TodoFiltersProps> = ({
@@ -24,7 +24,7 @@ const TodoFilters: React.FC<TodoFiltersProps> = ({
 }) => {
   return (
     <>
-      <div className="flex mb-4 flex-col justify-between sm:flex-row sm:items-center">
+      <div className="mb-4 flex flex-col justify-between sm:flex-row sm:items-center">
         <h1 className="mb-2 text-5xl font-bold text-gray-900 dark:text-white">
           Tasks
         </h1>
@@ -35,10 +35,7 @@ const TodoFilters: React.FC<TodoFiltersProps> = ({
           >
             <FiPlus className="h-5 w-5" /> Create Task
           </button>
-          <ExpandableSearch
-            value={searchQuery}
-            onChange={onSearchChange}
-          />
+          <ExpandableSearch value={searchQuery} onChange={onSearchChange} />
         </div>
       </div>
 
@@ -111,7 +108,7 @@ const TodoFilters: React.FC<TodoFiltersProps> = ({
         </button>
       </div>
     </>
-  );
-};
+  )
+}
 
-export default TodoFilters;
+export default TodoFilters

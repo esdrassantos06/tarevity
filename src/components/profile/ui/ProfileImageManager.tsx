@@ -10,36 +10,36 @@ import DeleteImageDialog from '../dialog/DeleteImageDialog'
 import { ensureAbsoluteUrl, validateImageFile } from '@/lib/image-utils'
 
 interface ProfileData {
-  id?: string;
-  name?: string;
-  email?: string;
-  image?: string | null;
-  provider?: string | null;
+  id?: string
+  name?: string
+  email?: string
+  image?: string | null
+  provider?: string | null
 }
 
 interface SessionUpdateData {
   user: {
-    image: string | null;
-    [key: string]: unknown;
-  };
-  [key: string]: unknown;
+    image: string | null
+    [key: string]: unknown
+  }
+  [key: string]: unknown
 }
 
 interface ExtendedSession extends Session {
-  update?: (data: SessionUpdateData) => Promise<Session>;
+  update?: (data: SessionUpdateData) => Promise<Session>
 }
 
 interface ProfileImageManagerProps {
-  profileData: ProfileData;
-  isEditing: boolean;
-  selectedImage: File | null;
-  setSelectedImage: (file: File | null) => void;
-  previewUrl: string | null;
-  setPreviewUrl: (url: string | null) => void;
-  isDeleteDialogOpen: boolean;
-  setIsDeleteDialogOpen: (isOpen: boolean) => void;
-  session: ExtendedSession;
-  refetchProfile: () => void;
+  profileData: ProfileData
+  isEditing: boolean
+  selectedImage: File | null
+  setSelectedImage: (file: File | null) => void
+  previewUrl: string | null
+  setPreviewUrl: (url: string | null) => void
+  isDeleteDialogOpen: boolean
+  setIsDeleteDialogOpen: (isOpen: boolean) => void
+  session: ExtendedSession
+  refetchProfile: () => void
 }
 
 export default function ProfileImageManager({
@@ -52,11 +52,10 @@ export default function ProfileImageManager({
   isDeleteDialogOpen,
   setIsDeleteDialogOpen,
   session,
-  refetchProfile
+  refetchProfile,
 }: ProfileImageManagerProps) {
+  void !!selectedImage
 
-  void !!selectedImage;
-  
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [imageError, setImageError] = useState(false)
   const deleteProfileImageMutation = useDeleteProfileImageMutation()
@@ -82,7 +81,7 @@ export default function ProfileImageManager({
   }
 
   const openDeleteDialog = (e: React.MouseEvent) => {
-    e.stopPropagation() 
+    e.stopPropagation()
     setIsDeleteDialogOpen(true)
   }
 
@@ -105,14 +104,14 @@ export default function ProfileImageManager({
           })
         }
         setImageError(false)
-        refetchProfile() 
+        refetchProfile()
         toast.success('Profile image removed successfully')
       },
     })
 
     setIsDeleteDialogOpen(false)
   }
-  
+
   const handleImageError = () => {
     setImageError(true)
   }
@@ -212,7 +211,7 @@ export default function ProfileImageManager({
         )}
       </div>
 
-      <DeleteImageDialog 
+      <DeleteImageDialog
         isOpen={isDeleteDialogOpen}
         onClose={() => setIsDeleteDialogOpen(false)}
         onConfirm={confirmDeleteImage}

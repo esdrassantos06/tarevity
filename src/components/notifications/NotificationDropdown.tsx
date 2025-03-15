@@ -2,7 +2,15 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { IoNotificationsOutline } from 'react-icons/io5'
-import { FaCalendar, FaBell, FaCheck, FaEnvelope, FaEnvelopeOpen, FaTrash, FaCheckCircle } from 'react-icons/fa'
+import {
+  FaCalendar,
+  FaBell,
+  FaCheck,
+  FaEnvelope,
+  FaEnvelopeOpen,
+  FaTrash,
+  FaCheckCircle,
+} from 'react-icons/fa'
 import { formatDistanceToNow } from 'date-fns'
 import { showSuccess, showError } from '@/lib/toast'
 import { useQueryClient } from '@tanstack/react-query'
@@ -39,14 +47,12 @@ export default function NotificationDropdown() {
   const { dialogState, openConfirmDialog, closeConfirmDialog, setLoading } =
     useConfirmationDialog()
 
-  // Estado para verificar se todas as notificações estão lidas
   const [allRead, setAllRead] = useState(false)
 
   useEffect(() => {
     const unread = notifications.filter((n: Notification) => !n.read).length
     setUnreadCount(unread)
-    
-    // Atualiza o estado allRead com base nas notificações
+
     setAllRead(unread === 0 && notifications.length > 0)
   }, [notifications])
 
@@ -70,30 +76,29 @@ export default function NotificationDropdown() {
     setIsOpen(!isOpen)
   }
 
-  // Function to handle marking a single notification as read/unread
   const handleToggleRead = (notification: Notification) => {
     markReadMutation.mutate(
-      { 
-        id: notification.id, 
-        markAsUnread: notification.read 
-      }, 
+      {
+        id: notification.id,
+        markAsUnread: notification.read,
+      },
       {
         onSuccess: () => {
-          showSuccess(notification.read ? 
-            'Notification marked as unread' : 
-            'Notification marked as read'
+          showSuccess(
+            notification.read
+              ? 'Notification marked as unread'
+              : 'Notification marked as read',
           )
           queryClient.invalidateQueries({ queryKey: ['notifications'] })
         },
         onError: (error) => {
           showError('Failed to update notification')
           console.error('Error updating notification:', error)
-        }
-      }
+        },
+      },
     )
   }
 
-  // Function to handle deleting a single notification
   const handleDeleteNotification = (notificationId: string) => {
     dismissMutation.mutate(
       { id: notificationId },
@@ -105,70 +110,77 @@ export default function NotificationDropdown() {
         onError: (error) => {
           showError('Failed to delete notification')
           console.error('Error deleting notification:', error)
-        }
-      }
+        },
+      },
     )
   }
 
   const toggleReadStatus = () => {
     if (allRead) {
-      // Marca todas como não lidas (unread)
-      markReadMutation.mutate({ all: true, markAsUnread: true }, {
-        onSuccess: () => {
-          showSuccess('All notifications marked as unread')
-          queryClient.invalidateQueries({ queryKey: ['notifications'] })
+      markReadMutation.mutate(
+        { all: true, markAsUnread: true },
+        {
+          onSuccess: () => {
+            showSuccess('All notifications marked as unread')
+            queryClient.invalidateQueries({ queryKey: ['notifications'] })
+          },
+          onError: (error) => {
+            console.error('Error marking notifications as unread:', error)
+            showError('Failed to mark notifications as unread')
+          },
         },
-        onError: (error) => {
-          console.error('Error marking notifications as unread:', error)
-          showError('Failed to mark notifications as unread')
-        }
-      })
+      )
     } else {
-      // Marca todas como lidas (read)
-      markReadMutation.mutate({ all: true }, {
-        onSuccess: () => {
-          showSuccess('All notifications marked as read')
-          queryClient.invalidateQueries({ queryKey: ['notifications'] })
+      markReadMutation.mutate(
+        { all: true },
+        {
+          onSuccess: () => {
+            showSuccess('All notifications marked as read')
+            queryClient.invalidateQueries({ queryKey: ['notifications'] })
+          },
+          onError: (error) => {
+            console.error('Error marking notifications as read:', error)
+            showError('Failed to mark notifications as read')
+          },
         },
-        onError: (error) => {
-          console.error('Error marking notifications as read:', error)
-          showError('Failed to mark notifications as read')
-        }
-      })
+      )
     }
   }
 
   const deleteAllNotifications = () => {
     openConfirmDialog({
       title: 'Delete All Notifications',
-      description: 'This will delete all your current notifications. This action cannot be undone. Continue?',
+      description:
+        'This will delete all your current notifications. This action cannot be undone. Continue?',
       variant: 'danger',
       confirmText: 'Delete All',
       cancelText: 'Cancel',
       onConfirm: () => {
         setLoading(true)
-        
-        dismissMutation.mutate({ all: true }, {
-          onSuccess: () => {
-            showSuccess('All notifications deleted')
-            setIsOpen(false)
-            closeConfirmDialog()
-            queryClient.invalidateQueries({ queryKey: ['notifications'] })
+
+        dismissMutation.mutate(
+          { all: true },
+          {
+            onSuccess: () => {
+              showSuccess('All notifications deleted')
+              setIsOpen(false)
+              closeConfirmDialog()
+              queryClient.invalidateQueries({ queryKey: ['notifications'] })
+            },
+            onError: (error) => {
+              console.error('Error deleting all notifications:', error)
+              showError('Failed to delete notifications')
+              closeConfirmDialog()
+            },
+            onSettled: () => {
+              setLoading(false)
+            },
           },
-          onError: (error) => {
-            console.error('Error deleting all notifications:', error)
-            showError('Failed to delete notifications')
-            closeConfirmDialog()
-          },
-          onSettled: () => {
-            setLoading(false)
-          },
-        })
-      }
+        )
+      },
     })
   }
 
-  // Get notification background color based on type
   const getNotificationBgColor = (type: string, isRead: boolean) => {
     if (isRead) {
       return 'bg-gray-100 dark:bg-gray-800/50'
@@ -185,7 +197,6 @@ export default function NotificationDropdown() {
     }
   }
 
-  // Get notification icon based on type
   const getNotificationIcon = (type: string, isRead: boolean) => {
     if (isRead) {
       return <FaCheck className="text-gray-500" />
@@ -310,27 +321,28 @@ export default function NotificationDropdown() {
                         {notification.message}
                       </p>
                       <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                        {formatDistanceToNow(
-                          new Date(notification.due_date),
-                          {
-                            addSuffix: true,
-                          },
-                        )}
+                        {formatDistanceToNow(new Date(notification.due_date), {
+                          addSuffix: true,
+                        })}
                       </p>
-                      
+
                       {/* Action buttons */}
                       <div className="mt-2 flex justify-end space-x-2">
                         <button
                           onClick={(e) => {
-                            e.stopPropagation();
-                            handleToggleRead(notification);
+                            e.stopPropagation()
+                            handleToggleRead(notification)
                           }}
-                          className={`text-xs px-2 py-1 rounded-md flex items-center ${
-                            notification.read 
-                              ? 'bg-gray-200 text-gray-600 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-400 dark:hover:bg-gray-600' 
+                          className={`flex items-center rounded-md px-2 py-1 text-xs ${
+                            notification.read
+                              ? 'bg-gray-200 text-gray-600 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-400 dark:hover:bg-gray-600'
                               : 'bg-blue-100 text-blue-700 hover:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:hover:bg-blue-800/50'
                           }`}
-                          title={notification.read ? "Mark as unread" : "Mark as read"}
+                          title={
+                            notification.read
+                              ? 'Mark as unread'
+                              : 'Mark as read'
+                          }
                         >
                           {notification.read ? (
                             <>
@@ -344,13 +356,13 @@ export default function NotificationDropdown() {
                             </>
                           )}
                         </button>
-                        
+
                         <button
                           onClick={(e) => {
-                            e.stopPropagation();
-                            handleDeleteNotification(notification.id);
+                            e.stopPropagation()
+                            handleDeleteNotification(notification.id)
                           }}
-                          className="bg-red-100 text-red-700 hover:bg-red-200 dark:bg-red-900/30 dark:text-red-300 dark:hover:bg-red-800/50 text-xs px-2 py-1 rounded-md flex items-center"
+                          className="flex items-center rounded-md bg-red-100 px-2 py-1 text-xs text-red-700 hover:bg-red-200 dark:bg-red-900/30 dark:text-red-300 dark:hover:bg-red-800/50"
                           title="Delete notification"
                         >
                           <FaTrash className="mr-1 h-3 w-3" />

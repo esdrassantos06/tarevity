@@ -51,11 +51,9 @@ export function validatePasswordStrength(password: string): {
     )
   }
 
-  // Unique character count
   const uniqueChars = new Set(password).size
   score += Math.min(20, uniqueChars * 2)
 
-  // Normalize score to 0-100
   score = Math.max(0, Math.min(100, score))
 
   return {

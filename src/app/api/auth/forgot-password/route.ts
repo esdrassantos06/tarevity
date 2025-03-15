@@ -12,8 +12,8 @@ export async function POST(req: NextRequest) {
     const identifier = `${ip}-${emailFragment}`
 
     const rateLimit = await rateLimiter(req, {
-      limit: 5, // 5 attempts
-      window: 3600, // per hour
+      limit: 5,
+      window: 3600,
       identifier,
     })
 

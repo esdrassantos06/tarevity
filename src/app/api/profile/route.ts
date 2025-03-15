@@ -3,7 +3,6 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/auth-options'
 import { NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
 
-// GET user profile
 export async function GET() {
   try {
     const session = await getServerSession(authOptions)
@@ -43,7 +42,6 @@ export async function GET() {
   }
 }
 
-// Update user profile
 export async function PUT(req: Request) {
   try {
     const session = await getServerSession(authOptions)
@@ -55,23 +53,19 @@ export async function PUT(req: Request) {
     const userId = session.user.id
     const updateData = await req.json()
 
-    // Validate data
     if (!updateData.name?.trim()) {
       return NextResponse.json({ message: 'Name is required' }, { status: 400 })
     }
 
-    // Build update object with a flexible type
     const updateFields: Record<string, unknown> = {
       name: updateData.name,
       updated_at: new Date().toISOString(),
     }
 
-    // Explicitly check for image field and include it if present
     if ('image' in updateData) {
       updateFields.image = updateData.image
     }
 
-    // Update the user profile
     const { data, error } = await supabaseAdmin
       .from('users')
       .update(updateFields)

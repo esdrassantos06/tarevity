@@ -15,13 +15,9 @@ export async function POST(req: Request) {
     const { todoId } = await req.json()
 
     if (!todoId) {
-      return NextResponse.json(
-        { message: 'Missing todo ID' },
-        { status: 400 }
-      )
+      return NextResponse.json({ message: 'Missing todo ID' }, { status: 400 })
     }
 
-    // Mark all notifications for this todo as dismissed
     const { error, count } = await supabaseAdmin
       .from('notifications')
       .update({ dismissed: true })
@@ -34,11 +30,11 @@ export async function POST(req: Request) {
     }
 
     return NextResponse.json(
-      { 
+      {
         message: 'Notifications for todo dismissed',
-        count: count || 0
+        count: count || 0,
       },
-      { status: 200 }
+      { status: 200 },
     )
   } catch (error: unknown) {
     console.error('Error dismissing notifications:', error)
@@ -49,7 +45,7 @@ export async function POST(req: Request) {
             ? error.message
             : 'Unknown error dismissing notifications',
       },
-      { status: 500 }
+      { status: 500 },
     )
   }
 }

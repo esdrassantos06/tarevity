@@ -10,7 +10,7 @@ export default function Layout({ children, showFooter = true }: LayoutProps) {
   return (
     <div className="bg-bgLight dark:bg-bgDark flex min-h-screen flex-col">
       <Header />
-      <main className="w-full mx-auto flex-1 px-4 py-8">{children}</main>
+      <main className="mx-auto w-full flex-1 px-4 py-8">{children}</main>
       {showFooter && <Footer />}
     </div>
   )

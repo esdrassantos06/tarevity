@@ -2,51 +2,53 @@
 
 import React from 'react'
 import { FaSave, FaTimes } from 'react-icons/fa'
-import { useUpdateProfileMutation, useUploadImageMutation } from '@/hooks/useProfileQuery'
+import {
+  useUpdateProfileMutation,
+  useUploadImageMutation,
+} from '@/hooks/useProfileQuery'
 import { toast } from 'react-toastify'
 import { Session } from 'next-auth'
 import { ensureAbsoluteUrl } from '@/lib/image-utils'
 
-// Tipo para o ProfileData
 interface ProfileData {
-  id?: string;
-  name?: string;
-  email?: string;
-  image?: string | null;
-  provider?: string | null;
+  id?: string
+  name?: string
+  email?: string
+  image?: string | null
+  provider?: string | null
 }
 
-// Tipo para os dados de atualização da sessão
 interface SessionUpdateData {
   user?: {
-    name?: string;
-    image?: string | null;
-    [key: string]: unknown;
-  };
-  [key: string]: unknown;
+    name?: string
+    image?: string | null
+    [key: string]: unknown
+  }
+  [key: string]: unknown
 }
 
-// Tipo para a sessão estendida com update
 interface ExtendedSession extends Session {
-  update?: (data: SessionUpdateData) => Promise<Session>;
+  update?: (data: SessionUpdateData) => Promise<Session>
 }
 
 interface ProfileFormProps {
   formData: {
-    name: string;
-  };
-  setFormData: React.Dispatch<React.SetStateAction<{
-    name: string;
-  }>>;
-  profileData: ProfileData;
-  onCancel: () => void;
-  session: ExtendedSession;
-  refetchProfile: () => void;
-  selectedImage: File | null;
-  previewUrl: string | null;
-  setSelectedImage: (file: File | null) => void;
-  setPreviewUrl: (url: string | null) => void;
-  setIsEditing: (editing: boolean) => void;
+    name: string
+  }
+  setFormData: React.Dispatch<
+    React.SetStateAction<{
+      name: string
+    }>
+  >
+  profileData: ProfileData
+  onCancel: () => void
+  session: ExtendedSession
+  refetchProfile: () => void
+  selectedImage: File | null
+  previewUrl: string | null
+  setSelectedImage: (file: File | null) => void
+  setPreviewUrl: (url: string | null) => void
+  setIsEditing: (editing: boolean) => void
 }
 
 export default function ProfileForm({
@@ -60,11 +62,11 @@ export default function ProfileForm({
   previewUrl,
   setSelectedImage,
   setPreviewUrl,
-  setIsEditing
+  setIsEditing,
 }: ProfileFormProps) {
   const updateProfileMutation = useUpdateProfileMutation()
   const uploadImageMutation = useUploadImageMutation()
-  
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
     setFormData({
@@ -92,7 +94,7 @@ export default function ProfileForm({
               updateProfileMutation.mutate(
                 {
                   name: formData.name,
-                  image: imageUrl, 
+                  image: imageUrl,
                 },
                 {
                   onSuccess: async (response) => {
@@ -104,7 +106,7 @@ export default function ProfileForm({
                           ...session.user,
                           name: response.data.name,
                           image: response.data.image,
-                        }
+                        },
                       })
 
                       refetchProfile()
@@ -151,10 +153,9 @@ export default function ProfileForm({
                     ...session.user,
                     name: response.data.name,
                     image: response.data.image,
-                  }
+                  },
                 })
 
-                // Refetch profile data
                 refetchProfile()
               }
               toast.success('Profile updated successfully!')
@@ -173,7 +174,8 @@ export default function ProfileForm({
     }
   }
 
-  const isSubmitting = updateProfileMutation.isPending || uploadImageMutation.isPending
+  const isSubmitting =
+    updateProfileMutation.isPending || uploadImageMutation.isPending
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">

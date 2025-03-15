@@ -13,7 +13,6 @@ export async function DELETE() {
 
     const userId = session.user.id
 
-    // Step 1: Delete all todos belonging to the user
     const { error: todosError } = await supabaseAdmin
       .from('todos')
       .delete()
@@ -23,7 +22,6 @@ export async function DELETE() {
       throw new Error('Error deleting user tasks')
     }
 
-    // Step 2: Delete the user record
     const { error: userError } = await supabaseAdmin
       .from('users')
       .delete()

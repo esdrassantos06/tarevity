@@ -52,11 +52,9 @@ async function checkPasswordWithHIBP(password: string): Promise<boolean> {
       .map((b) => b.toString(16).padStart(2, '0'))
       .join('')
 
-    // Split the hash into prefix and suffix as per the k-anonymity model
     const prefix = hashHex.substring(0, 5).toUpperCase()
     const suffix = hashHex.substring(5).toUpperCase()
 
-    // Fetch from API directly (no caching)
     const response = await axiosClient.get(
       `https://api.pwnedpasswords.com/range/${prefix}`,
       {
@@ -83,7 +81,6 @@ async function checkPasswordWithHIBP(password: string): Promise<boolean> {
   } catch (error) {
     console.error('Error checking HIBP:', error)
 
-    // Fallback to checking against common password list
     return isCommonPassword(password)
   }
 }

@@ -14,7 +14,6 @@ export async function POST(req: Request) {
     const userId = session.user.id
     const { id, all } = await req.json()
 
-    // Handle deleting a single notification
     if (id) {
       const { error } = await supabaseAdmin
         .from('notifications')
@@ -31,10 +30,7 @@ export async function POST(req: Request) {
         { message: 'Notification deleted successfully' },
         { status: 200 },
       )
-    }
-    // Handle deleting all notifications
-    else if (all) {
-      // Delete all notifications for this user
+    } else if (all) {
       const { error, count } = await supabaseAdmin
         .from('notifications')
         .delete()
@@ -49,8 +45,7 @@ export async function POST(req: Request) {
         { message: 'All notifications deleted', count: count || 0 },
         { status: 200 },
       )
-    } 
-    else {
+    } else {
       return NextResponse.json(
         { message: 'Missing id or all parameter' },
         { status: 400 },

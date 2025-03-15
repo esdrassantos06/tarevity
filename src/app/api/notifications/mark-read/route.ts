@@ -14,10 +14,8 @@ export async function POST(req: Request) {
     const userId = session.user.id
     const { id, all, markAsUnread } = await req.json()
 
-    // If handling all notifications
     if (all) {
       if (markAsUnread) {
-        // Mark all as unread
         const { error, count } = await supabaseAdmin
           .from('notifications')
           .update({ read: false })
@@ -30,14 +28,13 @@ export async function POST(req: Request) {
         }
 
         return NextResponse.json(
-          { 
-            message: 'All notifications marked as unread', 
-            count: count || 0 
+          {
+            message: 'All notifications marked as unread',
+            count: count || 0,
           },
           { status: 200 },
         )
       } else {
-        // Mark all as read
         const { error, count } = await supabaseAdmin
           .from('notifications')
           .update({ read: true })
@@ -50,55 +47,51 @@ export async function POST(req: Request) {
         }
 
         return NextResponse.json(
-          { 
-            message: 'All notifications marked as read', 
-            count: count || 0 
+          {
+            message: 'All notifications marked as read',
+            count: count || 0,
           },
           { status: 200 },
         )
       }
-    } 
-    // If handling a single notification
-    else if (id) {
-      // First, get the current read status
+    } else if (id) {
       const { data: notification, error: fetchError } = await supabaseAdmin
         .from('notifications')
         .select('read')
         .eq('id', id)
         .eq('user_id', userId)
-        .single();
-        
+        .single()
+
       if (fetchError) {
-        console.error('Error fetching notification:', fetchError);
-        throw fetchError;
+        console.error('Error fetching notification:', fetchError)
+        throw fetchError
       }
-      
-      // Toggle the read status (or set to the specified value if markAsUnread is provided)
-      const newReadStatus = markAsUnread !== undefined ? 
-        markAsUnread === false :  // if markAsUnread is explicitly set, use opposite value
-        !notification?.read;      // otherwise toggle the current value
-      
+
+      const newReadStatus =
+        markAsUnread !== undefined
+          ? markAsUnread === false
+          : !notification?.read
+
       const { error, data } = await supabaseAdmin
         .from('notifications')
         .update({ read: newReadStatus })
         .eq('id', id)
         .eq('user_id', userId)
-        .select();
+        .select()
 
       if (error) {
-        console.error('Error updating notification read status:', error);
-        throw error;
+        console.error('Error updating notification read status:', error)
+        throw error
       }
 
       return NextResponse.json(
-        { 
+        {
           message: `Notification marked as ${newReadStatus ? 'read' : 'unread'}`,
-          notification: data?.[0]
+          notification: data?.[0],
         },
         { status: 200 },
-      );
-    } 
-    else {
+      )
+    } else {
       return NextResponse.json(
         { message: 'Missing id or all parameter' },
         { status: 400 },

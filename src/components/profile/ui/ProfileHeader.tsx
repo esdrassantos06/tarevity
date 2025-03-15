@@ -5,14 +5,17 @@ import { FaEnvelope, FaPencilAlt } from 'react-icons/fa'
 
 interface ProfileHeaderProps {
   profileData: {
-    name: string;
-    email: string;
-    provider?: string | null;
-  };
-  onEdit: () => void;
+    name: string
+    email: string
+    provider?: string | null
+  }
+  onEdit: () => void
 }
 
-export default function ProfileHeader({ profileData, onEdit }: ProfileHeaderProps) {
+export default function ProfileHeader({
+  profileData,
+  onEdit,
+}: ProfileHeaderProps) {
   return (
     <div>
       <div className="flex items-center justify-between">

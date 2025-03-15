@@ -11,7 +11,6 @@ import { authAPI } from '@/lib/api'
 import ValidatedInput from './ValidatedInput'
 import EmailValidator from './EmailValidator'
 
-// Define the form validation schema
 const forgotPasswordSchema = z.object({
   email: z
     .string()
@@ -26,7 +25,6 @@ export default function EnhancedForgotPasswordForm() {
   const [isSubmitted, setIsSubmitted] = useState(false)
   const [emailValid, setEmailValid] = useState(false)
 
-  // Initialize form with React Hook Form
   const {
     register,
     handleSubmit,
@@ -105,7 +103,6 @@ export default function EnhancedForgotPasswordForm() {
       </div>
 
       {isSubmitted ? (
-        // Show success state after submission
         <div className="text-center">
           <div className="mb-6 rounded-lg bg-green-50 p-4 dark:bg-green-900/30">
             <FaEnvelope className="mx-auto mb-2 h-12 w-12 text-green-500 dark:text-green-400" />

@@ -7,6 +7,7 @@ Tarevity is a sophisticated task management application built with Next.js 15, R
 ## 🚀 Features
 
 - ✅ **Comprehensive Task Management**
+
   - Create, edit, delete, and mark tasks as completed
   - Task priority levels (Low, Medium, High) with visual indicators
   - Task status workflow (Active, Review, Completed)
@@ -16,12 +17,14 @@ Tarevity is a sophisticated task management application built with Next.js 15, R
   - Visual status indicators and progress tracking
 
 - 🔔 **Smart Notifications System**
+
   - Automated deadline reminders based on due dates
   - Priority-based notification styling
   - Read/unread status tracking
   - Batch notification management
 
 - 🔑 **Robust Authentication**
+
   - Multi-provider authentication (Email/Password, Google, GitHub) via NextAuth.js
   - Progressive account lockout after multiple failed attempts
   - Secure password reset flow with time-limited tokens
@@ -29,6 +32,7 @@ Tarevity is a sophisticated task management application built with Next.js 15, R
   - JWT token rotation for enhanced security
 
 - 🎨 **Modern UI/UX**
+
   - Light/Dark modes with system preference detection
   - Fully responsive design optimized for all devices
   - Interactive toast notifications for user feedback
@@ -37,12 +41,14 @@ Tarevity is a sophisticated task management application built with Next.js 15, R
   - Intuitive dashboard with task statistics visualization
 
 - 📊 **Personal Analytics**
+
   - Task statistics dashboard with completion metrics
   - Visual representation of task distribution
   - Task status breakdown with interactive charts
   - Performance tracking and productivity insights
 
 - 👤 **User Profile Management**
+
   - Profile customization with image upload
   - Account settings and preferences
   - Secure account deletion with confirmation workflow
@@ -59,6 +65,7 @@ Tarevity is a sophisticated task management application built with Next.js 15, R
 ## 🛠️ Technology Stack
 
 ### Frontend
+
 - **Framework**: Next.js 15 with App Router
 - **UI Library**: React 19
 - **Styling**: Tailwind CSS v4 with custom theming
@@ -72,6 +79,7 @@ Tarevity is a sophisticated task management application built with Next.js 15, R
 - **Theme Management**: next-themes
 
 ### Backend & Database
+
 - **Authentication**: NextAuth.js v4
 - **Database**: Supabase (PostgreSQL)
 - **API Architecture**: Next.js API routes with RESTful design
@@ -80,6 +88,7 @@ Tarevity is a sophisticated task management application built with Next.js 15, R
 - **Email Service**: Resend
 
 ### DevOps & Tooling
+
 - **Package Manager**: npm/yarn
 - **Code Formatting**: Prettier
 - **Linting**: ESLint with Next.js config

@@ -258,7 +258,6 @@ export default function EnhancedResetPasswordForm() {
     }
   }
 
-  // Show different UI based on token validation status
   if (isValidToken === null) {
     return (
       <div className="dark:bg-BlackLight mx-auto w-full max-w-md rounded-lg bg-white p-6 shadow-md">

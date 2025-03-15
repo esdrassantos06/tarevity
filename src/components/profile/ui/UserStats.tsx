@@ -5,10 +5,10 @@ import { FaClipboardList, FaClipboardCheck, FaClock } from 'react-icons/fa'
 
 interface UserStatsProps {
   userStats?: {
-    total: number;
-    completed: number;
-    pending: number;
-  };
+    total: number
+    completed: number
+    pending: number
+  }
 }
 
 export default function UserStats({ userStats }: UserStatsProps) {
@@ -18,7 +18,7 @@ export default function UserStats({ userStats }: UserStatsProps) {
         <h3 className="mb-4 text-lg font-medium text-gray-900 dark:text-white">
           Task Statistics
         </h3>
-        <div className="text-center text-gray-500 dark:text-gray-400 py-4">
+        <div className="py-4 text-center text-gray-500 dark:text-gray-400">
           Loading statistics...
         </div>
       </div>

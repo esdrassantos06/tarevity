@@ -3,7 +3,6 @@ import { NextRequest, NextResponse } from 'next/server'
 import { rateLimiter } from './lib/rateLimit'
 
 export async function middleware(request: NextRequest) {
-  // Get URL pathname for debugging
   const pathname = request.nextUrl.pathname
 
   const rateLimits = {

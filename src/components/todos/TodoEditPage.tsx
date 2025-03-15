@@ -1,4 +1,4 @@
-'use client';
+'use client'
 import React, { useState, useEffect, ChangeEvent, FormEvent } from 'react'
 import { useRouter } from 'next/navigation'
 import { useQueryClient } from '@tanstack/react-query'
@@ -41,7 +41,6 @@ interface TodoEditPageProps {
   todoId: string
 }
 
-// Interface for notification updates
 interface NotificationData {
   todo_id: string
   notification_type: 'danger' | 'warning' | 'info'
@@ -89,7 +88,6 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
           status: todo.status || 'active',
         })
 
-        // Store the original due date for comparison
         setOriginalDueDate(todo.due_date)
       } else {
         router.push('/dashboard')
@@ -97,13 +95,11 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
     }
   }, [todos, todoId, router])
 
-  // Check for unsaved changes
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
       if (hasUnsavedChanges) {
         e.preventDefault()
-        e.returnValue =
-          'You have unsaved changes. Are you sure you want to leave?'
+        return 'You have unsaved changes. Are you sure you want to leave?'
       }
     }
 
@@ -136,7 +132,6 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
     setHasUnsavedChanges(true)
   }
 
-  // Function to clear the due date
   const handleClearDueDate = () => {
     setFormData({
       ...formData,
@@ -145,27 +140,18 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
     setHasUnsavedChanges(true)
   }
 
-  // Function to create or update notifications for a todo based on due date
   const updateNotificationsForTodo = (todo: Todo) => {
-    // Skip if todo is completed
     if (todo.is_completed) {
       return
     }
 
-    // We need a due date to create notifications
     if (!todo.due_date) {
       return
     }
 
-    // IMPORTANT: Create all notification types regardless of date
-    // This allows the server to determine which ones should be shown
     const dueDate = new Date(todo.due_date)
     const notifications: NotificationData[] = []
 
-    // Always create all three notification types with consistent origin_ids
-    // This ensures the server has all the data it needs
-
-    // Create danger notification (overdue)
     notifications.push({
       todo_id: todo.id,
       notification_type: 'danger',
@@ -175,7 +161,6 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
       origin_id: `danger-${todo.id}`,
     })
 
-    // Create warning notification (due soon)
     notifications.push({
       todo_id: todo.id,
       notification_type: 'warning',
@@ -185,7 +170,6 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
       origin_id: `warning-${todo.id}`,
     })
 
-    // Create info notification (upcoming)
     notifications.push({
       todo_id: todo.id,
       notification_type: 'info',
@@ -195,10 +179,8 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
       origin_id: `info-${todo.id}`,
     })
 
-    // Send notifications to be created or updated
     createNotificationsMutation.mutate(notifications, {
       onSuccess: () => {
-        // Invalidate notifications query to update UI immediately
         queryClient.invalidateQueries({ queryKey: ['notifications'] })
       },
       onError: (error) => {
@@ -207,9 +189,7 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
     })
   }
 
-  // Function to delete all notifications for a todo
   const deleteNotificationsForTodo = () => {
-    // Call the API endpoint to delete notifications for this todo
     fetch(`/api/notifications/delete-for-todo/${todoId}`, {
       method: 'DELETE',
     })
@@ -218,7 +198,6 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
         return response.json()
       })
       .then(() => {
-        // Invalidate notifications query to update UI
         queryClient.invalidateQueries({ queryKey: ['notifications'] })
       })
       .catch((error) => {
@@ -241,19 +220,15 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
         onSuccess: (response) => {
           setHasUnsavedChanges(false)
 
-          // This is the fix for the type error - ensure response.data exists before using it
           if (!response.data) {
             console.error('No data returned from update mutation')
             router.push(`/todo/${todoId}`)
             return
           }
 
-          // Check if due date was cleared - if so, delete notifications
           if (originalDueDate && !updateData.due_date) {
             deleteNotificationsForTodo()
-          }
-          // Check if relevant fields have changed that would affect notifications
-          else {
+          } else {
             const hasDueDateChanged = originalDueDate !== updateData.due_date
             const hasTitleChanged =
               todos.find((t) => t.id === todoId)?.title !== updateData.title
@@ -261,7 +236,6 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
               todos.find((t) => t.id === todoId)?.is_completed !==
               updateData.is_completed
 
-            // If todo is now completed, dismiss all its notifications
             if (updateData.is_completed) {
               fetch('/api/notifications/dismiss-for-todo', {
                 method: 'POST',
@@ -272,14 +246,11 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
               }).catch((error) => {
                 console.error('Error dismissing notifications:', error)
               })
-            }
-            // If any relevant field changed for an incomplete todo, recreate notifications
-            else if (
+            } else if (
               hasDueDateChanged ||
               hasTitleChanged ||
               hasCompletionChanged
             ) {
-              // First delete all existing notifications for this todo
               fetch(`/api/notifications/delete-for-todo/${todoId}`, {
                 method: 'DELETE',
               })
@@ -289,9 +260,7 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
                   return response.json()
                 })
                 .then(() => {
-                  // Short delay to ensure deletion completes before creating new ones
                   setTimeout(() => {
-                    // Another type safety check
                     if (response.data) {
                       updateNotificationsForTodo(response.data)
                     }
@@ -299,7 +268,6 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
                 })
                 .catch((error) => {
                   console.error('Error managing notifications:', error)
-                  // Still try to update notifications as fallback, with type safety check
                   if (response.data) {
                     updateNotificationsForTodo(response.data)
                   }
@@ -335,12 +303,11 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
     }
   }
 
-  // Handle confirmation for clearing due date
   const handleConfirmClearDueDate = () => {
     if (formData.due_date) {
       openConfirmDialog({
         title: 'Clear Due Date',
-        description: 
+        description:
           'Clearing the due date will also remove all notifications for this task. Continue?',
         variant: 'warning',
         confirmText: 'Clear',
@@ -492,7 +459,7 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
                   <button
                     type="button"
                     onClick={handleConfirmClearDueDate}
-                    className="bg-red-100 hover:bg-red-200 dark:bg-red-900 dark:hover:bg-red-800 dark:text-white rounded-r-md border border-l-0 border-gray-300 px-3 dark:border-gray-600"
+                    className="rounded-r-md border border-l-0 border-gray-300 bg-red-100 px-3 hover:bg-red-200 dark:border-gray-600 dark:bg-red-900 dark:text-white dark:hover:bg-red-800"
                     title="Clear due date"
                   >
                     <FaCalendarTimes className="text-red-500 dark:text-red-300" />
@@ -500,9 +467,9 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
                 )}
               </div>
               <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                {formData.due_date 
-                  ? "Clear the due date to remove deadline notifications" 
-                  : "No due date set (no notifications will be created)"}
+                {formData.due_date
+                  ? 'Clear the due date to remove deadline notifications'
+                  : 'No due date set (no notifications will be created)'}
               </p>
             </div>
           </div>

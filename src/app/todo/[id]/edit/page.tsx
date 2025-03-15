@@ -12,14 +12,14 @@ export const metadata: Metadata = {
 
 interface PageParams {
   params: Promise<{
-    id: string;
-  }>;
-  searchParams?: Promise<Record<string, string | string[]>>;
+    id: string
+  }>
+  searchParams?: Promise<Record<string, string | string[]>>
 }
 
 export default function TodoEditPageRoute(props: PageParams) {
-  const params = use(props.params);
-  const id = params.id;
+  const params = use(props.params)
+  const id = params.id
 
   return (
     <Layout>

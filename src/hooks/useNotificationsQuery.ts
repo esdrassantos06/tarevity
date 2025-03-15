@@ -21,7 +21,7 @@ export function useNotificationsQuery() {
       const response = await axios.get('/api/notifications')
       return response.data
     },
-    staleTime: 5 * 60 * 1000, 
+    staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
     refetchInterval: 3 * 60 * 1000,
     refetchIntervalInBackground: false,
@@ -31,7 +31,7 @@ export function useNotificationsQuery() {
 
 export function useCreateNotificationsMutation() {
   const queryClient = useQueryClient()
-  
+
   return useMutation({
     mutationFn: async (notifications: unknown[]) => {
       return axios.post('/api/notifications', { notifications })
@@ -47,10 +47,22 @@ export function useCreateNotificationsMutation() {
 
 export function useMarkNotificationReadMutation() {
   const queryClient = useQueryClient()
-  
+
   return useMutation({
-    mutationFn: async ({ id, all, markAsUnread }: { id?: string; all?: boolean; markAsUnread?: boolean }) => {
-      return axios.post('/api/notifications/mark-read', { id, all, markAsUnread })
+    mutationFn: async ({
+      id,
+      all,
+      markAsUnread,
+    }: {
+      id?: string
+      all?: boolean
+      markAsUnread?: boolean
+    }) => {
+      return axios.post('/api/notifications/mark-read', {
+        id,
+        all,
+        markAsUnread,
+      })
     },
     onSuccess: () => {
       showSuccess('Notification read status updated')
@@ -65,9 +77,17 @@ export function useMarkNotificationReadMutation() {
 
 export function useDismissNotificationMutation() {
   const queryClient = useQueryClient()
-  
+
   return useMutation({
-    mutationFn: async ({ id, all, todoId }: { id?: string; all?: boolean; todoId?: string }) => {
+    mutationFn: async ({
+      id,
+      all,
+      todoId,
+    }: {
+      id?: string
+      all?: boolean
+      todoId?: string
+    }) => {
       if (todoId) {
         return axios.post('/api/notifications/dismiss-for-todo', { todoId })
       }

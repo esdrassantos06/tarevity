@@ -85,7 +85,7 @@ const TodoItem: React.FC<TodoItemProps> = ({
 
   return (
     <div
-      className={`dark:bg-BlackLight flex flex-grow h-64 cursor-pointer flex-col overflow-hidden rounded-lg bg-white shadow-md transition-shadow hover:shadow-lg ${isReview ? 'border-l-4 border-amber-500' : ''} ${className}`}
+      className={`dark:bg-BlackLight flex h-64 flex-grow cursor-pointer flex-col overflow-hidden rounded-lg bg-white shadow-md transition-shadow hover:shadow-lg ${isReview ? 'border-l-4 border-amber-500' : ''} ${className}`}
       onClick={handleItemClick}
     >
       <div className="flex flex-grow flex-col overflow-hidden p-4">
