@@ -1,8 +1,12 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { profileAPI } from '@/lib/api'
 import { showSuccess, showError } from '@/lib/toast'
+import { useSession } from 'next-auth/react'
 
-export function useProfileQuery() {
+export function useProfileQuery(options = {}) {
+  const { status } = useSession()
+  const isAuthenticated = status === 'authenticated'
+
   return useQuery({
     queryKey: ['profile'],
     queryFn: async () => {
@@ -17,13 +21,18 @@ export function useProfileQuery() {
         throw error
       }
     },
+    ...options,
+    enabled: isAuthenticated && (options.enabled !== false),
     staleTime: 5 * 60 * 1000,
     retry: 1,
     gcTime: 10 * 60 * 1000,
   })
 }
 
-export function useStatsQuery() {
+export function useStatsQuery(options = {}) {
+  const { status } = useSession()
+  const isAuthenticated = status === 'authenticated'
+
   return useQuery({
     queryKey: ['stats'],
     queryFn: async () => {
@@ -38,6 +47,9 @@ export function useStatsQuery() {
         throw error
       }
     },
+    ...options,
+    // Só executar a query se o usuário estiver autenticado
+    enabled: isAuthenticated && (options.enabled !== false),
     staleTime: 5 * 60 * 1000,
     retry: 1,
     gcTime: 10 * 60 * 1000,

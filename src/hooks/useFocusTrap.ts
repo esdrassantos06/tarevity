@@ -26,20 +26,17 @@ export function useFocusTrap<T extends HTMLElement = HTMLDivElement>(
     const firstElement = focusableElements[0]
     const lastElement = focusableElements[focusableElements.length - 1]
     
-    // Focus the first element when the trap is activated
     firstElement.focus()
     
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key !== 'Tab') return
       
-      // Shift + Tab => backwards navigation
       if (e.shiftKey) {
         if (document.activeElement === firstElement) {
           e.preventDefault()
           lastElement.focus()
         }
       }
-      // Tab => forwards navigation
       else {
         if (document.activeElement === lastElement) {
           e.preventDefault()
@@ -48,14 +45,12 @@ export function useFocusTrap<T extends HTMLElement = HTMLDivElement>(
       }
     }
     
-    // Save the previously focused element
     const previousFocus = document.activeElement as HTMLElement
     
     document.addEventListener('keydown', handleKeyDown)
     
     return () => {
       document.removeEventListener('keydown', handleKeyDown)
-      // Restore focus when the trap is deactivated
       if (previousFocus) {
         previousFocus.focus()
       }

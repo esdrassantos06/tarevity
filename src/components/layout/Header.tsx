@@ -13,12 +13,15 @@ import NotificationDropdown from '../notifications/NotificationDropdown'
 import { useProfileQuery } from '@/hooks/useProfileQuery'
 
 export default function Header() {
-  const { data: session } = useSession()
+  const { data: session, status } = useSession()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
 
-  const { data: profileData } = useProfileQuery()
+  // Only fetch profile data when the user is authenticated
+  const { data: profileData } = useProfileQuery({
+    enabled: status === 'authenticated'
+  })
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen)
@@ -44,13 +47,16 @@ export default function Header() {
     }
   }, [])
 
+  // Check if user is authenticated
+  const isAuthenticated = status === 'authenticated' && !!session?.user
+
   return (
     <header className="bg-HeaderBgLight dark:bg-HeaderBgDark shadow-sm">
       <div className="mx-auto px-4 sm:px-6 lg:px-12">
         <div className="flex h-16 justify-between">
           <div className="flex">
             <div className="flex flex-shrink-0 items-center">
-              <Link href={session ? '/dashboard' : '/'} title="Tarevity">
+              <Link href={isAuthenticated ? '/dashboard' : '/'} title="Tarevity">
                 <TarevityLogo className="hidden w-30 fill-black sm:flex dark:fill-white" />
                 <TarevityIcon className="flex w-12 fill-black sm:hidden dark:fill-white" />
               </Link>
@@ -58,7 +64,8 @@ export default function Header() {
           </div>
 
           <div className="flex items-center">
-            {session ? (
+            
+            {isAuthenticated ? (
               <div className="flex items-center justify-center">
                 {/* Notification Dropdown Component */}
                 <NotificationDropdown />
@@ -164,7 +171,7 @@ export default function Header() {
         {isMenuOpen && (
           <div className="sm:hidden">
             <div className="space-y-1 pt-2 pb-3">
-              {session ? (
+              {isAuthenticated ? (
                 <>
                   {/* Mobile user info */}
                   <div className="border-b border-gray-200 px-4 py-3 dark:border-gray-700">
