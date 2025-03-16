@@ -3,21 +3,21 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/auth-options'
 import { NextResponse, NextRequest } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
 
-// PATCH handler to update a user's admin status
+
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions)
+    const { id: userId } = await params
 
     if (!session?.user?.id || !session?.user?.is_admin) {
       return NextResponse.json({ message: 'Unauthorized' }, { status: 401 })
     }
 
-    const userId = params.id
     
-    // Prevent users from changing their own admin status
+
     if (userId === session.user.id) {
       return NextResponse.json(
         { message: 'You cannot change your own admin status' },
@@ -65,21 +65,21 @@ export async function PATCH(
   }
 }
 
-// DELETE handler to delete a user
+
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions)
+    const { id: userId } = await params
 
     if (!session?.user?.id || !session?.user?.is_admin) {
       return NextResponse.json({ message: 'Unauthorized' }, { status: 401 })
     }
 
-    const userId = params.id
     
-    // Prevent users from deleting themselves
+
     if (userId === session.user.id) {
       return NextResponse.json(
         { message: 'You cannot delete your own account through the admin panel' },
@@ -87,7 +87,7 @@ export async function DELETE(
       )
     }
 
-    // Delete user's tasks first
+
     const { error: todosError } = await supabaseAdmin
       .from('todos')
       .delete()
@@ -98,7 +98,7 @@ export async function DELETE(
       throw new Error('Error deleting user tasks')
     }
 
-    // Delete user's notifications
+
     const { error: notificationsError } = await supabaseAdmin
       .from('notifications')
       .delete()
@@ -106,7 +106,7 @@ export async function DELETE(
 
     if (notificationsError) {
       console.error('Error deleting user notifications:', notificationsError)
-      // Continue even if notifications deletion fails
+ 
     }
 
     // Delete the user
