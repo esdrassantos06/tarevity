@@ -31,18 +31,19 @@ axiosClient.interceptors.request.use(
     if (typeof window !== 'undefined') {
       try {
         const session = await getSession()
-
         if (session) {
-          config.headers['X-CSRF-Token'] = getCsrfToken()
+          const token = await getCsrfToken()
+          if (token) {
+            config.headers['x-csrf-token'] = token
+          }
         }
       } catch (error) {
-        console.error('Error getting session:', error)
+        console.error('Error getting CSRF token:', error)
       }
     }
-
     return config
   },
-  (error) => Promise.reject(error),
+  (error) => Promise.reject(error)
 )
 
 axiosClient.interceptors.response.use(

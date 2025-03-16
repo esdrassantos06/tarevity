@@ -28,6 +28,8 @@ declare module 'next-auth/jwt' {
     refreshTokenExpires?: number
     refreshTokenStored?: boolean
     error?: string
+    is_admin?: boolean
+    iat?: number
   }
 }
 
@@ -88,14 +90,48 @@ export const authOptions: NextAuthOptions = {
         secure: process.env.NODE_ENV === 'production',
         domain:
           process.env.NODE_ENV === 'production' ? '.tarevity.pt' : undefined,
+        maxAge: 60 * 60 * 24
+      },
+    },
+    callbackUrl: {
+      name: `${cookiePrefix}next-auth.callback-url`,
+      options: {
+        sameSite: 'lax',
+        path: '/',
+        secure: process.env.NODE_ENV === 'production',
+        maxAge: 60 * 60 * 24 
+      },
+    },
+    csrfToken: {
+      name: `${cookiePrefix}next-auth.csrf-token`,
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: process.env.NODE_ENV === 'production',
+        maxAge: 60 * 60 * 24 
       },
     },
   },
   callbacks: {
-    async signIn() {
-      return true
+    async signIn({ user, account }) {
+      if (account?.provider === 'credentials') {
+        return true
+      } else if (user?.email) {
+        return true
+      }
+      return false
     },
     async redirect({ url, baseUrl }) {
+      const validStartsWithPatterns = [baseUrl, '/dashboard', '/auth', '/profile', '/settings', '/todo'];
+      const isValidRedirect = validStartsWithPatterns.some(pattern => {
+        return url.startsWith(pattern) || url.startsWith(`${baseUrl}${pattern}`);
+      });
+      
+      if (!isValidRedirect) {
+        return baseUrl;
+      }
+
       if (url.includes('/dashboard')) {
         return url
       }
@@ -133,6 +169,7 @@ export const authOptions: NextAuthOptions = {
             is_admin: user.is_admin || false,
             refreshToken: crypto.randomBytes(32).toString('hex'),
             refreshTokenExpires: Date.now() + 7 * 24 * 60 * 60 * 1000,
+            iat: Math.floor(Date.now() / 1000)
           }
         }
 
@@ -151,6 +188,7 @@ export const authOptions: NextAuthOptions = {
               provider: account.provider,
               refreshToken: crypto.randomBytes(32).toString('hex'),
               refreshTokenExpires: Date.now() + 7 * 24 * 60 * 60 * 1000,
+              iat: Math.floor(Date.now() / 1000)
             }
           }
 
@@ -162,6 +200,7 @@ export const authOptions: NextAuthOptions = {
                 image: user.image,
                 provider: account.provider,
                 provider_id: account.providerAccountId,
+                updated_at: new Date().toISOString()
               })
               .eq('id', existingUser.id)
 
@@ -169,13 +208,22 @@ export const authOptions: NextAuthOptions = {
               console.error('Error updating user:', updateError)
             }
 
+
             const refreshToken = crypto.randomBytes(32).toString('hex')
             const refreshTokenExpires = Date.now() + 7 * 24 * 60 * 60 * 1000
+
+
+            await supabase
+              .from('refresh_tokens')
+              .delete()
+              .eq('user_id', existingUser.id)
+              
 
             await supabase.from('refresh_tokens').insert({
               user_id: existingUser.id,
               token: refreshToken,
               expires_at: new Date(refreshTokenExpires).toISOString(),
+              created_at: new Date().toISOString()
             })
 
             return {
@@ -186,8 +234,10 @@ export const authOptions: NextAuthOptions = {
               refreshToken: refreshToken,
               refreshTokenExpires: refreshTokenExpires,
               refreshTokenStored: true,
+              iat: Math.floor(Date.now() / 1000)
             }
           } else {
+
             const { data: newUser, error: insertError } = await supabase
               .from('users')
               .insert([
@@ -197,6 +247,8 @@ export const authOptions: NextAuthOptions = {
                   image: user.image,
                   provider: account.provider,
                   provider_id: account.providerAccountId,
+                  created_at: new Date().toISOString(),
+                  updated_at: new Date().toISOString()
                 },
               ])
               .select()
@@ -210,6 +262,7 @@ export const authOptions: NextAuthOptions = {
                 provider: account.provider,
                 refreshToken: crypto.randomBytes(32).toString('hex'),
                 refreshTokenExpires: Date.now() + 7 * 24 * 60 * 60 * 1000,
+                iat: Math.floor(Date.now() / 1000)
               }
             }
 
@@ -221,6 +274,7 @@ export const authOptions: NextAuthOptions = {
                 user_id: newUser.id,
                 token: refreshToken,
                 expires_at: new Date(refreshTokenExpires).toISOString(),
+                created_at: new Date().toISOString()
               })
             }
 
@@ -231,6 +285,7 @@ export const authOptions: NextAuthOptions = {
               refreshToken: refreshToken,
               refreshTokenExpires: refreshTokenExpires,
               refreshTokenStored: true,
+              iat: Math.floor(Date.now() / 1000)
             }
           }
         } catch (error) {
@@ -241,20 +296,24 @@ export const authOptions: NextAuthOptions = {
             provider: account.provider,
             refreshToken: crypto.randomBytes(32).toString('hex'),
             refreshTokenExpires: Date.now() + 7 * 24 * 60 * 60 * 1000,
+            iat: Math.floor(Date.now() / 1000)
           }
         }
       }
+
 
       if (token.refreshToken && !account && !user) {
         const shouldRefresh = Date.now() > Number(token.exp) * 1000
         if (shouldRefresh) {
           try {
+
             const { data, error } = await supabase
               .from('refresh_tokens')
               .select('*')
               .eq('token', token.refreshToken)
               .eq('user_id', token.id)
               .single()
+
 
             if (
               error ||
@@ -264,18 +323,24 @@ export const authOptions: NextAuthOptions = {
               return { ...token, error: 'RefreshTokenError' }
             }
 
+
             const newRefreshToken = crypto.randomBytes(32).toString('hex')
+
 
             await supabase
               .from('refresh_tokens')
               .delete()
               .eq('token', token.refreshToken)
+              .eq('user_id', token.id)
+              
             await supabase.from('refresh_tokens').insert({
               user_id: token.id,
               token: newRefreshToken,
               expires_at: new Date(
                 Date.now() + 7 * 24 * 60 * 60 * 1000,
               ).toISOString(),
+              previous_token: token.refreshToken,
+              created_at: new Date().toISOString()
             })
 
             return {
@@ -283,6 +348,7 @@ export const authOptions: NextAuthOptions = {
               refreshToken: newRefreshToken,
               refreshTokenExpires: Date.now() + 7 * 24 * 60 * 60 * 1000,
               exp: Math.floor(Date.now() / 1000) + 60 * 60,
+              iat: Math.floor(Date.now() / 1000)
             }
           } catch (error) {
             console.error('Error refreshing token:', error)
@@ -303,4 +369,13 @@ export const authOptions: NextAuthOptions = {
     maxAge: 24 * 60 * 60,
   },
   secret: process.env.NEXTAUTH_SECRET,
+  debug: process.env.NODE_ENV === 'development',
+  logger: {
+    error(code, metadata) {
+      console.error(`Auth error: ${code}`, metadata);
+    },
+    warn(code) {
+      console.warn(`Auth warning: ${code}`);
+    },
+  },
 }
