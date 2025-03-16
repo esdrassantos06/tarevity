@@ -56,11 +56,32 @@ axiosClient.interceptors.response.use(
       const status = error.response.status
       const errorData = error.response.data
 
+
+      const publicPaths = ['/', '/privacy', '/terms']
+      const pathname = typeof window !== 'undefined' ? window.location.pathname : ''
+      const isPublicPath = publicPaths.some(path => pathname === path || pathname.startsWith(`${path}/`))
+
+      // Only handle auth errors on protected routes
+      const isProtectedRoute = typeof window !== 'undefined' && 
+        ['/dashboard', '/profile', '/settings', '/todo'].some(path => 
+          window.location.pathname.startsWith(path)
+        );
+
+        if (status === 401 && isPublicPath) {
+          return Promise.reject({
+            message: 'Unauthenticated on public page',
+            status,
+            silentError: true,
+          });
+        }
+
       switch (status) {
         case 401:
-          showError('Your session has expired. Please log in again.')
-          if (typeof window !== 'undefined') {
-            window.location.href = '/auth/login?error=session_expired'
+          if (isProtectedRoute) {
+            showError('Your session has expired. Please log in again.')
+            if (typeof window !== 'undefined') {
+              window.location.href = '/auth/login?error=session_expired'
+            }
           }
           break
 

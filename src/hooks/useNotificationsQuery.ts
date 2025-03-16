@@ -14,7 +14,13 @@ export interface Notification {
   origin_id: string
 }
 
-export function useNotificationsQuery() {
+// Add proper type for the options parameter
+interface QueryOptions {
+  enabled?: boolean;
+  [key: string]: unknown;
+}
+
+export function useNotificationsQuery(options: QueryOptions = {}) {
   return useQuery({
     queryKey: ['notifications'],
     queryFn: async () => {
@@ -26,6 +32,7 @@ export function useNotificationsQuery() {
     refetchInterval: 3 * 60 * 1000,
     refetchIntervalInBackground: false,
     retry: 1,
+    ...options
   })
 }
 

@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react'
 import Image from 'next/image'
 import { FaUser } from 'react-icons/fa'
 import { useProfileQuery } from '@/hooks/useProfileQuery'
+import { useSession } from 'next-auth/react'
 
 interface UserImageProps {
   className?: string
@@ -16,10 +17,13 @@ const UserImage: React.FC<UserImageProps> = ({
   size = 40,
   onClick,
 }) => {
+  const { status } = useSession()
   const [imageKey] = useState(Date.now())
   const [imageError, setImageError] = useState(false)
 
-  const { data: profileData } = useProfileQuery()
+  const { data: profileData } = useProfileQuery({
+    enabled: status === 'authenticated'
+  })
 
   useEffect(() => {
     if (profileData) {

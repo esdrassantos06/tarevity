@@ -3,33 +3,47 @@ import { profileAPI } from '@/lib/api'
 import { showSuccess, showError } from '@/lib/toast'
 import { useSession } from 'next-auth/react'
 
-export function useProfileQuery(options = {}) {
-  const { status } = useSession()
-  const isAuthenticated = status === 'authenticated'
+// Add proper type for the options parameter
+interface QueryOptions {
+  enabled?: boolean;
+  [key: string]: unknown;
+}
 
+export function useProfileQuery(options: QueryOptions = {}) {
+  const { status } = useSession();
+  const isAuthenticated = status === 'authenticated';
+  
   return useQuery({
     queryKey: ['profile'],
     queryFn: async () => {
       try {
-        const result = await profileAPI.getProfile()
-        if (result.error) throw new Error(result.error.message)
-        return result.data
+        const result = await profileAPI.getProfile();
+        if (result.error) throw new Error(result.error.message);
+        return result.data;
       } catch (error) {
-        showError(
-          error instanceof Error ? error.message : 'Failed to load profile',
-        )
-        throw error
+        // Only show error if we're on a protected route
+        const isProtectedRoute = typeof window !== 'undefined' && 
+          ['/dashboard', '/profile', '/settings', '/todo'].some(path => 
+            window.location.pathname.startsWith(path)
+          );
+          
+        if (isProtectedRoute) {
+          showError(
+            error instanceof Error ? error.message : 'Failed to load profile',
+          );
+        }
+        throw error;
       }
     },
     ...options,
     enabled: isAuthenticated && (options.enabled !== false),
     staleTime: 5 * 60 * 1000,
-    retry: 1,
+    retry: isAuthenticated ? 1 : 0, // Don't retry if not authenticated
     gcTime: 10 * 60 * 1000,
-  })
+  });
 }
 
-export function useStatsQuery(options = {}) {
+export function useStatsQuery(options: QueryOptions = {}) {
   const { status } = useSession()
   const isAuthenticated = status === 'authenticated'
 
@@ -41,17 +55,24 @@ export function useStatsQuery(options = {}) {
         if (result.error) throw new Error(result.error.message)
         return result.data
       } catch (error) {
-        showError(
-          error instanceof Error ? error.message : 'Failed to load statistics',
-        )
+        // Only show error on protected routes
+        const isProtectedRoute = typeof window !== 'undefined' && 
+          ['/dashboard', '/profile', '/settings', '/todo'].some(path => 
+            window.location.pathname.startsWith(path)
+          );
+          
+        if (isProtectedRoute) {
+          showError(
+            error instanceof Error ? error.message : 'Failed to load statistics',
+          );
+        }
         throw error
       }
     },
     ...options,
-    // Só executar a query se o usuário estiver autenticado
     enabled: isAuthenticated && (options.enabled !== false),
     staleTime: 5 * 60 * 1000,
-    retry: 1,
+    retry: isAuthenticated ? 1 : 0,
     gcTime: 10 * 60 * 1000,
   })
 }

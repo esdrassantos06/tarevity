@@ -22,6 +22,7 @@ import {
 import ConfirmationDialog, {
   useConfirmationDialog,
 } from '@/components/common/ConfirmationDialog'
+import { useSession } from 'next-auth/react'
 
 interface Notification {
   id: string
@@ -35,12 +36,16 @@ interface Notification {
 }
 
 export default function NotificationDropdown() {
+  const { status } = useSession()
   const [isOpen, setIsOpen] = useState(false)
   const [unreadCount, setUnreadCount] = useState(0)
   const dropdownRef = useRef<HTMLDivElement>(null)
   const queryClient = useQueryClient()
 
-  const { data: notifications = [], isLoading } = useNotificationsQuery()
+  const { data: notifications = [], isLoading } = useNotificationsQuery({
+    enabled: status === 'authenticated'
+  })
+
   const markReadMutation = useMarkNotificationReadMutation()
   const dismissMutation = useDismissNotificationMutation()
 

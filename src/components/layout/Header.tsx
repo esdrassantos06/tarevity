@@ -18,7 +18,6 @@ export default function Header() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
 
-  // Only fetch profile data when the user is authenticated
   const { data: profileData } = useProfileQuery({
     enabled: status === 'authenticated'
   })

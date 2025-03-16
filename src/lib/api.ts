@@ -178,6 +178,18 @@ export const authAPI = {
 
 export const profileAPI = {
   async getProfile(): Promise<ApiResult<ProfileData>> {
+    if (typeof window !== 'undefined') {
+      const publicPaths = ['/', '/privacy', '/terms'];
+      const isPublicPath = publicPaths.some(path => 
+        window.location.pathname === path || 
+        window.location.pathname.startsWith(`${path}/`)
+      );
+      
+      if (isPublicPath && !localStorage.getItem('next-auth.session-token')) {
+        return { data: null, error: null, loading: false };
+      }
+    }
+    
     try {
       const response = await axiosClient.get('/api/profile')
       return { data: response.data, error: null, loading: false }

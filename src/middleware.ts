@@ -5,6 +5,15 @@ import { rateLimiter } from './lib/rateLimit'
 export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname
 
+  // Add specific checks for public paths first
+  const publicPaths = ['/', '/privacy', '/terms']
+  if (publicPaths.includes(pathname) || pathname.match(/\.(ico|png|jpg|jpeg|svg|css|js)$/)) {
+    // Pass CSP headers but don't do auth checks for public paths
+    const response = NextResponse.next()
+    addSecurityHeaders(response, request)
+    return response
+  }
+
   const rateLimits = {
     '/api/auth/login': { limit: 5, window: 300 },
     '/api/auth/register': { limit: 3, window: 3600 },
@@ -40,6 +49,56 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
+  const response = NextResponse.next()
+  
+  // Add security headers
+  addSecurityHeaders(response, request)
+
+  if (pathname.startsWith('/api/')) {
+    return response
+  }
+
+  const token = await getToken({
+    req: request,
+    secureCookie: process.env.NODE_ENV === 'production',
+  })
+  const isAuthenticated = !!token
+
+  const protectedPaths = ['/dashboard', '/settings', '/profile', '/todo']
+  const authPaths = ['/auth/login', '/auth/register']
+
+  const isProtectedPath = protectedPaths.some((path) =>
+    pathname.startsWith(path)
+  )
+
+  const isAuthPath = authPaths.some((path) => pathname.startsWith(path))
+
+  if (isProtectedPath && !isAuthenticated) {
+    const url = new URL('/auth/login', request.url)
+    url.searchParams.set('callbackUrl', pathname)
+    const redirectResponse = NextResponse.redirect(url)
+    redirectResponse.headers.set(
+      'x-redirect-count',
+      (redirectCount + 1).toString()
+    )
+    return redirectResponse
+  }
+
+  if (isAuthenticated && isAuthPath) {
+    const redirectResponse = NextResponse.redirect(
+      new URL('/dashboard', request.url),
+    )
+    redirectResponse.headers.set(
+      'x-redirect-count',
+      (redirectCount + 1).toString(),
+    )
+    return redirectResponse
+  }
+
+  return response
+}
+
+function addSecurityHeaders(response: NextResponse, request: NextRequest) {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
   const supabaseDomain = supabaseUrl ? new URL(supabaseUrl).hostname : ''
 
@@ -59,7 +118,6 @@ export async function middleware(request: NextRequest) {
 `
     .replace(/\s{2,}/g, ' ')
     .trim()
-  const response = NextResponse.next()
 
   response.headers.set('Content-Security-Policy', cspHeader)
 
@@ -70,70 +128,18 @@ export async function middleware(request: NextRequest) {
     'https://github.com',
   ]
 
-  if (pathname.startsWith('/api/')) {
-    if (origin && allowedOrigins.includes(origin)) {
-      response.headers.set('Access-Control-Allow-Origin', origin)
-      response.headers.set(
-        'Access-Control-Allow-Methods',
-        'GET, POST, PUT, DELETE, OPTIONS',
-      )
-      response.headers.set(
-        'Access-Control-Allow-Headers',
-        'Content-Type, Authorization',
-      )
-      response.headers.set('Access-Control-Allow-Credentials', 'true')
-    }
-
-    if (request.method === 'OPTIONS') {
-      return new NextResponse(null, {
-        status: 200,
-        headers: response.headers,
-      })
-    }
-  }
-
-  if (pathname.startsWith('/api/')) {
-    return response
-  }
-
-  const token = await getToken({
-    req: request,
-    secureCookie: process.env.NODE_ENV === 'production',
-  })
-  const isAuthenticated = !!token
-
-  const protectedPaths = ['/dashboard', '/settings', '/profile']
-  const authPaths = ['/auth/login', '/auth/register']
-
-  const isProtectedPath = protectedPaths.some((path) =>
-    pathname.startsWith(path),
-  )
-
-  const isAuthPath = authPaths.some((path) => pathname.startsWith(path))
-
-  if (isProtectedPath && !isAuthenticated) {
-    const url = new URL('/auth/login', request.url)
-    url.searchParams.set('callbackUrl', pathname)
-    const redirectResponse = NextResponse.redirect(url)
-    redirectResponse.headers.set(
-      'x-redirect-count',
-      (redirectCount + 1).toString(),
+  if (origin && allowedOrigins.includes(origin)) {
+    response.headers.set('Access-Control-Allow-Origin', origin)
+    response.headers.set(
+      'Access-Control-Allow-Methods',
+      'GET, POST, PUT, DELETE, OPTIONS',
     )
-    return redirectResponse
-  }
-
-  if (isAuthenticated && isAuthPath) {
-    const redirectResponse = NextResponse.redirect(
-      new URL('/dashboard', request.url),
+    response.headers.set(
+      'Access-Control-Allow-Headers',
+      'Content-Type, Authorization',
     )
-    redirectResponse.headers.set(
-      'x-redirect-count',
-      (redirectCount + 1).toString(),
-    )
-    return redirectResponse
+    response.headers.set('Access-Control-Allow-Credentials', 'true')
   }
-
-  return response
 }
 
 export const config = {
@@ -141,12 +147,12 @@ export const config = {
     '/dashboard/:path*',
     '/settings/:path*',
     '/profile/:path*',
+    '/todo/:path*',
     '/auth/login',
     '/auth/register',
-    '/((?!api/auth/callback).*)',
-    '/api/todos/:path*',
-    '/api/profile/:path*',
-    '/api/stats/:path*',
-    '/api/account/:path*',
+    '/api/:path*',
+    '/',
+    '/privacy',
+    '/terms',
   ],
 }

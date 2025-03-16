@@ -7,6 +7,7 @@ import ToastProvider from '@/components/common/ToastProvider'
 import Providers from '@/components/common/Providers'
 import CookieBanner from '@/components/cookie-consent/CookieBanner'
 
+
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
@@ -99,6 +100,8 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
+
+
   return (
     <html lang="en" suppressHydrationWarning className="overflow-x-hidden">
       <head>
