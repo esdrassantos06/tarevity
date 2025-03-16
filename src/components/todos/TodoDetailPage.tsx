@@ -2,6 +2,7 @@
 import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { HiPencilAlt, HiTrash } from 'react-icons/hi'
+import axiosClient from '@/lib/axios'
 import {
   FaArrowLeft,
   FaClock,
@@ -198,22 +199,15 @@ const TodoDetailPage: React.FC<TodoDetailPageProps> = ({ todoId }) => {
           },
           {
             onSuccess: () => {
-              fetch(`/api/notifications/delete-for-todo/${todo.id}`, {
-                method: 'DELETE',
+              axiosClient.delete(`/api/notifications/delete-for-todo/${todo.id}`)
+              .then(() => {
+                queryClient.invalidateQueries({ queryKey: ['notifications'] })
+                closeConfirmDialog()
               })
-                .then((response) => {
-                  if (!response.ok)
-                    throw new Error('Failed to delete notifications')
-                  return response.json()
-                })
-                .then(() => {
-                  queryClient.invalidateQueries({ queryKey: ['notifications'] })
-                  closeConfirmDialog()
-                })
-                .catch((error) => {
-                  console.error('Error deleting notifications:', error)
-                  closeConfirmDialog()
-                })
+              .catch((error) => {
+                console.error('Error deleting notifications:', error)
+                closeConfirmDialog()
+              })
             },
             onError: (error) => {
               console.error('Error clearing due date:', error)

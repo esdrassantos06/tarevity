@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useQueryClient } from '@tanstack/react-query'
 import { FiPlus } from 'react-icons/fi'
 import { Todo } from '@/lib/api'
+import axiosClient from '@/lib/axios'
 import {
   useTodosQuery,
   useUpdateTodoMutation,
@@ -90,20 +91,8 @@ const RedesignedTodoList: React.FC = () => {
       {
         onSuccess: () => {
           if (!isCompleted) {
-            fetch('/api/notifications/dismiss-for-todo', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({ todoId: id }),
-            })
-              .then((response) => {
-                if (!response.ok) {
-                  console.error(
-                    'Failed to dismiss notifications for completed todo',
-                  )
-                }
-                return response.json()
+            axiosClient.post('/api/notifications/dismiss-for-todo', {todoId: id})
+              .then(() => {
               })
               .catch((error) => {
                 console.error('Error dismissing notifications:', error)

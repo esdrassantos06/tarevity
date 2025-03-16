@@ -17,6 +17,7 @@ import { formatDistanceToNow } from 'date-fns'
 import ConfirmationDialog, {
   useConfirmationDialog,
 } from '@/components/common/ConfirmationDialog'
+import axiosClient from '@/lib/axios'
 
 interface Todo {
   id: string
@@ -190,13 +191,9 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
   }
 
   const deleteNotificationsForTodo = () => {
-    fetch(`/api/notifications/delete-for-todo/${todoId}`, {
-      method: 'DELETE',
+    axiosClient.delete(`/api/notifications/delete-for-todo/${todoId}`, {
+      data: { todoId: todoId }
     })
-      .then((response) => {
-        if (!response.ok) throw new Error('Failed to delete notifications')
-        return response.json()
-      })
       .then(() => {
         queryClient.invalidateQueries({ queryKey: ['notifications'] })
       })
@@ -236,42 +233,27 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
               todos.find((t) => t.id === todoId)?.is_completed !==
               updateData.is_completed
 
-            if (updateData.is_completed) {
-              fetch('/api/notifications/dismiss-for-todo', {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ todoId }),
-              }).catch((error) => {
-                console.error('Error dismissing notifications:', error)
-              })
+              if (updateData.is_completed) {
+                axiosClient.post('/api/notifications/dismiss-for-todo', { todoId })
+                  .catch((error) => {
+                    console.error('Error dismissing notifications:', error)
+                  })
             } else if (
               hasDueDateChanged ||
               hasTitleChanged ||
               hasCompletionChanged
             ) {
-              fetch(`/api/notifications/delete-for-todo/${todoId}`, {
-                method: 'DELETE',
-              })
-                .then((response) => {
-                  if (!response.ok)
-                    throw new Error('Failed to delete notifications')
-                  return response.json()
-                })
-                .then(() => {
-                  setTimeout(() => {
-                    if (response.data) {
-                      updateNotificationsForTodo(response.data)
-                    }
-                  }, 300)
-                })
-                .catch((error) => {
-                  console.error('Error managing notifications:', error)
+              axiosClient.delete(`/api/notifications/delete-for-todo/${todoId}`)
+              .then((response) => {
+                setTimeout(() => {
                   if (response.data) {
                     updateNotificationsForTodo(response.data)
                   }
-                })
+                }, 300)
+              })
+              .catch((error) => {
+                console.error('Error managing notifications:', error)
+              })
             }
           }
 
