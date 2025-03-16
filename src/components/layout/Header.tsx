@@ -19,14 +19,14 @@ export default function Header() {
   const dropdownRef = useRef<HTMLDivElement>(null)
 
   const { data: profileData, refetch: refetchProfile } = useProfileQuery({
-    enabled: status === 'authenticated'
-  });
+    enabled: status === 'authenticated',
+  })
 
   useEffect(() => {
     if (status === 'authenticated') {
-      refetchProfile();
+      refetchProfile()
     }
-  }, [status, refetchProfile]);
+  }, [status, refetchProfile])
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen)
@@ -60,7 +60,10 @@ export default function Header() {
         <div className="flex h-16 justify-between">
           <div className="flex">
             <div className="flex flex-shrink-0 items-center">
-              <Link href={isAuthenticated ? '/dashboard' : '/'} title="Tarevity">
+              <Link
+                href={isAuthenticated ? '/dashboard' : '/'}
+                title="Tarevity"
+              >
                 <TarevityLogo className="hidden w-30 fill-black sm:flex dark:fill-white" />
                 <TarevityIcon className="flex w-12 fill-black sm:hidden dark:fill-white" />
               </Link>
@@ -68,7 +71,6 @@ export default function Header() {
           </div>
 
           <div className="flex items-center">
-            
             {isAuthenticated ? (
               <div className="flex items-center justify-center">
                 {/* Notification Dropdown Component */}
@@ -91,7 +93,9 @@ export default function Header() {
 
                     {/* Dropdown menu */}
                     {isDropdownOpen && (
-                      <div className="dark:bg-BlackLight absolute right-0 z-50 mt-2 w-60 origin-top-right rounded-md border-none bg-white p-1 shadow-lg">
+                      <div
+                        className={`dark:bg-BlackLight absolute right-0 z-50 mt-2 w-60 origin-top-right rounded-md border-none bg-white p-1 shadow-lg transition-all duration-300`}
+                      >
                         <div className="border-b border-gray-200 px-4 py-2 dark:border-gray-700">
                           <p className="text-sm font-bold text-gray-900 dark:text-white">
                             {profileData?.name}
@@ -172,8 +176,9 @@ export default function Header() {
           </div>
         </div>
 
-        {isMenuOpen && (
-          <div className="sm:hidden">
+          <div
+            className={`dark:bg-HeaderBgDark absolute right-0 left-0 z-10 w-full transform bg-white transition-all duration-300 ease-in-out ${isMenuOpen ? 'visible translate-x-0 opacity-100' : 'invisible -translate-x-10 opacity-0'} `}
+          >
             <div className="space-y-1 pt-2 pb-3">
               {isAuthenticated ? (
                 <>
@@ -221,24 +226,23 @@ export default function Header() {
                   </button>
                 </>
               ) : (
-                <>
+                <div className={`${isMenuOpen ? 'visible translate-x-0 opacity-100' : 'invisible -translate-x-10 opacity-0'} transition-all duration-300 ease-in-out`}>
                   <Link
                     href="/auth/login"
-                    className="text-BlackLight font-medium block px-3 py-2 dark:text-white"
+                    className="text-BlackLight block px-3 py-2 font-medium dark:text-white"
                   >
                     Log in
                   </Link>
                   <Link
                     href="/auth/register"
-                    className="text-BlackLight font-medium block px-3 py-2 dark:text-white"
+                    className="text-BlackLight block px-3 py-2 font-medium dark:text-white"
                   >
                     Sign up
                   </Link>
-                </>
+                </div>
               )}
             </div>
           </div>
-        )}
       </div>
     </header>
   )
