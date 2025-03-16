@@ -3,7 +3,13 @@
 import { useState } from 'react'
 import { useSession, signOut } from 'next-auth/react'
 import { useTheme } from 'next-themes'
-import { FaMoon, FaSun, FaDesktop, FaUserCircle } from 'react-icons/fa'
+import {
+  FaMoon,
+  FaSun,
+  FaDesktop,
+  FaUserCircle,
+  FaShieldAlt,
+} from 'react-icons/fa'
 import { useRouter } from 'next/navigation'
 import ConfirmationDialog, {
   useConfirmationDialog,
@@ -13,6 +19,7 @@ import {
   useDeleteAccountMutation,
 } from '@/hooks/useProfileQuery'
 import { showSuccess, showError, showLoading, updateToast } from '@/lib/toast'
+import AdminSettings from './admin'
 
 export default function SettingsComponent() {
   const { data: session } = useSession()
@@ -118,9 +125,11 @@ export default function SettingsComponent() {
     })
   }
 
+  const isAdmin = session?.user?.is_admin || false
+
   if (!session) {
     return (
-      <div className="rounded-lg bg-white p-6 shadow dark:bg-gray-800">
+      <div className="dark:bg-BlackLight rounded-lg bg-white p-6 shadow">
         <p className="text-gray-600 dark:text-gray-400">
           Please log in to access settings.
         </p>
@@ -129,10 +138,10 @@ export default function SettingsComponent() {
   }
 
   return (
-    <div className="dark:bg-BlackLight overflow-hidden rounded-lg bg-white shadow">
+    <div className="dark:bg-BlackLight rounded-lg bg-white shadow">
       <div className="flex flex-col md:flex-row">
         {/* Sidebar / Tab Navigation */}
-        <div className="w-full border-b border-gray-200 md:w-64 md:border-r md:border-b-0 dark:border-gray-700">
+        <div className="w-full border-b border-gray-200 md:w-64 md:flex-shrink-0 md:border-r md:border-b-0 dark:border-gray-700">
           <nav className="space-y-1 p-4">
             <button
               onClick={() => setActiveTab('appearance')}
@@ -156,11 +165,26 @@ export default function SettingsComponent() {
               <FaUserCircle className="mr-3 h-4 w-4" />
               Account
             </button>
+
+            {/* Admin tab - only visible for admins */}
+            {isAdmin && (
+              <button
+                onClick={() => setActiveTab('admin')}
+                className={`flex w-full items-center rounded-md px-4 py-2 text-sm transition-colors ${
+                  activeTab === 'admin'
+                    ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300'
+                    : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700'
+                }`}
+              >
+                <FaShieldAlt className="mr-3 h-4 w-4" />
+                Admin Panel
+              </button>
+            )}
           </nav>
         </div>
 
         {/* Content Area */}
-        <div className="flex-1 p-6">
+        <div className="flex-1 p-6 min-w-0">
           {/* Appearance Settings */}
           {activeTab === 'appearance' && (
             <div>
@@ -324,6 +348,9 @@ export default function SettingsComponent() {
               </div>
             </div>
           )}
+
+          {/* Admin Settings */}
+          {activeTab === 'admin' && isAdmin && <AdminSettings />}
         </div>
       </div>
 

@@ -15,6 +15,7 @@ declare module 'next-auth' {
       email?: string | null
       image?: string | null
       provider?: string
+      is_admin?: boolean
     }
   }
 }
@@ -63,6 +64,7 @@ export const authOptions: NextAuthOptions = {
           name: user.name,
           email: user.email,
           image: user.image,
+          is_admin: user.is_admin || false,
           provider: 'credentials',
         }
       },
@@ -112,6 +114,7 @@ export const authOptions: NextAuthOptions = {
       if (token && session.user) {
         session.user.id = token.id
         session.user.provider = token.provider
+        session.user.is_admin = token.is_admin || false
       }
 
       if (token.error === 'RefreshTokenError') {
@@ -127,6 +130,7 @@ export const authOptions: NextAuthOptions = {
             ...token,
             id: user.id,
             provider: 'credentials',
+            is_admin: user.is_admin || false,
             refreshToken: crypto.randomBytes(32).toString('hex'),
             refreshTokenExpires: Date.now() + 7 * 24 * 60 * 60 * 1000,
           }
@@ -178,6 +182,7 @@ export const authOptions: NextAuthOptions = {
               ...token,
               id: existingUser.id,
               provider: account.provider,
+              is_admin: existingUser.is_admin || false,
               refreshToken: refreshToken,
               refreshTokenExpires: refreshTokenExpires,
               refreshTokenStored: true,

@@ -67,6 +67,18 @@ export async function middleware(request: NextRequest) {
     
     return response;
   }
+
+  if (pathname.startsWith('/api/admin')) {
+    if (!token) {
+      return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
+    }
+    
+    if (!token.is_admin) {
+      return NextResponse.json({ message: 'Forbidden: Admin access required' }, { status: 403 });
+    }
+    
+    return response;
+  }
   
   const isAuthenticated = !!token
 
@@ -158,6 +170,7 @@ export const config = {
     '/auth/login',
     '/auth/register',
     '/api/:path*',
+    '/api/admin/:path*',
     '/',
     '/privacy',
     '/terms',
