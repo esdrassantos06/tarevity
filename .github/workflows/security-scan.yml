@@ -11,6 +11,11 @@ on:
 jobs:
   security-scan:
     runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+      actions: read
+      contents: read
+    
     steps:
       - uses: actions/checkout@v3
       
@@ -26,7 +31,10 @@ jobs:
       - name: Run npm audit
         run: npm run security-audit
       
-      - name: Run CodeQL Analysis
-        uses: github/codeql-action/analyze@v2
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v2
         with:
           languages: 'javascript'
+      
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v2
