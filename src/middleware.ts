@@ -58,8 +58,18 @@ export async function middleware(request: NextRequest) {
   const token = await getToken({
     req: request,
     secureCookie: process.env.NODE_ENV === 'production',
-  })
+  });
+
+  if (pathname.startsWith('/api/profile')) {
+    if (!token) {
+      return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
+    }
+    
+    return response;
+  }
+  
   const isAuthenticated = !!token
+
 
   const protectedPaths = ['/dashboard', '/settings', '/profile', '/todo']
   const authPaths = ['/auth/login', '/auth/register']
