@@ -5,6 +5,15 @@ import { csrfProtection } from './csrf'
 
 export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname
+
+  //Debug 
+console.log("\n----- MIDDLEWARE START -----")
+  console.log("Request path:", pathname)
+  console.log("HTTP Method:", request.method)
+  console.log("Headers:", Object.fromEntries([...request.headers.entries()].map(([k, v]) => [k, k.includes('cookie') ? '**REDACTED**' : v])))
+
+
+
   const method = request.method
 
   if (!['GET', 'HEAD', 'OPTIONS'].includes(method) && pathname.startsWith('/api/')) {
@@ -127,13 +136,20 @@ export async function middleware(request: NextRequest) {
 
 
   const protectedPaths = ['/dashboard', '/settings', '/profile', '/todo']
-  const authPaths = ['/auth/login', '/auth/register', '/auth/forgot-password', '/auth/reset-password']
+  const authPaths = [
+    '/auth/login', 
+    '/auth/register', 
+    '/auth/forgot-password', 
+    '/auth/reset-password'
+  ];
 
   const isProtectedPath = protectedPaths.some((path) =>
     pathname.startsWith(path)
   )
 
-  const isAuthPath = authPaths.some((path) => pathname.startsWith(path))
+  const isAuthPath = authPaths.some((path) => 
+    pathname === path || pathname === `${path}/`
+  )
 
   if (isAuthenticated && isAuthPath) {
     const redirectResponse = NextResponse.redirect(

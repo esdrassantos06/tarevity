@@ -142,7 +142,7 @@ export const authOptions: NextAuthOptions = {
 
       if (token.error === 'RefreshTokenError') {
         session.error = 'RefreshTokenError'
-      }
+      }  
 
       return session
     },
@@ -297,6 +297,7 @@ export const authOptions: NextAuthOptions = {
 
       if (token.refreshToken && !account && !user) {
         const shouldRefresh = Date.now() > Number(token.exp) * 1000
+        
         if (shouldRefresh) {
           try {
             const { data, error } = await supabase
