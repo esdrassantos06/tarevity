@@ -36,7 +36,7 @@ export function useCreateTodoMutation() {
 
       const tempId = `temp-${Date.now()}`
 
-      // Create a properly structured optimistic todo that matches the API response format
+
       const optimisticTodo: Todo = {
         id: tempId,
         title: newTodoData.title,
@@ -66,24 +66,24 @@ export function useCreateTodoMutation() {
     },
 
     onSuccess: (result, variables, context) => {
-
-      
       if (result.data && context?.tempId) {
+        const todoData = result.data;
+        
         queryClient.setQueryData<Todo[]>(['todos'], (old) => {
-          if (!old) return [result.data!]
+          if (!old) return [todoData];
           
-          if (!result.data.id) {
-            console.error('Unexpected API response format:', result.data)
-            return old.filter(todo => todo.id !== context.tempId)
+          if (!todoData.id) {
+            console.error('Unexpected API response format:', todoData);
+            return old.filter(todo => todo.id !== context.tempId);
           }
           
           return old.map((todo) =>
-            todo.id === context.tempId ? result.data! : todo,
-          )
-        })
+            todo.id === context.tempId ? todoData : todo,
+          );
+        });
       } else if (!result.data) {
-        console.error('Missing data in API response:', result)
-        queryClient.invalidateQueries({ queryKey: ['todos'] })
+        console.error('Missing data in API response:', result);
+        queryClient.invalidateQueries({ queryKey: ['todos'] });
       }
     },
 
@@ -144,37 +144,39 @@ export function useUpdateTodoMutation() {
 
     onSuccess: (result, variables) => {
       if (result.data) {
+        const todoData = result.data;
+        
         queryClient.setQueryData<Todo[]>(['todos'], (old = []) => {
           return old.map((todo) => {
             if (todo.id === variables.id) {
-              if (!result.data.id) {
-                console.error('Invalid server response:', result.data)
-                return todo
+              if (!todoData.id) {
+                console.error('Invalid server response:', todoData);
+                return todo;
               }
-              return { ...todo, ...result.data }
+              return { ...todo, ...todoData };
             }
-            return todo
-          })
-        })
-
+            return todo;
+          });
+        });
+    
         if ('is_completed' in variables.data) {
-          const isCompleted = variables.data.is_completed
+          const isCompleted = variables.data.is_completed;
           showSuccess(
             isCompleted ? 'Task marked as completed' : 'Task marked as active',
-          )
+          );
         } else if ('status' in variables.data) {
-          const status = variables.data.status
+          const status = variables.data.status;
           if (status === 'review') {
-            showSuccess('Task moved to review')
+            showSuccess('Task moved to review');
           } else if (status === 'active') {
-            showSuccess('Task approved and moved to active')
+            showSuccess('Task approved and moved to active');
           }
         } else {
-          showSuccess('Task updated successfully')
+          showSuccess('Task updated successfully');
         }
       } else {
-        console.error('Invalid response from server:', result)
-        queryClient.invalidateQueries({ queryKey: ['todos'] })
+        console.error('Invalid response from server:', result);
+        queryClient.invalidateQueries({ queryKey: ['todos'] });
       }
     },
 

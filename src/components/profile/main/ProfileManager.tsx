@@ -59,7 +59,7 @@ export default function ProfileManager() {
 
   if (!session?.user || !profileData) {
     return (
-      <div className="rounded-lg bg-white p-6 shadow dark:bg-gray-800">
+      <div className="rounded-lg bg-white p-6 shadow dark:bg-BlackLight">
         <p className="text-gray-600 dark:text-gray-400">
           Please log in to view your profile.
         </p>
