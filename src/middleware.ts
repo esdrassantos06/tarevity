@@ -5,10 +5,8 @@ import { rateLimiter } from './lib/rateLimit'
 export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname
 
-  // Add specific checks for public paths first
   const publicPaths = ['/', '/privacy', '/terms']
   if (publicPaths.includes(pathname) || pathname.match(/\.(ico|png|jpg|jpeg|svg|css|js)$/)) {
-    // Pass CSP headers but don't do auth checks for public paths
     const response = NextResponse.next()
     addSecurityHeaders(response, request)
     return response
@@ -51,7 +49,6 @@ export async function middleware(request: NextRequest) {
 
   const response = NextResponse.next()
   
-  // Add security headers
   addSecurityHeaders(response, request)
 
   if (pathname.startsWith('/api/')) {

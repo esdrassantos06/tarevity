@@ -61,7 +61,6 @@ axiosClient.interceptors.response.use(
       const pathname = typeof window !== 'undefined' ? window.location.pathname : ''
       const isPublicPath = publicPaths.some(path => pathname === path || pathname.startsWith(`${path}/`))
 
-      // Only handle auth errors on protected routes
       const isProtectedRoute = typeof window !== 'undefined' && 
         ['/dashboard', '/profile', '/settings', '/todo'].some(path => 
           window.location.pathname.startsWith(path)

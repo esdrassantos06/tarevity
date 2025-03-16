@@ -14,7 +14,6 @@ export interface Notification {
   origin_id: string
 }
 
-// Add proper type for the options parameter
 interface QueryOptions {
   enabled?: boolean;
   [key: string]: unknown;

@@ -46,7 +46,6 @@ export default function Header() {
     }
   }, [])
 
-  // Check if user is authenticated
   const isAuthenticated = status === 'authenticated' && !!session?.user
 
   return (

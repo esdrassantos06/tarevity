@@ -303,7 +303,6 @@ export default function EnhancedResetPasswordForm() {
     )
   }
 
-  // Show UI for valid token
   return (
     <div className="dark:bg-BlackLight mx-auto w-full max-w-md rounded-lg bg-white p-6 shadow-md">
       <div className="mb-6 text-center">
@@ -318,7 +317,6 @@ export default function EnhancedResetPasswordForm() {
       </div>
 
       {isSubmitted ? (
-        // Show success state after submission
         <div className="text-center">
           <div className="mb-6 rounded-lg bg-green-50 p-4 dark:bg-green-900/30">
             <FaCheck className="mx-auto mb-2 h-12 w-12 text-green-500 dark:text-green-400" />
@@ -337,7 +335,6 @@ export default function EnhancedResetPasswordForm() {
           </Link>
         </div>
       ) : (
-        // Show form when not yet submitted
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <ValidatedInput
             id="password"

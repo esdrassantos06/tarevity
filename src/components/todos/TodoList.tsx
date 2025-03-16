@@ -23,7 +23,6 @@ const RedesignedTodoList: React.FC = () => {
   const router = useRouter()
   const queryClient = useQueryClient()
 
-  // Dialog state management
   const { dialogState, openConfirmDialog, closeConfirmDialog, setLoading } =
     useConfirmationDialog()
 
@@ -45,7 +44,6 @@ const RedesignedTodoList: React.FC = () => {
     paginate,
   } = useTodoFilters(todos)
 
-  // Memoize the delete todo handler
   const handleDeleteTodo = useCallback((id: string, title: string) => {
     openConfirmDialog({
       title: 'Delete Task',
@@ -72,7 +70,6 @@ const RedesignedTodoList: React.FC = () => {
     })
   }, [openConfirmDialog, setLoading, deleteTodoMutation, closeConfirmDialog, queryClient])
 
-  // Memoize the checkbox change handler
   const handleCheckboxChange = useCallback((
     id: string,
     isCompleted: boolean,
@@ -112,7 +109,6 @@ const RedesignedTodoList: React.FC = () => {
                 console.error('Error dismissing notifications:', error)
               })
               .finally(() => {
-                // Invalidate notifications query to update UI
                 queryClient.invalidateQueries({ queryKey: ['notifications'] })
               })
           }
@@ -123,7 +119,6 @@ const RedesignedTodoList: React.FC = () => {
     )
   }, [todos, updateTodoMutation, queryClient])
 
-  // Memoize the set review handler
   const handleSetReview = useCallback((e: React.MouseEvent, id: string) => {
     e.stopPropagation()
 
@@ -143,7 +138,6 @@ const RedesignedTodoList: React.FC = () => {
     )
   }, [todos, updateTodoMutation])
 
-  // Memoize the approve review handler
   const handleApproveReview = useCallback((e: React.MouseEvent, id: string) => {
     e.stopPropagation()
 
@@ -175,7 +169,6 @@ const RedesignedTodoList: React.FC = () => {
     )
   }, [todos, updateTodoMutation, queryClient])
 
-  // Memoize stats calculation
   const stats = useMemo(() => {
     const total = todos.length
     const active = todos.filter(
@@ -188,7 +181,6 @@ const RedesignedTodoList: React.FC = () => {
     return { total, active, completed, review, toDo }
   }, [todos])
 
-  // Memoize pie chart calculations
   const calculatePieSegments = useCallback(() => {
     const totalTodos = stats.total
     if (totalTodos === 0)

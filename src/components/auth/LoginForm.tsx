@@ -63,7 +63,6 @@ export default function EnhancedLoginForm() {
   const watchedEmail = watch('email')
   const watchedPassword = watch('password')
 
-  // Focus on error message when it appears
   useEffect(() => {
     if (error && errorRef.current) {
       errorRef.current.focus()

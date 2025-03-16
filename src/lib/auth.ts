@@ -32,7 +32,6 @@ export function validatePasswordStrength(password: string): {
   if (!hasDigit) errors.push('Password must contain numeric digits')
   if (!hasSpecial) errors.push('Password must contain special characters')
 
-  // Check for common patterns
   const hasRepeatingChars = /(.)\1{2,}/.test(password)
   const hasSequentialChars =
     /(abc|bcd|cde|def|efg|fgh|ghi|hij|ijk|jkl|klm|lmn|mno|nop|opq|pqr|qrs|rst|stu|tuv|uvw|vwx|wxy|xyz|012|123|234|345|456|567|678|789)/i.test(

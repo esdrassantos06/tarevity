@@ -10,7 +10,7 @@ import {
   FaShare,
   FaUser,
   FaExclamationCircle,
-  FaCalendarTimes, // Added for clear date icon
+  FaCalendarTimes,
 } from 'react-icons/fa'
 import {
   useTodosQuery,
@@ -63,7 +63,7 @@ const TodoDetailPage: React.FC<TodoDetailPageProps> = ({ todoId }) => {
 
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
 
-  // Add confirmation dialog hook
+
   const { dialogState, openConfirmDialog, closeConfirmDialog, setLoading } =
     useConfirmationDialog()
 

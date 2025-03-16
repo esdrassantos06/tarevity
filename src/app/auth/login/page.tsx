@@ -2,7 +2,6 @@ import { Suspense } from 'react'
 import { Metadata } from 'next'
 import dynamic from 'next/dynamic'
 
-// Dynamically import the LoginForm
 const LoginForm = dynamic(() => import('@/components/auth/LoginForm'), {
   loading: () => <div className="text-center">Loading...</div>,
 })

@@ -45,7 +45,6 @@ const formatDate = (dateString: string | null) => {
   return `${months[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`
 }
 
-// Define a memoized component using React.memo
 const TodoItem = memo(function TodoItem({
   todo,
   onToggleComplete,

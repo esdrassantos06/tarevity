@@ -3,7 +3,7 @@ import { profileAPI } from '@/lib/api'
 import { showSuccess, showError } from '@/lib/toast'
 import { useSession } from 'next-auth/react'
 
-// Add proper type for the options parameter
+
 interface QueryOptions {
   enabled?: boolean;
   [key: string]: unknown;
@@ -21,7 +21,6 @@ export function useProfileQuery(options: QueryOptions = {}) {
         if (result.error) throw new Error(result.error.message);
         return result.data;
       } catch (error) {
-        // Only show error if we're on a protected route
         const isProtectedRoute = typeof window !== 'undefined' && 
           ['/dashboard', '/profile', '/settings', '/todo'].some(path => 
             window.location.pathname.startsWith(path)
@@ -38,7 +37,7 @@ export function useProfileQuery(options: QueryOptions = {}) {
     ...options,
     enabled: isAuthenticated && (options.enabled !== false),
     staleTime: 5 * 60 * 1000,
-    retry: isAuthenticated ? 1 : 0, // Don't retry if not authenticated
+    retry: isAuthenticated ? 1 : 0,
     gcTime: 10 * 60 * 1000,
   });
 }
@@ -55,7 +54,6 @@ export function useStatsQuery(options: QueryOptions = {}) {
         if (result.error) throw new Error(result.error.message)
         return result.data
       } catch (error) {
-        // Only show error on protected routes
         const isProtectedRoute = typeof window !== 'undefined' && 
           ['/dashboard', '/profile', '/settings', '/todo'].some(path => 
             window.location.pathname.startsWith(path)

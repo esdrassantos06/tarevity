@@ -72,7 +72,6 @@ const Pagination: React.FC<PaginationProps> = ({
 
             {/* Show pages around current page */}
             {Array.from({ length: 3 }, (_, i) => {
-              // Calculate which pages to show around current page
               const pageNum =
                 currentPage > 3
                   ? currentPage + i - 1 > totalPages - 3

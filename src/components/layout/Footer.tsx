@@ -1,4 +1,3 @@
-// src/components/layout/Footer.tsx
 import Link from 'next/link'
 import { FaGithub, FaLinkedin, FaHeart } from 'react-icons/fa'
 import TarevityLogo from '../logo/TarevityLogo'

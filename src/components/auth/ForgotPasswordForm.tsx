@@ -135,7 +135,6 @@ export default function EnhancedForgotPasswordForm() {
           </div>
         </div>
       ) : (
-        // Show form when not yet submitted
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <ValidatedInput
             id="email"
