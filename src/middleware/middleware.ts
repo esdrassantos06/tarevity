@@ -51,24 +51,24 @@ export async function middleware(request: NextRequest) {
         secureCookie: process.env.NODE_ENV === 'production',
       })
       
-    const ipHeader = request.headers.get('x-forwarded-for');
-    const ipAddresses = ipHeader ? ipHeader.split(',') : [];
-    const clientIp = ipAddresses.length > 0 
-      ? ipAddresses[0].trim() 
-      : (request.nextUrl.hostname || 'unknown-ip');
-    
-    const userId = token?.id || 'unauthenticated'
-    
-    const rateLimit = await rateLimiter(request, {
-      ...matchedConfig,
-      identifier: `${userId}:${clientIp}:${matchedRoute}` 
-    })
-    
-    if (rateLimit) return rateLimit
-  } catch (error) {
-    console.error('Error applying rate limiting:', error)
+      const ipHeader = request.headers.get('x-forwarded-for');
+      const ipAddresses = ipHeader ? ipHeader.split(',') : [];
+      const clientIp = ipAddresses.length > 0 
+        ? ipAddresses[0].trim() 
+        : (request.nextUrl.hostname || 'unknown-ip');
+      
+      const userId = token?.id || 'unauthenticated'
+      
+      const rateLimit = await rateLimiter(request, {
+        ...matchedConfig,
+        identifier: `${userId}:${clientIp}:${matchedRoute}` 
+      })
+      
+      if (rateLimit) return rateLimit
+    } catch (error) {
+      console.error('Error applying rate limiting:', error)
+    }
   }
-}
 
   if (
     pathname.startsWith('/api/auth/callback') ||
@@ -87,9 +87,7 @@ export async function middleware(request: NextRequest) {
   }
 
   const response = NextResponse.next()
-  
   addSecurityHeaders(response, request)
-
 
   if (pathname.startsWith('/api/')) {
     const token = await getToken({
@@ -127,6 +125,7 @@ export async function middleware(request: NextRequest) {
   
   const isAuthenticated = !!token
 
+
   const protectedPaths = ['/dashboard', '/settings', '/profile', '/todo']
   const authPaths = ['/auth/login', '/auth/register', '/auth/forgot-password', '/auth/reset-password']
 
@@ -135,6 +134,21 @@ export async function middleware(request: NextRequest) {
   )
 
   const isAuthPath = authPaths.some((path) => pathname.startsWith(path))
+
+  if (isAuthenticated && isAuthPath) {
+    const redirectResponse = NextResponse.redirect(
+      new URL('/dashboard', request.url),
+    )
+    redirectResponse.headers.set(
+      'x-redirect-count',
+      (redirectCount + 1).toString()
+    )
+    
+    redirectResponse.headers.set('Cache-Control', 'no-store, max-age=0')
+    addSecurityHeaders(redirectResponse, request)
+    
+    return redirectResponse
+  }
 
   if (isProtectedPath && !isAuthenticated) {
     const safeCallbackUrl = new URL(pathname, request.url).pathname
@@ -149,20 +163,7 @@ export async function middleware(request: NextRequest) {
     )
     
     redirectResponse.headers.set('Cache-Control', 'no-store, max-age=0')
-    
-    return redirectResponse
-  }
-
-  if (isAuthenticated && isAuthPath) {
-    const redirectResponse = NextResponse.redirect(
-      new URL('/dashboard', request.url),
-    )
-    redirectResponse.headers.set(
-      'x-redirect-count',
-      (redirectCount + 1).toString()
-    )
-    
-    redirectResponse.headers.set('Cache-Control', 'no-store, max-age=0')
+    addSecurityHeaders(redirectResponse, request)
     
     return redirectResponse
   }
