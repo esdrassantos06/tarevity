@@ -61,7 +61,7 @@ export default function HomePage() {
               <div className="rounded-md shadow">
                 <Link
                   href="/auth/login"
-                  className="dark:bg-BlackLight flex w-full items-center justify-center rounded-md border border-transparent bg-white px-5 py-1.5 text-base font-medium transition-all duration-300 hover:scale-105 md:text-lg"
+                  className="dark:bg-BlackLight flex w-full items-center justify-center rounded-md border border-transparent bg-white px-5 py-1.5 text-base font-medium transition-all duration-300 md:text-lg"
                 >
                   Get Started <IoIosArrowForward size={18} className="ml-1" />
                 </Link>
@@ -71,7 +71,7 @@ export default function HomePage() {
         </div>
 
         {/* Features Section */}
-        <div className="dark:bg-BlackLight mt-10 rounded-lg bg-white py-12 shadow-lg">
+        <div className="dark:bg-BlackLight container mx-auto mt-10 rounded-lg bg-white py-12 shadow-lg">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="lg:text-center">
               <h2 className="text-center font-semibold uppercase">Features</h2>
@@ -159,7 +159,7 @@ export default function HomePage() {
         </div>
 
         {/* CTA Section */}
-        <div className="bg-primary mt-10 rounded-lg shadow-lg">
+        <div className="bg-primary container mx-auto mt-10 rounded-lg shadow-lg">
           <div className="mx-auto max-w-2xl px-4 py-16 text-center sm:px-6 sm:py-20 lg:px-8">
             <h2 className="text-3xl font-extrabold text-white sm:text-4xl">
               <span className="block">Ready to get organized?</span>
