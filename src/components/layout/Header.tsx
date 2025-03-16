@@ -18,9 +18,15 @@ export default function Header() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
 
-  const { data: profileData } = useProfileQuery({
+  const { data: profileData, refetch: refetchProfile } = useProfileQuery({
     enabled: status === 'authenticated'
-  })
+  });
+
+  useEffect(() => {
+    if (status === 'authenticated') {
+      refetchProfile();
+    }
+  }, [status, refetchProfile]);
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen)
@@ -126,18 +132,18 @@ export default function Header() {
                 </div>
               </div>
             ) : (
-              <div className="hidden font-bold sm:flex sm:items-center sm:gap-3">
+              <div className="hidden font-medium sm:flex sm:items-center sm:gap-3">
                 <Link
                   href="/auth/login"
-                  className="dark:hover:bg-BorderDark/40 hover:bg-BorderLight/70 text-primary dark:border-BorderDark border-BorderLight inline-flex items-center rounded-lg border bg-transparent px-4 py-1.5 backdrop-blur-sm transition-colors duration-300 dark:text-white"
+                  className="dark:hover:bg-BorderDark/40 hover:bg-BorderLight/70 text-primary dark:border-BorderDark border-BorderLight inline-flex items-center rounded-lg border bg-transparent px-3 py-2 backdrop-blur-sm transition-colors duration-300 dark:text-white"
                 >
-                  Login
+                  Log in
                 </Link>
                 <Link
                   href="/auth/register"
-                  className="bg-primary hover:bg-primary/80 inline-flex items-center rounded-md px-4 py-1.5 text-white transition-all duration-300"
+                  className="bg-primary hover:bg-primary/80 inline-flex items-center rounded-md px-3 py-2 text-white transition-all duration-300"
                 >
-                  Register
+                  Sign up
                 </Link>
               </div>
             )}
@@ -218,15 +224,15 @@ export default function Header() {
                 <>
                   <Link
                     href="/auth/login"
-                    className="text-BlackLight block px-3 py-2 dark:text-white"
+                    className="text-BlackLight font-medium block px-3 py-2 dark:text-white"
                   >
-                    Login
+                    Log in
                   </Link>
                   <Link
                     href="/auth/register"
-                    className="text-BlackLight block px-3 py-2 dark:text-white"
+                    className="text-BlackLight font-medium block px-3 py-2 dark:text-white"
                   >
-                    Register
+                    Sign up
                   </Link>
                 </>
               )}

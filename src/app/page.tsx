@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { FaCheckCircle, FaBell, FaLock, FaMobileAlt } from 'react-icons/fa'
-import { IoIosArrowForward } from 'react-icons/io'
+import { IoMdArrowForward } from "react-icons/io";
 import Layout from '@/components/layout/Layout'
 import type { Metadata } from 'next'
 import { JsonLd } from '@/components/seo/JsonLd'
@@ -63,7 +63,7 @@ export default function HomePage() {
                   href="/auth/login"
                   className="dark:bg-BlackLight flex w-full items-center justify-center rounded-md border border-transparent bg-white px-5 py-1.5 text-base font-medium transition-all duration-300 md:text-lg"
                 >
-                  Get Started <IoIosArrowForward size={18} className="ml-1" />
+                  Get Started <IoMdArrowForward size={18} className="ml-2" />
                 </Link>
               </div>
             </div>
@@ -157,6 +157,13 @@ export default function HomePage() {
             </div>
           </div>
         </div>
+
+        {/* Testemonials Section */}
+        <div className="hidden container mx-auto mt-10 rounded-lg shadow-lg">
+          <div className="mx-auto max-w-2xl px-4 py-16 text-center sm:px-6 sm:py-20 lg:px-8">
+          </div>
+        </div>
+
 
         {/* CTA Section */}
         <div className="bg-primary container mx-auto mt-10 rounded-lg shadow-lg">
