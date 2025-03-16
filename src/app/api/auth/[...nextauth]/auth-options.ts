@@ -123,28 +123,15 @@ export const authOptions: NextAuthOptions = {
       return false
     },
     async redirect({ url, baseUrl }) {
-      const validStartsWithPatterns = [baseUrl, '/dashboard', '/auth', '/profile', '/settings', '/todo'];
-      const isValidRedirect = validStartsWithPatterns.some(pattern => {
-        return url.startsWith(pattern) || url.startsWith(`${baseUrl}${pattern}`);
-      });
+      if (!/^https?:\/\//i.test(url)) {
+        return `${baseUrl}${url.startsWith('/') ? '' : '/'}${url}`;
+      }
       
-      if (!isValidRedirect) {
-        return baseUrl;
-      }
-
-      if (url.includes('/dashboard')) {
-        return url
-      }
-
-      if (url.includes('/auth')) {
-        return `${baseUrl}/dashboard`
-      }
-
       if (url.startsWith(baseUrl)) {
-        return url
+        return url;
       }
-
-      return `${baseUrl}/dashboard`
+      
+      return baseUrl;
     },
     async session({ session, token }) {
       if (token && session.user) {
@@ -180,6 +167,7 @@ export const authOptions: NextAuthOptions = {
             .eq('email', user.email)
             .single()
 
+
           if (findError && findError.code !== 'PGRST116') {
             console.error('Error finding user:', findError)
             return {
@@ -192,7 +180,11 @@ export const authOptions: NextAuthOptions = {
             }
           }
 
+          const refreshToken = crypto.randomBytes(32).toString('hex')
+          const refreshTokenExpires = Date.now() + 7 * 24 * 60 * 60 * 1000
+
           if (existingUser) {
+
             const { error: updateError } = await supabase
               .from('users')
               .update({
@@ -208,23 +200,23 @@ export const authOptions: NextAuthOptions = {
               console.error('Error updating user:', updateError)
             }
 
-
-            const refreshToken = crypto.randomBytes(32).toString('hex')
-            const refreshTokenExpires = Date.now() + 7 * 24 * 60 * 60 * 1000
-
-
-            await supabase
-              .from('refresh_tokens')
-              .delete()
-              .eq('user_id', existingUser.id)
+            let tokenStored = false;
+            try {
+              await supabase
+                .from('refresh_tokens')
+                .delete()
+                .eq('user_id', existingUser.id)
+              await supabase.from('refresh_tokens').insert({
+                user_id: existingUser.id,
+                token: refreshToken,
+                expires_at: new Date(refreshTokenExpires).toISOString(),
+                created_at: new Date().toISOString()
+              })
               
-
-            await supabase.from('refresh_tokens').insert({
-              user_id: existingUser.id,
-              token: refreshToken,
-              expires_at: new Date(refreshTokenExpires).toISOString(),
-              created_at: new Date().toISOString()
-            })
+              tokenStored = true;
+            } catch (tokenError) {
+              console.error('Error managing refresh tokens:', tokenError)
+            }
 
             return {
               ...token,
@@ -233,11 +225,10 @@ export const authOptions: NextAuthOptions = {
               is_admin: existingUser.is_admin || false,
               refreshToken: refreshToken,
               refreshTokenExpires: refreshTokenExpires,
-              refreshTokenStored: true,
+              refreshTokenStored: tokenStored,
               iat: Math.floor(Date.now() / 1000)
             }
           } else {
-
             const { data: newUser, error: insertError } = await supabase
               .from('users')
               .insert([
@@ -260,22 +251,25 @@ export const authOptions: NextAuthOptions = {
                 ...token,
                 id: user.id,
                 provider: account.provider,
-                refreshToken: crypto.randomBytes(32).toString('hex'),
-                refreshTokenExpires: Date.now() + 7 * 24 * 60 * 60 * 1000,
+                refreshToken: refreshToken,
+                refreshTokenExpires: refreshTokenExpires,
                 iat: Math.floor(Date.now() / 1000)
               }
             }
 
-            const refreshToken = crypto.randomBytes(32).toString('hex')
-            const refreshTokenExpires = Date.now() + 7 * 24 * 60 * 60 * 1000
-
+            let tokenStored = false;
             if (newUser) {
-              await supabase.from('refresh_tokens').insert({
-                user_id: newUser.id,
-                token: refreshToken,
-                expires_at: new Date(refreshTokenExpires).toISOString(),
-                created_at: new Date().toISOString()
-              })
+              try {
+                await supabase.from('refresh_tokens').insert({
+                  user_id: newUser.id,
+                  token: refreshToken,
+                  expires_at: new Date(refreshTokenExpires).toISOString(),
+                  created_at: new Date().toISOString()
+                })
+                tokenStored = true;
+              } catch (tokenError) {
+                console.error('Error storing refresh token:', tokenError)
+              }
             }
 
             return {
@@ -284,7 +278,7 @@ export const authOptions: NextAuthOptions = {
               provider: account.provider,
               refreshToken: refreshToken,
               refreshTokenExpires: refreshTokenExpires,
-              refreshTokenStored: true,
+              refreshTokenStored: tokenStored,
               iat: Math.floor(Date.now() / 1000)
             }
           }
@@ -301,19 +295,16 @@ export const authOptions: NextAuthOptions = {
         }
       }
 
-
       if (token.refreshToken && !account && !user) {
         const shouldRefresh = Date.now() > Number(token.exp) * 1000
         if (shouldRefresh) {
           try {
-
             const { data, error } = await supabase
               .from('refresh_tokens')
               .select('*')
               .eq('token', token.refreshToken)
               .eq('user_id', token.id)
               .single()
-
 
             if (
               error ||
@@ -323,32 +314,41 @@ export const authOptions: NextAuthOptions = {
               return { ...token, error: 'RefreshTokenError' }
             }
 
-
             const newRefreshToken = crypto.randomBytes(32).toString('hex')
 
+            let tokenRotated = false;
+            try {
+              await supabase
+                .from('refresh_tokens')
+                .delete()
+                .eq('token', token.refreshToken)
+                .eq('user_id', token.id)
 
-            await supabase
-              .from('refresh_tokens')
-              .delete()
-              .eq('token', token.refreshToken)
-              .eq('user_id', token.id)
-              
-            await supabase.from('refresh_tokens').insert({
-              user_id: token.id,
-              token: newRefreshToken,
-              expires_at: new Date(
-                Date.now() + 7 * 24 * 60 * 60 * 1000,
-              ).toISOString(),
-              previous_token: token.refreshToken,
-              created_at: new Date().toISOString()
-            })
+              await supabase.from('refresh_tokens').insert({
+                user_id: token.id,
+                token: newRefreshToken,
+                expires_at: new Date(
+                  Date.now() + 7 * 24 * 60 * 60 * 1000,
+                ).toISOString(),
+                previous_token: token.refreshToken,
+                created_at: new Date().toISOString()
+              })
+              tokenRotated = true;
+            } catch (tokenError) {
+              console.error('Error rotating token:', tokenError)
+              return { ...token, error: 'RefreshTokenError' }
+            }
 
-            return {
-              ...token,
-              refreshToken: newRefreshToken,
-              refreshTokenExpires: Date.now() + 7 * 24 * 60 * 60 * 1000,
-              exp: Math.floor(Date.now() / 1000) + 60 * 60,
-              iat: Math.floor(Date.now() / 1000)
+            if (tokenRotated) {
+              return {
+                ...token,
+                refreshToken: newRefreshToken,
+                refreshTokenExpires: Date.now() + 7 * 24 * 60 * 60 * 1000,
+                exp: Math.floor(Date.now() / 1000) + 60 * 60,
+                iat: Math.floor(Date.now() / 1000)
+              }
+            } else {
+              return { ...token, error: 'RefreshTokenError' }
             }
           } catch (error) {
             console.error('Error refreshing token:', error)

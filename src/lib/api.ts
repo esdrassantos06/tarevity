@@ -10,6 +10,7 @@ export interface Todo {
   created_at: string
   updated_at: string
   status: 'active' | 'review' | 'completed'
+  user_id: string
 }
 
 export interface TodoFormData {

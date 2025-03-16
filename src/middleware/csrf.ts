@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server'
 import { parse } from 'cookie'
 
 export async function csrfProtection(req: NextRequest) {
-
   if (['GET', 'HEAD', 'OPTIONS'].includes(req.method)) {
     return NextResponse.next();
   }
@@ -39,9 +38,10 @@ export async function csrfProtection(req: NextRequest) {
     );
   }
 
-  const [expectedToken] = csrfCookie.split('|');
+  const cookieParts = csrfCookie.split('|');
+  const expectedToken = cookieParts.length > 0 ? cookieParts[0] : null;
   
-  if (csrfToken !== expectedToken) {
+  if (!expectedToken || csrfToken !== expectedToken) {
     return NextResponse.json(
       { message: 'Invalid CSRF token' },
       { status: 403 }

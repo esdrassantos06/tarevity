@@ -2,6 +2,11 @@ import { NextResponse, NextRequest } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
 import { sendPasswordResetEmail } from '@/lib/email'
 import { rateLimiter } from '@/lib/rateLimit'
+import { randomBytes } from 'crypto'
+
+function generateSecureToken(byteLength = 32): string {
+  return randomBytes(byteLength).toString('hex');
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -42,9 +47,7 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    const resetToken = Array.from(crypto.getRandomValues(new Uint8Array(32)))
-      .map((byte) => byte.toString(16).padStart(2, '0'))
-      .join('')
+    const resetToken = generateSecureToken();
 
     const expiresAt = new Date()
     expiresAt.setHours(expiresAt.getHours() + 1)
@@ -85,7 +88,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         {
           message:
-            error.message || 'An error occurred while processing your request',
+            'An error occurred while processing your request',
         },
         { status: 500 },
       )

@@ -3,7 +3,6 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/auth-options'
 import { NextResponse, NextRequest } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
 
-
 export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -16,13 +15,33 @@ export async function PATCH(
       return NextResponse.json({ message: 'Unauthorized' }, { status: 401 })
     }
 
-    
+    // Validate user ID to prevent SQL injection
+    if (!/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(userId)) {
+      return NextResponse.json(
+        { message: 'Invalid user ID format' },
+        { status: 400 }
+      );
+    }
 
     if (userId === session.user.id) {
       return NextResponse.json(
         { message: 'You cannot change your own admin status' },
         { status: 400 }
       )
+    }
+
+    // Verify user exists before updating
+    const { data: existingUser, error: checkError } = await supabaseAdmin
+      .from('users')
+      .select('id, is_admin')
+      .eq('id', userId)
+      .single();
+
+    if (checkError || !existingUser) {
+      return NextResponse.json(
+        { message: 'User not found' },
+        { status: 404 }
+      );
     }
 
     const body = await request.json()
@@ -65,7 +84,6 @@ export async function PATCH(
   }
 }
 
-
 export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -78,7 +96,13 @@ export async function DELETE(
       return NextResponse.json({ message: 'Unauthorized' }, { status: 401 })
     }
 
-    
+    // Validate user ID to prevent SQL injection
+    if (!/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(userId)) {
+      return NextResponse.json(
+        { message: 'Invalid user ID format' },
+        { status: 400 }
+      );
+    }
 
     if (userId === session.user.id) {
       return NextResponse.json(
@@ -87,7 +111,25 @@ export async function DELETE(
       )
     }
 
+    // Verify user exists before deleting
+    const { data: existingUser, error: checkError } = await supabaseAdmin
+      .from('users')
+      .select('id')
+      .eq('id', userId)
+      .single();
 
+    if (checkError || !existingUser) {
+      return NextResponse.json(
+        { message: 'User not found' },
+        { status: 404 }
+      );
+    }
+
+    // Transaction-like pattern for deleting related data
+    let allSuccessful = true;
+    let errorMessage = '';
+
+    // Delete tasks
     const { error: todosError } = await supabaseAdmin
       .from('todos')
       .delete()
@@ -95,10 +137,11 @@ export async function DELETE(
 
     if (todosError) {
       console.error('Error deleting user tasks:', todosError)
-      throw new Error('Error deleting user tasks')
+      allSuccessful = false;
+      errorMessage = 'Error deleting user tasks';
     }
 
-
+    // Delete notifications
     const { error: notificationsError } = await supabaseAdmin
       .from('notifications')
       .delete()
@@ -106,24 +149,60 @@ export async function DELETE(
 
     if (notificationsError) {
       console.error('Error deleting user notifications:', notificationsError)
- 
+      allSuccessful = false;
+      errorMessage = 'Error deleting user notifications';
     }
 
-    // Delete the user
-    const { error: userError } = await supabaseAdmin
-      .from('users')
+    // Delete refresh tokens
+    const { error: tokensError } = await supabaseAdmin
+      .from('refresh_tokens')
       .delete()
-      .eq('id', userId)
+      .eq('user_id', userId)
 
-    if (userError) {
-      console.error('Error deleting user:', userError)
-      throw new Error('Error deleting user account')
+    if (tokensError) {
+      console.error('Error deleting user tokens:', tokensError)
+      allSuccessful = false;
+      errorMessage = 'Error deleting user tokens';
+    }
+    // Delete reset tokens
+    const { error: resetTokensError } = await supabaseAdmin
+      .from('password_reset_tokens')
+      .delete()
+      .eq('user_id', userId)
+
+    if (resetTokensError) {
+      console.error('Error deleting user reset tokens:', resetTokensError)
+      allSuccessful = false;
+      errorMessage = 'Error deleting user reset tokens';
     }
 
-    return NextResponse.json(
-      { message: 'User deleted successfully' },
-      { status: 200 }
-    )
+    // Only delete the user if all related data was successfully deleted
+    if (allSuccessful) {
+      // Delete the user
+      const { error: userError } = await supabaseAdmin
+        .from('users')
+        .delete()
+        .eq('id', userId)
+
+      if (userError) {
+        console.error('Error deleting user:', userError)
+        return NextResponse.json(
+          { message: 'Error deleting user account' },
+          { status: 500 }
+        )
+      }
+
+      return NextResponse.json(
+        { message: 'User deleted successfully' },
+        { status: 200 }
+      )
+    } else {
+      // Return an error if any related data deletion failed
+      return NextResponse.json(
+        { message: errorMessage || 'Error deleting user data' },
+        { status: 500 }
+      )
+    }
   } catch (error: unknown) {
     console.error('Error in admin user delete API:', error)
     

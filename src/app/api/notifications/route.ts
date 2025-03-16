@@ -2,7 +2,7 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/app/api/auth/[...nextauth]/auth-options'
 import { NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
-import { isPast, isWithinInterval, addDays } from 'date-fns'
+import { isPast, isWithinInterval, addDays, parseISO } from 'date-fns'
 
 export async function GET() {
   try {
@@ -67,6 +67,22 @@ export async function POST(req: Request) {
 
     const results = []
     for (const notification of notifications) {
+      if (!notification.title || !notification.message || !notification.notification_type || !notification.origin_id) {
+        results.push({ 
+          status: 'error', 
+          error: 'Missing required notification fields' 
+        });
+        continue;
+      }
+
+      if (!['danger', 'warning', 'info'].includes(notification.notification_type)) {
+        results.push({ 
+          status: 'error', 
+          error: 'Invalid notification type' 
+        });
+        continue;
+      }
+
       const notificationWithUserId = {
         ...notification,
         user_id: userId,
@@ -84,6 +100,12 @@ export async function POST(req: Request) {
         console.error('Error finding notification:', findError)
       }
 
+      /**
+       * Determines if a notification should be shown based on its type and due date
+       * @param type The notification type (danger, warning, info)
+       * @param dueDateString The due date as ISO string
+       * @returns boolean indicating if the notification should be shown
+       */
       function shouldShowNotification(
         type: string,
         dueDateString: string | null,
@@ -91,14 +113,25 @@ export async function POST(req: Request) {
         if (!dueDateString) return false
 
         try {
+          let dueDate: Date;
+          try {
+            dueDate = parseISO(dueDateString);
+            
+            if (isNaN(dueDate.getTime())) {
+              console.error('Invalid date format:', dueDateString);
+              return false;
+            }
+          } catch (error) {
+            console.error('Error parsing date:', error);
+            return false;
+          }
+
           const now = new Date()
-          const dueDate = new Date(dueDateString)
-          const threeDaysFromNow = new Date(now)
-          threeDaysFromNow.setDate(now.getDate() + 3)
+          const threeDaysFromNow = addDays(now, 3)
 
           switch (type) {
             case 'danger':
-              return isPast(dueDate)
+              return isPast(dueDate) && dueDate > addDays(now, -7);
             case 'warning':
               return isWithinInterval(dueDate, {
                 start: now,
@@ -130,7 +163,6 @@ export async function POST(req: Request) {
             title: notification.title,
             message: notification.message,
             due_date: notification.due_date,
-
             dismissed: shouldActivate ? false : existingNotification.dismissed,
           })
           .eq('id', existingNotification.id)

@@ -6,6 +6,24 @@ import { v4 as uuidv4 } from 'uuid'
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024
 
+const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp']
+
+async function validateImageContent(buffer: Buffer, declaredType: string): Promise<boolean> {
+  if (declaredType === 'image/jpeg' && buffer.length > 2) {
+    return buffer[0] === 0xFF && buffer[1] === 0xD8;
+  }
+  
+  if (declaredType === 'image/png' && buffer.length > 8) {
+    return buffer[0] === 0x89 && buffer[1] === 0x50 && buffer[2] === 0x4E && buffer[3] === 0x47;
+  }
+  
+  if (declaredType === 'image/gif' && buffer.length > 6) {
+    return (buffer[0] === 0x47 && buffer[1] === 0x49 && buffer[2] === 0x46);
+  }
+  
+  return ALLOWED_MIME_TYPES.includes(declaredType);
+}
+
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
@@ -32,8 +50,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp']
-    if (!validTypes.includes(imageFile.type)) {
+    if (!ALLOWED_MIME_TYPES.includes(imageFile.type)) {
       return NextResponse.json(
         {
           message:
@@ -45,16 +62,32 @@ export async function POST(request: NextRequest) {
 
     const arrayBuffer = await imageFile.arrayBuffer()
     const buffer = Buffer.from(arrayBuffer)
+    
+    if (!(await validateImageContent(buffer, imageFile.type))) {
+      return NextResponse.json(
+        { message: 'Invalid image content' },
+        { status: 400 }
+      );
+    }
 
-    const fileExtension = imageFile.name.split('.').pop() || 'jpg'
-    const fileName = `${userId}_${uuidv4()}.${fileExtension}`
-    const filePath = `profile_images/${fileName}`
+    const fileExtension = imageFile.name.split('.').pop()?.toLowerCase() || 'jpg'
+    
+    if (!['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(fileExtension)) {
+      return NextResponse.json(
+        { message: 'Invalid file extension' },
+        { status: 400 }
+      );
+    }
+    
+    const secureFileName = `${userId}_${uuidv4()}.${fileExtension}`
+    const filePath = `profile_images/${secureFileName}`
 
     const { error } = await supabaseAdmin.storage
       .from('user_uploads')
       .upload(filePath, buffer, {
         contentType: imageFile.type,
         upsert: true,
+        cacheControl: 'max-age=31536000',
       })
 
     if (error) {
@@ -78,7 +111,7 @@ export async function POST(request: NextRequest) {
       {
         message: 'Image uploaded successfully',
         url: absoluteUrl,
-        filename: fileName,
+        filename: secureFileName,
       },
       { status: 200 },
     )

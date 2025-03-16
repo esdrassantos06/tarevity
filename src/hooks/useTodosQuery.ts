@@ -36,6 +36,7 @@ export function useCreateTodoMutation() {
 
       const tempId = `temp-${Date.now()}`
 
+      // Create a properly structured optimistic todo that matches the API response format
       const optimisticTodo: Todo = {
         id: tempId,
         title: newTodoData.title,
@@ -46,6 +47,7 @@ export function useCreateTodoMutation() {
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
         status: newTodoData.status || 'active',
+        user_id: 'temp',
       }
 
       queryClient.setQueryData<Todo[]>(['todos'], (old) => [
@@ -64,12 +66,24 @@ export function useCreateTodoMutation() {
     },
 
     onSuccess: (result, variables, context) => {
+
+      
       if (result.data && context?.tempId) {
-        queryClient.setQueryData<Todo[]>(['todos'], (old) =>
-          old?.map((todo) =>
+        queryClient.setQueryData<Todo[]>(['todos'], (old) => {
+          if (!old) return [result.data!]
+          
+          if (!result.data.id) {
+            console.error('Unexpected API response format:', result.data)
+            return old.filter(todo => todo.id !== context.tempId)
+          }
+          
+          return old.map((todo) =>
             todo.id === context.tempId ? result.data! : todo,
-          ),
-        )
+          )
+        })
+      } else if (!result.data) {
+        console.error('Missing data in API response:', result)
+        queryClient.invalidateQueries({ queryKey: ['todos'] })
       }
     },
 
@@ -100,6 +114,15 @@ export function useUpdateTodoMutation() {
         return old.map((todo) => {
           if (todo.id === id) {
             const updatedTodo = { ...todo, ...data }
+            
+            updatedTodo.updated_at = new Date().toISOString()
+
+            if ('is_completed' in data && data.is_completed === true) {
+              updatedTodo.status = 'completed'
+            } else if ('is_completed' in data && data.is_completed === false && updatedTodo.status === 'completed') {
+              updatedTodo.status = 'active'
+            }
+            
             return updatedTodo
           }
           return todo
@@ -124,6 +147,10 @@ export function useUpdateTodoMutation() {
         queryClient.setQueryData<Todo[]>(['todos'], (old = []) => {
           return old.map((todo) => {
             if (todo.id === variables.id) {
+              if (!result.data.id) {
+                console.error('Invalid server response:', result.data)
+                return todo
+              }
               return { ...todo, ...result.data }
             }
             return todo
@@ -145,6 +172,9 @@ export function useUpdateTodoMutation() {
         } else {
           showSuccess('Task updated successfully')
         }
+      } else {
+        console.error('Invalid response from server:', result)
+        queryClient.invalidateQueries({ queryKey: ['todos'] })
       }
     },
 
@@ -184,6 +214,8 @@ export function useDeleteTodoMutation() {
 
     onSuccess: () => {
       showSuccess('Task deleted successfully')
+      
+      queryClient.invalidateQueries({ queryKey: ['notifications'] })
     },
 
     onSettled: () => {
