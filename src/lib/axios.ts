@@ -87,9 +87,6 @@ axiosClient.interceptors.response.use(
               (Date.now() - parseInt(justLoggedInValue, 10) < 5000); // 5 second window
             
             if (justLoggedIn) {
-              console.log('Detected fresh login, reloading instead of redirecting');
-              // Don't remove the flag yet - keep it for potential other API calls
-              // Only reload if we're not already on the login page
               if (!window.location.pathname.includes('/auth/login')) {
                 window.location.reload();
               }

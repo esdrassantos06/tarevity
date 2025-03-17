@@ -4,15 +4,12 @@ import { parse } from 'cookie'
 export async function csrfProtection(req: NextRequest) {
   const pathname = req.nextUrl.pathname;
   
-  // Log para depuração
-  console.log(`[CSRF] Checking CSRF for ${req.method} request to ${pathname}`);
   
   // Métodos seguros não precisam de verificação CSRF
   if (['GET', 'HEAD', 'OPTIONS'].includes(req.method)) {
     return NextResponse.next();
   }
 
-  // Rotas isentas de verificação CSRF
   const exemptPaths = [
     '/api/auth/callback',
     '/api/auth/signin',
@@ -22,7 +19,6 @@ export async function csrfProtection(req: NextRequest) {
   ];
   
   if (exemptPaths.some(path => pathname.startsWith(path))) {
-    console.log(`[CSRF] Skipping CSRF check for exempt path: ${pathname}`);
     return NextResponse.next();
   }
 
@@ -93,6 +89,5 @@ export async function csrfProtection(req: NextRequest) {
     );
   }
 
-  console.log(`[CSRF] CSRF validation successful for ${pathname}`);
   return NextResponse.next();
 }

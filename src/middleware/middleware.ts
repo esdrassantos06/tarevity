@@ -6,8 +6,6 @@ import { csrfProtection } from './csrf'
 export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname
   
-  // DEBUG: Log the current path and request
-  console.log(`[Middleware] Processing request for path: ${pathname}`);
 
   const method = request.method
 
@@ -86,10 +84,6 @@ export async function middleware(request: NextRequest) {
     10,
   )
   
-  // DEBUG: Log redirect count to check if we're hitting the limit
-  if (redirectCount > 0) {
-    console.log(`[Middleware] Current redirect count: ${redirectCount}`);
-  }
   
   if (redirectCount > 5) {
     console.error('Redirect loop detected and prevented')
@@ -136,16 +130,6 @@ export async function middleware(request: NextRequest) {
   
   const isAuthenticated = !!token
 
-  // DEBUG: Log authentication status
-  console.log(`[Middleware] Authentication status: ${isAuthenticated ? 'Authenticated' : 'Not authenticated'}`);
-  if (token) {
-    console.log(`[Middleware] Token data:`, { 
-      id: token.id,
-      provider: token.provider,
-      isAdmin: token.is_admin,
-      exp: token.exp
-    });
-  }
 
   const protectedPaths = ['/dashboard', '/settings', '/profile', '/todo']
   // Fix 1: Include all possible auth paths with and without trailing slashes
@@ -164,16 +148,9 @@ export async function middleware(request: NextRequest) {
   // Fix 3: Better auth path detection - using startsWith instead of exact match
   const isAuthPath = authPaths.some((path) => pathname.startsWith(path))
   
-  // DEBUG: Log path classification
-  console.log(`[Middleware] Path classification:`, {
-    isProtectedPath,
-    isAuthPath,
-    pathname
-  });
 
-  // IMPORTANT: This is the key redirect logic for authenticated users trying to access auth pages
+
   if (isAuthenticated && isAuthPath) {
-    console.log(`[Middleware] Redirecting authenticated user from auth page to dashboard`);
     
     // Fix 4: Create redirect with absolute URL to avoid any path resolution issues
     const baseUrl = request.nextUrl.origin;
@@ -194,7 +171,6 @@ export async function middleware(request: NextRequest) {
   }
 
   if (isProtectedPath && !isAuthenticated) {
-    console.log(`[Middleware] Redirecting unauthenticated user from protected page to login`);
     const safeCallbackUrl = new URL(pathname, request.url).pathname
     
     const url = new URL('/auth/login', request.url)

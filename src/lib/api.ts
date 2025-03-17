@@ -190,7 +190,6 @@ export const profileAPI = {
         );
         
       if (!isProtectedRoute) {
-        console.log('Falha silenciosa ao carregar perfil em rota pública');
         return { data: null, error: null, loading: false };
       }
       

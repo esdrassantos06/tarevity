@@ -12,6 +12,7 @@ export async function POST(req: NextRequest) {
   try {
     const { email } = await req.json()
 
+
     const ip = req.headers.get('x-forwarded-for')?.split(',')[0] || 'anonymous'
     const emailFragment = email ? email.slice(0, 3) : 'unknown'
     const identifier = `${ip}-${emailFragment}`
@@ -30,7 +31,6 @@ export async function POST(req: NextRequest) {
         { status: 400 },
       )
     }
-
     const { data: user, error: userError } = await supabaseAdmin
       .from('users')
       .select('id, email')

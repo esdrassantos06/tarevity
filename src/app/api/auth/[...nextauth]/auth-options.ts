@@ -216,7 +216,6 @@ export const authOptions: NextAuthOptions = {
           const refreshTokenExpires = Date.now() + 7 * 24 * 60 * 60 * 1000;
 
           if (existingUser) {
-            console.log(`Found existing OAuth user: ${existingUser.id}`);
             
             // Update user record
             const { error: updateError } = await supabase
@@ -258,7 +257,6 @@ export const authOptions: NextAuthOptions = {
               if (insertError) {
                 console.error(`Error inserting token: ${insertError.message}`);
               } else {
-                console.log(`Successfully stored refresh token for OAuth user: ${existingUser.id}`);
                 tokenStored = true;
               }
             } catch (tokenError) {
@@ -276,7 +274,6 @@ export const authOptions: NextAuthOptions = {
               iat: Math.floor(Date.now() / 1000)
             }
           } else {
-            console.log(`Creating new OAuth user for email: ${user.email}`);
             
             // Create new user
             const { data: newUser, error: insertError } = await supabase
@@ -323,7 +320,6 @@ export const authOptions: NextAuthOptions = {
                 if (insertTokenError) {
                   console.error(`Error storing token: ${insertTokenError.message}`);
                 } else {
-                  console.log(`Successfully stored refresh token for new user: ${newUser.id}`);
                   tokenStored = true;
                 }
               } catch (tokenError) {
@@ -358,7 +354,6 @@ export const authOptions: NextAuthOptions = {
         const shouldRefresh = Date.now() > Number(token.exp) * 1000;
         
         if (shouldRefresh) {
-          console.log(`Token expired, attempting refresh for user: ${token.id}`);
           try {
             const { data, error } = await supabaseAdmin
               .from('refresh_tokens')
@@ -377,7 +372,6 @@ export const authOptions: NextAuthOptions = {
               return { ...token, error: 'RefreshTokenError' };
             }
 
-            console.log(`Valid refresh token found, rotating for user: ${token.id}`);
             const newRefreshToken = crypto.randomBytes(32).toString('hex');
 
             let tokenRotated = false;
@@ -412,7 +406,6 @@ export const authOptions: NextAuthOptions = {
                 return { ...token, error: 'RefreshTokenError' };
               }
               
-              console.log(`Successfully rotated token for user: ${token.id}`);
               tokenRotated = true;
             } catch (tokenError) {
               console.error(`Exception rotating token: ${tokenError instanceof Error ? tokenError.message : 'Unknown error'}`);
@@ -420,7 +413,6 @@ export const authOptions: NextAuthOptions = {
             }
 
             if (tokenRotated) {
-              console.log(`Returning new token for user: ${token.id}`);
               return {
                 ...token,
                 refreshToken: newRefreshToken,
