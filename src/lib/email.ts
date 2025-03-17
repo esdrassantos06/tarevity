@@ -6,7 +6,6 @@ const fromEmail = process.env.EMAIL_FROM || 'noreply@tarevity.com'
 export async function sendPasswordResetEmail(email: string, token: string) {
  const resetUrl = `${process.env.NEXT_PUBLIC_APP_URL}/auth/reset-password?token=${token}`
 
- // Development mode: just log the reset link
  if (process.env.NODE_ENV === 'development') {
    console.log('=============================================')
    console.log('🔑 PASSWORD RESET LINK (DEV MODE)')
@@ -15,11 +14,9 @@ export async function sendPasswordResetEmail(email: string, token: string) {
    console.log(`URL: ${resetUrl}`)
    console.log('=============================================')
    
-   // Simulate success without sending email
    return { success: true, messageId: 'dev-mode-no-email-sent' }
  }
 
- // Check if API key is configured
  if (!brevoApiKey) {
    console.error('BREVO_API_KEY not found in environment variables')
    throw new Error('Email service configuration error')
