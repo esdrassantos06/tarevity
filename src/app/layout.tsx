@@ -43,9 +43,6 @@ export const metadata: Metadata = {
   },
   alternates: {
     canonical: 'https://tarevity.pt',
-    languages: {
-      'en-US': 'https://tarevity.pt/en-US',
-    },
   },
   openGraph: {
     type: 'website',

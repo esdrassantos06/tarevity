@@ -1,8 +1,4 @@
 /**
- * Utility functions for handling images in the application
- */
-
-/**
  * Ensures that a URL is absolute by adding appropriate prefixes if needed
  *
  * @param url
