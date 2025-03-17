@@ -122,7 +122,6 @@ export async function middleware(request: NextRequest) {
     return response
   }
 
-  // Authenticate user - this is the important part for our issue
   const token = await getToken({
     req: request,
     secureCookie: process.env.NODE_ENV === 'production',
@@ -132,7 +131,6 @@ export async function middleware(request: NextRequest) {
 
 
   const protectedPaths = ['/dashboard', '/settings', '/profile', '/todo']
-  // Fix 1: Include all possible auth paths with and without trailing slashes
   const authPaths = [
     '/auth/login', '/auth/login/', 
     '/auth/register', '/auth/register/',
@@ -140,23 +138,20 @@ export async function middleware(request: NextRequest) {
     '/auth/reset-password', '/auth/reset-password/'
   ];
 
-  // Fix 2: Improve path matching to catch all auth routes
   const isProtectedPath = protectedPaths.some((path) =>
     pathname.startsWith(path)
   )
 
-  // Fix 3: Better auth path detection - using startsWith instead of exact match
   const isAuthPath = authPaths.some((path) => pathname.startsWith(path))
   
 
 
   if (isAuthenticated && isAuthPath) {
     
-    // Fix 4: Create redirect with absolute URL to avoid any path resolution issues
     const baseUrl = request.nextUrl.origin;
     const redirectResponse = NextResponse.redirect(
       new URL('/dashboard', baseUrl),
-      { status: 307 } // Use 307 for temporary redirect with method preservation
+      { status: 307 }
     )
     
     redirectResponse.headers.set(

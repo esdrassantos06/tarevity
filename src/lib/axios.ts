@@ -81,10 +81,9 @@ axiosClient.interceptors.response.use(
       switch (status) {
         case 401:
           if (isProtectedRoute) {
-            // Check if user just logged in (within the last 5 seconds)
             const justLoggedInValue = window.sessionStorage.getItem('just_logged_in');
             const justLoggedIn = justLoggedInValue && 
-              (Date.now() - parseInt(justLoggedInValue, 10) < 5000); // 5 second window
+              (Date.now() - parseInt(justLoggedInValue, 10) < 5000);
             
             if (justLoggedIn) {
               if (!window.location.pathname.includes('/auth/login')) {
@@ -96,8 +95,6 @@ axiosClient.interceptors.response.use(
                 silentError: true,
               });
             }
-            
-            // Clear any potential stale flags
             window.sessionStorage.removeItem('just_logged_in');
             
             showError('Your session has expired. Please log in again.')

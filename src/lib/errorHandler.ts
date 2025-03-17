@@ -1,5 +1,3 @@
-// src/lib/errorHandler.ts
-
 export interface SafeError {
     message: string;
     code: string;
@@ -13,7 +11,6 @@ export interface SafeError {
    */
   export function sanitizeError(error: unknown): SafeError {
     if (error instanceof Error) {
-      // Don't expose stack traces or detailed error messages
       const sanitizedMessage = getSafeErrorMessage(error.message);
       
       return {
@@ -52,22 +49,18 @@ export interface SafeError {
    * @returns A sanitized version of the message
    */
   function getSafeErrorMessage(message: string): string {
-    // List of sensitive terms that shouldn't be exposed
     const sensitiveTerms = [
       'password', 'token', 'secret', 'key', 'auth', 
       'database', 'query', 'sql', 'supabase', 'syntax', 
       'exception', 'stack', 'trace', 'internal'
     ];
     
-    // Check if the error message contains sensitive information
     if (sensitiveTerms.some(term => message.toLowerCase().includes(term))) {
       return 'An error occurred while processing your request';
     }
     
     return message;
   }
-  
-  // Map of safe error messages per status code
   export const safeErrorMessages: Record<number, string> = {
     400: 'The request was invalid or cannot be fulfilled',
     401: 'Authentication is required to access this resource',
@@ -96,17 +89,14 @@ export interface SafeError {
     try {
       return await next();
     } catch (error) {
-      // Log error details (only in server logs, not exposed to client)
       console.error('Unhandled API error:', {
         url: req.url,
         method: req.method,
         error
       });
       
-      // Sanitize the error for client response
       const safeError = sanitizeError(error);
       
-      // Add security headers to error response
       const response = NextResponse.json(
         {
           message: safeError.message,

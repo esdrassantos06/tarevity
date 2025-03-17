@@ -5,7 +5,6 @@ export async function csrfProtection(req: NextRequest) {
   const pathname = req.nextUrl.pathname;
   
   
-  // Métodos seguros não precisam de verificação CSRF
   if (['GET', 'HEAD', 'OPTIONS'].includes(req.method)) {
     return NextResponse.next();
   }
@@ -22,7 +21,6 @@ export async function csrfProtection(req: NextRequest) {
     return NextResponse.next();
   }
 
-  // Verificar cabeçalho CSRF
   const csrfToken = req.headers.get('x-csrf-token');
   if (!csrfToken) {
     console.warn(`[CSRF] Missing CSRF token header for ${pathname}`);
@@ -32,7 +30,6 @@ export async function csrfProtection(req: NextRequest) {
     );
   }
 
-  // Verificar cookies
   const cookieHeader = req.headers.get('cookie');
   if (!cookieHeader) {
     console.warn(`[CSRF] No cookies present for ${pathname}`);
@@ -42,17 +39,14 @@ export async function csrfProtection(req: NextRequest) {
     );
   }
 
-  // Analisar cookies
+
   const cookies = parse(cookieHeader);
   
-  // Determinar nome do cookie CSRF
   const cookiePrefix = process.env.NODE_ENV === 'production' ? '__Secure-' : '';
   const csrfCookieName = `${cookiePrefix}next-auth.csrf-token`;
   
-  // Verificar cookie CSRF
   const csrfCookie = cookies[csrfCookieName];
   if (!csrfCookie) {
-    // Log de todos os cookies para depuração
     console.warn(`[CSRF] Missing CSRF cookie for ${pathname}. Available cookies:`, Object.keys(cookies));
     return NextResponse.json(
       { 
@@ -65,15 +59,12 @@ export async function csrfProtection(req: NextRequest) {
     );
   }
 
-  // Extrair token esperado do cookie
   let expectedToken = null;
   
-  // Tentar primeiro formato padrão com pipe
   const cookieParts = csrfCookie.split('|');
   if (cookieParts.length > 0) {
     expectedToken = cookieParts[0];
   } 
-  // Se não funcionar, usar o valor completo (versões mais recentes podem ter formato diferente)
   else {
     expectedToken = csrfCookie;
   }
