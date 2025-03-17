@@ -38,6 +38,7 @@ export default function EnhancedLoginForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const callbackUrl = searchParams?.get('callbackUrl') || '/dashboard'
+  const errorParam = searchParams?.get('error')
   const registeredParam = searchParams?.get('registered')
 
   const MAX_ATTEMPTS = 5
@@ -110,7 +111,26 @@ export default function EnhancedLoginForm() {
         'Account created successfully! Please log in with your new credentials.',
       )
     }
-  }, [registeredParam])
+    
+    if (errorParam === 'session_expired') {
+      setFailedAttempts(0);
+      localStorage.removeItem('loginLockout');
+      showWarning('Your session has expired. Please log in again to continue.');
+    } else if (registeredParam === 'true') {
+      showSuccess(
+        'Account created successfully! Please log in with your new credentials.',
+      )
+    }
+  }, [registeredParam, errorParam])
+
+  
+  useEffect(() => {
+    if (errorParam === 'session_expired' && typeof window !== 'undefined') {
+      const url = new URL(window.location.href);
+      url.searchParams.delete('error');
+      window.history.replaceState({}, document.title, url.toString());
+    }
+  }, [errorParam]);
 
   const handleEmailValidation = (isValid: boolean) => {
     setEmailValid(isValid)
@@ -160,7 +180,7 @@ export default function EnhancedLoginForm() {
       )
       return
     }
-
+  
     if (!emailValid) {
       setFormError('email', {
         type: 'manual',
@@ -168,27 +188,27 @@ export default function EnhancedLoginForm() {
       })
       return
     }
-
+  
     setIsLoading(true)
     setError(null)
-
+  
     try {
       const result = await signIn('credentials', {
         redirect: false,
         email: data.email,
         password: data.password,
       })
-
+  
       if (result?.error) {
         const newAttemptCount = failedAttempts + 1
         setFailedAttempts(newAttemptCount)
-
+  
         if (newAttemptCount >= MAX_ATTEMPTS) {
           setLoginLockout(newAttemptCount)
           setError(
             `Too many failed attempts. Your account is locked for ${formatLockoutTime(lockoutTime)}.`,
           )
-
+  
           showWarning(
             `Too many failed attempts. Account locked for ${formatLockoutTime(lockoutTime)}.`,
           )
@@ -198,26 +218,38 @@ export default function EnhancedLoginForm() {
             MAX_ATTEMPTS - newAttemptCount === 1
               ? '1 attempt'
               : `${MAX_ATTEMPTS - newAttemptCount} attempts`
-
+  
           setError(
             `Invalid email or password. ${attemptsMessage} remaining before temporary lockout.`,
           )
-
+  
           showError(
             `Invalid email or password. ${attemptsMessage} remaining before temporary lockout.`,
           )
         }
         return
       }
-
+  
       setFailedAttempts(0)
       localStorage.removeItem('loginLockout')
-
+  
+      if (typeof window !== 'undefined') {
+        window.sessionStorage.setItem('just_logged_in', Date.now().toString());
+      }
+  
       showSuccess('Login successful! Redirecting...')
-
-      setTimeout(() => {
-        router.push(callbackUrl)
-      }, 1000)
+  
+      if (errorParam === 'session_expired') {
+        window.location.href = '/dashboard';
+      } else {
+        setTimeout(() => {
+          if (errorParam === 'session_expired') {
+            router.push('/dashboard')
+          } else {
+            router.push(callbackUrl)
+          }
+        }, 500)
+      }
     } catch (error: unknown) {
       if (error instanceof Error) {
         setError(

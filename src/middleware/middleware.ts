@@ -6,11 +6,7 @@ import { csrfProtection } from './csrf'
 export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname
 
-  //Debug 
-console.log("\n----- MIDDLEWARE START -----")
-  console.log("Request path:", pathname)
-  console.log("HTTP Method:", request.method)
-  console.log("Headers:", Object.fromEntries([...request.headers.entries()].map(([k, v]) => [k, k.includes('cookie') ? '**REDACTED**' : v])))
+  
 
 
 
@@ -127,13 +123,13 @@ console.log("\n----- MIDDLEWARE START -----")
     return response
   }
 
+
   const token = await getToken({
     req: request,
     secureCookie: process.env.NODE_ENV === 'production',
   })
   
   const isAuthenticated = !!token
-
 
   const protectedPaths = ['/dashboard', '/settings', '/profile', '/todo']
   const authPaths = [

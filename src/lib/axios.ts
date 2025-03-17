@@ -43,7 +43,7 @@ axiosClient.interceptors.request.use(
     }
     return config
   },
-  (error) => Promise.reject(error)
+  (error) => Promise.reject(error),
 )
 
 axiosClient.interceptors.response.use(
@@ -57,34 +57,60 @@ axiosClient.interceptors.response.use(
       const status = error.response.status
       const errorData = error.response.data
 
-
       const publicPaths = ['/', '/privacy', '/terms']
-      const pathname = typeof window !== 'undefined' ? window.location.pathname : ''
-      const isPublicPath = publicPaths.some(path => pathname === path || pathname.startsWith(`${path}/`))
+      const pathname =
+        typeof window !== 'undefined' ? window.location.pathname : ''
+      const isPublicPath = publicPaths.some(
+        (path) => pathname === path || pathname.startsWith(`${path}/`),
+      )
 
-      const isProtectedRoute = typeof window !== 'undefined' && 
-        ['/dashboard', '/profile', '/settings', '/todo'].some(path => 
-          window.location.pathname.startsWith(path)
-        );
+      const isProtectedRoute =
+        typeof window !== 'undefined' &&
+        ['/dashboard', '/profile', '/settings', '/todo'].some((path) =>
+          window.location.pathname.startsWith(path),
+        )
 
-        if (status === 401 && isPublicPath) {
-          return Promise.reject({
-            message: 'Unauthenticated on public page',
-            status,
-            silentError: true,
-          });
-        }
+      if (status === 401 && isPublicPath) {
+        return Promise.reject({
+          message: 'Unauthenticated on public page',
+          status,
+          silentError: true,
+        })
+      }
 
       switch (status) {
         case 401:
           if (isProtectedRoute) {
+            // Check if user just logged in (within the last 5 seconds)
+            const justLoggedInValue = window.sessionStorage.getItem('just_logged_in');
+            const justLoggedIn = justLoggedInValue && 
+              (Date.now() - parseInt(justLoggedInValue, 10) < 5000); // 5 second window
+            
+            if (justLoggedIn) {
+              console.log('Detected fresh login, reloading instead of redirecting');
+              // Don't remove the flag yet - keep it for potential other API calls
+              // Only reload if we're not already on the login page
+              if (!window.location.pathname.includes('/auth/login')) {
+                window.location.reload();
+              }
+              return Promise.reject({
+                message: 'Session initializing...',
+                status,
+                silentError: true,
+              });
+            }
+            
+            // Clear any potential stale flags
+            window.sessionStorage.removeItem('just_logged_in');
+            
             showError('Your session has expired. Please log in again.')
             if (typeof window !== 'undefined') {
-              window.location.href = '/auth/login?error=session_expired'
+              const currentPath = window.location.pathname;
+              window.location.href = `/auth/login?callbackUrl=${encodeURIComponent(currentPath)}`
             }
           }
           break
-
+          
         case 429:
           const retryAfter = error.response.headers['retry-after']
           const waitTime = retryAfter ? parseInt(retryAfter, 10) : 60
