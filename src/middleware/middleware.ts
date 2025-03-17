@@ -5,10 +5,9 @@ import { csrfProtection } from './csrf'
 
 export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname
-
   
-
-
+  // DEBUG: Log the current path and request
+  console.log(`[Middleware] Processing request for path: ${pathname}`);
 
   const method = request.method
 
@@ -86,6 +85,12 @@ export async function middleware(request: NextRequest) {
     request.headers.get('x-redirect-count') || '0',
     10,
   )
+  
+  // DEBUG: Log redirect count to check if we're hitting the limit
+  if (redirectCount > 0) {
+    console.log(`[Middleware] Current redirect count: ${redirectCount}`);
+  }
+  
   if (redirectCount > 5) {
     console.error('Redirect loop detected and prevented')
     return NextResponse.next()
@@ -123,7 +128,7 @@ export async function middleware(request: NextRequest) {
     return response
   }
 
-
+  // Authenticate user - this is the important part for our issue
   const token = await getToken({
     req: request,
     secureCookie: process.env.NODE_ENV === 'production',
@@ -131,26 +136,52 @@ export async function middleware(request: NextRequest) {
   
   const isAuthenticated = !!token
 
+  // DEBUG: Log authentication status
+  console.log(`[Middleware] Authentication status: ${isAuthenticated ? 'Authenticated' : 'Not authenticated'}`);
+  if (token) {
+    console.log(`[Middleware] Token data:`, { 
+      id: token.id,
+      provider: token.provider,
+      isAdmin: token.is_admin,
+      exp: token.exp
+    });
+  }
+
   const protectedPaths = ['/dashboard', '/settings', '/profile', '/todo']
+  // Fix 1: Include all possible auth paths with and without trailing slashes
   const authPaths = [
-    '/auth/login', 
-    '/auth/register', 
-    '/auth/forgot-password', 
-    '/auth/reset-password'
+    '/auth/login', '/auth/login/', 
+    '/auth/register', '/auth/register/',
+    '/auth/forgot-password', '/auth/forgot-password/',
+    '/auth/reset-password', '/auth/reset-password/'
   ];
 
+  // Fix 2: Improve path matching to catch all auth routes
   const isProtectedPath = protectedPaths.some((path) =>
     pathname.startsWith(path)
   )
 
-  const isAuthPath = authPaths.some((path) => 
-    pathname === path || pathname === `${path}/`
-  )
+  // Fix 3: Better auth path detection - using startsWith instead of exact match
+  const isAuthPath = authPaths.some((path) => pathname.startsWith(path))
+  
+  // DEBUG: Log path classification
+  console.log(`[Middleware] Path classification:`, {
+    isProtectedPath,
+    isAuthPath,
+    pathname
+  });
 
+  // IMPORTANT: This is the key redirect logic for authenticated users trying to access auth pages
   if (isAuthenticated && isAuthPath) {
+    console.log(`[Middleware] Redirecting authenticated user from auth page to dashboard`);
+    
+    // Fix 4: Create redirect with absolute URL to avoid any path resolution issues
+    const baseUrl = request.nextUrl.origin;
     const redirectResponse = NextResponse.redirect(
-      new URL('/dashboard', request.url),
+      new URL('/dashboard', baseUrl),
+      { status: 307 } // Use 307 for temporary redirect with method preservation
     )
+    
     redirectResponse.headers.set(
       'x-redirect-count',
       (redirectCount + 1).toString()
@@ -163,6 +194,7 @@ export async function middleware(request: NextRequest) {
   }
 
   if (isProtectedPath && !isAuthenticated) {
+    console.log(`[Middleware] Redirecting unauthenticated user from protected page to login`);
     const safeCallbackUrl = new URL(pathname, request.url).pathname
     
     const url = new URL('/auth/login', request.url)

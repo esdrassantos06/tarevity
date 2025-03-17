@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -10,6 +10,7 @@ import { FaEnvelope, FaArrowLeft, FaCheck, FaSpinner } from 'react-icons/fa'
 import { authAPI } from '@/lib/api'
 import ValidatedInput from './ValidatedInput'
 import EmailValidator from './EmailValidator'
+import { useSession } from 'next-auth/react'
 
 const forgotPasswordSchema = z.object({
   email: z
@@ -24,6 +25,14 @@ export default function EnhancedForgotPasswordForm() {
   const [isLoading, setIsLoading] = useState(false)
   const [isSubmitted, setIsSubmitted] = useState(false)
   const [emailValid, setEmailValid] = useState(false)
+
+  const { status } = useSession()
+
+  useEffect(() => {
+    if (status === 'authenticated') {
+      window.location.href = '/dashboard'
+    }
+  }, [status])
 
   const {
     register,

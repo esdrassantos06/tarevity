@@ -1,5 +1,11 @@
-import ForgotPasswordForm from '@/components/auth/ForgotPasswordForm'
 import { Metadata } from 'next'
+import dynamic from 'next/dynamic'
+
+
+const ForgotPasswordForm = dynamic(() => import('@/components/auth/ForgotPasswordForm'), {
+  loading: () => <div className="text-center">Loading...</div>,
+})
+
 
 export const metadata: Metadata = {
   title: 'Recover Account Access | Tarevity Password Reset',
@@ -9,9 +15,5 @@ export const metadata: Metadata = {
 }
 
 export default function ForgotPasswordPage() {
-  return (
-    <div className="bg-bgLight dark:bg-bgDark flex min-h-screen items-center justify-center px-4 py-12">
-      <ForgotPasswordForm />
-    </div>
-  )
+  return <ForgotPasswordForm />
 }

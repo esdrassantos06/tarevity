@@ -1,4 +1,3 @@
-import { Suspense } from 'react'
 import { Metadata } from 'next'
 import dynamic from 'next/dynamic'
 
@@ -14,11 +13,5 @@ export const metadata: Metadata = {
 }
 
 export default function LoginPage() {
-  return (
-    <div className="bg-bgLight dark:bg-bgDark flex min-h-screen items-center justify-center px-4 py-12">
-      <Suspense fallback={<div className="text-center">Loading...</div>}>
-        <LoginForm />
-      </Suspense>
-    </div>
-  )
+  return <LoginForm />
 }

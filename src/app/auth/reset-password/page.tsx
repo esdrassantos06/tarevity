@@ -1,6 +1,10 @@
-import ResetPasswordForm from '@/components/auth/ResetPasswordForm'
 import { Metadata } from 'next'
-import { Suspense } from 'react'
+import dynamic from 'next/dynamic'
+
+
+const ResetPasswordForm = dynamic(() => import('@/components/auth/ResetPasswordForm'), {
+  loading: () => <div className="text-center">Loading...</div>,
+})
 
 export const metadata: Metadata = {
   title: 'Create New Password | Tarevity Security Center',
@@ -10,11 +14,5 @@ export const metadata: Metadata = {
 }
 
 export default function ResetPasswordPage() {
-  return (
-    <div className="bg-bgLight dark:bg-bgDark flex min-h-screen items-center justify-center px-4 py-12">
-      <Suspense fallback={<div className="text-center">Loading...</div>}>
-        <ResetPasswordForm />
-      </Suspense>
-    </div>
-  )
+  return <ResetPasswordForm />
 }

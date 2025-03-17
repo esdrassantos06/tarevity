@@ -9,7 +9,6 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { FaEnvelope, FaLock, FaExclamationTriangle } from 'react-icons/fa'
 import { showSuccess, showError, showWarning } from '@/lib/toast'
-
 import ValidatedInput from './ValidatedInput'
 import EmailValidator from './EmailValidator'
 import OAuthButtons from '@/components/auth/OAuthButtons'
@@ -34,7 +33,6 @@ export default function EnhancedLoginForm() {
   const [emailValid, setEmailValid] = useState(false)
   const formRef = useRef<HTMLFormElement>(null)
   const errorRef = useRef<HTMLDivElement>(null)
-
   const router = useRouter()
   const searchParams = useSearchParams()
   const callbackUrl = searchParams?.get('callbackUrl') || '/dashboard'
@@ -69,6 +67,7 @@ export default function EnhancedLoginForm() {
       errorRef.current.focus()
     }
   }, [error])
+
 
   useEffect(() => {
     const storedLockoutData = localStorage.getItem('loginLockout')
@@ -138,6 +137,8 @@ export default function EnhancedLoginForm() {
       clearErrors('email')
     }
   }
+
+
 
   useEffect(() => {
     if (errors.email || errors.password) {
@@ -281,6 +282,7 @@ export default function EnhancedLoginForm() {
 
     return `${minutes} minute${minutes > 1 ? 's' : ''} and ${remainingSeconds} second${remainingSeconds > 1 ? 's' : ''}`
   }
+
 
   return (
     <div className="dark:bg-BlackLight mx-auto w-full max-w-md rounded-2xl bg-white p-6 shadow-md">

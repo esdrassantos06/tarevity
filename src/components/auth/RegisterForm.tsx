@@ -27,6 +27,8 @@ const passwordPattern = {
   special: /[^A-Za-z0-9]/,
 }
 
+
+
 const registerSchema = z
   .object({
     name: z
@@ -85,6 +87,7 @@ export default function EnhancedRegisterForm() {
   const [passwordStrong, setPasswordStrong] = useState(false)
   const [emailValid, setEmailValid] = useState(false)
   const router = useRouter()
+
 
   const {
     register,
