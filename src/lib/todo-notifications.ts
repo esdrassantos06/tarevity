@@ -32,12 +32,10 @@ export async function handleTodoNotifications(
     return
   }
 
-  // Check if notification-relevant data has changed
   const hasDueDateChanged = previousTodo?.due_date !== todo.due_date
   const hasTitleChanged = previousTodo?.title !== todo.title
 
   if (hasDueDateChanged || hasTitleChanged || !previousTodo) {
-    // Delete existing notifications first
     await notificationsService.deleteNotifications({
       userId,
       todoId: todo.id

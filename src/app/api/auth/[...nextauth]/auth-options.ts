@@ -217,7 +217,6 @@ export const authOptions: NextAuthOptions = {
 
           if (existingUser) {
             
-            // Update user record
             const { error: updateError } = await supabase
               .from('users')
               .update({
@@ -275,7 +274,6 @@ export const authOptions: NextAuthOptions = {
             }
           } else {
             
-            // Create new user
             const { data: newUser, error: insertError } = await supabase
               .from('users')
               .insert([
@@ -376,7 +374,6 @@ export const authOptions: NextAuthOptions = {
 
             let tokenRotated = false;
             try {
-              // Delete old token
               const { error: deleteError } = await supabaseAdmin
                 .from('refresh_tokens')
                 .delete()
@@ -388,7 +385,6 @@ export const authOptions: NextAuthOptions = {
                 return { ...token, error: 'RefreshTokenError' };
               }
 
-              // Insert new token
               const { error: insertError } = await supabaseAdmin
                 .from('refresh_tokens')
                 .insert({

@@ -88,72 +88,59 @@ const NewTodoPage: React.FC = () => {
         if (data.data && data.data.id) {
           const todoId = data.data.id;
           
-          // Criar notificações se tiver uma data de vencimento e não estiver concluída
 if (todoData.due_date && !todoData.is_completed) {
   try {
-    console.log("Tentando criar notificações para a tarefa:", todoId);
     
-    // Criar apenas a notificação apropriada com base na data de vencimento
     const dueDate = new Date(todoData.due_date);
     const today = new Date();
-    today.setHours(0, 0, 0, 0); // Normalize to start of day for comparison
+    today.setHours(0, 0, 0, 0);
     
     let notification;
     
     if (dueDate < today) {
-      // Tarefa já está atrasada
       notification = {
         todo_id: todoId,
         notification_type: 'danger',
-        title: 'Tarefa Atrasada',
-        message: `A tarefa "${todoData.title}" está atrasada`,
+        title: 'Overdue Task',
+        message: `The task "${todoData.title}" is overdue`,
         due_date: todoData.due_date,
         origin_id: `danger-${todoId}-${Date.now()}`,
       };
     } else {
-      // Calcular diferença em dias
       const diffTime = Math.abs(dueDate.getTime() - today.getTime());
       const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
       
       if (diffDays <= 2) {
-        // Prazo próximo (2 dias ou menos)
         notification = {
           todo_id: todoId,
           notification_type: 'warning',
-          title: 'Prazo Próximo',
-          message: `A tarefa "${todoData.title}" está com prazo próximo (${diffDays} dia${diffDays !== 1 ? 's' : ''})`,
+          title: 'Upcoming Deadline',
+          message: `The task "${todoData.title}" has an upcoming deadline (${diffDays} day${diffDays !== 1 ? 's' : ''})`,
           due_date: todoData.due_date,
           origin_id: `warning-${todoId}-${Date.now()}`,
         };
       } else {
-        // Lembrete regular
         notification = {
           todo_id: todoId,
           notification_type: 'info',
-          title: 'Lembrete de Tarefa',
-          message: `Lembrete para a tarefa "${todoData.title}" (vence em ${diffDays} dias)`,
+          title: 'Task Reminder',
+          message: `Reminder for the task "${todoData.title}" (due in ${diffDays} days)`,
           due_date: todoData.due_date,
           origin_id: `info-${todoId}-${Date.now()}`,
         };
       }
     }
     
-    console.log("Enviando notificação:", notification);
-    
-    // Enviar apenas uma notificação dentro de um array
     axios.post('/api/notifications', { notifications: [notification] })
-      .then(response => {
-        console.log("✅ Resposta da API de notificações:", response.data);
+      .then(() => {
         queryClient.invalidateQueries({ queryKey: ['notifications'] });
       })
       .catch(error => {
-        console.error("❌ Erro chamando API de notificações:", error);
+        console.error("❌ Error calling notifications API:", error);
       });
-      
-    console.log("Chamada de API enviada");
-  } catch (error) {
-    console.error('⚠️ Erro ao criar notificações:', error);
-  }
+    } catch (error) {
+      console.error('⚠️ Error creating notifications:', error);
+    }
 }
           
           setTimeout(() => {

@@ -56,10 +56,8 @@ const RedesignedTodoList: React.FC = () => {
       onConfirm: () => {
         setLoading(true)
         
-        // First delete notifications for this todo
         axios.delete(`/api/notifications/delete-for-todo/${id}`)
           .then(() => {
-            // Then delete the todo
             deleteTodoMutation.mutate(id, {
               onSuccess: () => {
                 closeConfirmDialog()
@@ -77,7 +75,6 @@ const RedesignedTodoList: React.FC = () => {
           })
           .catch((error) => {
             console.error('Error deleting notifications:', error)
-            // Continue with todo deletion even if notification deletion fails
             deleteTodoMutation.mutate(id, {
               onSuccess: () => {
                 closeConfirmDialog()
@@ -115,7 +112,6 @@ const RedesignedTodoList: React.FC = () => {
       },
       {
         onSuccess: () => {
-          // When a todo is marked as completed, dismiss its notifications
           if (!isCompleted) {
             axios.post('/api/notifications/dismiss-for-todo', {todoId: id})
               .then(() => {
@@ -125,9 +121,7 @@ const RedesignedTodoList: React.FC = () => {
                 console.error('Error dismissing notifications:', error)
               })
           }
-          // When a todo is un-completed and has a due date, regenerate notifications
           else if (todoToUpdate.due_date) {
-            // First delete existing notifications
             axios.delete(`/api/notifications/delete-for-todo/${id}`)
               .then(() => {
                 const dueDate = new Date(todoToUpdate.due_date!);

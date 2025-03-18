@@ -15,7 +15,6 @@ export async function PATCH(
       return NextResponse.json({ message: 'Unauthorized' }, { status: 401 })
     }
 
-    // Validate user ID to prevent SQL injection
     if (!/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(userId)) {
       return NextResponse.json(
         { message: 'Invalid user ID format' },
@@ -30,7 +29,6 @@ export async function PATCH(
       )
     }
 
-    // Verify user exists before updating
     const { data: existingUser, error: checkError } = await supabaseAdmin
       .from('users')
       .select('id, is_admin')
@@ -96,7 +94,6 @@ export async function DELETE(
       return NextResponse.json({ message: 'Unauthorized' }, { status: 401 })
     }
 
-    // Validate user ID to prevent SQL injection
     if (!/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(userId)) {
       return NextResponse.json(
         { message: 'Invalid user ID format' },
@@ -111,7 +108,6 @@ export async function DELETE(
       )
     }
 
-    // Verify user exists before deleting
     const { data: existingUser, error: checkError } = await supabaseAdmin
       .from('users')
       .select('id')
@@ -125,11 +121,9 @@ export async function DELETE(
       );
     }
 
-    // Transaction-like pattern for deleting related data
     let allSuccessful = true;
     let errorMessage = '';
 
-    // Delete tasks
     const { error: todosError } = await supabaseAdmin
       .from('todos')
       .delete()
@@ -141,7 +135,6 @@ export async function DELETE(
       errorMessage = 'Error deleting user tasks';
     }
 
-    // Delete notifications
     const { error: notificationsError } = await supabaseAdmin
       .from('notifications')
       .delete()
@@ -153,7 +146,6 @@ export async function DELETE(
       errorMessage = 'Error deleting user notifications';
     }
 
-    // Delete refresh tokens
     const { error: tokensError } = await supabaseAdmin
       .from('refresh_tokens')
       .delete()
@@ -164,7 +156,6 @@ export async function DELETE(
       allSuccessful = false;
       errorMessage = 'Error deleting user tokens';
     }
-    // Delete reset tokens
     const { error: resetTokensError } = await supabaseAdmin
       .from('password_reset_tokens')
       .delete()
@@ -176,9 +167,7 @@ export async function DELETE(
       errorMessage = 'Error deleting user reset tokens';
     }
 
-    // Only delete the user if all related data was successfully deleted
     if (allSuccessful) {
-      // Delete the user
       const { error: userError } = await supabaseAdmin
         .from('users')
         .delete()
@@ -197,7 +186,6 @@ export async function DELETE(
         { status: 200 }
       )
     } else {
-      // Return an error if any related data deletion failed
       return NextResponse.json(
         { message: errorMessage || 'Error deleting user data' },
         { status: 500 }

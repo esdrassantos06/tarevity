@@ -3,7 +3,6 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/auth-options'
 import { NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
 
-// GET handler to fetch system statistics
 export async function GET() {
   try {
     const session = await getServerSession(authOptions)
@@ -12,7 +11,6 @@ export async function GET() {
       return NextResponse.json({ message: 'Unauthorized' }, { status: 401 })
     }
 
-    // Get total users count
     const { count: totalUsers, error: usersError } = await supabaseAdmin
       .from('users')
       .select('*', { count: 'exact', head: true })
@@ -22,7 +20,6 @@ export async function GET() {
       throw usersError
     }
 
-    // Get active users (users who have logged in within the last 30 days)
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
     
@@ -36,7 +33,6 @@ export async function GET() {
       throw activeUsersError
     }
 
-    // Get total tasks count
     const { count: totalTasks, error: tasksError } = await supabaseAdmin
       .from('todos')
       .select('*', { count: 'exact', head: true })
@@ -46,7 +42,6 @@ export async function GET() {
       throw tasksError
     }
 
-    // Get completed tasks count
     const { count: completedTasks, error: completedTasksError } = await supabaseAdmin
       .from('todos')
       .select('*', { count: 'exact', head: true })
@@ -57,10 +52,8 @@ export async function GET() {
       throw completedTasksError
     }
 
-    // Calculate pending tasks
     const pendingTasks = (totalTasks || 0) - (completedTasks || 0)
 
-    // Assemble the stats object
     const stats = {
       totalUsers: totalUsers || 0,
       activeUsers: activeUsers || 0,

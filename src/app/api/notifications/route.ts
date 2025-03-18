@@ -34,20 +34,17 @@ export async function POST(req: Request) {
     const session = await getServerSession(authOptions)
 
     if (!session?.user?.id) {
-      console.log('API Notificações: Usuário não autenticado');
       return NextResponse.json({ message: 'Unauthorized' }, { status: 401 })
     }
 
     const userId = session.user.id
-    console.log(`API Notificações: Processando para usuário ${userId}`);
     
     const body = await req.json()
-    console.log('API Notificações: Corpo da requisição recebido', JSON.stringify(body, null, 2));
 
     const notifications = body.notifications
 
     if (!Array.isArray(notifications)) {
-      console.error('API Notificações: Formato inválido - não é um array', notifications)
+      console.error('Invalid notifications format: notifications must be an array', notifications)
       return NextResponse.json(
         {
           message:
@@ -57,33 +54,24 @@ export async function POST(req: Request) {
       )
     }
 
-    console.log(`API Notificações: Processando ${notifications.length} notificações`);
-    
-    // Validação adicional antes de processar
+
     for (const notification of notifications) {
       if (!notification.todo_id || !notification.title || !notification.message || 
           !notification.notification_type || !notification.due_date || !notification.origin_id) {
-        console.error('API Notificações: Dados de notificação incompletos', notification);
+        console.error('Notifications API: Incomplete data', notification);
       }
     }
 
     const results = await notificationsService.processNotifications(userId, notifications)
-    console.log('API Notificações: Resultados do processamento', JSON.stringify(results, null, 2));
 
-    // Verificar os resultados para identificar problemas
-    const skipped = results.filter(r => r.status === 'skipped').length;
-    const errors = results.filter(r => r.status === 'error').length;
-    const created = results.filter(r => r.status === 'created').length;
-    const updated = results.filter(r => r.status === 'updated').length;
     
-    console.log(`API Notificações: Estatísticas - Criadas: ${created}, Atualizadas: ${updated}, Ignoradas: ${skipped}, Erros: ${errors}`);
 
     return NextResponse.json(
       { message: 'Notifications processed successfully', results },
       { status: 200 },
     )
   } catch (error: unknown) {
-    console.error('API Notificações: Erro ao processar notificações', error)
+    console.error('Notifications API: Error processing notifications', error)
     return NextResponse.json(
       {
         message:

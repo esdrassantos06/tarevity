@@ -154,82 +154,70 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
           const originalTodo = todos.find((t) => t.id === todoId);
     
           try {
-            console.log("Gerenciando notificações para tarefa atualizada", todoId);
             
             if (updateData.is_completed) {
-              // Descartar notificações se a tarefa for marcada como concluída
-              console.log("Tarefa marcada como concluída, descartando notificações");
               await axios.post('/api/notifications/dismiss-for-todo', { todoId });
               
             } else if (originalDueDate && !updateData.due_date) {
-              // Deletar notificações se a data de vencimento for removida
-              console.log("Data de vencimento removida, excluindo notificações");
               await axios.delete(`/api/notifications/delete-for-todo/${todoId}`);
               
             } else if (updateData.due_date) {
               const hasDueDateChanged = originalDueDate !== updateData.due_date;
               const hasTitleChanged = originalTodo?.title !== updateData.title;
     
+              
 if (hasDueDateChanged || hasTitleChanged) {
-  console.log("Data ou título alterados, atualizando notificações");
   
-  // Primeiro excluir notificações existentes
   axios.delete(`/api/notifications/delete-for-todo/${todoId}`)
     .then(() => {
-      console.log("✅ Notificações antigas excluídas");
       
-      // Criar apenas a notificação apropriada com base na data de vencimento
+      if (!updateData.due_date) {
+        return Promise.resolve(null);
+      }
+      
       const dueDate = new Date(updateData.due_date);
       const today = new Date();
-      today.setHours(0, 0, 0, 0); // Normalize to start of day for comparison
+      today.setHours(0, 0, 0, 0);
       
       let notification;
       
       if (dueDate < today) {
-        // Tarefa já está atrasada
         notification = {
           todo_id: todoId,
           notification_type: 'danger',
-          title: 'Tarefa Atrasada',
-          message: `A tarefa "${updateData.title}" está atrasada`,
+          title: 'Overdue Task',
+          message: `The task "${updateData.title}" is overdue`,
           due_date: updateData.due_date,
           origin_id: `danger-${todoId}-${Date.now()}`,
         };
       } else {
-        // Calcular diferença em dias
         const diffTime = Math.abs(dueDate.getTime() - today.getTime());
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
         
         if (diffDays <= 2) {
-          // Prazo próximo (2 dias ou menos)
           notification = {
             todo_id: todoId,
             notification_type: 'warning',
-            title: 'Prazo Próximo',
-            message: `A tarefa "${updateData.title}" está com prazo próximo (${diffDays} dia${diffDays !== 1 ? 's' : ''})`,
+            title: 'Upcoming Deadline',
+            message: `The task "${updateData.title}" has an upcoming deadline (${diffDays} day${diffDays !== 1 ? 's' : ''})`,
             due_date: updateData.due_date,
             origin_id: `warning-${todoId}-${Date.now()}`,
           };
         } else {
-          // Lembrete regular
           notification = {
             todo_id: todoId,
             notification_type: 'info',
-            title: 'Lembrete de Tarefa',
-            message: `Lembrete para a tarefa "${updateData.title}" (vence em ${diffDays} dias)`,
+            title: 'Task Reminder',
+            message: `Reminder for the task "${updateData.title}" (due in ${diffDays} days)`,
             due_date: updateData.due_date,
             origin_id: `info-${todoId}-${Date.now()}`,
           };
         }
       }
       
-      console.log("Enviando notificação:", notification);
-      
-      // Enviar apenas uma notificação dentro de um array
       return axios.post('/api/notifications', { notifications: [notification] });
     })
-    .then(response => {
-      console.log("✅ Resposta da API de notificações:", response.data);
+    .then(() => {
       queryClient.invalidateQueries({ queryKey: ['notifications'] });
     })
     .catch(error => {
@@ -238,7 +226,6 @@ if (hasDueDateChanged || hasTitleChanged) {
 }
             }
             
-            // Atualizar a query de notificações após todas as operações
             queryClient.invalidateQueries({ queryKey: ['notifications'] });
           } catch (error) {
             console.error('Error managing notifications:', error);

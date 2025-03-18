@@ -3,7 +3,6 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/auth-options'
 import { NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
 
-// GET handler to fetch all users
 export async function GET() {
   try {
     const session = await getServerSession(authOptions)
