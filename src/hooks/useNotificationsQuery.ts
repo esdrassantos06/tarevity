@@ -1,18 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import axios from 'axios'
 import { showSuccess, showError } from '@/lib/toast'
-
-export interface Notification {
-  id: string
-  todo_id: string
-  title: string
-  message: string
-  notification_type: 'warning' | 'danger' | 'info'
-  due_date: string
-  read: boolean
-  dismissed: boolean
-  origin_id: string
-}
+import { Notification } from '@/lib/notifications'
 
 interface QueryOptions {
   enabled?: boolean;
@@ -23,7 +12,7 @@ export function useNotificationsQuery(options: QueryOptions = {}) {
   return useQuery({
     queryKey: ['notifications'],
     queryFn: async () => {
-      const response = await axios.get('/api/notifications')
+      const response = await axios.get<Notification[]>('/api/notifications')
       return response.data
     },
     staleTime: 5 * 60 * 1000,
@@ -70,8 +59,9 @@ export function useMarkNotificationReadMutation() {
         markAsUnread,
       })
     },
-    onSuccess: () => {
-      showSuccess('Notification read status updated')
+    onSuccess: (response) => {
+      const { message } = response.data
+      showSuccess(message || 'Notification read status updated')
       queryClient.invalidateQueries({ queryKey: ['notifications'] })
     },
     onError: (error) => {
@@ -105,6 +95,23 @@ export function useDismissNotificationMutation() {
     onError: (error) => {
       console.error('Error dismissing notification:', error)
       showError('Failed to dismiss notification')
+    },
+  })
+}
+
+export function useDeleteNotificationsForTodoMutation() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async (todoId: string) => {
+      return axios.delete(`/api/notifications/delete-for-todo/${todoId}`)
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['notifications'] })
+    },
+    onError: (error) => {
+      console.error('Error deleting notifications for todo:', error)
+      showError('Failed to delete notifications')
     },
   })
 }

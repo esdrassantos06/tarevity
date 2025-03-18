@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useQueryClient } from '@tanstack/react-query'
 import { FiPlus } from 'react-icons/fi'
 import { Todo } from '@/lib/api'
-import axiosClient from '@/lib/axios'
+import axios from 'axios'
 import {
   useTodosQuery,
   useUpdateTodoMutation,
@@ -19,6 +19,7 @@ import TodoItem from './TodoItem'
 import Pagination from '../ui/Pagination'
 import TodoFilters from './TodoFilters'
 import TodoStats from './TodoStats'
+import { formatDistanceToNow } from 'date-fns'
 
 const RedesignedTodoList: React.FC = () => {
   const router = useRouter()
@@ -54,19 +55,43 @@ const RedesignedTodoList: React.FC = () => {
       cancelText: 'Cancel',
       onConfirm: () => {
         setLoading(true)
-        deleteTodoMutation.mutate(id, {
-          onSuccess: () => {
-            closeConfirmDialog()
-            queryClient.invalidateQueries({ queryKey: ['todos'] })
-          },
-          onError: (error) => {
-            console.error('Error deleting task:', error)
-            closeConfirmDialog()
-          },
-          onSettled: () => {
-            setLoading(false)
-          },
-        })
+        
+        // First delete notifications for this todo
+        axios.delete(`/api/notifications/delete-for-todo/${id}`)
+          .then(() => {
+            // Then delete the todo
+            deleteTodoMutation.mutate(id, {
+              onSuccess: () => {
+                closeConfirmDialog()
+                queryClient.invalidateQueries({ queryKey: ['notifications'] })
+                queryClient.invalidateQueries({ queryKey: ['todos'] })
+              },
+              onError: (error) => {
+                console.error('Error deleting task:', error)
+                closeConfirmDialog()
+              },
+              onSettled: () => {
+                setLoading(false)
+              },
+            })
+          })
+          .catch((error) => {
+            console.error('Error deleting notifications:', error)
+            // Continue with todo deletion even if notification deletion fails
+            deleteTodoMutation.mutate(id, {
+              onSuccess: () => {
+                closeConfirmDialog()
+                queryClient.invalidateQueries({ queryKey: ['todos'] })
+              },
+              onError: (error) => {
+                console.error('Error deleting task:', error)
+                closeConfirmDialog()
+              },
+              onSettled: () => {
+                setLoading(false)
+              },
+            })
+          })
       },
     })
   }, [openConfirmDialog, setLoading, deleteTodoMutation, closeConfirmDialog, queryClient])
@@ -90,15 +115,60 @@ const RedesignedTodoList: React.FC = () => {
       },
       {
         onSuccess: () => {
+          // When a todo is marked as completed, dismiss its notifications
           if (!isCompleted) {
-            axiosClient.post('/api/notifications/dismiss-for-todo', {todoId: id})
+            axios.post('/api/notifications/dismiss-for-todo', {todoId: id})
               .then(() => {
+                queryClient.invalidateQueries({ queryKey: ['notifications'] })
               })
               .catch((error) => {
                 console.error('Error dismissing notifications:', error)
               })
-              .finally(() => {
-                queryClient.invalidateQueries({ queryKey: ['notifications'] })
+          }
+          // When a todo is un-completed and has a due date, regenerate notifications
+          else if (todoToUpdate.due_date) {
+            // First delete existing notifications
+            axios.delete(`/api/notifications/delete-for-todo/${id}`)
+              .then(() => {
+                const dueDate = new Date(todoToUpdate.due_date!);
+                
+                const notifications = [
+                  {
+                    todo_id: id,
+                    notification_type: 'danger',
+                    title: 'Overdue Task',
+                    message: `"${todoToUpdate.title}" is due ${formatDistanceToNow(dueDate, { addSuffix: true })}`,
+                    due_date: todoToUpdate.due_date,
+                    origin_id: `danger-${id}`,
+                  },
+                  {
+                    todo_id: id,
+                    notification_type: 'warning',
+                    title: 'Due Soon',
+                    message: `"${todoToUpdate.title}" is due ${formatDistanceToNow(dueDate, { addSuffix: true })}`,
+                    due_date: todoToUpdate.due_date,
+                    origin_id: `warning-${id}`,
+                  },
+                  {
+                    todo_id: id,
+                    notification_type: 'info',
+                    title: 'Upcoming Deadline',
+                    message: `"${todoToUpdate.title}" is due ${formatDistanceToNow(dueDate, { addSuffix: true })}`,
+                    due_date: todoToUpdate.due_date,
+                    origin_id: `info-${id}`,
+                  },
+                ]
+
+                axios.post('/api/notifications', { notifications })
+                  .then(() => {
+                    queryClient.invalidateQueries({ queryKey: ['notifications'] })
+                  })
+                  .catch((error) => {
+                    console.error('Error creating notifications:', error)
+                  })
+              })
+              .catch((error) => {
+                console.error('Error managing notifications:', error)
               })
           }
 

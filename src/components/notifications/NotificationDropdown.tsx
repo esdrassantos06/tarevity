@@ -1,4 +1,5 @@
-'use client'
+// src/components/notifications/NotificationDropdown.tsx
+'use client';
 
 import { useState, useRef, useEffect } from 'react'
 import { IoNotificationsOutline } from 'react-icons/io5'
@@ -23,17 +24,7 @@ import ConfirmationDialog, {
   useConfirmationDialog,
 } from '@/components/common/ConfirmationDialog'
 import { useSession } from 'next-auth/react'
-
-interface Notification {
-  id: string
-  todo_id: string
-  title: string
-  message: string
-  notification_type: 'warning' | 'danger' | 'info'
-  due_date: string
-  read: boolean
-  dismissed: boolean
-}
+import { Notification } from '@/lib/notifications'
 
 export default function NotificationDropdown() {
   const { status } = useSession()
@@ -89,11 +80,6 @@ export default function NotificationDropdown() {
       },
       {
         onSuccess: () => {
-          showSuccess(
-            notification.read
-              ? 'Notification marked as unread'
-              : 'Notification marked as read',
-          )
           queryClient.invalidateQueries({ queryKey: ['notifications'] })
         },
         onError: (error) => {
@@ -126,7 +112,6 @@ export default function NotificationDropdown() {
         { all: true, markAsUnread: true },
         {
           onSuccess: () => {
-            showSuccess('All notifications marked as unread')
             queryClient.invalidateQueries({ queryKey: ['notifications'] })
           },
           onError: (error) => {
@@ -140,7 +125,6 @@ export default function NotificationDropdown() {
         { all: true },
         {
           onSuccess: () => {
-            showSuccess('All notifications marked as read')
             queryClient.invalidateQueries({ queryKey: ['notifications'] })
           },
           onError: (error) => {
@@ -235,46 +219,46 @@ export default function NotificationDropdown() {
 
       {isOpen && (
         <div 
-        className="fixed inset-x-0 top-[60px] mx-auto z-50 w-[90%] max-w-md rounded-lg border border-gray-200 bg-white shadow-lg sm:absolute sm:inset-auto sm:right-0 sm:top-auto sm:mx-0 sm:w-96 dark:border-gray-700 dark:bg-BlackLight"
-        style={{
-          maxHeight: 'calc(100vh - 80px)'
-        }}
-      >
-        <div className="border-b border-gray-200 px-4 py-3 dark:border-gray-700">
-          <div className="flex items-center justify-between">
-            <h3 className="font-medium text-gray-900 dark:text-white">
-              Notifications
-            </h3>
-            <div className="flex space-x-4">
-              {notifications.length > 0 && (
-                <>
-                  <button
-                    onClick={toggleReadStatus}
-                    className="flex items-center text-xs text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
-                  >
-                    {allRead ? (
-                      <>
-                        <FaEnvelope className="mr-1" />
-                        Mark all unread
-                      </>
-                    ) : (
-                      <>
-                        <FaEnvelopeOpen className="mr-1" />
-                        Mark all read
-                      </>
-                    )}
-                  </button>
-                  <button
-                    onClick={deleteAllNotifications}
-                    className="text-xs text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
-                  >
-                    Delete all
-                  </button>
-                </>
-              )}
+          className="fixed inset-x-0 top-[60px] mx-auto z-50 w-[90%] max-w-md rounded-lg border border-gray-200 bg-white shadow-lg sm:absolute sm:inset-auto sm:right-0 sm:top-auto sm:mx-0 sm:w-96 dark:border-gray-700 dark:bg-BlackLight"
+          style={{
+            maxHeight: 'calc(100vh - 80px)'
+          }}
+        >
+          <div className="border-b border-gray-200 px-4 py-3 dark:border-gray-700">
+            <div className="flex items-center justify-between">
+              <h3 className="font-medium text-gray-900 dark:text-white">
+                Notifications
+              </h3>
+              <div className="flex space-x-4">
+                {notifications.length > 0 && (
+                  <>
+                    <button
+                      onClick={toggleReadStatus}
+                      className="flex items-center text-xs text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+                    >
+                      {allRead ? (
+                        <>
+                          <FaEnvelope className="mr-1" />
+                          Mark all unread
+                        </>
+                      ) : (
+                        <>
+                          <FaEnvelopeOpen className="mr-1" />
+                          Mark all read
+                        </>
+                      )}
+                    </button>
+                    <button
+                      onClick={deleteAllNotifications}
+                      className="text-xs text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
+                    >
+                      Delete all
+                    </button>
+                  </>
+                )}
+              </div>
             </div>
           </div>
-        </div>
 
           <div className="max-h-80 overflow-y-auto p-2">
             {isLoading ? (
