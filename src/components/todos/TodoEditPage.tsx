@@ -12,11 +12,11 @@ import {
   FaCalendarTimes,
 } from 'react-icons/fa'
 import { useTodosQuery, useUpdateTodoMutation } from '@/hooks/useTodosQuery'
-import { formatDistanceToNow } from 'date-fns'
 import ConfirmationDialog, {
   useConfirmationDialog,
 } from '@/components/common/ConfirmationDialog'
 import axios from 'axios'
+import { showError } from '@/lib/toast'
 
 interface Todo {
   id: string
@@ -142,136 +142,119 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
     updateTodoMutation.mutate(
       { id: todoId, data: updateData },
       {
-        onSuccess: (response) => {
-          setHasUnsavedChanges(false)
-
+        onSuccess: async (response) => {
+          setHasUnsavedChanges(false);
+    
           if (!response.data) {
-            console.error('No data returned from update mutation')
-            router.push(`/todo/${todoId}`)
-            return
+            console.error('No data returned from update mutation');
+            router.push(`/todo/${todoId}`);
+            return;
           }
-
-          const originalTodo = todos.find((t) => t.id === todoId)
-
-          if (updateData.is_completed) {
-            axios
-              .post('/api/notifications/dismiss-for-todo', { todoId })
-              .then(() => {
-                queryClient.invalidateQueries({ queryKey: ['notifications'] })
-              })
-              .catch((error) => {
-                console.error('Error dismissing notifications:', error)
-              })
-          } else if (originalDueDate && !updateData.due_date) {
-            axios
-              .delete(`/api/notifications/delete-for-todo/${todoId}`)
-              .then(() => {
-                if (updateData.due_date) {
-                  const dueDate = new Date(updateData.due_date)
-
-                  const notifications = [
-                    {
-                      todo_id: todoId,
-                      notification_type: 'danger',
-                      title: 'Overdue Task',
-                      message: `"${updateData.title}" is due ${formatDistanceToNow(dueDate, { addSuffix: true })}`,
-                      due_date: updateData.due_date,
-                      origin_id: `danger-${todoId}`,
-                    },
-                    {
-                      todo_id: todoId,
-                      notification_type: 'warning',
-                      title: 'Due Soon',
-                      message: `"${updateData.title}" is due ${formatDistanceToNow(dueDate, { addSuffix: true })}`,
-                      due_date: updateData.due_date,
-                      origin_id: `warning-${todoId}`,
-                    },
-                    {
-                      todo_id: todoId,
-                      notification_type: 'info',
-                      title: 'Upcoming Deadline',
-                      message: `"${updateData.title}" is due ${formatDistanceToNow(dueDate, { addSuffix: true })}`,
-                      due_date: updateData.due_date,
-                      origin_id: `info-${todoId}`,
-                    },
-                  ]
-                  axios
-                    .post('/api/notifications', { notifications })
-                    .then((response) => {
-                      console.warn(response.data)
-                      queryClient.invalidateQueries({
-                        queryKey: ['notifications'],
-                      })
-                    })
-                    .catch((error) => {
-                      console.error(
-                        'Erro criando notificações:',
-                        error.response?.data || error.message,
-                      )
-                    })
-                }
-              })
-              .catch((error) => {
-                console.error('Error managing notifications:', error)
-              })
-          } else if (updateData.due_date) {
-            const hasDueDateChanged = originalDueDate !== updateData.due_date
-            const hasTitleChanged = originalTodo?.title !== updateData.title
-
-            if (hasDueDateChanged || hasTitleChanged) {
-              axios
-                .delete(`/api/notifications/delete-for-todo/${todoId}`)
-                .then(() => {
-                  const dueDate = new Date(updateData.due_date!)
-
-                  const notifications = [
-                    {
-                      todo_id: todoId,
-                      notification_type: 'danger',
-                      title: 'Overdue Task',
-                      message: `"${updateData.title}" is due ${formatDistanceToNow(dueDate, { addSuffix: true })}`,
-                      due_date: updateData.due_date,
-                      origin_id: `danger-${todoId}`,
-                    },
-                    {
-                      todo_id: todoId,
-                      notification_type: 'warning',
-                      title: 'Due Soon',
-                      message: `"${updateData.title}" is due ${formatDistanceToNow(dueDate, { addSuffix: true })}`,
-                      due_date: updateData.due_date,
-                      origin_id: `warning-${todoId}`,
-                    },
-                    {
-                      todo_id: todoId,
-                      notification_type: 'info',
-                      title: 'Upcoming Deadline',
-                      message: `"${updateData.title}" is due ${formatDistanceToNow(dueDate, { addSuffix: true })}`,
-                      due_date: updateData.due_date,
-                      origin_id: `info-${todoId}`,
-                    },
-                  ]
-
-                  axios
-                    .post('/api/notifications', { notifications })
-                    .then(() => {
-                      queryClient.invalidateQueries({
-                        queryKey: ['notifications'],
-                      })
-                    })
-                    .catch((error) => {
-                      console.error('Error creating notifications:', error)
-                    })
-                })
-                .catch((error) => {
-                  console.error('Error managing notifications:', error)
-                })
+    
+          const originalTodo = todos.find((t) => t.id === todoId);
+    
+          try {
+            console.log("Gerenciando notificações para tarefa atualizada", todoId);
+            
+            if (updateData.is_completed) {
+              // Descartar notificações se a tarefa for marcada como concluída
+              console.log("Tarefa marcada como concluída, descartando notificações");
+              await axios.post('/api/notifications/dismiss-for-todo', { todoId });
+              
+            } else if (originalDueDate && !updateData.due_date) {
+              // Deletar notificações se a data de vencimento for removida
+              console.log("Data de vencimento removida, excluindo notificações");
+              await axios.delete(`/api/notifications/delete-for-todo/${todoId}`);
+              
+            } else if (updateData.due_date) {
+              const hasDueDateChanged = originalDueDate !== updateData.due_date;
+              const hasTitleChanged = originalTodo?.title !== updateData.title;
+    
+if (hasDueDateChanged || hasTitleChanged) {
+  console.log("Data ou título alterados, atualizando notificações");
+  
+  // Primeiro excluir notificações existentes
+  axios.delete(`/api/notifications/delete-for-todo/${todoId}`)
+    .then(() => {
+      console.log("✅ Notificações antigas excluídas");
+      
+      // Criar apenas a notificação apropriada com base na data de vencimento
+      const dueDate = new Date(updateData.due_date);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0); // Normalize to start of day for comparison
+      
+      let notification;
+      
+      if (dueDate < today) {
+        // Tarefa já está atrasada
+        notification = {
+          todo_id: todoId,
+          notification_type: 'danger',
+          title: 'Tarefa Atrasada',
+          message: `A tarefa "${updateData.title}" está atrasada`,
+          due_date: updateData.due_date,
+          origin_id: `danger-${todoId}-${Date.now()}`,
+        };
+      } else {
+        // Calcular diferença em dias
+        const diffTime = Math.abs(dueDate.getTime() - today.getTime());
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        
+        if (diffDays <= 2) {
+          // Prazo próximo (2 dias ou menos)
+          notification = {
+            todo_id: todoId,
+            notification_type: 'warning',
+            title: 'Prazo Próximo',
+            message: `A tarefa "${updateData.title}" está com prazo próximo (${diffDays} dia${diffDays !== 1 ? 's' : ''})`,
+            due_date: updateData.due_date,
+            origin_id: `warning-${todoId}-${Date.now()}`,
+          };
+        } else {
+          // Lembrete regular
+          notification = {
+            todo_id: todoId,
+            notification_type: 'info',
+            title: 'Lembrete de Tarefa',
+            message: `Lembrete para a tarefa "${updateData.title}" (vence em ${diffDays} dias)`,
+            due_date: updateData.due_date,
+            origin_id: `info-${todoId}-${Date.now()}`,
+          };
+        }
+      }
+      
+      console.log("Enviando notificação:", notification);
+      
+      // Enviar apenas uma notificação dentro de um array
+      return axios.post('/api/notifications', { notifications: [notification] });
+    })
+    .then(response => {
+      console.log("✅ Resposta da API de notificações:", response.data);
+      queryClient.invalidateQueries({ queryKey: ['notifications'] });
+    })
+    .catch(error => {
+      console.error("❌ Erro gerenciando notificações:", error);
+    });
+}
             }
+            
+            // Atualizar a query de notificações após todas as operações
+            queryClient.invalidateQueries({ queryKey: ['notifications'] });
+          } catch (error) {
+            console.error('Error managing notifications:', error);
           }
-
-          router.push(`/todo/${todoId}`)
+    
+          setTimeout(() => {
+            router.push(`/todo/${todoId}`);
+          }, 500);
+          
         },
-      },
-    )
+        onError: (error) => {
+          showError(error instanceof Error ? error.message : 'Error updating task');
+          console.error('Error updating task:', error);
+        },
+      }
+    );
   }
 
   const { dialogState, openConfirmDialog, closeConfirmDialog } =

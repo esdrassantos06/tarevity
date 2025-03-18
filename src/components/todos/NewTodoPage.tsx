@@ -7,6 +7,8 @@ import { showError, showLoading, updateToast, showInfo } from '@/lib/toast'
 import ConfirmationDialog, {
   useConfirmationDialog,
 } from '@/components/common/ConfirmationDialog'
+import axios from 'axios'
+import { useQueryClient } from '@tanstack/react-query'
 
 interface TodoFormData {
   title: string
@@ -35,6 +37,8 @@ const NewTodoPage: React.FC = () => {
   const router = useRouter()
   const createTodoMutation = useCreateTodoMutation()
 
+  const queryClient = useQueryClient()
+
   const [formData, setFormData] = useState<TodoFormData>({
     title: '',
     description: '',
@@ -58,33 +62,105 @@ const NewTodoPage: React.FC = () => {
   }
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-
+    e.preventDefault();
+  
     if (!formData.title.trim()) {
-      showError('Please enter a title for the task')
-      return
+      showError('Please enter a title for the task');
+      return;
     }
-
-    const toastId = showLoading('Creating task...')
-
+  
+    const toastId = showLoading('Creating task...');
+  
     const todoData = {
       ...formData,
       priority: Number(formData.priority),
       due_date: formData.due_date || null,
-    }
-
+    };
+  
     createTodoMutation.mutate(todoData, {
-      onSuccess: (data: ApiResult<Todo>) => {
+      onSuccess: async (data: ApiResult<Todo>) => {
         updateToast(toastId, 'Task created successfully!', {
           type: 'success',
           isLoading: false,
           autoClose: 3000,
-        })
-
+        });
+  
         if (data.data && data.data.id) {
-          router.push(`/todo/${data.data.id}`)
+          const todoId = data.data.id;
+          
+          // Criar notificações se tiver uma data de vencimento e não estiver concluída
+if (todoData.due_date && !todoData.is_completed) {
+  try {
+    console.log("Tentando criar notificações para a tarefa:", todoId);
+    
+    // Criar apenas a notificação apropriada com base na data de vencimento
+    const dueDate = new Date(todoData.due_date);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Normalize to start of day for comparison
+    
+    let notification;
+    
+    if (dueDate < today) {
+      // Tarefa já está atrasada
+      notification = {
+        todo_id: todoId,
+        notification_type: 'danger',
+        title: 'Tarefa Atrasada',
+        message: `A tarefa "${todoData.title}" está atrasada`,
+        due_date: todoData.due_date,
+        origin_id: `danger-${todoId}-${Date.now()}`,
+      };
+    } else {
+      // Calcular diferença em dias
+      const diffTime = Math.abs(dueDate.getTime() - today.getTime());
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      
+      if (diffDays <= 2) {
+        // Prazo próximo (2 dias ou menos)
+        notification = {
+          todo_id: todoId,
+          notification_type: 'warning',
+          title: 'Prazo Próximo',
+          message: `A tarefa "${todoData.title}" está com prazo próximo (${diffDays} dia${diffDays !== 1 ? 's' : ''})`,
+          due_date: todoData.due_date,
+          origin_id: `warning-${todoId}-${Date.now()}`,
+        };
+      } else {
+        // Lembrete regular
+        notification = {
+          todo_id: todoId,
+          notification_type: 'info',
+          title: 'Lembrete de Tarefa',
+          message: `Lembrete para a tarefa "${todoData.title}" (vence em ${diffDays} dias)`,
+          due_date: todoData.due_date,
+          origin_id: `info-${todoId}-${Date.now()}`,
+        };
+      }
+    }
+    
+    console.log("Enviando notificação:", notification);
+    
+    // Enviar apenas uma notificação dentro de um array
+    axios.post('/api/notifications', { notifications: [notification] })
+      .then(response => {
+        console.log("✅ Resposta da API de notificações:", response.data);
+        queryClient.invalidateQueries({ queryKey: ['notifications'] });
+      })
+      .catch(error => {
+        console.error("❌ Erro chamando API de notificações:", error);
+      });
+      
+    console.log("Chamada de API enviada");
+  } catch (error) {
+    console.error('⚠️ Erro ao criar notificações:', error);
+  }
+}
+          
+          setTimeout(() => {
+            router.push(`/todo/${todoId}`);
+          }, 500);
         } else {
-          router.push('/dashboard')
+          router.push('/dashboard');
         }
       },
       onError: (error) => {
@@ -92,16 +168,16 @@ const NewTodoPage: React.FC = () => {
           type: 'error',
           isLoading: false,
           autoClose: 5000,
-        })
-
+        });
+  
         showError(
           error instanceof Error
             ? error.message
             : 'An error occurred while creating the task',
-        )
+        );
       },
-    })
-  }
+    });
+  };
 
   const { dialogState, openConfirmDialog, closeConfirmDialog } =
     useConfirmationDialog()

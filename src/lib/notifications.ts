@@ -168,59 +168,59 @@ export const notificationsService = {
     notifications: NotificationRequest[]
   ) {
     const results = []
-
+  
     for (const notification of notifications) {
+      
+
       if (!notification.title || !notification.message || !notification.notification_type || !notification.origin_id) {
+        console.error('NotificationsService: Campos obrigatórios ausentes', notification);
         results.push({ 
           status: 'error', 
           error: 'Missing required notification fields' 
         })
         continue
       }
-
+  
       if (!['danger', 'warning', 'info'].includes(notification.notification_type)) {
+        console.error('NotificationsService: Tipo de notificação inválido', notification.notification_type);
         results.push({ 
           status: 'error', 
           error: 'Invalid notification type' 
         })
         continue
       }
-
+  
       try {
-        // Check if notification already exists
         const { data: existingNotification, error: findError } = await supabaseAdmin
           .from('notifications')
           .select('id, dismissed, read')
           .eq('user_id', userId)
           .eq('origin_id', notification.origin_id)
           .single()
-
-        if (findError && findError.code !== 'PGRST116') {
-          console.error('Error finding notification:', findError)
+  
+        if (findError) {
+            console.error('NotificationsService: Erro ao buscar notificação existente', findError);
         }
-
-        // Should show notification based on type and due date
         const shouldShow = this.shouldShowNotification(
           notification.notification_type,
           notification.due_date
         )
-
+  
         if (existingNotification) {
           if (shouldShow) {
-            // Update existing notification
             const { data, error } = await supabaseAdmin
               .from('notifications')
               .update({
                 title: notification.title,
                 message: notification.message,
                 due_date: notification.due_date,
-                dismissed: false, // Re-activate dismissed notifications when they should show
+                dismissed: false,
               })
               .eq('id', existingNotification.id)
               .select()
-
+  
             if (error) {
-              console.error('Error updating notification:', error)
+              console.error('NotificationsService: Erro ao atualizar notificação', error);
               results.push({ status: 'error', error })
             } else {
               results.push({ status: 'updated', notification: data?.[0] })
@@ -232,21 +232,20 @@ export const notificationsService = {
             })
           }
         } else if (shouldShow) {
-          // Create new notification
+          const newNotification = {
+            ...notification,
+            user_id: userId,
+            read: false,
+            dismissed: false,
+          };
+          
           const { data, error } = await supabaseAdmin
             .from('notifications')
-            .insert([
-              {
-                ...notification,
-                user_id: userId,
-                read: false,
-                dismissed: false,
-              },
-            ])
+            .insert([newNotification])
             .select()
-
+  
           if (error) {
-            console.error('Error creating notification:', error)
+            console.error('NotificationsService: Erro ao criar notificação', error);
             results.push({ status: 'error', error })
           } else {
             results.push({ status: 'created', notification: data?.[0] })
@@ -258,11 +257,10 @@ export const notificationsService = {
           })
         }
       } catch (error) {
-        console.error('Error processing notification:', error)
+        console.error('NotificationsService: Erro ao processar notificação', error);
         results.push({ status: 'error', error })
       }
     }
-
     return results
   },
 
@@ -274,7 +272,7 @@ export const notificationsService = {
     dueDateString: string | null
   ): boolean {
     if (!dueDateString) return false
-
+  
     try {
       let dueDate: Date
       try {
@@ -288,10 +286,12 @@ export const notificationsService = {
         console.error('Error parsing date:', error)
         return false
       }
+  
 
+  
       const now = new Date()
       const threeDaysFromNow = addDays(now, 3)
-
+  
       switch (type) {
         case 'danger':
           return isPast(dueDate) && dueDate > addDays(now, -7)
