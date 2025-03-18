@@ -37,7 +37,6 @@ export default function EnhancedLoginForm() {
   const searchParams = useSearchParams()
   const callbackUrl = searchParams?.get('callbackUrl') || '/dashboard'
   const errorParam = searchParams?.get('error')
-  const registeredParam = searchParams?.get('registered')
 
   const MAX_ATTEMPTS = 5
   const BASE_LOCKOUT_TIME = 30
@@ -105,31 +104,19 @@ export default function EnhancedLoginForm() {
   }, [])
 
   useEffect(() => {
-    if (registeredParam === 'true') {
-      showSuccess(
-        'Account created successfully! Please log in with your new credentials.',
-      )
-    }
-    
     if (errorParam === 'session_expired') {
       setFailedAttempts(0);
       localStorage.removeItem('loginLockout');
       showWarning('Your session has expired. Please log in again to continue.');
-    } else if (registeredParam === 'true') {
-      showSuccess(
-        'Account created successfully! Please log in with your new credentials.',
-      )
-    }
-  }, [registeredParam, errorParam])
-
-  
-  useEffect(() => {
-    if (errorParam === 'session_expired' && typeof window !== 'undefined') {
-      const url = new URL(window.location.href);
-      url.searchParams.delete('error');
-      window.history.replaceState({}, document.title, url.toString());
+      
+      if (typeof window !== 'undefined') {
+        const url = new URL(window.location.href);
+        url.searchParams.delete('error');
+        window.history.replaceState({}, document.title, url.toString());
+      }
     }
   }, [errorParam]);
+
 
   const handleEmailValidation = (isValid: boolean) => {
     setEmailValid(isValid)

@@ -50,9 +50,9 @@ export interface ImageUploadResponse {
 }
 
 export interface ApiResult<T> {
-  data: T | null
-  error: APIError | null
-  loading: boolean
+  data: T | null;
+  error: APIError | null;
+  loading: boolean;
 }
 
 export const authAPI = {

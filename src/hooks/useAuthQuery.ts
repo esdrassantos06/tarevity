@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { authAPI } from '@/lib/api'
-import { toast } from 'react-toastify'
+import { showError } from '@/lib/toast'
+
 
 export function usePasswordCheckQuery(
   password: string,
@@ -33,12 +34,17 @@ export function useRegisterMutation() {
       email: string
       password: string
     }) => authAPI.register(name, email, password),
+
     onSuccess: () => {
-      toast.success('Account created successfully! Please log in to continue.')
       queryClient.invalidateQueries({ queryKey: ['passwordCheck'] })
     },
-    onError: (error: Error) => {
-      console.error('Registration error:', error)
+    onError: (error) => {
+      console.error('Unexpected registration error:', error)
+      showError(
+        error instanceof Error 
+          ? error.message 
+          : 'An unexpected error occurred during registration'
+      )
     },
   })
 }

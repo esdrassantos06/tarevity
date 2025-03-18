@@ -6,12 +6,14 @@ export interface APIErrorResponse {
   message: string
   code?: string
   details?: Record<string, unknown>
+  silentError?: boolean
 }
 
 export interface APIError {
   message: string
   status?: number
   code?: string
+  silentError?: boolean
 }
 
 export function isAPIError(error: unknown): error is APIError {
@@ -81,30 +83,49 @@ axiosClient.interceptors.response.use(
       switch (status) {
         case 401:
           if (isProtectedRoute) {
-            const justLoggedInValue = window.sessionStorage.getItem('just_logged_in');
-            const justLoggedIn = justLoggedInValue && 
-              (Date.now() - parseInt(justLoggedInValue, 10) < 5000);
-            
+            const justLoggedInValue =
+              window.sessionStorage.getItem('just_logged_in')
+            const justLoggedIn =
+              justLoggedInValue &&
+              Date.now() - parseInt(justLoggedInValue, 10) < 5000
+
             if (justLoggedIn) {
               if (!window.location.pathname.includes('/auth/login')) {
-                window.location.reload();
+                window.location.reload()
               }
               return Promise.reject({
                 message: 'Session initializing...',
                 status,
                 silentError: true,
-              });
+              })
             }
-            window.sessionStorage.removeItem('just_logged_in');
-            
+            window.sessionStorage.removeItem('just_logged_in')
+
             showError('Your session has expired. Please log in again.')
             if (typeof window !== 'undefined') {
-              const currentPath = window.location.pathname;
+              const currentPath = window.location.pathname
               window.location.href = `/auth/login?callbackUrl=${encodeURIComponent(currentPath)}`
             }
           }
           break
-          
+
+        case 409:
+          if (
+            errorData?.code === 'EMAIL_EXISTS' ||
+            errorData?.message?.toLowerCase().includes('email already')
+          ) {
+            return Promise.reject({
+              message: errorData?.message || 'Email already registered',
+              status,
+              code: errorData?.code,
+              silentError: true,
+            })
+          }
+          if (errorData?.message && !errorData?.silentError) {
+            showError(errorData.message)
+          }
+          break
+
         case 429:
           const retryAfter = error.response.headers['retry-after']
           const waitTime = retryAfter ? parseInt(retryAfter, 10) : 60
@@ -131,6 +152,7 @@ axiosClient.interceptors.response.use(
         message: errorData?.message || 'An error occurred',
         status,
         code: errorData?.code,
+        silentError: errorData?.silentError
       } as APIError)
     }
 

@@ -70,15 +70,19 @@ export async function verifyPassword(
 }
 
 export async function emailExists(email: string): Promise<boolean> {
+  const normalizedEmail = email.toLowerCase().trim()
+
+
   const { data, error } = await supabase
     .from('users')
     .select('id')
-    .eq('email', email)
+    .eq('email', normalizedEmail)
     .single()
 
-  if (error && error.code !== 'PGRST116') {
-    console.error('Error checking if email exists:', error)
-  }
+    if (error && error.code !== 'PGRST116') {
+      console.error('Error checking if email exists:', error)
+      return false
+    }
 
   return !!data
 }
@@ -102,6 +106,9 @@ export async function createUser(
   email: string,
   password: string,
 ) {
+  
+  const normalizedEmail = email.toLowerCase().trim()
+  
   const hashedPassword = await hashPassword(password)
 
   const { data, error } = await supabase
@@ -109,7 +116,7 @@ export async function createUser(
     .insert([
       {
         name,
-        email,
+        email: normalizedEmail,
         password: hashedPassword,
         provider: 'email',
       },
@@ -118,6 +125,9 @@ export async function createUser(
     .single()
 
   if (error) {
+    if (error.code === '23505') {
+      throw new Error('Email already registered')
+    }
     throw new Error(error.message)
   }
 
