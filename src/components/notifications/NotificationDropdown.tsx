@@ -231,7 +231,7 @@ export default function NotificationDropdown() {
               <div className="flex space-x-4">
                 {notifications.length > 0 && (
                   <>
-                    <button
+                    <button aria-label={allRead ? 'Mark all as unread' : 'Mark all as read'}
                       onClick={toggleReadStatus}
                       className="flex items-center text-xs text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
                     >
@@ -247,7 +247,7 @@ export default function NotificationDropdown() {
                         </>
                       )}
                     </button>
-                    <button
+                    <button aria-label='Delete all notifications'
                       onClick={deleteAllNotifications}
                       className="text-xs text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
                     >
@@ -321,7 +321,7 @@ export default function NotificationDropdown() {
 
                       {/* Action buttons */}
                       <div className="mt-2 flex justify-end space-x-2">
-                        <button
+                        <button aria-label={notification.read ? 'Mark as unread' : 'Mark as read'}
                           onClick={(e) => {
                             e.stopPropagation()
                             handleToggleRead(notification)
@@ -350,7 +350,7 @@ export default function NotificationDropdown() {
                           )}
                         </button>
 
-                        <button
+                        <button aria-label='Delete notification'
                           onClick={(e) => {
                             e.stopPropagation()
                             handleDeleteNotification(notification.id)

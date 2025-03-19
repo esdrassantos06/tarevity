@@ -117,7 +117,7 @@ const AdminSettings: React.FC = () => {
       <div className="mb-6 border-b border-BorderLight dark:border-BorderDark">
         <ul className="flex flex-wrap -mb-px">
           <li className="mr-2">
-            <button
+            <button aria-label='Users'
               onClick={() => setActiveAdminTab('users')}
               className={`inline-flex items-center py-2 px-4 text-sm font-medium ${
                 activeAdminTab === 'users'
@@ -130,7 +130,7 @@ const AdminSettings: React.FC = () => {
             </button>
           </li>
           <li className="mr-2">
-            <button
+            <button aria-label='Stats'
               onClick={() => setActiveAdminTab('stats')}
               className={`inline-flex items-center py-2 px-4 text-sm font-medium ${
                 activeAdminTab === 'stats'
@@ -190,14 +190,14 @@ const AdminSettings: React.FC = () => {
                           </td>
                           <td className="py-3 px-4">
                             <div className="flex space-x-2">
-                              <button
+                              <button aria-label='Edit User'
                                 onClick={() => handleToggleAdminStatus(user)}
                                 className="rounded p-1 text-blue-600 hover:bg-blue-100 dark:text-blue-400 dark:hover:bg-blue-900/30"
                                 title={user.is_admin ? "Remove admin privileges" : "Grant admin privileges"}
                               >
                                 <FaUserShield />
                               </button>
-                              <button
+                              <button aria-label='Delete User'
                                 onClick={() => handleDeleteUser(user)}
                                 className="rounded p-1 text-red-600 hover:bg-red-100 dark:text-red-400 dark:hover:bg-red-900/30"
                                 title="Delete user"

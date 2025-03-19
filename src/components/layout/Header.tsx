@@ -82,7 +82,7 @@ export default function Header() {
                 <div className="hidden items-center gap-2 sm:flex">
                   {/* Profile Dropdown */}
                   <div className="relative" ref={dropdownRef}>
-                    <button
+                    <button aria-label='Open user menu'
                       onClick={toggleDropdown}
                       className="border-BorderLight dark:border-BorderDark flex items-center rounded-full border-2 transition-colors duration-300 focus:outline-none"
                       aria-expanded={isDropdownOpen}
@@ -120,7 +120,7 @@ export default function Header() {
                           <FaCog className="mr-2 inline" />
                           Settings
                         </Link>
-                        <button
+                        <button aria-label='Logout'
                           onClick={() => {
                             setIsDropdownOpen(false)
                             signOut({ callbackUrl: '/' })
@@ -153,7 +153,7 @@ export default function Header() {
             )}
 
             <div className="-mr-2 flex items-center sm:hidden">
-              <button
+              <button aria-label='Open main menu'
                 onClick={toggleMenu}
                 type="button"
                 className="inline-flex items-center justify-center rounded-md p-2"
@@ -217,7 +217,7 @@ export default function Header() {
                     <FaCog className="mr-1 inline" />
                     Settings
                   </Link>
-                  <button
+                  <button aria-label='Logout'
                     onClick={() => signOut({ callbackUrl: '/' })}
                     className="text-BlackLight block w-full px-3 py-2 text-left dark:text-white"
                   >

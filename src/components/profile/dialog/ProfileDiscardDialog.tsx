@@ -31,13 +31,13 @@ export default function ProfileDiscardDialog({
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
-          <button
+          <button aria-label='Cancel'
             onClick={onClose}
             className="rounded-md border border-gray-300 px-4 py-2 text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
           >
             Cancel
           </button>
-          <button
+          <button aria-label='Discard Changes'
             onClick={onConfirm}
             className="rounded-md bg-amber-600 px-4 py-2 text-white hover:bg-amber-700"
           >

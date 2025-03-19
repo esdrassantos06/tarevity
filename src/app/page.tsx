@@ -47,7 +47,7 @@ export default function HomePage() {
       <JsonLd data={structuredData} />
       <div className="py-12">
         {/* Hero Section */}
-        <div className="mx-auto max-w-7xl rounded-lg px-4 sm:px-6 lg:px-8">
+        <section className="mx-auto max-w-7xl rounded-lg px-4 sm:px-6 lg:px-8">
           <div className="p-8 lg:text-center">
             <h1 className="text-BlackLight dark:text-darkText text-center text-5xl font-extrabold tracking-tight sm:text-6xl md:text-7xl dark:text-white">
               Manage your tasks efficiently
@@ -68,10 +68,10 @@ export default function HomePage() {
               </div>
             </div>
           </div>
-        </div>
+        </section>
 
-        {/* Features Section */}
-        <div className="dark:bg-BlackLight container mx-auto mt-10 rounded-lg bg-white py-12 shadow-lg">
+        {/* Features */}
+        <article className="dark:bg-BlackLight container mx-auto mt-10 rounded-lg bg-white py-12 shadow-lg">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="lg:text-center">
               <h2 className="text-center font-semibold uppercase">Features</h2>
@@ -83,7 +83,7 @@ export default function HomePage() {
             <div className="mt-10">
               <div className="space-y-10 md:grid md:grid-cols-2 md:space-y-0 md:gap-x-8 md:gap-y-10">
                 {/* Feature 1 */}
-                <div className="flex">
+                <section className="flex">
                   <div className="flex-shrink-0">
                     <div className="bg-primary flex h-12 w-12 items-center justify-center rounded-md text-white">
                       <FaCheckCircle className="h-6 w-6" />
@@ -98,10 +98,10 @@ export default function HomePage() {
                       Intuitive and user-friendly interface.
                     </p>
                   </div>
-                </div>
+                </section>
 
                 {/* Feature 2 */}
-                <div className="flex">
+                <section className="flex">
                   <div className="flex-shrink-0">
                     <div className="bg-primary flex h-12 w-12 items-center justify-center rounded-md text-white">
                       <FaBell className="h-6 w-6" />
@@ -116,10 +116,10 @@ export default function HomePage() {
                       commitments.
                     </p>
                   </div>
-                </div>
+                </section>
 
                 {/* Feature 3 */}
-                <div className="flex">
+                <section className="flex">
                   <div className="flex-shrink-0">
                     <div className="bg-primary flex h-12 w-12 items-center justify-center rounded-md text-white">
                       <FaLock className="h-6 w-6" />
@@ -134,10 +134,10 @@ export default function HomePage() {
                       Google for greater convenience.
                     </p>
                   </div>
-                </div>
+                </section>
 
                 {/* Feature 4 */}
-                <div className="flex">
+                <section className="flex">
                   <div className="flex-shrink-0">
                     <div className="bg-primary flex h-12 w-12 items-center justify-center rounded-md text-white">
                       <FaMobileAlt className="h-6 w-6" />
@@ -152,11 +152,11 @@ export default function HomePage() {
                       are always within reach.
                     </p>
                   </div>
-                </div>
+                </section>
               </div>
             </div>
           </div>
-        </div>
+        </article>
 
         {/* Testemonials Section */}
         <div className="hidden container mx-auto mt-10 rounded-lg shadow-lg">
@@ -166,7 +166,7 @@ export default function HomePage() {
 
 
         {/* CTA Section */}
-        <div className="bg-primary container mx-auto mt-10 rounded-lg shadow-lg">
+        <article className="bg-primary container mx-auto mt-10 rounded-lg shadow-lg">
           <div className="mx-auto max-w-2xl px-4 py-16 text-center sm:px-6 sm:py-20 lg:px-8">
             <h2 className="text-3xl font-extrabold text-white sm:text-4xl">
               <span className="block">Ready to get organized?</span>
@@ -182,7 +182,7 @@ export default function HomePage() {
               Create Free Account
             </Link>
           </div>
-        </div>
+        </article>
       </div>
     </Layout>
   )

@@ -199,7 +199,7 @@ export default function ProfileForm({
       </div>
 
       <div className="flex space-x-3">
-        <button
+        <button aria-label='Upload Image'
           type="submit"
           disabled={isSubmitting}
           className="bg-primary hover:bg-primaryHover inline-flex items-center rounded-md border border-transparent px-4 py-2 text-sm font-medium text-white shadow-sm outline-none"
@@ -207,7 +207,7 @@ export default function ProfileForm({
           <FaSave className="mr-2 -ml-1 h-4 w-4" />
           {isSubmitting ? 'Saving...' : 'Save'}
         </button>
-        <button
+        <button aria-label='Cancel'
           type="button"
           onClick={onCancel}
           className="inline-flex items-center rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 shadow-sm outline-none hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"

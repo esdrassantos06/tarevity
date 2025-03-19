@@ -111,7 +111,7 @@ export default async function RootLayout({
         <Providers>
           <NextAuthProvider>
             <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-              <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-white focus:text-primary focus:outline focus:outline-offset-2 focus:rounded">
+              <a aria-label='Skip to main content' href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-white focus:text-primary focus:outline focus:outline-offset-2 focus:rounded">
                 Skip to main content
               </a>
               <main id="main-content">

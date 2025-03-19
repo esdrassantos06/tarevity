@@ -295,7 +295,7 @@ if (hasDueDateChanged || hasTitleChanged) {
     <div className="mx-auto max-w-3xl px-4 py-6">
       {/* Header */}
       <div className="mb-6 flex items-center justify-between">
-        <button
+        <button aria-label='Back'
           onClick={handleCancel}
           className="flex items-center text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white"
         >
@@ -419,7 +419,7 @@ if (hasDueDateChanged || hasTitleChanged) {
                   className="w-full rounded-l-md border border-gray-300 px-4 py-2 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                 />
                 {formData.due_date && (
-                  <button
+                  <button aria-label='clear-due-date'
                     type="button"
                     onClick={handleConfirmClearDueDate}
                     className="rounded-r-md border border-l-0 border-gray-300 bg-red-100 px-3 hover:bg-red-200 dark:border-gray-600 dark:bg-red-900 dark:text-white dark:hover:bg-red-800"
@@ -459,14 +459,14 @@ if (hasDueDateChanged || hasTitleChanged) {
 
           {/* Form buttons */}
           <div className="flex justify-end space-x-3">
-            <button
+            <button aria-label='cancel-edit'
               type="button"
               onClick={handleCancel}
               className="rounded-md border border-gray-300 px-4 py-2 text-gray-700 hover:bg-gray-50 focus:ring-2 focus:ring-gray-500 focus:outline-none dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
             >
               <FaTimes className="mr-1 inline" /> Cancel
             </button>
-            <button
+            <button aria-label='save-edit'
               type="submit"
               className="rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
               disabled={updateTodoMutation.isPending}

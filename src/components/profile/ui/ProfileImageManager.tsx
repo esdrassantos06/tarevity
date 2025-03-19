@@ -122,7 +122,7 @@ export default function ProfileImageManager({
     <div className="relative -mt-16 mb-4 md:mr-6 md:mb-0">
       {/* Delete button positioned outside of the avatar container */}
       {isEditing && profileImageUrl && !imageError && (
-        <button
+        <button aria-label='Remove profile image'
           className="absolute right-3 bottom-3 z-50 flex translate-x-1/2 translate-y-1/2 items-center justify-center rounded-full border-2 border-white bg-red-500 p-1.5 text-white shadow-md hover:bg-red-600 dark:border-gray-800"
           onClick={(e) => {
             e.stopPropagation()

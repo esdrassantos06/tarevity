@@ -39,7 +39,7 @@ class ErrorBoundary extends Component<Props, State> {
               We apologize for the inconvenience. Please try refreshing the
               page.
             </p>
-            <button
+            <button aria-label='Refresh Page'
               onClick={() => window.location.reload()}
               className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800"
             >

@@ -382,7 +382,7 @@ export default function EnhancedLoginForm() {
         </div>
 
         {/* Submit Button */}
-        <button
+        <button aria-label='Login'
           type="submit"
           disabled={isLoading || isLocked}
           className={`flex w-full justify-center rounded-md border border-transparent px-4 py-2 text-sm font-medium text-white shadow-sm focus:outline-none ${

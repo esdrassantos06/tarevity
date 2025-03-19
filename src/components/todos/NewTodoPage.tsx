@@ -196,7 +196,7 @@ if (todoData.due_date && !todoData.is_completed) {
     <div className="mx-auto max-w-3xl px-4 py-6">
       {/* Header */}
       <div className="mb-6 flex items-center justify-between">
-        <button
+        <button aria-label='Go back to dashboard'
           onClick={() => router.push('/dashboard')}
           className="flex items-center text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white"
         >
@@ -314,14 +314,14 @@ if (todoData.due_date && !todoData.is_completed) {
 
           {/* Form buttons */}
           <div className="flex justify-end space-x-3">
-            <button
+            <button aria-label='Cancel'
               type="button"
               onClick={handleCancel}
               className="rounded-md border border-gray-300 px-4 py-2 text-gray-700 hover:bg-gray-50 focus:ring-2 focus:ring-gray-500 focus:outline-none dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
             >
               <FaTimes className="mr-1 inline" /> Cancel
             </button>
-            <button
+            <button aria-label='Save'
               type="submit"
               className="rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
               disabled={createTodoMutation.isPending}
