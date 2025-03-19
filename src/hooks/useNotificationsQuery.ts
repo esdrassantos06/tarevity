@@ -4,8 +4,8 @@ import { showSuccess, showError } from '@/lib/toast'
 import { Notification } from '@/lib/notifications'
 
 interface QueryOptions {
-  enabled?: boolean;
-  [key: string]: unknown;
+  enabled?: boolean
+  [key: string]: unknown
 }
 
 export function useNotificationsQuery(options: QueryOptions = {}) {
@@ -20,7 +20,7 @@ export function useNotificationsQuery(options: QueryOptions = {}) {
     refetchInterval: 3 * 60 * 1000,
     refetchIntervalInBackground: false,
     retry: 1,
-    ...options
+    ...options,
   })
 }
 

@@ -22,7 +22,7 @@ const UserImage: React.FC<UserImageProps> = ({
   const [imageError, setImageError] = useState(false)
 
   const { data: profileData } = useProfileQuery({
-    enabled: status === 'authenticated'
+    enabled: status === 'authenticated',
   })
 
   useEffect(() => {

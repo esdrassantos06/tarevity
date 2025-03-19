@@ -24,16 +24,16 @@ export async function GET() {
     return NextResponse.json(data || [], { status: 200 })
   } catch (error: unknown) {
     console.error('Error in admin users API:', error)
-    
+
     if (error instanceof Error) {
       return NextResponse.json(
         { message: error.message || 'Failed to fetch users' },
-        { status: 500 }
+        { status: 500 },
       )
     } else {
       return NextResponse.json(
         { message: 'Unknown error fetching users' },
-        { status: 500 }
+        { status: 500 },
       )
     }
   }

@@ -82,7 +82,8 @@ export default function Header() {
                 <div className="hidden items-center gap-2 sm:flex">
                   {/* Profile Dropdown */}
                   <div className="relative" ref={dropdownRef}>
-                    <button aria-label='Open user menu'
+                    <button
+                      aria-label="Open user menu"
                       onClick={toggleDropdown}
                       className="border-BorderLight dark:border-BorderDark flex items-center rounded-full border-2 transition-colors duration-300 focus:outline-none"
                       aria-expanded={isDropdownOpen}
@@ -120,7 +121,8 @@ export default function Header() {
                           <FaCog className="mr-2 inline" />
                           Settings
                         </Link>
-                        <button aria-label='Logout'
+                        <button
+                          aria-label="Logout"
                           onClick={() => {
                             setIsDropdownOpen(false)
                             signOut({ callbackUrl: '/' })
@@ -153,7 +155,8 @@ export default function Header() {
             )}
 
             <div className="-mr-2 flex items-center sm:hidden">
-              <button aria-label='Open main menu'
+              <button
+                aria-label="Open main menu"
                 onClick={toggleMenu}
                 type="button"
                 className="inline-flex items-center justify-center rounded-md p-2"
@@ -176,73 +179,76 @@ export default function Header() {
           </div>
         </div>
 
-          <div
-            className={`dark:bg-HeaderBgDark absolute right-0 left-0 z-10 w-full transform bg-white transition-all duration-300 ease-in-out ${isMenuOpen ? 'visible translate-x-0 opacity-100' : 'invisible -translate-x-10 opacity-0'} `}
-          >
-            <div className="space-y-1 pt-2 pb-3">
-              {isAuthenticated ? (
-                <>
-                  {/* Mobile user info */}
-                  <div className="border-b border-gray-200 px-4 py-3 dark:border-gray-700">
-                    <div className="flex items-center">
-                      <UserImage />
-                      <div className="ml-3">
-                        <div className="text-base font-medium text-gray-800 dark:text-white">
-                          {session.user.name}
-                        </div>
-                        <div className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                          {session.user.email}
-                        </div>
+        <div
+          className={`dark:bg-HeaderBgDark absolute right-0 left-0 z-10 w-full transform bg-white transition-all duration-300 ease-in-out ${isMenuOpen ? 'visible translate-x-0 opacity-100' : 'invisible -translate-x-10 opacity-0'} `}
+        >
+          <div className="space-y-1 pt-2 pb-3">
+            {isAuthenticated ? (
+              <>
+                {/* Mobile user info */}
+                <div className="border-b border-gray-200 px-4 py-3 dark:border-gray-700">
+                  <div className="flex items-center">
+                    <UserImage />
+                    <div className="ml-3">
+                      <div className="text-base font-medium text-gray-800 dark:text-white">
+                        {session.user.name}
+                      </div>
+                      <div className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                        {session.user.email}
                       </div>
                     </div>
                   </div>
-                  <Link
-                    href="/dashboard"
-                    className="text-BlackLight block px-3 py-2 dark:text-white"
-                  >
-                    <MdSpaceDashboard className="mr-1 inline" />
-                    Dashboard
-                  </Link>
-                  <Link
-                    href="/profile"
-                    className="text-BlackLight block px-3 py-2 dark:text-white"
-                  >
-                    <FaUser className="mr-1 inline" />
-                    Profile
-                  </Link>
-                  <Link
-                    href="/settings"
-                    className="text-BlackLight block px-3 py-2 dark:text-white"
-                  >
-                    <FaCog className="mr-1 inline" />
-                    Settings
-                  </Link>
-                  <button aria-label='Logout'
-                    onClick={() => signOut({ callbackUrl: '/' })}
-                    className="text-BlackLight block w-full px-3 py-2 text-left dark:text-white"
-                  >
-                    <FaSignOutAlt className="mr-1 inline" />
-                    Logout
-                  </button>
-                </>
-              ) : (
-                <div className={`${isMenuOpen ? 'visible translate-x-0 opacity-100' : 'invisible -translate-x-10 opacity-0'} transition-all duration-300 ease-in-out`}>
-                  <Link
-                    href="/auth/login"
-                    className="text-BlackLight block px-3 py-2 font-medium dark:text-white"
-                  >
-                    Log in
-                  </Link>
-                  <Link
-                    href="/auth/register"
-                    className="text-BlackLight block px-3 py-2 font-medium dark:text-white"
-                  >
-                    Sign up
-                  </Link>
                 </div>
-              )}
-            </div>
+                <Link
+                  href="/dashboard"
+                  className="text-BlackLight block px-3 py-2 dark:text-white"
+                >
+                  <MdSpaceDashboard className="mr-1 inline" />
+                  Dashboard
+                </Link>
+                <Link
+                  href="/profile"
+                  className="text-BlackLight block px-3 py-2 dark:text-white"
+                >
+                  <FaUser className="mr-1 inline" />
+                  Profile
+                </Link>
+                <Link
+                  href="/settings"
+                  className="text-BlackLight block px-3 py-2 dark:text-white"
+                >
+                  <FaCog className="mr-1 inline" />
+                  Settings
+                </Link>
+                <button
+                  aria-label="Logout"
+                  onClick={() => signOut({ callbackUrl: '/' })}
+                  className="text-BlackLight block w-full px-3 py-2 text-left dark:text-white"
+                >
+                  <FaSignOutAlt className="mr-1 inline" />
+                  Logout
+                </button>
+              </>
+            ) : (
+              <div
+                className={`${isMenuOpen ? 'visible translate-x-0 opacity-100' : 'invisible -translate-x-10 opacity-0'} transition-all duration-300 ease-in-out`}
+              >
+                <Link
+                  href="/auth/login"
+                  className="text-BlackLight block px-3 py-2 font-medium dark:text-white"
+                >
+                  Log in
+                </Link>
+                <Link
+                  href="/auth/register"
+                  className="text-BlackLight block px-3 py-2 font-medium dark:text-white"
+                >
+                  Sign up
+                </Link>
+              </div>
+            )}
           </div>
+        </div>
       </div>
     </header>
   )

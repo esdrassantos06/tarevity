@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "next lint",
     "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "security-audit": "npm audit --audit-level=moderate",
     "security-audit:fix": "npm audit fix"
   },

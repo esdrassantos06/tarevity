@@ -1,4 +1,4 @@
-'use client';
+'use client'
 
 import { useState, useRef, useEffect } from 'react'
 import { IoNotificationsOutline } from 'react-icons/io5'
@@ -33,7 +33,7 @@ export default function NotificationDropdown() {
   const queryClient = useQueryClient()
 
   const { data: notifications = [], isLoading } = useNotificationsQuery({
-    enabled: status === 'authenticated'
+    enabled: status === 'authenticated',
   })
 
   const markReadMutation = useMarkNotificationReadMutation()
@@ -217,10 +217,10 @@ export default function NotificationDropdown() {
       </button>
 
       {isOpen && (
-        <div 
-          className="fixed inset-x-0 top-[60px] mx-auto z-50 w-[90%] max-w-md rounded-lg border border-gray-200 bg-white shadow-lg sm:absolute sm:inset-auto sm:right-0 sm:top-auto sm:mx-0 sm:w-96 dark:border-gray-700 dark:bg-BlackLight"
+        <div
+          className="dark:bg-BlackLight fixed inset-x-0 top-[60px] z-50 mx-auto w-[90%] max-w-md rounded-lg border border-gray-200 bg-white shadow-lg sm:absolute sm:inset-auto sm:top-auto sm:right-0 sm:mx-0 sm:w-96 dark:border-gray-700"
           style={{
-            maxHeight: 'calc(100vh - 80px)'
+            maxHeight: 'calc(100vh - 80px)',
           }}
         >
           <div className="border-b border-gray-200 px-4 py-3 dark:border-gray-700">
@@ -231,7 +231,10 @@ export default function NotificationDropdown() {
               <div className="flex space-x-4">
                 {notifications.length > 0 && (
                   <>
-                    <button aria-label={allRead ? 'Mark all as unread' : 'Mark all as read'}
+                    <button
+                      aria-label={
+                        allRead ? 'Mark all as unread' : 'Mark all as read'
+                      }
                       onClick={toggleReadStatus}
                       className="flex items-center text-xs text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
                     >
@@ -247,7 +250,8 @@ export default function NotificationDropdown() {
                         </>
                       )}
                     </button>
-                    <button aria-label='Delete all notifications'
+                    <button
+                      aria-label="Delete all notifications"
                       onClick={deleteAllNotifications}
                       className="text-xs text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
                     >
@@ -321,7 +325,12 @@ export default function NotificationDropdown() {
 
                       {/* Action buttons */}
                       <div className="mt-2 flex justify-end space-x-2">
-                        <button aria-label={notification.read ? 'Mark as unread' : 'Mark as read'}
+                        <button
+                          aria-label={
+                            notification.read
+                              ? 'Mark as unread'
+                              : 'Mark as read'
+                          }
                           onClick={(e) => {
                             e.stopPropagation()
                             handleToggleRead(notification)
@@ -350,7 +359,8 @@ export default function NotificationDropdown() {
                           )}
                         </button>
 
-                        <button aria-label='Delete notification'
+                        <button
+                          aria-label="Delete notification"
                           onClick={(e) => {
                             e.stopPropagation()
                             handleDeleteNotification(notification.id)

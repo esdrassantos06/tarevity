@@ -18,7 +18,10 @@ export async function POST(req: Request) {
       return NextResponse.json({ message: 'Missing todo ID' }, { status: 400 })
     }
 
-    const result = await notificationsService.dismissTodoNotifications(userId, todoId)
+    const result = await notificationsService.dismissTodoNotifications(
+      userId,
+      todoId,
+    )
 
     return NextResponse.json(
       {

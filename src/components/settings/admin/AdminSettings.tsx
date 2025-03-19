@@ -2,7 +2,13 @@
 
 import React, { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { FaUsers, FaChartBar, FaExclamationTriangle, FaUserSlash, FaUserShield } from 'react-icons/fa'
+import {
+  FaUsers,
+  FaChartBar,
+  FaExclamationTriangle,
+  FaUserSlash,
+  FaUserShield,
+} from 'react-icons/fa'
 import { showSuccess, showError } from '@/lib/toast'
 import axiosClient from '@/lib/axios'
 
@@ -18,7 +24,7 @@ interface User {
 const AdminSettings: React.FC = () => {
   const [activeAdminTab, setActiveAdminTab] = useState<string>('users')
   const queryClient = useQueryClient()
-  
+
   const {
     data: users = [],
     isLoading: isLoadingUsers,
@@ -31,7 +37,7 @@ const AdminSettings: React.FC = () => {
     },
     staleTime: 5 * 60 * 1000,
   })
-  
+
   const {
     data: systemStats,
     isLoading: isLoadingStats,
@@ -44,9 +50,15 @@ const AdminSettings: React.FC = () => {
     },
     staleTime: 5 * 60 * 1000,
   })
-  
+
   const updateUserAdminStatusMutation = useMutation({
-    mutationFn: async ({ userId, isAdmin }: { userId: string; isAdmin: boolean }) => {
+    mutationFn: async ({
+      userId,
+      isAdmin,
+    }: {
+      userId: string
+      isAdmin: boolean
+    }) => {
       const response = await axiosClient.patch(`/api/admin/users/${userId}`, {
         is_admin: isAdmin,
       })
@@ -77,22 +89,30 @@ const AdminSettings: React.FC = () => {
       showError('Failed to delete user')
     },
   })
-  
+
   const handleToggleAdminStatus = (user: User) => {
-    if (confirm(`Are you sure you want to ${user.is_admin ? 'remove' : 'grant'} admin privileges ${user.is_admin ? 'from' : 'to'} ${user.name}?`)) {
+    if (
+      confirm(
+        `Are you sure you want to ${user.is_admin ? 'remove' : 'grant'} admin privileges ${user.is_admin ? 'from' : 'to'} ${user.name}?`,
+      )
+    ) {
       updateUserAdminStatusMutation.mutate({
         userId: user.id,
         isAdmin: !user.is_admin,
       })
     }
   }
-  
+
   const handleDeleteUser = (user: User) => {
-    if (confirm(`Are you sure you want to delete user ${user.name}? This action cannot be undone.`)) {
+    if (
+      confirm(
+        `Are you sure you want to delete user ${user.name}? This action cannot be undone.`,
+      )
+    ) {
       deleteUserMutation.mutate(user.id)
     }
   }
-  
+
   if (usersError || statsError) {
     return (
       <div className="rounded-lg bg-red-100 p-4 text-red-700 dark:bg-red-900/30 dark:text-red-400">
@@ -101,7 +121,8 @@ const AdminSettings: React.FC = () => {
           <h3 className="text-lg font-medium">Error Loading Admin Data</h3>
         </div>
         <p className="mt-2">
-          There was an error loading the admin data. Please try again later or contact support.
+          There was an error loading the admin data. Please try again later or
+          contact support.
         </p>
       </div>
     )
@@ -112,16 +133,17 @@ const AdminSettings: React.FC = () => {
       <h2 className="mb-4 text-xl font-semibold text-gray-900 dark:text-white">
         Admin Panel
       </h2>
-      
+
       {/* Admin Tabs */}
-      <div className="mb-6 border-b border-BorderLight dark:border-BorderDark">
-        <ul className="flex flex-wrap -mb-px">
+      <div className="border-BorderLight dark:border-BorderDark mb-6 border-b">
+        <ul className="-mb-px flex flex-wrap">
           <li className="mr-2">
-            <button aria-label='Users'
+            <button
+              aria-label="Users"
               onClick={() => setActiveAdminTab('users')}
-              className={`inline-flex items-center py-2 px-4 text-sm font-medium ${
+              className={`inline-flex items-center px-4 py-2 text-sm font-medium ${
                 activeAdminTab === 'users'
-                  ? 'text-blue-600 border-b-2 border-blue-600 dark:text-blue-400 dark:border-blue-400'
+                  ? 'border-b-2 border-blue-600 text-blue-600 dark:border-blue-400 dark:text-blue-400'
                   : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
               }`}
             >
@@ -130,11 +152,12 @@ const AdminSettings: React.FC = () => {
             </button>
           </li>
           <li className="mr-2">
-            <button aria-label='Stats'
+            <button
+              aria-label="Stats"
               onClick={() => setActiveAdminTab('stats')}
-              className={`inline-flex items-center py-2 px-4 text-sm font-medium ${
+              className={`inline-flex items-center px-4 py-2 text-sm font-medium ${
                 activeAdminTab === 'stats'
-                  ? 'text-blue-600 border-b-2 border-blue-600 dark:text-blue-400 dark:border-blue-400'
+                  ? 'border-b-2 border-blue-600 text-blue-600 dark:border-blue-400 dark:text-blue-400'
                   : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
               }`}
             >
@@ -144,7 +167,7 @@ const AdminSettings: React.FC = () => {
           </li>
         </ul>
       </div>
-      
+
       {/* Tab Content */}
       <div className="py-4">
         {/* Users Management */}
@@ -153,7 +176,7 @@ const AdminSettings: React.FC = () => {
             <h3 className="mb-4 text-lg font-medium text-gray-900 dark:text-white">
               User Management
             </h3>
-            
+
             {isLoadingUsers ? (
               <div className="flex justify-center py-8">
                 <div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-500 border-t-transparent"></div>
@@ -164,20 +187,25 @@ const AdminSettings: React.FC = () => {
                   <table className="w-full border-collapse text-left">
                     <thead>
                       <tr className="border-b border-gray-200 dark:border-gray-700">
-                        <th className="py-3 px-4 font-medium">Name</th>
-                        <th className="py-3 px-4 font-medium">Email</th>
-                        <th className="py-3 px-4 font-medium">Provider</th>
-                        <th className="py-3 px-4 font-medium">Status</th>
-                        <th className="py-3 px-4 font-medium">Actions</th>
+                        <th className="px-4 py-3 font-medium">Name</th>
+                        <th className="px-4 py-3 font-medium">Email</th>
+                        <th className="px-4 py-3 font-medium">Provider</th>
+                        <th className="px-4 py-3 font-medium">Status</th>
+                        <th className="px-4 py-3 font-medium">Actions</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                       {users.map((user: User) => (
-                        <tr key={user.id} className="hover:bg-gray-100 dark:hover:bg-zinc-800">
-                          <td className="py-3 px-4 font-medium">{user.name}</td>
-                          <td className="py-3 px-4">{user.email}</td>
-                          <td className="py-3 px-4 capitalize">{user.provider || 'Email'}</td>
-                          <td className="py-3 px-4">
+                        <tr
+                          key={user.id}
+                          className="hover:bg-gray-100 dark:hover:bg-zinc-800"
+                        >
+                          <td className="px-4 py-3 font-medium">{user.name}</td>
+                          <td className="px-4 py-3">{user.email}</td>
+                          <td className="px-4 py-3 capitalize">
+                            {user.provider || 'Email'}
+                          </td>
+                          <td className="px-4 py-3">
                             {user.is_admin ? (
                               <span className="rounded-full bg-purple-100 px-2 py-1 text-xs font-medium text-purple-800 dark:bg-purple-900/30 dark:text-purple-300">
                                 Admin
@@ -188,16 +216,22 @@ const AdminSettings: React.FC = () => {
                               </span>
                             )}
                           </td>
-                          <td className="py-3 px-4">
+                          <td className="px-4 py-3">
                             <div className="flex space-x-2">
-                              <button aria-label='Edit User'
+                              <button
+                                aria-label="Edit User"
                                 onClick={() => handleToggleAdminStatus(user)}
                                 className="rounded p-1 text-blue-600 hover:bg-blue-100 dark:text-blue-400 dark:hover:bg-blue-900/30"
-                                title={user.is_admin ? "Remove admin privileges" : "Grant admin privileges"}
+                                title={
+                                  user.is_admin
+                                    ? 'Remove admin privileges'
+                                    : 'Grant admin privileges'
+                                }
                               >
                                 <FaUserShield />
                               </button>
-                              <button aria-label='Delete User'
+                              <button
+                                aria-label="Delete User"
                                 onClick={() => handleDeleteUser(user)}
                                 className="rounded p-1 text-red-600 hover:bg-red-100 dark:text-red-400 dark:hover:bg-red-900/30"
                                 title="Delete user"
@@ -210,7 +244,7 @@ const AdminSettings: React.FC = () => {
                       ))}
                     </tbody>
                   </table>
-                  
+
                   {users.length === 0 && (
                     <div className="py-8 text-center text-gray-500 dark:text-gray-400">
                       No users found
@@ -221,14 +255,14 @@ const AdminSettings: React.FC = () => {
             )}
           </div>
         )}
-        
+
         {/* System Stats */}
         {activeAdminTab === 'stats' && (
           <div className="w-full">
             <h3 className="mb-4 text-lg font-medium text-gray-900 dark:text-white">
               System Statistics
             </h3>
-            
+
             {isLoadingStats ? (
               <div className="flex justify-center py-8">
                 <div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-500 border-t-transparent"></div>
@@ -241,33 +275,44 @@ const AdminSettings: React.FC = () => {
                       <FaUsers className="h-6 w-6 text-blue-600 dark:text-blue-400" />
                     </div>
                     <div className="ml-4">
-                      <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400">Total Users</h4>
-                      <p className="text-2xl font-bold text-gray-900 dark:text-white">{systemStats?.totalUsers || 0}</p>
+                      <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                        Total Users
+                      </h4>
+                      <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                        {systemStats?.totalUsers || 0}
+                      </p>
                     </div>
                   </div>
                 </div>
-                
+
                 <div className="rounded-lg bg-white p-6 shadow dark:bg-gray-800">
                   <div className="flex items-center">
                     <div className="rounded-md bg-green-100 p-3 dark:bg-green-900/30">
                       <FaChartBar className="h-6 w-6 text-green-600 dark:text-green-400" />
                     </div>
                     <div className="ml-4">
-                      <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400">Total Tasks</h4>
-                      <p className="text-2xl font-bold text-gray-900 dark:text-white">{systemStats?.totalTasks || 0}</p>
+                      <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                        Total Tasks
+                      </h4>
+                      <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                        {systemStats?.totalTasks || 0}
+                      </p>
                     </div>
                   </div>
                 </div>
-                
+
                 <div className="rounded-lg bg-white p-6 shadow dark:bg-gray-800">
                   <div className="flex items-center">
                     <div className="rounded-md bg-purple-100 p-3 dark:bg-purple-900/30">
                       <FaUserShield className="h-6 w-6 text-purple-600 dark:text-purple-400" />
                     </div>
                     <div className="ml-4">
-                      <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400">Admin Users</h4>
+                      <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                        Admin Users
+                      </h4>
                       <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                        {users.filter((user: User) => user.is_admin).length || 0}
+                        {users.filter((user: User) => user.is_admin).length ||
+                          0}
                       </p>
                     </div>
                   </div>

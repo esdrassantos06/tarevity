@@ -67,7 +67,6 @@ export default function EnhancedLoginForm() {
     }
   }, [error])
 
-
   useEffect(() => {
     const storedLockoutData = localStorage.getItem('loginLockout')
 
@@ -105,18 +104,17 @@ export default function EnhancedLoginForm() {
 
   useEffect(() => {
     if (errorParam === 'session_expired') {
-      setFailedAttempts(0);
-      localStorage.removeItem('loginLockout');
-      showWarning('Your session has expired. Please log in again to continue.');
-      
+      setFailedAttempts(0)
+      localStorage.removeItem('loginLockout')
+      showWarning('Your session has expired. Please log in again to continue.')
+
       if (typeof window !== 'undefined') {
-        const url = new URL(window.location.href);
-        url.searchParams.delete('error');
-        window.history.replaceState({}, document.title, url.toString());
+        const url = new URL(window.location.href)
+        url.searchParams.delete('error')
+        window.history.replaceState({}, document.title, url.toString())
       }
     }
-  }, [errorParam]);
-
+  }, [errorParam])
 
   const handleEmailValidation = (isValid: boolean) => {
     setEmailValid(isValid)
@@ -124,8 +122,6 @@ export default function EnhancedLoginForm() {
       clearErrors('email')
     }
   }
-
-
 
   useEffect(() => {
     if (errors.email || errors.password) {
@@ -168,7 +164,7 @@ export default function EnhancedLoginForm() {
       )
       return
     }
-  
+
     if (!emailValid) {
       setFormError('email', {
         type: 'manual',
@@ -176,27 +172,27 @@ export default function EnhancedLoginForm() {
       })
       return
     }
-  
+
     setIsLoading(true)
     setError(null)
-  
+
     try {
       const result = await signIn('credentials', {
         redirect: false,
         email: data.email,
         password: data.password,
       })
-  
+
       if (result?.error) {
         const newAttemptCount = failedAttempts + 1
         setFailedAttempts(newAttemptCount)
-  
+
         if (newAttemptCount >= MAX_ATTEMPTS) {
           setLoginLockout(newAttemptCount)
           setError(
             `Too many failed attempts. Your account is locked for ${formatLockoutTime(lockoutTime)}.`,
           )
-  
+
           showWarning(
             `Too many failed attempts. Account locked for ${formatLockoutTime(lockoutTime)}.`,
           )
@@ -206,29 +202,29 @@ export default function EnhancedLoginForm() {
             MAX_ATTEMPTS - newAttemptCount === 1
               ? '1 attempt'
               : `${MAX_ATTEMPTS - newAttemptCount} attempts`
-  
+
           setError(
             `Invalid email or password. ${attemptsMessage} remaining before temporary lockout.`,
           )
-  
+
           showError(
             `Invalid email or password. ${attemptsMessage} remaining before temporary lockout.`,
           )
         }
         return
       }
-  
+
       setFailedAttempts(0)
       localStorage.removeItem('loginLockout')
-  
+
       if (typeof window !== 'undefined') {
-        window.sessionStorage.setItem('just_logged_in', Date.now().toString());
+        window.sessionStorage.setItem('just_logged_in', Date.now().toString())
       }
-  
+
       showSuccess('Login successful! Redirecting...')
-  
+
       if (errorParam === 'session_expired') {
-        window.location.href = '/dashboard';
+        window.location.href = '/dashboard'
       } else {
         setTimeout(() => {
           if (errorParam === 'session_expired') {
@@ -270,7 +266,6 @@ export default function EnhancedLoginForm() {
     return `${minutes} minute${minutes > 1 ? 's' : ''} and ${remainingSeconds} second${remainingSeconds > 1 ? 's' : ''}`
   }
 
-
   return (
     <div className="dark:bg-BlackLight mx-auto w-full max-w-md rounded-2xl bg-white p-6 shadow-md">
       <h1 className="mb-6 text-center text-2xl font-bold text-gray-900 dark:text-white">
@@ -279,7 +274,7 @@ export default function EnhancedLoginForm() {
 
       {/* Error message banner */}
       {error && (
-        <div 
+        <div
           ref={errorRef}
           className="mb-4 rounded border border-red-400 bg-red-100 px-4 py-3 text-red-700 dark:border-red-800 dark:bg-red-900/30 dark:text-red-400"
           role="alert"
@@ -295,7 +290,7 @@ export default function EnhancedLoginForm() {
 
       {/* Lockout warning banner */}
       {isLocked && (
-        <div 
+        <div
           className="mb-4 rounded border border-yellow-400 bg-yellow-100 px-4 py-3 text-yellow-700 dark:border-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400"
           role="alert"
           aria-live="polite"
@@ -307,15 +302,17 @@ export default function EnhancedLoginForm() {
         </div>
       )}
 
-      <form 
+      <form
         ref={formRef}
-        onSubmit={handleSubmit(onSubmit)} 
+        onSubmit={handleSubmit(onSubmit)}
         className="space-y-4"
         aria-labelledby="login-heading"
         noValidate
       >
-        <div id="login-heading" className="sr-only">Login Form</div>
-        
+        <div id="login-heading" className="sr-only">
+          Login Form
+        </div>
+
         {/* Email Input */}
         <ValidatedInput
           id="email"
@@ -373,7 +370,7 @@ export default function EnhancedLoginForm() {
           <div className="text-sm">
             <Link
               href="/auth/forgot-password"
-              className="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400 focus:outline-none focus:underline"
+              className="font-medium text-blue-600 hover:text-blue-500 focus:underline focus:outline-none dark:text-blue-400"
               aria-label="Forgot password? Reset it here"
             >
               Forgot password?
@@ -382,7 +379,8 @@ export default function EnhancedLoginForm() {
         </div>
 
         {/* Submit Button */}
-        <button aria-label='Login'
+        <button
+          aria-label="Login"
           type="submit"
           disabled={isLoading || isLocked}
           className={`flex w-full justify-center rounded-md border border-transparent px-4 py-2 text-sm font-medium text-white shadow-sm focus:outline-none ${
@@ -394,8 +392,8 @@ export default function EnhancedLoginForm() {
         >
           {isLoading ? (
             <>
-              <svg 
-                className="mr-2 h-4 w-4 animate-spin" 
+              <svg
+                className="mr-2 h-4 w-4 animate-spin"
                 viewBox="0 0 24 24"
                 aria-hidden="true"
               >
@@ -448,7 +446,7 @@ export default function EnhancedLoginForm() {
           Don&apos;t have an account?{' '}
           <Link
             href="/auth/register"
-            className="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400 focus:outline-none focus:underline"
+            className="font-medium text-blue-600 hover:text-blue-500 focus:underline focus:outline-none dark:text-blue-400"
           >
             Sign up
           </Link>

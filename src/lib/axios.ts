@@ -152,7 +152,7 @@ axiosClient.interceptors.response.use(
         message: errorData?.message || 'An error occurred',
         status,
         code: errorData?.code,
-        silentError: errorData?.silentError
+        silentError: errorData?.silentError,
       } as APIError)
     }
 

@@ -9,9 +9,7 @@ export default function AuthLayout({
   return (
     <div className="bg-bgLight dark:bg-bgDark flex min-h-screen items-center justify-center px-4 py-12">
       <Suspense fallback={<div className="text-center">Loading...</div>}>
-        <AuthCheck>
-          {children}
-        </AuthCheck>
+        <AuthCheck>{children}</AuthCheck>
       </Suspense>
     </div>
   )

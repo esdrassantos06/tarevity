@@ -127,7 +127,8 @@ export default function EnhancedForgotPasswordForm() {
               again.
             </p>
 
-            <button aria-label='Try again'
+            <button
+              aria-label="Try again"
               onClick={() => setIsSubmitted(false)}
               className="w-full rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
             >
@@ -164,7 +165,8 @@ export default function EnhancedForgotPasswordForm() {
             autoComplete="email"
           />
 
-          <button aria-label='Send Instructions'
+          <button
+            aria-label="Send Instructions"
             type="submit"
             disabled={isLoading}
             className="flex w-full items-center justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none dark:bg-blue-700 dark:hover:bg-blue-800"

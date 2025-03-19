@@ -36,7 +36,6 @@ export function useCreateTodoMutation() {
 
       const tempId = `temp-${Date.now()}`
 
-
       const optimisticTodo: Todo = {
         id: tempId,
         title: newTodoData.title,
@@ -67,23 +66,23 @@ export function useCreateTodoMutation() {
 
     onSuccess: (result, variables, context) => {
       if (result.data && context?.tempId) {
-        const todoData = result.data;
-        
+        const todoData = result.data
+
         queryClient.setQueryData<Todo[]>(['todos'], (old) => {
-          if (!old) return [todoData];
-          
+          if (!old) return [todoData]
+
           if (!todoData.id) {
-            console.error('Unexpected API response format:', todoData);
-            return old.filter(todo => todo.id !== context.tempId);
+            console.error('Unexpected API response format:', todoData)
+            return old.filter((todo) => todo.id !== context.tempId)
           }
-          
+
           return old.map((todo) =>
             todo.id === context.tempId ? todoData : todo,
-          );
-        });
+          )
+        })
       } else if (!result.data) {
-        console.error('Missing data in API response:', result);
-        queryClient.invalidateQueries({ queryKey: ['todos'] });
+        console.error('Missing data in API response:', result)
+        queryClient.invalidateQueries({ queryKey: ['todos'] })
       }
     },
 
@@ -114,15 +113,19 @@ export function useUpdateTodoMutation() {
         return old.map((todo) => {
           if (todo.id === id) {
             const updatedTodo = { ...todo, ...data }
-            
+
             updatedTodo.updated_at = new Date().toISOString()
 
             if ('is_completed' in data && data.is_completed === true) {
               updatedTodo.status = 'completed'
-            } else if ('is_completed' in data && data.is_completed === false && updatedTodo.status === 'completed') {
+            } else if (
+              'is_completed' in data &&
+              data.is_completed === false &&
+              updatedTodo.status === 'completed'
+            ) {
               updatedTodo.status = 'active'
             }
-            
+
             return updatedTodo
           }
           return todo
@@ -144,39 +147,39 @@ export function useUpdateTodoMutation() {
 
     onSuccess: (result, variables) => {
       if (result.data) {
-        const todoData = result.data;
-        
+        const todoData = result.data
+
         queryClient.setQueryData<Todo[]>(['todos'], (old = []) => {
           return old.map((todo) => {
             if (todo.id === variables.id) {
               if (!todoData.id) {
-                console.error('Invalid server response:', todoData);
-                return todo;
+                console.error('Invalid server response:', todoData)
+                return todo
               }
-              return { ...todo, ...todoData };
+              return { ...todo, ...todoData }
             }
-            return todo;
-          });
-        });
-    
+            return todo
+          })
+        })
+
         if ('is_completed' in variables.data) {
-          const isCompleted = variables.data.is_completed;
+          const isCompleted = variables.data.is_completed
           showSuccess(
             isCompleted ? 'Task marked as completed' : 'Task marked as active',
-          );
+          )
         } else if ('status' in variables.data) {
-          const status = variables.data.status;
+          const status = variables.data.status
           if (status === 'review') {
-            showSuccess('Task moved to review');
+            showSuccess('Task moved to review')
           } else if (status === 'active') {
-            showSuccess('Task approved and moved to active');
+            showSuccess('Task approved and moved to active')
           }
         } else {
-          showSuccess('Task updated successfully');
+          showSuccess('Task updated successfully')
         }
       } else {
-        console.error('Invalid response from server:', result);
-        queryClient.invalidateQueries({ queryKey: ['todos'] });
+        console.error('Invalid response from server:', result)
+        queryClient.invalidateQueries({ queryKey: ['todos'] })
       }
     },
 
@@ -216,7 +219,7 @@ export function useDeleteTodoMutation() {
 
     onSuccess: () => {
       showSuccess('Task deleted successfully')
-      
+
       queryClient.invalidateQueries({ queryKey: ['notifications'] })
     },
 

@@ -368,7 +368,8 @@ export default function EnhancedResetPasswordForm() {
             autoComplete="new-password"
           />
 
-          <button aria-label='Reset Password'
+          <button
+            aria-label="Reset Password"
             type="submit"
             disabled={isLoading || isCurrentPassword === true}
             className={`flex w-full items-center justify-center rounded-md border border-transparent px-4 py-2 text-sm font-medium text-white shadow-sm focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none ${

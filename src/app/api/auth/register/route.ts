@@ -21,13 +21,19 @@ export async function POST(req: Request) {
       )
     } catch (createError) {
       if (createError instanceof Error) {
-        if (createError.message.toLowerCase().includes('email already registered')) {
+        if (
+          createError.message.toLowerCase().includes('email already registered')
+        ) {
           return NextResponse.json(
-            { message: 'Email already registered', code: 'EMAIL_EXISTS', silentError: true },
+            {
+              message: 'Email already registered',
+              code: 'EMAIL_EXISTS',
+              silentError: true,
+            },
             { status: 409 },
           )
         }
-        
+
         return NextResponse.json(
           { message: createError.message || 'Error processing registration' },
           { status: 500 },
@@ -47,5 +53,3 @@ export async function POST(req: Request) {
     )
   }
 }
-
-

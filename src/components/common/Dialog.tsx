@@ -40,7 +40,7 @@ const DialogContent = React.forwardRef<
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
 >(({ className, children, ...props }, ref) => {
   const focusTrapRef = useFocusTrap(true)
-  
+
   const setRefs = React.useCallback(
     (element: HTMLDivElement) => {
       if (typeof ref === 'function') {
@@ -48,12 +48,12 @@ const DialogContent = React.forwardRef<
       } else if (ref) {
         ref.current = element
       }
-      
+
       focusTrapRef.current = element
     },
-    [ref, focusTrapRef]
+    [ref, focusTrapRef],
   )
-  
+
   return (
     <DialogPortal>
       <DialogOverlay />
@@ -65,7 +65,7 @@ const DialogContent = React.forwardRef<
         {...props}
       >
         {children}
-        <DialogPrimitive.Close 
+        <DialogPrimitive.Close
           className="absolute top-4 right-4 rounded-sm opacity-70 ring-offset-white transition-opacity hover:opacity-100 focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 focus:outline-none disabled:pointer-events-none dark:ring-offset-gray-950 dark:focus:ring-gray-800"
           aria-label="Close dialog"
         >

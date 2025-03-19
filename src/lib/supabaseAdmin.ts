@@ -4,9 +4,13 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
 const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
 if (!supabaseUrl || !serviceRoleKey) {
-  console.error('Missing required Supabase environment variables for admin client');
+  console.error(
+    'Missing required Supabase environment variables for admin client',
+  )
   if (process.env.NODE_ENV === 'development') {
-    throw new Error('Missing Supabase environment variables for admin client. Check your .env file.');
+    throw new Error(
+      'Missing Supabase environment variables for admin client. Check your .env file.',
+    )
   }
 }
 
@@ -22,14 +26,19 @@ export const supabaseAdmin = createClient(
 )
 
 if (process.env.NODE_ENV === 'development') {
-  (async function validateConnection() {
+  ;(async function validateConnection() {
     try {
-      const { error } = await supabaseAdmin.from('users').select('count', { count: 'exact', head: true });
+      const { error } = await supabaseAdmin
+        .from('users')
+        .select('count', { count: 'exact', head: true })
       if (error) {
-        console.error('Supabase admin client connection test failed:', error.message);
+        console.error(
+          'Supabase admin client connection test failed:',
+          error.message,
+        )
       }
     } catch (err) {
-      console.error('Failed to connect to Supabase:', err);
+      console.error('Failed to connect to Supabase:', err)
     }
-  })();
+  })()
 }

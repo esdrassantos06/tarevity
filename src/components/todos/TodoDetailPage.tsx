@@ -64,7 +64,6 @@ const TodoDetailPage: React.FC<TodoDetailPageProps> = ({ todoId }) => {
 
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
 
-
   const { dialogState, openConfirmDialog, closeConfirmDialog, setLoading } =
     useConfirmationDialog()
 
@@ -83,7 +82,8 @@ const TodoDetailPage: React.FC<TodoDetailPageProps> = ({ todoId }) => {
           Error loading task details:{' '}
           {error instanceof Error ? error.message : 'Unknown error'}
         </p>
-        <button aria-label='Go back to dashboard'
+        <button
+          aria-label="Go back to dashboard"
           onClick={() => router.push('/dashboard')}
           className="mt-4 rounded-md bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
         >
@@ -99,7 +99,8 @@ const TodoDetailPage: React.FC<TodoDetailPageProps> = ({ todoId }) => {
     return (
       <div className="p-4 text-center">
         <p className="text-gray-700 dark:text-gray-300">Task not found</p>
-        <button aria-label='Go back to dashboard'
+        <button
+          aria-label="Go back to dashboard"
           onClick={() => router.push('/dashboard')}
           className="mt-4 rounded-md bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
         >
@@ -199,15 +200,16 @@ const TodoDetailPage: React.FC<TodoDetailPageProps> = ({ todoId }) => {
           },
           {
             onSuccess: () => {
-              axiosClient.delete(`/api/notifications/delete-for-todo/${todo.id}`)
-              .then(() => {
-                queryClient.invalidateQueries({ queryKey: ['notifications'] })
-                closeConfirmDialog()
-              })
-              .catch((error) => {
-                console.error('Error deleting notifications:', error)
-                closeConfirmDialog()
-              })
+              axiosClient
+                .delete(`/api/notifications/delete-for-todo/${todo.id}`)
+                .then(() => {
+                  queryClient.invalidateQueries({ queryKey: ['notifications'] })
+                  closeConfirmDialog()
+                })
+                .catch((error) => {
+                  console.error('Error deleting notifications:', error)
+                  closeConfirmDialog()
+                })
             },
             onError: (error) => {
               console.error('Error clearing due date:', error)
@@ -225,7 +227,8 @@ const TodoDetailPage: React.FC<TodoDetailPageProps> = ({ todoId }) => {
     <div className="mx-auto flex w-full flex-col px-2 py-4 sm:w-220 sm:px-4 sm:py-6">
       {/* Header */}
       <div className="mb-2 flex flex-col space-y-2 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
-        <button aria-label='Go back to dashboard'
+        <button
+          aria-label="Go back to dashboard"
           onClick={() => router.push('/dashboard')}
           className="flex items-center text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white"
         >
@@ -234,13 +237,15 @@ const TodoDetailPage: React.FC<TodoDetailPageProps> = ({ todoId }) => {
         </button>
 
         <div className="grid grid-cols-2 place-items-center gap-2 sm:w-auto">
-          <button aria-label='Edit task'
+          <button
+            aria-label="Edit task"
             className="bg-primary flex items-center rounded-md p-3 text-white hover:bg-blue-900"
             onClick={() => router.push(`/todo/${todo.id}/edit`)}
           >
             <HiPencilAlt />
           </button>
-          <button aria-label='Delete task'
+          <button
+            aria-label="Delete task"
             className="flex items-center rounded-md bg-red-500 p-3 text-white hover:bg-red-600"
             onClick={() => setIsDeleteDialogOpen(true)}
           >
@@ -290,7 +295,8 @@ const TodoDetailPage: React.FC<TodoDetailPageProps> = ({ todoId }) => {
               </div>
             </div>
             <div className="mt-2 sm:mt-0">
-              <button aria-label='Mark as complete'
+              <button
+                aria-label="Mark as complete"
                 onClick={handleToggleComplete}
                 className={`flex items-center rounded-md px-3 py-1 ${
                   todo.is_completed
@@ -370,7 +376,8 @@ const TodoDetailPage: React.FC<TodoDetailPageProps> = ({ todoId }) => {
                   Due Date
                 </h3>
                 {todo.due_date && (
-                  <button aria-label='Clear due date'
+                  <button
+                    aria-label="Clear due date"
                     onClick={handleClearDueDate}
                     className="mb-2 flex items-center text-xs text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
                     title="Clear due date"
@@ -411,14 +418,18 @@ const TodoDetailPage: React.FC<TodoDetailPageProps> = ({ todoId }) => {
         {/* Actions section */}
         <div className="border-t border-gray-200 p-4 sm:p-6 dark:border-gray-700">
           <div className="flex flex-wrap gap-2">
-            <button aria-label='Share' className="flex items-center rounded-md bg-blue-100 px-3 py-1.5 text-xs text-blue-800 hover:bg-blue-200 sm:px-4 sm:py-2 sm:text-sm dark:bg-blue-900 dark:text-blue-100 dark:hover:bg-blue-800">
+            <button
+              aria-label="Share"
+              className="flex items-center rounded-md bg-blue-100 px-3 py-1.5 text-xs text-blue-800 hover:bg-blue-200 sm:px-4 sm:py-2 sm:text-sm dark:bg-blue-900 dark:text-blue-100 dark:hover:bg-blue-800"
+            >
               <FaShare className="mr-1 sm:mr-2" />
               Share
             </button>
 
             {/* Status change action buttons */}
             {!isInReview && !todo.is_completed && (
-              <button aria-label='Mark as completed'
+              <button
+                aria-label="Mark as completed"
                 onClick={() =>
                   updateTodoMutation.mutate({
                     id: todo.id,
@@ -433,7 +444,8 @@ const TodoDetailPage: React.FC<TodoDetailPageProps> = ({ todoId }) => {
             )}
 
             {isInReview && (
-              <button aria-label='Mark as Approved'
+              <button
+                aria-label="Mark as Approved"
                 onClick={() =>
                   updateTodoMutation.mutate({
                     id: todo.id,
@@ -461,13 +473,15 @@ const TodoDetailPage: React.FC<TodoDetailPageProps> = ({ todoId }) => {
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="flex flex-col gap-2 sm:flex-row sm:gap-0">
-            <button aria-label='Cancel'
+            <button
+              aria-label="Cancel"
               onClick={() => setIsDeleteDialogOpen(false)}
               className="rounded-md border border-gray-300 px-4 py-2 text-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
             >
               Cancel
             </button>
-            <button aria-label='Delete'
+            <button
+              aria-label="Delete"
               onClick={handleDelete}
               className="rounded-md bg-red-600 px-4 py-2 text-white hover:bg-red-700"
             >

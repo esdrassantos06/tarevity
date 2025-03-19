@@ -46,181 +46,204 @@ const RedesignedTodoList: React.FC = () => {
     paginate,
   } = useTodoFilters(todos)
 
-  const handleDeleteTodo = useCallback((id: string, title: string) => {
-    openConfirmDialog({
-      title: 'Delete Task',
-      description: `Are you sure you want to delete "${title}"? This action cannot be undone.`,
-      variant: 'danger',
-      confirmText: 'Delete',
-      cancelText: 'Cancel',
-      onConfirm: () => {
-        setLoading(true)
-        
-        axios.delete(`/api/notifications/delete-for-todo/${id}`)
-          .then(() => {
-            deleteTodoMutation.mutate(id, {
-              onSuccess: () => {
-                closeConfirmDialog()
-                queryClient.invalidateQueries({ queryKey: ['notifications'] })
-                queryClient.invalidateQueries({ queryKey: ['todos'] })
-              },
-              onError: (error) => {
-                console.error('Error deleting task:', error)
-                closeConfirmDialog()
-              },
-              onSettled: () => {
-                setLoading(false)
-              },
+  const handleDeleteTodo = useCallback(
+    (id: string, title: string) => {
+      openConfirmDialog({
+        title: 'Delete Task',
+        description: `Are you sure you want to delete "${title}"? This action cannot be undone.`,
+        variant: 'danger',
+        confirmText: 'Delete',
+        cancelText: 'Cancel',
+        onConfirm: () => {
+          setLoading(true)
+
+          axios
+            .delete(`/api/notifications/delete-for-todo/${id}`)
+            .then(() => {
+              deleteTodoMutation.mutate(id, {
+                onSuccess: () => {
+                  closeConfirmDialog()
+                  queryClient.invalidateQueries({ queryKey: ['notifications'] })
+                  queryClient.invalidateQueries({ queryKey: ['todos'] })
+                },
+                onError: (error) => {
+                  console.error('Error deleting task:', error)
+                  closeConfirmDialog()
+                },
+                onSettled: () => {
+                  setLoading(false)
+                },
+              })
             })
-          })
-          .catch((error) => {
-            console.error('Error deleting notifications:', error)
-            deleteTodoMutation.mutate(id, {
-              onSuccess: () => {
-                closeConfirmDialog()
-                queryClient.invalidateQueries({ queryKey: ['todos'] })
-              },
-              onError: (error) => {
-                console.error('Error deleting task:', error)
-                closeConfirmDialog()
-              },
-              onSettled: () => {
-                setLoading(false)
-              },
+            .catch((error) => {
+              console.error('Error deleting notifications:', error)
+              deleteTodoMutation.mutate(id, {
+                onSuccess: () => {
+                  closeConfirmDialog()
+                  queryClient.invalidateQueries({ queryKey: ['todos'] })
+                },
+                onError: (error) => {
+                  console.error('Error deleting task:', error)
+                  closeConfirmDialog()
+                },
+                onSettled: () => {
+                  setLoading(false)
+                },
+              })
             })
-          })
-      },
-    })
-  }, [openConfirmDialog, setLoading, deleteTodoMutation, closeConfirmDialog, queryClient])
-
-  const handleCheckboxChange = useCallback((
-    id: string,
-    isCompleted: boolean,
-    e: React.ChangeEvent<HTMLInputElement>,
-  ) => {
-    e.stopPropagation()
-    const todoToUpdate = todos.find((todo) => todo.id === id)
-    if (!todoToUpdate) return
-
-    updateTodoMutation.mutate(
-      {
-        id,
-        data: {
-          is_completed: !isCompleted,
-          status: !isCompleted ? 'completed' : 'active',
         },
-      },
-      {
-        onSuccess: () => {
-          if (!isCompleted) {
-            axios.post('/api/notifications/dismiss-for-todo', {todoId: id})
-              .then(() => {
-                queryClient.invalidateQueries({ queryKey: ['notifications'] })
-              })
-              .catch((error) => {
-                console.error('Error dismissing notifications:', error)
-              })
-          }
-          else if (todoToUpdate.due_date) {
-            axios.delete(`/api/notifications/delete-for-todo/${id}`)
-              .then(() => {
-                const dueDate = new Date(todoToUpdate.due_date!);
-                
-                const notifications = [
-                  {
-                    todo_id: id,
-                    notification_type: 'danger',
-                    title: 'Overdue Task',
-                    message: `"${todoToUpdate.title}" is due ${formatDistanceToNow(dueDate, { addSuffix: true })}`,
-                    due_date: todoToUpdate.due_date,
-                    origin_id: `danger-${id}`,
-                  },
-                  {
-                    todo_id: id,
-                    notification_type: 'warning',
-                    title: 'Due Soon',
-                    message: `"${todoToUpdate.title}" is due ${formatDistanceToNow(dueDate, { addSuffix: true })}`,
-                    due_date: todoToUpdate.due_date,
-                    origin_id: `warning-${id}`,
-                  },
-                  {
-                    todo_id: id,
-                    notification_type: 'info',
-                    title: 'Upcoming Deadline',
-                    message: `"${todoToUpdate.title}" is due ${formatDistanceToNow(dueDate, { addSuffix: true })}`,
-                    due_date: todoToUpdate.due_date,
-                    origin_id: `info-${id}`,
-                  },
-                ]
+      })
+    },
+    [
+      openConfirmDialog,
+      setLoading,
+      deleteTodoMutation,
+      closeConfirmDialog,
+      queryClient,
+    ],
+  )
 
-                axios.post('/api/notifications', { notifications })
-                  .then(() => {
-                    queryClient.invalidateQueries({ queryKey: ['notifications'] })
-                  })
-                  .catch((error) => {
-                    console.error('Error creating notifications:', error)
-                  })
-              })
-              .catch((error) => {
-                console.error('Error managing notifications:', error)
-              })
-          }
+  const handleCheckboxChange = useCallback(
+    (
+      id: string,
+      isCompleted: boolean,
+      e: React.ChangeEvent<HTMLInputElement>,
+    ) => {
+      e.stopPropagation()
+      const todoToUpdate = todos.find((todo) => todo.id === id)
+      if (!todoToUpdate) return
 
-          queryClient.invalidateQueries({ queryKey: ['todos'] })
+      updateTodoMutation.mutate(
+        {
+          id,
+          data: {
+            is_completed: !isCompleted,
+            status: !isCompleted ? 'completed' : 'active',
+          },
         },
-      },
-    )
-  }, [todos, updateTodoMutation, queryClient])
+        {
+          onSuccess: () => {
+            if (!isCompleted) {
+              axios
+                .post('/api/notifications/dismiss-for-todo', { todoId: id })
+                .then(() => {
+                  queryClient.invalidateQueries({ queryKey: ['notifications'] })
+                })
+                .catch((error) => {
+                  console.error('Error dismissing notifications:', error)
+                })
+            } else if (todoToUpdate.due_date) {
+              axios
+                .delete(`/api/notifications/delete-for-todo/${id}`)
+                .then(() => {
+                  const dueDate = new Date(todoToUpdate.due_date!)
 
-  const handleSetReview = useCallback((e: React.MouseEvent, id: string) => {
-    e.stopPropagation()
+                  const notifications = [
+                    {
+                      todo_id: id,
+                      notification_type: 'danger',
+                      title: 'Overdue Task',
+                      message: `"${todoToUpdate.title}" is due ${formatDistanceToNow(dueDate, { addSuffix: true })}`,
+                      due_date: todoToUpdate.due_date,
+                      origin_id: `danger-${id}`,
+                    },
+                    {
+                      todo_id: id,
+                      notification_type: 'warning',
+                      title: 'Due Soon',
+                      message: `"${todoToUpdate.title}" is due ${formatDistanceToNow(dueDate, { addSuffix: true })}`,
+                      due_date: todoToUpdate.due_date,
+                      origin_id: `warning-${id}`,
+                    },
+                    {
+                      todo_id: id,
+                      notification_type: 'info',
+                      title: 'Upcoming Deadline',
+                      message: `"${todoToUpdate.title}" is due ${formatDistanceToNow(dueDate, { addSuffix: true })}`,
+                      due_date: todoToUpdate.due_date,
+                      origin_id: `info-${id}`,
+                    },
+                  ]
 
-    const todoToUpdate = todos.find((todo) => todo.id === id)
-    if (!todoToUpdate) return
+                  axios
+                    .post('/api/notifications', { notifications })
+                    .then(() => {
+                      queryClient.invalidateQueries({
+                        queryKey: ['notifications'],
+                      })
+                    })
+                    .catch((error) => {
+                      console.error('Error creating notifications:', error)
+                    })
+                })
+                .catch((error) => {
+                  console.error('Error managing notifications:', error)
+                })
+            }
 
-    updateTodoMutation.mutate(
-      {
-        id,
-        data: { status: 'review' },
-      },
-      {
-        onError: (error) => {
-          console.error('Error setting review status:', error)
+            queryClient.invalidateQueries({ queryKey: ['todos'] })
+          },
         },
-      },
-    )
-  }, [todos, updateTodoMutation])
+      )
+    },
+    [todos, updateTodoMutation, queryClient],
+  )
 
-  const handleApproveReview = useCallback((e: React.MouseEvent, id: string) => {
-    e.stopPropagation()
+  const handleSetReview = useCallback(
+    (e: React.MouseEvent, id: string) => {
+      e.stopPropagation()
 
-    const todoToUpdate = todos.find((todo) => todo.id === id)
-    if (!todoToUpdate) return
+      const todoToUpdate = todos.find((todo) => todo.id === id)
+      if (!todoToUpdate) return
 
-    updateTodoMutation.mutate(
-      {
-        id,
-        data: { status: 'active' },
-      },
-      {
-        onSuccess: () => {
-          queryClient.setQueryData<Todo[]>(['todos'], (old) => {
-            if (!old) return []
+      updateTodoMutation.mutate(
+        {
+          id,
+          data: { status: 'review' },
+        },
+        {
+          onError: (error) => {
+            console.error('Error setting review status:', error)
+          },
+        },
+      )
+    },
+    [todos, updateTodoMutation],
+  )
 
-            return old.map((todo) => {
-              if (todo.id === id) {
-                return { ...todo, status: 'active' }
-              }
-              return todo
+  const handleApproveReview = useCallback(
+    (e: React.MouseEvent, id: string) => {
+      e.stopPropagation()
+
+      const todoToUpdate = todos.find((todo) => todo.id === id)
+      if (!todoToUpdate) return
+
+      updateTodoMutation.mutate(
+        {
+          id,
+          data: { status: 'active' },
+        },
+        {
+          onSuccess: () => {
+            queryClient.setQueryData<Todo[]>(['todos'], (old) => {
+              if (!old) return []
+
+              return old.map((todo) => {
+                if (todo.id === id) {
+                  return { ...todo, status: 'active' }
+                }
+                return todo
+              })
             })
-          })
+          },
+          onError: (error) => {
+            console.error('Error approving todo:', error)
+          },
         },
-        onError: (error) => {
-          console.error('Error approving todo:', error)
-        },
-      },
-    )
-  }, [todos, updateTodoMutation, queryClient])
+      )
+    },
+    [todos, updateTodoMutation, queryClient],
+  )
 
   const stats = useMemo(() => {
     const total = todos.length
@@ -264,11 +287,17 @@ const RedesignedTodoList: React.FC = () => {
     }
   }, [stats])
 
-  const pieSegments = useMemo(() => calculatePieSegments(), [calculatePieSegments])
+  const pieSegments = useMemo(
+    () => calculatePieSegments(),
+    [calculatePieSegments],
+  )
 
-  const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchQuery(e.target.value)
-  }, [setSearchQuery])
+  const handleSearchChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setSearchQuery(e.target.value)
+    },
+    [setSearchQuery],
+  )
 
   const createNewTodo = useCallback(() => {
     router.push('/todo/new')
@@ -276,8 +305,14 @@ const RedesignedTodoList: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="flex h-64 items-center justify-center" aria-label="Loading tasks">
-        <div className="h-12 w-12 animate-spin rounded-full border-4 border-blue-500 border-t-transparent" role="status">
+      <div
+        className="flex h-64 items-center justify-center"
+        aria-label="Loading tasks"
+      >
+        <div
+          className="h-12 w-12 animate-spin rounded-full border-4 border-blue-500 border-t-transparent"
+          role="status"
+        >
           <span className="sr-only">Loading...</span>
         </div>
       </div>
@@ -302,7 +337,10 @@ const RedesignedTodoList: React.FC = () => {
 
       {/* Pagination - Task Count */}
       {filteredTodos.length > 0 && (
-        <div className="mb-4 flex items-center text-sm text-gray-600 dark:text-gray-400" aria-live="polite">
+        <div
+          className="mb-4 flex items-center text-sm text-gray-600 dark:text-gray-400"
+          aria-live="polite"
+        >
           Showing {Math.min(filteredTodos.length, (pageToShow - 1) * 9 + 1)}-
           {Math.min(pageToShow * 9, filteredTodos.length)} of{' '}
           {filteredTodos.length} tasks
@@ -311,7 +349,11 @@ const RedesignedTodoList: React.FC = () => {
 
       {/* Empty state message */}
       {filteredTodos.length === 0 && (
-        <div className="my-10 flex flex-col items-center justify-center text-center" role="status" aria-live="polite">
+        <div
+          className="my-10 flex flex-col items-center justify-center text-center"
+          role="status"
+          aria-live="polite"
+        >
           <div className="mb-2 rounded-full bg-gray-100 p-4 dark:bg-gray-800">
             <svg
               className="h-8 w-8 text-gray-400"
@@ -339,7 +381,7 @@ const RedesignedTodoList: React.FC = () => {
           </p>
           <button
             onClick={createNewTodo}
-            className="mt-4 flex items-center rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            className="mt-4 flex items-center rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
             aria-label="Create new task"
           >
             <FiPlus className="mr-1" aria-hidden="true" /> Create New Task
@@ -349,7 +391,7 @@ const RedesignedTodoList: React.FC = () => {
 
       {/* Todo Items Grid with Review functionality */}
       {filteredTodos.length > 0 && (
-        <div 
+        <div
           className="grid w-full auto-rows-fr grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
           role="list"
           aria-label="Task list"
@@ -367,7 +409,7 @@ const RedesignedTodoList: React.FC = () => {
 
           {/* Add new todo button */}
           <div
-            className="dark:border-BorderDark dark:bg-BlackLight flex h-64 cursor-pointer items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-white transition-colors hover:border-blue-500 dark:hover:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="dark:border-BorderDark dark:bg-BlackLight flex h-64 cursor-pointer items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-white transition-colors hover:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:hover:border-blue-500"
             onClick={createNewTodo}
             tabIndex={0}
             role="button"
@@ -381,7 +423,10 @@ const RedesignedTodoList: React.FC = () => {
           >
             <div className="text-center">
               <div className="mb-2 flex justify-center">
-                <FiPlus className="text-xl text-gray-400 dark:text-gray-500" aria-hidden="true" />
+                <FiPlus
+                  className="text-xl text-gray-400 dark:text-gray-500"
+                  aria-hidden="true"
+                />
               </div>
               <p className="text-gray-500 dark:text-gray-400">Add New Task</p>
             </div>

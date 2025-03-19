@@ -5,13 +5,12 @@ import { rateLimiter } from '@/lib/rateLimit'
 import { randomBytes } from 'crypto'
 
 function generateSecureToken(byteLength = 32): string {
-  return randomBytes(byteLength).toString('hex');
+  return randomBytes(byteLength).toString('hex')
 }
 
 export async function POST(req: NextRequest) {
   try {
     const { email } = await req.json()
-
 
     const ip = req.headers.get('x-forwarded-for')?.split(',')[0] || 'anonymous'
     const emailFragment = email ? email.slice(0, 3) : 'unknown'
@@ -47,7 +46,7 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    const resetToken = generateSecureToken();
+    const resetToken = generateSecureToken()
 
     const expiresAt = new Date()
     expiresAt.setHours(expiresAt.getHours() + 1)
@@ -87,8 +86,7 @@ export async function POST(req: NextRequest) {
       console.error('Error in forgot password API:', error)
       return NextResponse.json(
         {
-          message:
-            'An error occurred while processing your request',
+          message: 'An error occurred while processing your request',
         },
         { status: 500 },
       )

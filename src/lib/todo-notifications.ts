@@ -17,7 +17,7 @@ export interface Todo {
 export async function handleTodoNotifications(
   userId: string,
   todo: Todo,
-  previousTodo?: Todo
+  previousTodo?: Todo,
 ) {
   if (todo.is_completed) {
     await notificationsService.dismissTodoNotifications(userId, todo.id)
@@ -27,7 +27,7 @@ export async function handleTodoNotifications(
   if (!todo.due_date) {
     await notificationsService.deleteNotifications({
       userId,
-      todoId: todo.id
+      todoId: todo.id,
     })
     return
   }
@@ -38,11 +38,11 @@ export async function handleTodoNotifications(
   if (hasDueDateChanged || hasTitleChanged || !previousTodo) {
     await notificationsService.deleteNotifications({
       userId,
-      todoId: todo.id
+      todoId: todo.id,
     })
 
     const dueDate = new Date(todo.due_date)
-    
+
     const notifications = [
       {
         todo_id: todo.id,

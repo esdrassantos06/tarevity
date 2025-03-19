@@ -4,9 +4,11 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
 if (!supabaseUrl || !supabaseAnonKey) {
-  console.error('Missing required Supabase environment variables');
+  console.error('Missing required Supabase environment variables')
   if (process.env.NODE_ENV === 'development') {
-    throw new Error('Missing required Supabase environment variables. Please check your .env file.');
+    throw new Error(
+      'Missing required Supabase environment variables. Please check your .env file.',
+    )
   }
 }
 
@@ -18,5 +20,5 @@ export const supabase = createClient(
       persistSession: true,
       autoRefreshToken: true,
     },
-  }
+  },
 )

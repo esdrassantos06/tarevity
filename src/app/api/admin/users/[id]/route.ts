@@ -5,7 +5,7 @@ import { supabaseAdmin } from '@/lib/supabaseAdmin'
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const session = await getServerSession(authOptions)
@@ -15,17 +15,21 @@ export async function PATCH(
       return NextResponse.json({ message: 'Unauthorized' }, { status: 401 })
     }
 
-    if (!/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(userId)) {
+    if (
+      !/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(
+        userId,
+      )
+    ) {
       return NextResponse.json(
         { message: 'Invalid user ID format' },
-        { status: 400 }
-      );
+        { status: 400 },
+      )
     }
 
     if (userId === session.user.id) {
       return NextResponse.json(
         { message: 'You cannot change your own admin status' },
-        { status: 400 }
+        { status: 400 },
       )
     }
 
@@ -33,13 +37,10 @@ export async function PATCH(
       .from('users')
       .select('id, is_admin')
       .eq('id', userId)
-      .single();
+      .single()
 
     if (checkError || !existingUser) {
-      return NextResponse.json(
-        { message: 'User not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ message: 'User not found' }, { status: 404 })
     }
 
     const body = await request.json()
@@ -48,7 +49,7 @@ export async function PATCH(
     if (typeof is_admin !== 'boolean') {
       return NextResponse.json(
         { message: 'Invalid request data. is_admin must be a boolean.' },
-        { status: 400 }
+        { status: 400 },
       )
     }
 
@@ -67,16 +68,16 @@ export async function PATCH(
     return NextResponse.json(data, { status: 200 })
   } catch (error: unknown) {
     console.error('Error in admin user update API:', error)
-    
+
     if (error instanceof Error) {
       return NextResponse.json(
         { message: error.message || 'Failed to update user' },
-        { status: 500 }
+        { status: 500 },
       )
     } else {
       return NextResponse.json(
         { message: 'Unknown error updating user' },
-        { status: 500 }
+        { status: 500 },
       )
     }
   }
@@ -84,7 +85,7 @@ export async function PATCH(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const session = await getServerSession(authOptions)
@@ -94,17 +95,23 @@ export async function DELETE(
       return NextResponse.json({ message: 'Unauthorized' }, { status: 401 })
     }
 
-    if (!/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(userId)) {
+    if (
+      !/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(
+        userId,
+      )
+    ) {
       return NextResponse.json(
         { message: 'Invalid user ID format' },
-        { status: 400 }
-      );
+        { status: 400 },
+      )
     }
 
     if (userId === session.user.id) {
       return NextResponse.json(
-        { message: 'You cannot delete your own account through the admin panel' },
-        { status: 400 }
+        {
+          message: 'You cannot delete your own account through the admin panel',
+        },
+        { status: 400 },
       )
     }
 
@@ -112,17 +119,14 @@ export async function DELETE(
       .from('users')
       .select('id')
       .eq('id', userId)
-      .single();
+      .single()
 
     if (checkError || !existingUser) {
-      return NextResponse.json(
-        { message: 'User not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ message: 'User not found' }, { status: 404 })
     }
 
-    let allSuccessful = true;
-    let errorMessage = '';
+    let allSuccessful = true
+    let errorMessage = ''
 
     const { error: todosError } = await supabaseAdmin
       .from('todos')
@@ -131,8 +135,8 @@ export async function DELETE(
 
     if (todosError) {
       console.error('Error deleting user tasks:', todosError)
-      allSuccessful = false;
-      errorMessage = 'Error deleting user tasks';
+      allSuccessful = false
+      errorMessage = 'Error deleting user tasks'
     }
 
     const { error: notificationsError } = await supabaseAdmin
@@ -142,8 +146,8 @@ export async function DELETE(
 
     if (notificationsError) {
       console.error('Error deleting user notifications:', notificationsError)
-      allSuccessful = false;
-      errorMessage = 'Error deleting user notifications';
+      allSuccessful = false
+      errorMessage = 'Error deleting user notifications'
     }
 
     const { error: tokensError } = await supabaseAdmin
@@ -153,8 +157,8 @@ export async function DELETE(
 
     if (tokensError) {
       console.error('Error deleting user tokens:', tokensError)
-      allSuccessful = false;
-      errorMessage = 'Error deleting user tokens';
+      allSuccessful = false
+      errorMessage = 'Error deleting user tokens'
     }
     const { error: resetTokensError } = await supabaseAdmin
       .from('password_reset_tokens')
@@ -163,8 +167,8 @@ export async function DELETE(
 
     if (resetTokensError) {
       console.error('Error deleting user reset tokens:', resetTokensError)
-      allSuccessful = false;
-      errorMessage = 'Error deleting user reset tokens';
+      allSuccessful = false
+      errorMessage = 'Error deleting user reset tokens'
     }
 
     if (allSuccessful) {
@@ -177,32 +181,32 @@ export async function DELETE(
         console.error('Error deleting user:', userError)
         return NextResponse.json(
           { message: 'Error deleting user account' },
-          { status: 500 }
+          { status: 500 },
         )
       }
 
       return NextResponse.json(
         { message: 'User deleted successfully' },
-        { status: 200 }
+        { status: 200 },
       )
     } else {
       return NextResponse.json(
         { message: errorMessage || 'Error deleting user data' },
-        { status: 500 }
+        { status: 500 },
       )
     }
   } catch (error: unknown) {
     console.error('Error in admin user delete API:', error)
-    
+
     if (error instanceof Error) {
       return NextResponse.json(
         { message: error.message || 'Failed to delete user' },
-        { status: 500 }
+        { status: 500 },
       )
     } else {
       return NextResponse.json(
         { message: 'Unknown error deleting user' },
-        { status: 500 }
+        { status: 500 },
       )
     }
   }

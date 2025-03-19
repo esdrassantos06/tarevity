@@ -2,11 +2,10 @@ import { NextRequest, NextResponse } from 'next/server'
 import { parse } from 'cookie'
 
 export async function csrfProtection(req: NextRequest) {
-  const pathname = req.nextUrl.pathname;
-  
-  
+  const pathname = req.nextUrl.pathname
+
   if (['GET', 'HEAD', 'OPTIONS'].includes(req.method)) {
-    return NextResponse.next();
+    return NextResponse.next()
   }
 
   const exemptPaths = [
@@ -14,71 +13,74 @@ export async function csrfProtection(req: NextRequest) {
     '/api/auth/signin',
     '/api/auth/signout',
     '/api/auth/session',
-    '/api/auth/csrf'
-  ];
-  
-  if (exemptPaths.some(path => pathname.startsWith(path))) {
-    return NextResponse.next();
+    '/api/auth/csrf',
+  ]
+
+  if (exemptPaths.some((path) => pathname.startsWith(path))) {
+    return NextResponse.next()
   }
 
-  const csrfToken = req.headers.get('x-csrf-token');
+  const csrfToken = req.headers.get('x-csrf-token')
   if (!csrfToken) {
-    console.warn(`[CSRF] Missing CSRF token header for ${pathname}`);
+    console.warn(`[CSRF] Missing CSRF token header for ${pathname}`)
     return NextResponse.json(
       { message: 'Missing CSRF token in request header', path: pathname },
-      { status: 403 }
-    );
+      { status: 403 },
+    )
   }
 
-  const cookieHeader = req.headers.get('cookie');
+  const cookieHeader = req.headers.get('cookie')
   if (!cookieHeader) {
-    console.warn(`[CSRF] No cookies present for ${pathname}`);
+    console.warn(`[CSRF] No cookies present for ${pathname}`)
     return NextResponse.json(
       { message: 'No cookies present in request', path: pathname },
-      { status: 403 }
-    );
+      { status: 403 },
+    )
   }
 
+  const cookies = parse(cookieHeader)
 
-  const cookies = parse(cookieHeader);
-  
-  const cookiePrefix = process.env.NODE_ENV === 'production' ? '__Secure-' : '';
-  const csrfCookieName = `${cookiePrefix}next-auth.csrf-token`;
-  
-  const csrfCookie = cookies[csrfCookieName];
+  const cookiePrefix = process.env.NODE_ENV === 'production' ? '__Secure-' : ''
+  const csrfCookieName = `${cookiePrefix}next-auth.csrf-token`
+
+  const csrfCookie = cookies[csrfCookieName]
   if (!csrfCookie) {
-    console.warn(`[CSRF] Missing CSRF cookie for ${pathname}. Available cookies:`, Object.keys(cookies));
+    console.warn(
+      `[CSRF] Missing CSRF cookie for ${pathname}. Available cookies:`,
+      Object.keys(cookies),
+    )
     return NextResponse.json(
-      { 
+      {
         message: 'Missing CSRF cookie',
         path: pathname,
         expectedCookieName: csrfCookieName,
-        availableCookies: Object.keys(cookies)
+        availableCookies: Object.keys(cookies),
       },
-      { status: 403 }
-    );
+      { status: 403 },
+    )
   }
 
-  let expectedToken = null;
-  
-  const cookieParts = csrfCookie.split('|');
+  let expectedToken = null
+
+  const cookieParts = csrfCookie.split('|')
   if (cookieParts.length > 0) {
-    expectedToken = cookieParts[0];
-  } 
-  else {
-    expectedToken = csrfCookie;
-  }
-  
-  if (!expectedToken || csrfToken !== expectedToken) {
-    console.warn(`[CSRF] Invalid CSRF token for ${pathname}. Expected: ${expectedToken?.substring(0, 10)}..., Got: ${csrfToken?.substring(0, 10)}...`);
-    return NextResponse.json(
-      { 
-        message: 'Invalid CSRF token',
-        path: pathname
-      },
-      { status: 403 }
-    );
+    expectedToken = cookieParts[0]
+  } else {
+    expectedToken = csrfCookie
   }
 
-  return NextResponse.next();
+  if (!expectedToken || csrfToken !== expectedToken) {
+    console.warn(
+      `[CSRF] Invalid CSRF token for ${pathname}. Expected: ${expectedToken?.substring(0, 10)}..., Got: ${csrfToken?.substring(0, 10)}...`,
+    )
+    return NextResponse.json(
+      {
+        message: 'Invalid CSRF token',
+        path: pathname,
+      },
+      { status: 403 },
+    )
+  }
+
+  return NextResponse.next()
 }

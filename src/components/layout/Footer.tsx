@@ -103,7 +103,8 @@ export default function Footer() {
               Social Media
             </h3>
             <div className="mt-4 flex space-x-6">
-              <a aria-label='GitHub'
+              <a
+                aria-label="GitHub"
                 href="https://github.com/esdrassantos06"
                 target="_blank"
                 rel="noopener noreferrer"
@@ -112,7 +113,8 @@ export default function Footer() {
                 <FaGithub className="h-7 w-7" />
                 <span className="sr-only">GitHub</span>
               </a>
-              <a aria-label='LinkedIn'
+              <a
+                aria-label="LinkedIn"
                 href="https://linkedin.com/in/esdrassantos06"
                 target="_blank"
                 rel="noopener noreferrer"
@@ -129,7 +131,8 @@ export default function Footer() {
         <div className="border-BorderLight dark:border-BorderDark mt-8 border-t pt-6">
           <p className="text-BlackLight flex items-center justify-center text-center text-sm dark:text-white">
             Made with <FaHeart className="mx-1 h-4 w-4 text-red-500" /> by{' '}
-            <a aria-label={`Esdras's Github`}
+            <a
+              aria-label={`Esdras's Github`}
               href="https://github.com/esdrassantos06"
               target="_blank"
               rel="noopener noreferrer"

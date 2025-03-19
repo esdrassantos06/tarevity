@@ -143,105 +143,111 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
       { id: todoId, data: updateData },
       {
         onSuccess: async (response) => {
-          setHasUnsavedChanges(false);
-    
+          setHasUnsavedChanges(false)
+
           if (!response.data) {
-            console.error('No data returned from update mutation');
-            router.push(`/todo/${todoId}`);
-            return;
+            console.error('No data returned from update mutation')
+            router.push(`/todo/${todoId}`)
+            return
           }
-    
-          const originalTodo = todos.find((t) => t.id === todoId);
-    
+
+          const originalTodo = todos.find((t) => t.id === todoId)
+
           try {
-            
             if (updateData.is_completed) {
-              await axios.post('/api/notifications/dismiss-for-todo', { todoId });
-              
+              await axios.post('/api/notifications/dismiss-for-todo', {
+                todoId,
+              })
             } else if (originalDueDate && !updateData.due_date) {
-              await axios.delete(`/api/notifications/delete-for-todo/${todoId}`);
-              
+              await axios.delete(`/api/notifications/delete-for-todo/${todoId}`)
             } else if (updateData.due_date) {
-              const hasDueDateChanged = originalDueDate !== updateData.due_date;
-              const hasTitleChanged = originalTodo?.title !== updateData.title;
-    
-              
-if (hasDueDateChanged || hasTitleChanged) {
-  
-  axios.delete(`/api/notifications/delete-for-todo/${todoId}`)
-    .then(() => {
-      
-      if (!updateData.due_date) {
-        return Promise.resolve(null);
-      }
-      
-      const dueDate = new Date(updateData.due_date);
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      
-      let notification;
-      
-      if (dueDate < today) {
-        notification = {
-          todo_id: todoId,
-          notification_type: 'danger',
-          title: 'Overdue Task',
-          message: `The task "${updateData.title}" is overdue`,
-          due_date: updateData.due_date,
-          origin_id: `danger-${todoId}-${Date.now()}`,
-        };
-      } else {
-        const diffTime = Math.abs(dueDate.getTime() - today.getTime());
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-        
-        if (diffDays <= 2) {
-          notification = {
-            todo_id: todoId,
-            notification_type: 'warning',
-            title: 'Upcoming Deadline',
-            message: `The task "${updateData.title}" has an upcoming deadline (${diffDays} day${diffDays !== 1 ? 's' : ''})`,
-            due_date: updateData.due_date,
-            origin_id: `warning-${todoId}-${Date.now()}`,
-          };
-        } else {
-          notification = {
-            todo_id: todoId,
-            notification_type: 'info',
-            title: 'Task Reminder',
-            message: `Reminder for the task "${updateData.title}" (due in ${diffDays} days)`,
-            due_date: updateData.due_date,
-            origin_id: `info-${todoId}-${Date.now()}`,
-          };
-        }
-      }
-      
-      return axios.post('/api/notifications', { notifications: [notification] });
-    })
-    .then(() => {
-      queryClient.invalidateQueries({ queryKey: ['notifications'] });
-    })
-    .catch(error => {
-      console.error("❌ Erro gerenciando notificações:", error);
-    });
-}
+              const hasDueDateChanged = originalDueDate !== updateData.due_date
+              const hasTitleChanged = originalTodo?.title !== updateData.title
+
+              if (hasDueDateChanged || hasTitleChanged) {
+                axios
+                  .delete(`/api/notifications/delete-for-todo/${todoId}`)
+                  .then(() => {
+                    if (!updateData.due_date) {
+                      return Promise.resolve(null)
+                    }
+
+                    const dueDate = new Date(updateData.due_date)
+                    const today = new Date()
+                    today.setHours(0, 0, 0, 0)
+
+                    let notification
+
+                    if (dueDate < today) {
+                      notification = {
+                        todo_id: todoId,
+                        notification_type: 'danger',
+                        title: 'Overdue Task',
+                        message: `The task "${updateData.title}" is overdue`,
+                        due_date: updateData.due_date,
+                        origin_id: `danger-${todoId}-${Date.now()}`,
+                      }
+                    } else {
+                      const diffTime = Math.abs(
+                        dueDate.getTime() - today.getTime(),
+                      )
+                      const diffDays = Math.ceil(
+                        diffTime / (1000 * 60 * 60 * 24),
+                      )
+
+                      if (diffDays <= 2) {
+                        notification = {
+                          todo_id: todoId,
+                          notification_type: 'warning',
+                          title: 'Upcoming Deadline',
+                          message: `The task "${updateData.title}" has an upcoming deadline (${diffDays} day${diffDays !== 1 ? 's' : ''})`,
+                          due_date: updateData.due_date,
+                          origin_id: `warning-${todoId}-${Date.now()}`,
+                        }
+                      } else {
+                        notification = {
+                          todo_id: todoId,
+                          notification_type: 'info',
+                          title: 'Task Reminder',
+                          message: `Reminder for the task "${updateData.title}" (due in ${diffDays} days)`,
+                          due_date: updateData.due_date,
+                          origin_id: `info-${todoId}-${Date.now()}`,
+                        }
+                      }
+                    }
+
+                    return axios.post('/api/notifications', {
+                      notifications: [notification],
+                    })
+                  })
+                  .then(() => {
+                    queryClient.invalidateQueries({
+                      queryKey: ['notifications'],
+                    })
+                  })
+                  .catch((error) => {
+                    console.error('❌ Erro gerenciando notificações:', error)
+                  })
+              }
             }
-            
-            queryClient.invalidateQueries({ queryKey: ['notifications'] });
+
+            queryClient.invalidateQueries({ queryKey: ['notifications'] })
           } catch (error) {
-            console.error('Error managing notifications:', error);
+            console.error('Error managing notifications:', error)
           }
-    
+
           setTimeout(() => {
-            router.push(`/todo/${todoId}`);
-          }, 500);
-          
+            router.push(`/todo/${todoId}`)
+          }, 500)
         },
         onError: (error) => {
-          showError(error instanceof Error ? error.message : 'Error updating task');
-          console.error('Error updating task:', error);
+          showError(
+            error instanceof Error ? error.message : 'Error updating task',
+          )
+          console.error('Error updating task:', error)
         },
-      }
-    );
+      },
+    )
   }
 
   const { dialogState, openConfirmDialog, closeConfirmDialog } =
@@ -295,7 +301,8 @@ if (hasDueDateChanged || hasTitleChanged) {
     <div className="mx-auto max-w-3xl px-4 py-6">
       {/* Header */}
       <div className="mb-6 flex items-center justify-between">
-        <button aria-label='Back'
+        <button
+          aria-label="Back"
           onClick={handleCancel}
           className="flex items-center text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white"
         >
@@ -419,7 +426,8 @@ if (hasDueDateChanged || hasTitleChanged) {
                   className="w-full rounded-l-md border border-gray-300 px-4 py-2 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                 />
                 {formData.due_date && (
-                  <button aria-label='clear-due-date'
+                  <button
+                    aria-label="clear-due-date"
                     type="button"
                     onClick={handleConfirmClearDueDate}
                     className="rounded-r-md border border-l-0 border-gray-300 bg-red-100 px-3 hover:bg-red-200 dark:border-gray-600 dark:bg-red-900 dark:text-white dark:hover:bg-red-800"
@@ -459,14 +467,16 @@ if (hasDueDateChanged || hasTitleChanged) {
 
           {/* Form buttons */}
           <div className="flex justify-end space-x-3">
-            <button aria-label='cancel-edit'
+            <button
+              aria-label="cancel-edit"
               type="button"
               onClick={handleCancel}
               className="rounded-md border border-gray-300 px-4 py-2 text-gray-700 hover:bg-gray-50 focus:ring-2 focus:ring-gray-500 focus:outline-none dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
             >
               <FaTimes className="mr-1 inline" /> Cancel
             </button>
-            <button aria-label='save-edit'
+            <button
+              aria-label="save-edit"
               type="submit"
               className="rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
               disabled={updateTodoMutation.isPending}

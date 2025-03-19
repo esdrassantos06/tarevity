@@ -50,9 +50,9 @@ export interface ImageUploadResponse {
 }
 
 export interface ApiResult<T> {
-  data: T | null;
-  error: APIError | null;
-  loading: boolean;
+  data: T | null
+  error: APIError | null
+  loading: boolean
 }
 
 export const authAPI = {
@@ -183,16 +183,16 @@ export const profileAPI = {
       const response = await axiosClient.get('/api/profile')
       return { data: response.data, error: null, loading: false }
     } catch (error) {
+      const isProtectedRoute =
+        typeof window !== 'undefined' &&
+        ['/dashboard', '/profile', '/settings', '/todo'].some((path) =>
+          window.location.pathname.startsWith(path),
+        )
 
-      const isProtectedRoute = typeof window !== 'undefined' && 
-        ['/dashboard', '/profile', '/settings', '/todo'].some(path => 
-          window.location.pathname.startsWith(path)
-        );
-        
       if (!isProtectedRoute) {
-        return { data: null, error: null, loading: false };
+        return { data: null, error: null, loading: false }
       }
-      
+
       return {
         data: null,
         error: isAPIError(error) ? error : { message: 'Error loading profile' },

@@ -27,8 +27,6 @@ const passwordPattern = {
   special: /[^A-Za-z0-9]/,
 }
 
-
-
 const registerSchema = z
   .object({
     name: z
@@ -87,7 +85,6 @@ export default function EnhancedRegisterForm() {
   const [passwordStrong, setPasswordStrong] = useState(false)
   const [emailValid, setEmailValid] = useState(false)
   const router = useRouter()
-
 
   const {
     register,
@@ -155,7 +152,7 @@ export default function EnhancedRegisterForm() {
 
   const onSubmit = async (data: RegisterFormValues) => {
     setError(null)
-  
+
     if (!passwordValid || !passwordStrong) {
       setFormError('password', {
         type: 'manual',
@@ -164,7 +161,7 @@ export default function EnhancedRegisterForm() {
       showWarning('Please choose a stronger password for better security')
       return
     }
-  
+
     if (!emailValid) {
       setFormError('email', {
         type: 'manual',
@@ -173,8 +170,8 @@ export default function EnhancedRegisterForm() {
       showWarning('Please enter a valid email address')
       return
     }
-  
-    try {  
+
+    try {
       registerMutation.mutate(
         {
           name: data.name,
@@ -183,19 +180,19 @@ export default function EnhancedRegisterForm() {
         },
         {
           onSuccess: (result) => {
-  
             if (result.error) {
               const errorMessage = result.error.message || 'Registration failed'
               console.error('Registration error:', errorMessage)
-              
+
               if (
-                (errorMessage.toLowerCase().includes('email already') || 
-                 result.error.code === 'EMAIL_EXISTS') && 
+                (errorMessage.toLowerCase().includes('email already') ||
+                  result.error.code === 'EMAIL_EXISTS') &&
                 result.error.silentError === true
               ) {
                 setFormError('email', {
                   type: 'manual',
-                  message: 'This email is already registered. Please log in or use a different email.',
+                  message:
+                    'This email is already registered. Please log in or use a different email.',
                 })
                 showWarning(
                   'Email already registered. Please log in or use a different email.',
@@ -207,25 +204,26 @@ export default function EnhancedRegisterForm() {
               }
               return
             }
-  
+
             showSuccess(
               'Account created successfully! Please log in to continue.',
             )
-            setTimeout(() =>{
+            setTimeout(() => {
               router.push('/auth/login')
             }, 1500)
-
           },
           onError: (error) => {
             console.error('Full registration error:', error)
-            
-            const errorMessage = 
-              error instanceof Error 
-                ? error.message 
+
+            const errorMessage =
+              error instanceof Error
+                ? error.message
                 : 'An error occurred during registration'
-  
-            if (errorMessage.toLowerCase().includes('compromised password') ||
-                errorMessage.toLowerCase().includes('been pwned')) {
+
+            if (
+              errorMessage.toLowerCase().includes('compromised password') ||
+              errorMessage.toLowerCase().includes('been pwned')
+            ) {
               setError(
                 'This password has appeared in data breaches and cannot be used. Please choose a different password.',
               )
@@ -235,10 +233,12 @@ export default function EnhancedRegisterForm() {
               )
             } else {
               setError(errorMessage)
-              showError(errorMessage || 'Registration failed. Please try again.')
+              showError(
+                errorMessage || 'Registration failed. Please try again.',
+              )
             }
           },
-        }
+        },
       )
     } catch (error) {
       console.error('Unexpected registration error:', error)
@@ -379,7 +379,8 @@ export default function EnhancedRegisterForm() {
         </div>
 
         {/* Submit Button */}
-        <button aria-label='Register'
+        <button
+          aria-label="Register"
           type="submit"
           disabled={isSubmitting}
           className={`flex w-full items-center justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none dark:bg-blue-700 dark:hover:bg-blue-800 ${isSubmitting ? 'cursor-not-allowed opacity-70' : ''} `}

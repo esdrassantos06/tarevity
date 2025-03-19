@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { FaCheckCircle, FaBell, FaLock, FaMobileAlt } from 'react-icons/fa'
-import { IoMdArrowForward } from "react-icons/io";
+import { IoMdArrowForward } from 'react-icons/io'
 import Layout from '@/components/layout/Layout'
 import type { Metadata } from 'next'
 import { JsonLd } from '@/components/seo/JsonLd'
@@ -22,7 +22,6 @@ export const metadata: Metadata = {
 }
 
 export default function HomePage() {
-
   const structuredData = {
     '@context': 'https://schema.org',
     '@type': 'SoftwareApplication',
@@ -39,8 +38,9 @@ export default function HomePage() {
       ratingValue: '4.8',
       ratingCount: '1024',
     },
-    description: 'A modern task management application that helps professionals organize their work and increase productivity.',
-  };
+    description:
+      'A modern task management application that helps professionals organize their work and increase productivity.',
+  }
 
   return (
     <Layout>
@@ -159,11 +159,9 @@ export default function HomePage() {
         </article>
 
         {/* Testemonials Section */}
-        <div className="hidden container mx-auto mt-10 rounded-lg shadow-lg">
-          <div className="mx-auto max-w-2xl px-4 py-16 text-center sm:px-6 sm:py-20 lg:px-8">
-          </div>
+        <div className="container mx-auto mt-10 hidden rounded-lg shadow-lg">
+          <div className="mx-auto max-w-2xl px-4 py-16 text-center sm:px-6 sm:py-20 lg:px-8"></div>
         </div>
-
 
         {/* CTA Section */}
         <article className="bg-primary container mx-auto mt-10 rounded-lg shadow-lg">

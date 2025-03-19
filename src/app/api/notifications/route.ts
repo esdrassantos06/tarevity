@@ -12,7 +12,8 @@ export async function GET() {
     }
 
     const userId = session.user.id
-    const notifications = await notificationsService.getUserNotifications(userId)
+    const notifications =
+      await notificationsService.getUserNotifications(userId)
 
     return NextResponse.json(notifications, { status: 200 })
   } catch (error: unknown) {
@@ -38,13 +39,16 @@ export async function POST(req: Request) {
     }
 
     const userId = session.user.id
-    
+
     const body = await req.json()
 
     const notifications = body.notifications
 
     if (!Array.isArray(notifications)) {
-      console.error('Invalid notifications format: notifications must be an array', notifications)
+      console.error(
+        'Invalid notifications format: notifications must be an array',
+        notifications,
+      )
       return NextResponse.json(
         {
           message:
@@ -54,17 +58,23 @@ export async function POST(req: Request) {
       )
     }
 
-
     for (const notification of notifications) {
-      if (!notification.todo_id || !notification.title || !notification.message || 
-          !notification.notification_type || !notification.due_date || !notification.origin_id) {
-        console.error('Notifications API: Incomplete data', notification);
+      if (
+        !notification.todo_id ||
+        !notification.title ||
+        !notification.message ||
+        !notification.notification_type ||
+        !notification.due_date ||
+        !notification.origin_id
+      ) {
+        console.error('Notifications API: Incomplete data', notification)
       }
     }
 
-    const results = await notificationsService.processNotifications(userId, notifications)
-
-    
+    const results = await notificationsService.processNotifications(
+      userId,
+      notifications,
+    )
 
     return NextResponse.json(
       { message: 'Notifications processed successfully', results },

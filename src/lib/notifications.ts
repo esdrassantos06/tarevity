@@ -161,47 +161,56 @@ export const notificationsService = {
    */
   async processNotifications(
     userId: string,
-    notifications: NotificationRequest[]
+    notifications: NotificationRequest[],
   ) {
     const results = []
-  
+
     for (const notification of notifications) {
-      if (!notification.title || !notification.message || !notification.notification_type || !notification.origin_id) {
-        results.push({ 
-          status: 'error', 
-          error: 'Missing required notification fields' 
+      if (
+        !notification.title ||
+        !notification.message ||
+        !notification.notification_type ||
+        !notification.origin_id
+      ) {
+        results.push({
+          status: 'error',
+          error: 'Missing required notification fields',
         })
         continue
       }
-  
-      if (!['danger', 'warning', 'info'].includes(notification.notification_type)) {
-        results.push({ 
-          status: 'error', 
-          error: 'Invalid notification type' 
+
+      if (
+        !['danger', 'warning', 'info'].includes(notification.notification_type)
+      ) {
+        results.push({
+          status: 'error',
+          error: 'Invalid notification type',
         })
         continue
       }
-  
+
       try {
-        const { data: existingNotifications, error: findError } = await supabaseAdmin
-          .from('notifications')
-          .select('id, dismissed, read')
-          .eq('user_id', userId)
-          .eq('origin_id', notification.origin_id)
-  
+        const { data: existingNotifications, error: findError } =
+          await supabaseAdmin
+            .from('notifications')
+            .select('id, dismissed, read')
+            .eq('user_id', userId)
+            .eq('origin_id', notification.origin_id)
+
         if (findError && findError.code !== 'PGRST116') {
-          throw findError;
+          throw findError
         }
-  
-        const existingNotification = existingNotifications && existingNotifications.length > 0 
-          ? existingNotifications[0] 
-          : null;
-  
+
+        const existingNotification =
+          existingNotifications && existingNotifications.length > 0
+            ? existingNotifications[0]
+            : null
+
         const shouldShow = this.shouldShowNotification(
           notification.notification_type,
-          notification.due_date
+          notification.due_date,
         )
-  
+
         if (existingNotification) {
           if (shouldShow) {
             const { data, error } = await supabaseAdmin
@@ -214,7 +223,7 @@ export const notificationsService = {
               })
               .eq('id', existingNotification.id)
               .select()
-  
+
             if (error) {
               results.push({ status: 'error', error })
             } else {
@@ -232,13 +241,13 @@ export const notificationsService = {
             user_id: userId,
             read: false,
             dismissed: false,
-          };
-          
+          }
+
           const { data, error } = await supabaseAdmin
             .from('notifications')
             .insert([newNotification])
             .select()
-  
+
           if (error) {
             results.push({ status: 'error', error })
           } else {
@@ -260,17 +269,14 @@ export const notificationsService = {
   /**
    * Determines if a notification should be shown based on its type and due date
    */
-  shouldShowNotification(
-    type: string,
-    dueDateString: string | null
-  ): boolean {
+  shouldShowNotification(type: string, dueDateString: string | null): boolean {
     if (!dueDateString) return false
-  
+
     try {
       let dueDate: Date
       try {
         dueDate = parseISO(dueDateString)
-        
+
         if (isNaN(dueDate.getTime())) {
           return false
         }
@@ -280,18 +286,18 @@ export const notificationsService = {
 
       const now = new Date()
       now.setHours(0, 0, 0, 0)
-      
+
       const dueDay = new Date(dueDate)
       dueDay.setHours(0, 0, 0, 0)
-      
+
       const diffTime = dueDay.getTime() - now.getTime()
       const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
 
       switch (type) {
         case 'danger':
           return diffDays < 0
-          case 'warning':
-            return diffDays >= 0 && diffDays <= 2
+        case 'warning':
+          return diffDays >= 0 && diffDays <= 2
         case 'info':
           return diffDays >= 2 && diffDays <= 4
         default:
@@ -343,5 +349,5 @@ export const notificationsService = {
     ]
 
     return notifications
-  }
+  },
 }

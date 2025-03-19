@@ -143,7 +143,8 @@ export default function SettingsComponent() {
         {/* Sidebar / Tab Navigation */}
         <div className="w-full border-b border-gray-200 md:w-64 md:flex-shrink-0 md:border-r md:border-b-0 dark:border-gray-700">
           <nav className="space-y-1 p-4">
-            <button aria-label='Appearance'
+            <button
+              aria-label="Appearance"
               onClick={() => setActiveTab('appearance')}
               className={`flex w-full items-center rounded-md px-4 py-2 text-sm transition-colors ${
                 activeTab === 'appearance'
@@ -154,7 +155,8 @@ export default function SettingsComponent() {
               <FaDesktop className="mr-3 h-4 w-4" />
               Appearance
             </button>
-            <button aria-label='General'
+            <button
+              aria-label="General"
               onClick={() => setActiveTab('account')}
               className={`flex w-full items-center rounded-md px-4 py-2 text-sm transition-colors ${
                 activeTab === 'account'
@@ -168,7 +170,8 @@ export default function SettingsComponent() {
 
             {/* Admin tab - only visible for admins */}
             {isAdmin && (
-              <button aria-label='Admin'
+              <button
+                aria-label="Admin"
                 onClick={() => setActiveTab('admin')}
                 className={`flex w-full items-center rounded-md px-4 py-2 text-sm transition-colors ${
                   activeTab === 'admin'
@@ -184,7 +187,7 @@ export default function SettingsComponent() {
         </div>
 
         {/* Content Area */}
-        <div className="flex-1 p-6 min-w-0">
+        <div className="min-w-0 flex-1 p-6">
           {/* Appearance Settings */}
           {activeTab === 'appearance' && (
             <div>
@@ -197,7 +200,8 @@ export default function SettingsComponent() {
                     Theme
                   </label>
                   <div className="mt-3 grid grid-cols-3 gap-3">
-                    <button aria-label='Light Theme'
+                    <button
+                      aria-label="Light Theme"
                       type="button"
                       className={`relative flex items-center justify-center rounded-md border px-4 py-3 ${
                         theme === 'light'
@@ -215,7 +219,8 @@ export default function SettingsComponent() {
                       />
                       <span className="ml-2">Light</span>
                     </button>
-                    <button aria-label='Dark Theme'
+                    <button
+                      aria-label="Dark Theme"
                       type="button"
                       className={`relative flex items-center justify-center rounded-md border px-4 py-3 ${
                         theme === 'dark'
@@ -233,7 +238,8 @@ export default function SettingsComponent() {
                       />
                       <span className="ml-2">Dark</span>
                     </button>
-                    <button aria-label='System Theme'
+                    <button
+                      aria-label="System Theme"
                       type="button"
                       className={`relative flex items-center justify-center rounded-md border px-4 py-3 ${
                         theme === 'system'
@@ -317,7 +323,8 @@ export default function SettingsComponent() {
                     Account Management
                   </h3>
                   <div className="flex flex-col space-y-4">
-                    <button aria-label='Edit Profile'
+                    <button
+                      aria-label="Edit Profile"
                       className="flex items-center text-sm font-medium text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
                       onClick={() => {
                         showSuccess('Redirecting to profile page')
@@ -327,7 +334,8 @@ export default function SettingsComponent() {
                       Edit profile
                     </button>
 
-                    <button aria-label='Delete Account'
+                    <button
+                      aria-label="Delete Account"
                       className="flex items-center text-sm font-medium text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
                       onClick={handleDeleteAccount}
                       disabled={deleteAccountMutation.isPending}

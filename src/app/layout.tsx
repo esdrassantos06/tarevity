@@ -7,7 +7,6 @@ import ToastProvider from '@/components/common/ToastProvider'
 import Providers from '@/components/common/Providers'
 import CookieBanner from '@/components/cookie-consent/CookieBanner'
 
-
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
@@ -24,9 +23,11 @@ export const metadata: Metadata = {
     'project organization',
     'to-do list app',
     'work management',
-    'task tracking'
+    'task tracking',
   ],
-  authors: [{ name: 'Esdras Santos', url: 'https://github.com/esdrassantos06' }],
+  authors: [
+    { name: 'Esdras Santos', url: 'https://github.com/esdrassantos06' },
+  ],
   creator: 'Esdras Santos',
   publisher: 'Tarevity',
   robots: {
@@ -50,7 +51,8 @@ export const metadata: Metadata = {
     url: 'https://tarevity.pt',
     siteName: 'Tarevity',
     title: 'Tarevity - Intelligent Task Management for Modern Professionals',
-    description: 'Elevate your productivity with Tarevity\'s secure, intuitive task management platform',
+    description:
+      "Elevate your productivity with Tarevity's secure, intuitive task management platform",
     images: [
       {
         url: 'https://tarevity.pt/og-image.jpg',
@@ -63,7 +65,8 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'Tarevity - Intelligent Task Management',
-    description: 'Elevate your productivity with Tarevity\'s secure, intuitive task management platform',
+    description:
+      "Elevate your productivity with Tarevity's secure, intuitive task management platform",
     images: ['https://tarevity.pt/twitter-image.jpg'],
   },
   icons: {
@@ -88,8 +91,8 @@ export const viewport: Viewport = {
   maximumScale: 1,
   themeColor: [
     { media: '(prefers-color-scheme: light)', color: '#ffffff' },
-    { media: '(prefers-color-scheme: dark)', color: '#121212' }
-  ]
+    { media: '(prefers-color-scheme: dark)', color: '#121212' },
+  ],
 }
 
 export default async function RootLayout({
@@ -97,8 +100,6 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
-
-
   return (
     <html lang="en" suppressHydrationWarning className="overflow-x-hidden">
       <head>
@@ -111,12 +112,14 @@ export default async function RootLayout({
         <Providers>
           <NextAuthProvider>
             <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-              <a aria-label='Skip to main content' href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-white focus:text-primary focus:outline focus:outline-offset-2 focus:rounded">
+              <a
+                aria-label="Skip to main content"
+                href="#main-content"
+                className="focus:text-primary sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:rounded focus:bg-white focus:px-4 focus:py-2 focus:outline focus:outline-offset-2"
+              >
                 Skip to main content
               </a>
-              <main id="main-content">
-                {children}
-              </main>
+              <main id="main-content">{children}</main>
               <CookieBanner />
               <ToastProvider />
             </ThemeProvider>

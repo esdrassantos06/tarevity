@@ -27,34 +27,33 @@ export function useTodoFilters(todos: Todo[]) {
     setPrioritySortDirection((prev) => (prev === 'desc' ? 'asc' : 'desc'))
   }, [])
 
-
   const tabFilteredTodos = useMemo(() => {
     if (activeTab === 'all') return todos
-    
+
     if (activeTab === 'active') {
       return todos.filter(
         (todo) => !todo.is_completed && todo.status !== 'review',
       )
-    } 
-    
+    }
+
     if (activeTab === 'completed') {
       return todos.filter((todo) => todo.is_completed)
-    } 
-    
+    }
+
     if (activeTab === 'review') {
       return todos.filter((todo) => todo.status === 'review')
     }
-    
+
     if (activeTab === 'todo') {
       return todos.filter((todo) => todo.priority === 3)
     }
-    
+
     return todos
   }, [todos, activeTab])
 
   const searchFilteredTodos = useMemo(() => {
     if (!searchQuery) return tabFilteredTodos
-    
+
     const lowerCaseQuery = searchQuery.toLowerCase()
     return tabFilteredTodos.filter(
       (todo) =>
@@ -63,7 +62,6 @@ export function useTodoFilters(todos: Todo[]) {
           todo.description.toLowerCase().includes(lowerCaseQuery)),
     )
   }, [tabFilteredTodos, searchQuery])
-
 
   const filteredTodos = useMemo(() => {
     return [...searchFilteredTodos].sort((a, b) => {
@@ -91,12 +89,15 @@ export function useTodoFilters(todos: Todo[]) {
     return filteredTodos.slice(indexOfFirstTodo, indexOfLastTodo)
   }, [filteredTodos, pageToShow, todosPerPage])
 
-  const paginate = useCallback((pageNumber: number) => {
-    if (pageNumber >= 1 && pageNumber <= totalPages) {
-      setCurrentPage(pageNumber)
-      window.scrollTo({ top: 0, behavior: 'smooth' })
-    }
-  }, [totalPages])
+  const paginate = useCallback(
+    (pageNumber: number) => {
+      if (pageNumber >= 1 && pageNumber <= totalPages) {
+        setCurrentPage(pageNumber)
+        window.scrollTo({ top: 0, behavior: 'smooth' })
+      }
+    },
+    [totalPages],
+  )
 
   return {
     activeTab,

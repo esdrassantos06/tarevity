@@ -1,11 +1,9 @@
 import { Metadata } from 'next'
 import dynamic from 'next/dynamic'
 
-
 const RegisterForm = dynamic(() => import('@/components/auth/RegisterForm'), {
   loading: () => <div className="text-center">Loading...</div>,
 })
-
 
 export const metadata: Metadata = {
   title: 'Create Your Tarevity Account | Simple Registration',
@@ -15,5 +13,5 @@ export const metadata: Metadata = {
 }
 
 export default function RegisterPage() {
-  return  <RegisterForm />
+  return <RegisterForm />
 }

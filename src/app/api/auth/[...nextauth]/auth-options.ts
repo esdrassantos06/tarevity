@@ -91,7 +91,7 @@ export const authOptions: NextAuthOptions = {
         secure: process.env.NODE_ENV === 'production',
         domain:
           process.env.NODE_ENV === 'production' ? '.tarevity.pt' : undefined,
-        maxAge: 60 * 60 * 24
+        maxAge: 60 * 60 * 24,
       },
     },
     callbackUrl: {
@@ -100,7 +100,7 @@ export const authOptions: NextAuthOptions = {
         sameSite: 'lax',
         path: '/',
         secure: process.env.NODE_ENV === 'production',
-        maxAge: 60 * 60 * 24 
+        maxAge: 60 * 60 * 24,
       },
     },
     csrfToken: {
@@ -110,7 +110,7 @@ export const authOptions: NextAuthOptions = {
         sameSite: 'lax',
         path: '/',
         secure: process.env.NODE_ENV === 'production',
-        maxAge: 60 * 60 * 24 
+        maxAge: 60 * 60 * 24,
       },
     },
   },
@@ -125,14 +125,14 @@ export const authOptions: NextAuthOptions = {
     },
     async redirect({ url, baseUrl }) {
       if (!/^https?:\/\//i.test(url)) {
-        return `${baseUrl}${url.startsWith('/') ? '' : '/'}${url}`;
+        return `${baseUrl}${url.startsWith('/') ? '' : '/'}${url}`
       }
-      
+
       if (url.startsWith(baseUrl)) {
-        return url;
+        return url
       }
-      
-      return baseUrl;
+
+      return baseUrl
     },
     async session({ session, token }) {
       if (token && session.user) {
@@ -143,45 +143,47 @@ export const authOptions: NextAuthOptions = {
 
       if (token.error === 'RefreshTokenError') {
         session.error = 'RefreshTokenError'
-      }  
+      }
 
       return session
     },
     async jwt({ token, user, account }) {
       if (account && user) {
-        
         if (account.provider === 'credentials') {
-          const refreshToken = crypto.randomBytes(32).toString('hex');
-          const refreshTokenExpires = Date.now() + 7 * 24 * 60 * 60 * 1000;
-          
+          const refreshToken = crypto.randomBytes(32).toString('hex')
+          const refreshTokenExpires = Date.now() + 7 * 24 * 60 * 60 * 1000
+
           try {
-          
             const { error: deleteError } = await supabaseAdmin
               .from('refresh_tokens')
               .delete()
-              .eq('user_id', user.id);
-              
+              .eq('user_id', user.id)
+
             if (deleteError) {
-              console.error(`Error deleting existing refresh tokens: ${deleteError.message}`);
+              console.error(
+                `Error deleting existing refresh tokens: ${deleteError.message}`,
+              )
             }
-            
+
             const { error: insertError } = await supabaseAdmin
               .from('refresh_tokens')
               .insert({
                 user_id: user.id,
                 token: refreshToken,
                 expires_at: new Date(refreshTokenExpires).toISOString(),
-                created_at: new Date().toISOString()
-              });
-              
+                created_at: new Date().toISOString(),
+              })
+
             if (insertError) {
-              console.error(`Error details:`, insertError);
+              console.error(`Error details:`, insertError)
             }
           } catch (tokenError) {
-            console.error(`Exception in refresh token storage: ${tokenError instanceof Error ? tokenError.message : 'Unknown error'}`);
-            console.error(tokenError);
+            console.error(
+              `Exception in refresh token storage: ${tokenError instanceof Error ? tokenError.message : 'Unknown error'}`,
+            )
+            console.error(tokenError)
           }
-          
+
           return {
             ...token,
             id: user.id,
@@ -189,7 +191,7 @@ export const authOptions: NextAuthOptions = {
             is_admin: user.is_admin || false,
             refreshToken: refreshToken,
             refreshTokenExpires: refreshTokenExpires,
-            iat: Math.floor(Date.now() / 1000)
+            iat: Math.floor(Date.now() / 1000),
           }
         }
 
@@ -198,25 +200,24 @@ export const authOptions: NextAuthOptions = {
             .from('users')
             .select('*')
             .eq('email', user.email)
-            .single();
+            .single()
 
           if (findError && findError.code !== 'PGRST116') {
-            console.error(`Error finding user: ${findError.message}`);
+            console.error(`Error finding user: ${findError.message}`)
             return {
               ...token,
               id: user.id,
               provider: account.provider,
               refreshToken: crypto.randomBytes(32).toString('hex'),
               refreshTokenExpires: Date.now() + 7 * 24 * 60 * 60 * 1000,
-              iat: Math.floor(Date.now() / 1000)
+              iat: Math.floor(Date.now() / 1000),
             }
           }
 
-          const refreshToken = crypto.randomBytes(32).toString('hex');
-          const refreshTokenExpires = Date.now() + 7 * 24 * 60 * 60 * 1000;
+          const refreshToken = crypto.randomBytes(32).toString('hex')
+          const refreshTokenExpires = Date.now() + 7 * 24 * 60 * 60 * 1000
 
           if (existingUser) {
-            
             const { error: updateError } = await supabase
               .from('users')
               .update({
@@ -224,42 +225,45 @@ export const authOptions: NextAuthOptions = {
                 image: user.image,
                 provider: account.provider,
                 provider_id: account.providerAccountId,
-                updated_at: new Date().toISOString()
+                updated_at: new Date().toISOString(),
               })
-              .eq('id', existingUser.id);
+              .eq('id', existingUser.id)
 
             if (updateError) {
-              console.error(`Error updating user: ${updateError.message}`);
+              console.error(`Error updating user: ${updateError.message}`)
             }
 
-            let tokenStored = false;
+            let tokenStored = false
             try {
-              
               const { error: deleteError } = await supabaseAdmin
                 .from('refresh_tokens')
                 .delete()
-                .eq('user_id', existingUser.id);
-                
+                .eq('user_id', existingUser.id)
+
               if (deleteError) {
-                console.error(`Error deleting existing tokens: ${deleteError.message}`);
+                console.error(
+                  `Error deleting existing tokens: ${deleteError.message}`,
+                )
               }
-              
+
               const { error: insertError } = await supabaseAdmin
                 .from('refresh_tokens')
                 .insert({
                   user_id: existingUser.id,
                   token: refreshToken,
                   expires_at: new Date(refreshTokenExpires).toISOString(),
-                  created_at: new Date().toISOString()
-                });
-              
+                  created_at: new Date().toISOString(),
+                })
+
               if (insertError) {
-                console.error(`Error inserting token: ${insertError.message}`);
+                console.error(`Error inserting token: ${insertError.message}`)
               } else {
-                tokenStored = true;
+                tokenStored = true
               }
             } catch (tokenError) {
-              console.error(`Exception managing refresh tokens: ${tokenError instanceof Error ? tokenError.message : 'Unknown error'}`);
+              console.error(
+                `Exception managing refresh tokens: ${tokenError instanceof Error ? tokenError.message : 'Unknown error'}`,
+              )
             }
 
             return {
@@ -270,10 +274,9 @@ export const authOptions: NextAuthOptions = {
               refreshToken: refreshToken,
               refreshTokenExpires: refreshTokenExpires,
               refreshTokenStored: tokenStored,
-              iat: Math.floor(Date.now() / 1000)
+              iat: Math.floor(Date.now() / 1000),
             }
           } else {
-            
             const { data: newUser, error: insertError } = await supabase
               .from('users')
               .insert([
@@ -284,44 +287,47 @@ export const authOptions: NextAuthOptions = {
                   provider: account.provider,
                   provider_id: account.providerAccountId,
                   created_at: new Date().toISOString(),
-                  updated_at: new Date().toISOString()
+                  updated_at: new Date().toISOString(),
                 },
               ])
               .select()
-              .single();
+              .single()
 
             if (insertError) {
-              console.error(`Error creating user: ${insertError.message}`);
+              console.error(`Error creating user: ${insertError.message}`)
               return {
                 ...token,
                 id: user.id,
                 provider: account.provider,
                 refreshToken: refreshToken,
                 refreshTokenExpires: refreshTokenExpires,
-                iat: Math.floor(Date.now() / 1000)
+                iat: Math.floor(Date.now() / 1000),
               }
             }
 
-            let tokenStored = false;
+            let tokenStored = false
             if (newUser) {
               try {
-                
                 const { error: insertTokenError } = await supabaseAdmin
                   .from('refresh_tokens')
                   .insert({
                     user_id: newUser.id,
                     token: refreshToken,
                     expires_at: new Date(refreshTokenExpires).toISOString(),
-                    created_at: new Date().toISOString()
-                  });
-                  
+                    created_at: new Date().toISOString(),
+                  })
+
                 if (insertTokenError) {
-                  console.error(`Error storing token: ${insertTokenError.message}`);
+                  console.error(
+                    `Error storing token: ${insertTokenError.message}`,
+                  )
                 } else {
-                  tokenStored = true;
+                  tokenStored = true
                 }
               } catch (tokenError) {
-                console.error(`Exception storing refresh token: ${tokenError instanceof Error ? tokenError.message : 'Unknown error'}`);
+                console.error(
+                  `Exception storing refresh token: ${tokenError instanceof Error ? tokenError.message : 'Unknown error'}`,
+                )
               }
             }
 
@@ -332,25 +338,27 @@ export const authOptions: NextAuthOptions = {
               refreshToken: refreshToken,
               refreshTokenExpires: refreshTokenExpires,
               refreshTokenStored: tokenStored,
-              iat: Math.floor(Date.now() / 1000)
+              iat: Math.floor(Date.now() / 1000),
             }
           }
         } catch (error) {
-          console.error(`Unexpected error in JWT callback: ${error instanceof Error ? error.message : 'Unknown error'}`);
+          console.error(
+            `Unexpected error in JWT callback: ${error instanceof Error ? error.message : 'Unknown error'}`,
+          )
           return {
             ...token,
             id: user.id,
             provider: account.provider,
             refreshToken: crypto.randomBytes(32).toString('hex'),
             refreshTokenExpires: Date.now() + 7 * 24 * 60 * 60 * 1000,
-            iat: Math.floor(Date.now() / 1000)
+            iat: Math.floor(Date.now() / 1000),
           }
         }
       }
 
       if (token.refreshToken && !account && !user) {
-        const shouldRefresh = Date.now() > Number(token.exp) * 1000;
-        
+        const shouldRefresh = Date.now() > Number(token.exp) * 1000
+
         if (shouldRefresh) {
           try {
             const { data, error } = await supabaseAdmin
@@ -358,31 +366,35 @@ export const authOptions: NextAuthOptions = {
               .select('*')
               .eq('token', token.refreshToken)
               .eq('user_id', token.id)
-              .single();
+              .single()
 
             if (error) {
-              console.error(`Error fetching refresh token: ${error.message}`);
-              return { ...token, error: 'RefreshTokenError' };
+              console.error(`Error fetching refresh token: ${error.message}`)
+              return { ...token, error: 'RefreshTokenError' }
             }
-            
+
             if (!data || new Date(data.expires_at).getTime() < Date.now()) {
-              console.error(`Invalid or expired refresh token for user: ${token.id}`);
-              return { ...token, error: 'RefreshTokenError' };
+              console.error(
+                `Invalid or expired refresh token for user: ${token.id}`,
+              )
+              return { ...token, error: 'RefreshTokenError' }
             }
 
-            const newRefreshToken = crypto.randomBytes(32).toString('hex');
+            const newRefreshToken = crypto.randomBytes(32).toString('hex')
 
-            let tokenRotated = false;
+            let tokenRotated = false
             try {
               const { error: deleteError } = await supabaseAdmin
                 .from('refresh_tokens')
                 .delete()
                 .eq('token', token.refreshToken)
-                .eq('user_id', token.id);
+                .eq('user_id', token.id)
 
               if (deleteError) {
-                console.error(`Error deleting old token: ${deleteError.message}`);
-                return { ...token, error: 'RefreshTokenError' };
+                console.error(
+                  `Error deleting old token: ${deleteError.message}`,
+                )
+                return { ...token, error: 'RefreshTokenError' }
               }
 
               const { error: insertError } = await supabaseAdmin
@@ -394,18 +406,22 @@ export const authOptions: NextAuthOptions = {
                     Date.now() + 7 * 24 * 60 * 60 * 1000,
                   ).toISOString(),
                   previous_token: token.refreshToken,
-                  created_at: new Date().toISOString()
-                });
+                  created_at: new Date().toISOString(),
+                })
 
               if (insertError) {
-                console.error(`Error inserting new token: ${insertError.message}`);
-                return { ...token, error: 'RefreshTokenError' };
+                console.error(
+                  `Error inserting new token: ${insertError.message}`,
+                )
+                return { ...token, error: 'RefreshTokenError' }
               }
-              
-              tokenRotated = true;
+
+              tokenRotated = true
             } catch (tokenError) {
-              console.error(`Exception rotating token: ${tokenError instanceof Error ? tokenError.message : 'Unknown error'}`);
-              return { ...token, error: 'RefreshTokenError' };
+              console.error(
+                `Exception rotating token: ${tokenError instanceof Error ? tokenError.message : 'Unknown error'}`,
+              )
+              return { ...token, error: 'RefreshTokenError' }
             }
 
             if (tokenRotated) {
@@ -414,20 +430,22 @@ export const authOptions: NextAuthOptions = {
                 refreshToken: newRefreshToken,
                 refreshTokenExpires: Date.now() + 7 * 24 * 60 * 60 * 1000,
                 exp: Math.floor(Date.now() / 1000) + 60 * 60,
-                iat: Math.floor(Date.now() / 1000)
+                iat: Math.floor(Date.now() / 1000),
               }
             } else {
-              console.error(`Token rotation failed for user: ${token.id}`);
-              return { ...token, error: 'RefreshTokenError' };
+              console.error(`Token rotation failed for user: ${token.id}`)
+              return { ...token, error: 'RefreshTokenError' }
             }
           } catch (error) {
-            console.error(`Error refreshing token: ${error instanceof Error ? error.message : 'Unknown error'}`);
-            return { ...token, error: 'RefreshTokenError' };
+            console.error(
+              `Error refreshing token: ${error instanceof Error ? error.message : 'Unknown error'}`,
+            )
+            return { ...token, error: 'RefreshTokenError' }
           }
         }
       }
 
-      return token;
+      return token
     },
   },
   pages: {
@@ -442,10 +460,10 @@ export const authOptions: NextAuthOptions = {
   debug: process.env.NODE_ENV === 'development',
   logger: {
     error(code, metadata) {
-      console.error(`Auth error: ${code}`, metadata);
+      console.error(`Auth error: ${code}`, metadata)
     },
     warn(code) {
-      console.warn(`Auth warning: ${code}`);
+      console.warn(`Auth warning: ${code}`)
     },
   },
 }

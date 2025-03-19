@@ -3,43 +3,43 @@ import { profileAPI } from '@/lib/api'
 import { showSuccess, showError } from '@/lib/toast'
 import { useSession } from 'next-auth/react'
 
-
 interface QueryOptions {
-  enabled?: boolean;
-  [key: string]: unknown;
+  enabled?: boolean
+  [key: string]: unknown
 }
 
 export function useProfileQuery(options: QueryOptions = {}) {
-  const { status } = useSession();
-  const isAuthenticated = status === 'authenticated';
-  
+  const { status } = useSession()
+  const isAuthenticated = status === 'authenticated'
+
   return useQuery({
     queryKey: ['profile'],
     queryFn: async () => {
       try {
-        const result = await profileAPI.getProfile();
-        if (result.error) throw new Error(result.error.message);
-        return result.data;
+        const result = await profileAPI.getProfile()
+        if (result.error) throw new Error(result.error.message)
+        return result.data
       } catch (error) {
-        const isProtectedRoute = typeof window !== 'undefined' && 
-          ['/dashboard', '/profile', '/settings', '/todo'].some(path => 
-            window.location.pathname.startsWith(path)
-          );
-          
+        const isProtectedRoute =
+          typeof window !== 'undefined' &&
+          ['/dashboard', '/profile', '/settings', '/todo'].some((path) =>
+            window.location.pathname.startsWith(path),
+          )
+
         if (isProtectedRoute) {
           showError(
             error instanceof Error ? error.message : 'Failed to load profile',
-          );
+          )
         }
-        throw error;
+        throw error
       }
     },
     ...options,
-    enabled: isAuthenticated && (options.enabled !== false),
+    enabled: isAuthenticated && options.enabled !== false,
     staleTime: 5 * 60 * 1000,
     retry: isAuthenticated ? 1 : 0,
     gcTime: 10 * 60 * 1000,
-  });
+  })
 }
 
 export function useStatsQuery(options: QueryOptions = {}) {
@@ -54,21 +54,24 @@ export function useStatsQuery(options: QueryOptions = {}) {
         if (result.error) throw new Error(result.error.message)
         return result.data
       } catch (error) {
-        const isProtectedRoute = typeof window !== 'undefined' && 
-          ['/dashboard', '/profile', '/settings', '/todo'].some(path => 
-            window.location.pathname.startsWith(path)
-          );
-          
+        const isProtectedRoute =
+          typeof window !== 'undefined' &&
+          ['/dashboard', '/profile', '/settings', '/todo'].some((path) =>
+            window.location.pathname.startsWith(path),
+          )
+
         if (isProtectedRoute) {
           showError(
-            error instanceof Error ? error.message : 'Failed to load statistics',
-          );
+            error instanceof Error
+              ? error.message
+              : 'Failed to load statistics',
+          )
         }
         throw error
       }
     },
     ...options,
-    enabled: isAuthenticated && (options.enabled !== false),
+    enabled: isAuthenticated && options.enabled !== false,
     staleTime: 5 * 60 * 1000,
     retry: isAuthenticated ? 1 : 0,
     gcTime: 10 * 60 * 1000,

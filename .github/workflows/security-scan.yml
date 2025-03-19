@@ -2,11 +2,11 @@ name: Security Scan
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [main, develop]
   pull_request:
-    branches: [ main, develop ]
+    branches: [main, develop]
   schedule:
-    - cron: '0 0 * * 0' 
+    - cron: '0 0 * * 0'
 
 jobs:
   security-scan:
@@ -15,26 +15,26 @@ jobs:
       security-events: write
       actions: read
       contents: read
-    
+
     steps:
       - uses: actions/checkout@v3
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '20'
           cache: 'npm'
-      
+
       - name: Install dependencies
         run: npm ci
-      
+
       - name: Run npm audit
         run: npm run security-audit
-      
+
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v3
         with:
           languages: 'javascript'
-      
+
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3

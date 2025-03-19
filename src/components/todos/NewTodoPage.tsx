@@ -62,92 +62,92 @@ const NewTodoPage: React.FC = () => {
   }
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-  
+    e.preventDefault()
+
     if (!formData.title.trim()) {
-      showError('Please enter a title for the task');
-      return;
+      showError('Please enter a title for the task')
+      return
     }
-  
-    const toastId = showLoading('Creating task...');
-  
+
+    const toastId = showLoading('Creating task...')
+
     const todoData = {
       ...formData,
       priority: Number(formData.priority),
       due_date: formData.due_date || null,
-    };
-  
+    }
+
     createTodoMutation.mutate(todoData, {
       onSuccess: async (data: ApiResult<Todo>) => {
         updateToast(toastId, 'Task created successfully!', {
           type: 'success',
           isLoading: false,
           autoClose: 3000,
-        });
-  
+        })
+
         if (data.data && data.data.id) {
-          const todoId = data.data.id;
-          
-if (todoData.due_date && !todoData.is_completed) {
-  try {
-    
-    const dueDate = new Date(todoData.due_date);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    
-    let notification;
-    
-    if (dueDate < today) {
-      notification = {
-        todo_id: todoId,
-        notification_type: 'danger',
-        title: 'Overdue Task',
-        message: `The task "${todoData.title}" is overdue`,
-        due_date: todoData.due_date,
-        origin_id: `danger-${todoId}-${Date.now()}`,
-      };
-    } else {
-      const diffTime = Math.abs(dueDate.getTime() - today.getTime());
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-      
-      if (diffDays <= 2) {
-        notification = {
-          todo_id: todoId,
-          notification_type: 'warning',
-          title: 'Upcoming Deadline',
-          message: `The task "${todoData.title}" has an upcoming deadline (${diffDays} day${diffDays !== 1 ? 's' : ''})`,
-          due_date: todoData.due_date,
-          origin_id: `warning-${todoId}-${Date.now()}`,
-        };
-      } else {
-        notification = {
-          todo_id: todoId,
-          notification_type: 'info',
-          title: 'Task Reminder',
-          message: `Reminder for the task "${todoData.title}" (due in ${diffDays} days)`,
-          due_date: todoData.due_date,
-          origin_id: `info-${todoId}-${Date.now()}`,
-        };
-      }
-    }
-    
-    axios.post('/api/notifications', { notifications: [notification] })
-      .then(() => {
-        queryClient.invalidateQueries({ queryKey: ['notifications'] });
-      })
-      .catch(error => {
-        console.error("❌ Error calling notifications API:", error);
-      });
-    } catch (error) {
-      console.error('⚠️ Error creating notifications:', error);
-    }
-}
-          
+          const todoId = data.data.id
+
+          if (todoData.due_date && !todoData.is_completed) {
+            try {
+              const dueDate = new Date(todoData.due_date)
+              const today = new Date()
+              today.setHours(0, 0, 0, 0)
+
+              let notification
+
+              if (dueDate < today) {
+                notification = {
+                  todo_id: todoId,
+                  notification_type: 'danger',
+                  title: 'Overdue Task',
+                  message: `The task "${todoData.title}" is overdue`,
+                  due_date: todoData.due_date,
+                  origin_id: `danger-${todoId}-${Date.now()}`,
+                }
+              } else {
+                const diffTime = Math.abs(dueDate.getTime() - today.getTime())
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+
+                if (diffDays <= 2) {
+                  notification = {
+                    todo_id: todoId,
+                    notification_type: 'warning',
+                    title: 'Upcoming Deadline',
+                    message: `The task "${todoData.title}" has an upcoming deadline (${diffDays} day${diffDays !== 1 ? 's' : ''})`,
+                    due_date: todoData.due_date,
+                    origin_id: `warning-${todoId}-${Date.now()}`,
+                  }
+                } else {
+                  notification = {
+                    todo_id: todoId,
+                    notification_type: 'info',
+                    title: 'Task Reminder',
+                    message: `Reminder for the task "${todoData.title}" (due in ${diffDays} days)`,
+                    due_date: todoData.due_date,
+                    origin_id: `info-${todoId}-${Date.now()}`,
+                  }
+                }
+              }
+
+              axios
+                .post('/api/notifications', { notifications: [notification] })
+                .then(() => {
+                  queryClient.invalidateQueries({ queryKey: ['notifications'] })
+                })
+                .catch((error) => {
+                  console.error('❌ Error calling notifications API:', error)
+                })
+            } catch (error) {
+              console.error('⚠️ Error creating notifications:', error)
+            }
+          }
+
           setTimeout(() => {
-            router.push(`/todo/${todoId}`);
-          }, 500);
+            router.push(`/todo/${todoId}`)
+          }, 500)
         } else {
-          router.push('/dashboard');
+          router.push('/dashboard')
         }
       },
       onError: (error) => {
@@ -155,16 +155,16 @@ if (todoData.due_date && !todoData.is_completed) {
           type: 'error',
           isLoading: false,
           autoClose: 5000,
-        });
-  
+        })
+
         showError(
           error instanceof Error
             ? error.message
             : 'An error occurred while creating the task',
-        );
+        )
       },
-    });
-  };
+    })
+  }
 
   const { dialogState, openConfirmDialog, closeConfirmDialog } =
     useConfirmationDialog()
@@ -196,7 +196,8 @@ if (todoData.due_date && !todoData.is_completed) {
     <div className="mx-auto max-w-3xl px-4 py-6">
       {/* Header */}
       <div className="mb-6 flex items-center justify-between">
-        <button aria-label='Go back to dashboard'
+        <button
+          aria-label="Go back to dashboard"
           onClick={() => router.push('/dashboard')}
           className="flex items-center text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white"
         >
@@ -314,14 +315,16 @@ if (todoData.due_date && !todoData.is_completed) {
 
           {/* Form buttons */}
           <div className="flex justify-end space-x-3">
-            <button aria-label='Cancel'
+            <button
+              aria-label="Cancel"
               type="button"
               onClick={handleCancel}
               className="rounded-md border border-gray-300 px-4 py-2 text-gray-700 hover:bg-gray-50 focus:ring-2 focus:ring-gray-500 focus:outline-none dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
             >
               <FaTimes className="mr-1 inline" /> Cancel
             </button>
-            <button aria-label='Save'
+            <button
+              aria-label="Save"
               type="submit"
               className="rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
               disabled={createTodoMutation.isPending}

@@ -29,7 +29,9 @@ export async function POST(req: Request) {
 
     return NextResponse.json(
       {
-        message: id ? 'Notification deleted successfully' : 'All notifications deleted',
+        message: id
+          ? 'Notification deleted successfully'
+          : 'All notifications deleted',
         count: result.count,
       },
       { status: 200 },

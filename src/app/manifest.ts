@@ -4,7 +4,8 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: 'Tarevity - Task Management',
     short_name: 'Tarevity',
-    description: "Elevate your productivity with Tarevity's secure, intuitive task management platform",
+    description:
+      "Elevate your productivity with Tarevity's secure, intuitive task management platform",
     start_url: '/',
     display: 'standalone',
     background_color: '#ffffff',
@@ -18,8 +19,8 @@ export default function manifest(): MetadataRoute.Manifest {
         src: '/screenshots/dashboard.png',
         sizes: '1280x720',
         type: 'image/png',
-        label: 'Dashboard View'
-      }
+        label: 'Dashboard View',
+      },
     ],
     related_applications: [],
     prefer_related_applications: false,
@@ -27,13 +28,13 @@ export default function manifest(): MetadataRoute.Manifest {
       {
         name: 'New Task',
         url: '/todo/new',
-        description: 'Create a new task'
+        description: 'Create a new task',
       },
       {
         name: 'Dashboard',
         url: '/dashboard',
-        description: 'View your task dashboard'
-      }
-    ]
+        description: 'View your task dashboard',
+      },
+    ],
   }
 }

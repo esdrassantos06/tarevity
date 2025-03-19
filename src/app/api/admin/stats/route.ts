@@ -20,9 +20,9 @@ export async function GET() {
       throw usersError
     }
 
-    const thirtyDaysAgo = new Date();
-    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-    
+    const thirtyDaysAgo = new Date()
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
+
     const { count: activeUsers, error: activeUsersError } = await supabaseAdmin
       .from('users')
       .select('*', { count: 'exact', head: true })
@@ -42,10 +42,11 @@ export async function GET() {
       throw tasksError
     }
 
-    const { count: completedTasks, error: completedTasksError } = await supabaseAdmin
-      .from('todos')
-      .select('*', { count: 'exact', head: true })
-      .eq('is_completed', true)
+    const { count: completedTasks, error: completedTasksError } =
+      await supabaseAdmin
+        .from('todos')
+        .select('*', { count: 'exact', head: true })
+        .eq('is_completed', true)
 
     if (completedTasksError) {
       console.error('Error fetching completed tasks:', completedTasksError)
@@ -70,16 +71,16 @@ export async function GET() {
     })
   } catch (error: unknown) {
     console.error('Error fetching admin stats:', error)
-    
+
     if (error instanceof Error) {
       return NextResponse.json(
         { message: error.message || 'Failed to fetch stats' },
-        { status: 500 }
+        { status: 500 },
       )
     } else {
       return NextResponse.json(
         { message: 'Unknown error fetching stats' },
-        { status: 500 }
+        { status: 500 },
       )
     }
   }

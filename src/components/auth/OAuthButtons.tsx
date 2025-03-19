@@ -19,7 +19,8 @@ export default function OAuthButtons() {
 
   return (
     <div className="flex w-full flex-col gap-4">
-      <button aria-label='Sign in with GitHub'
+      <button
+        aria-label="Sign in with GitHub"
         type="button"
         onClick={() => handleOAuthSignIn('github')}
         disabled={isLoading}
@@ -28,7 +29,8 @@ export default function OAuthButtons() {
         <FaGithub />
         <span>Continue with GitHub</span>
       </button>
-      <button aria-label='Sign in with Google'
+      <button
+        aria-label="Sign in with Google"
         type="button"
         onClick={() => handleOAuthSignIn('google')}
         disabled={isLoading}
