@@ -246,7 +246,7 @@ export default function NotificationDropdown() {
 
       {isOpen && (
         <div
-          className="dark:bg-BlackLight fixed inset-x-0 top-[60px] z-50 mx-auto w-[90%] max-w-md rounded-lg border border-gray-200 bg-white shadow-lg sm:absolute sm:inset-auto sm:top-auto sm:right-0 sm:mx-0 sm:w-96 dark:border-gray-700"
+          className="dark:bg-BlackLight fixed inset-x-0 top-[60px] z-50 mx-auto w-[90%] max-w-md rounded-lg border border-gray-200 bg-white shadow-lg sm:absolute sm:inset-auto sm:top-auto sm:right-0 sm:mx-0 sm:w-100 dark:border-gray-700"
           style={{
             maxHeight: 'calc(100vh - 80px)',
           }}
@@ -292,8 +292,9 @@ export default function NotificationDropdown() {
                     <button
                       aria-label="Remove all notifications"
                       onClick={deleteAllNotifications}
-                      className="text-xs text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
+                      className="flex items-center text-xs text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
                     >
+                      <FaTrash className="mr-1" />
                       Remove all
                     </button>
                   </>
