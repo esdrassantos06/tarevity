@@ -1,5 +1,5 @@
 import { supabaseAdmin } from './supabaseAdmin'
-import { parseISO } from 'date-fns'
+import { parseISO, formatDistanceToNow, isPast, isToday, isTomorrow } from 'date-fns'
 
 export interface Notification {
   id: string
@@ -157,6 +157,60 @@ export const notificationsService = {
   },
 
   /**
+   * Formats a more human-friendly message based on due date
+   */
+  formatNotificationMessage(title: string, dueDate: Date): string {
+    if (isPast(dueDate) && !isToday(dueDate)) {
+      return `"${title}" was due ${formatDistanceToNow(dueDate, { addSuffix: true })}`
+    } else if (isToday(dueDate)) {
+      return `"${title}" is due today!`
+    } else if (isTomorrow(dueDate)) {
+      return `"${title}" is due tomorrow`  
+    } else {
+      return `"${title}" is due ${formatDistanceToNow(dueDate, { addSuffix: true })}`
+    }
+  },
+
+  /**
+   * Determines the appropriate notification type based on due date
+   */
+  getNotificationTypeFromDueDate(dueDate: Date): 'danger' | 'warning' | 'info' {
+    const now = new Date()
+    
+    if (isPast(dueDate) || isToday(dueDate)) {
+      return 'danger'
+    }
+    
+    if (isTomorrow(dueDate)) {
+      return 'warning'
+    }
+    
+    const daysDiff = Math.ceil((dueDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
+    
+    if (daysDiff <= 2) {
+      return 'warning'
+    }
+    
+    return 'info'
+  },
+
+  /**
+   * Creates appropriate notification title based on due date
+   */
+  getNotificationTitle(dueDate: Date): string {
+    if (isPast(dueDate) && !isToday(dueDate)) {
+      return 'Overdue Task'
+    } else if (isToday(dueDate)) {
+      return 'Due Today'
+    } else if (isTomorrow(dueDate)) {
+      return 'Due Tomorrow'
+    } else {
+      const daysDiff = Math.ceil((dueDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))
+      return daysDiff <= 2 ? 'Upcoming Deadline' : 'Upcoming Task'
+    }
+  },
+
+  /**
    * Create or update notifications for a todo based on due date
    */
   async processNotifications(
@@ -190,6 +244,7 @@ export const notificationsService = {
       }
 
       try {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { data: existingNotifications, error: findError } =
           await supabaseAdmin
             .from('notifications')
@@ -201,46 +256,101 @@ export const notificationsService = {
           throw findError
         }
 
-        const existingNotification =
-          existingNotifications && existingNotifications.length > 0
-            ? existingNotifications[0]
-            : null
+        const existingNotification = await supabaseAdmin
+        .from('notifications')
+        .select('*')
+        .eq('todo_id', notification.todo_id)
+        .eq('notification_type', notification.notification_type)
+        .eq('dismissed', false)
+        .single();
+      
+      if (existingNotification.data) {
+        await supabaseAdmin
+          .from('notifications')
+          .update({
+            title: notification.title,
+            message: notification.message,
+            due_date: notification.due_date,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', existingNotification.data.id);
+        
+        continue;
+      }
 
-        const shouldShow = this.shouldShowNotification(
-          notification.notification_type,
-          notification.due_date,
-        )
+        if (!notification.due_date) {
+          results.push({
+            status: 'skipped',
+            message: 'Missing due date',
+          })
+          continue
+        }
+
+        // Parse the due date
+        let dueDate: Date
+        try {
+          dueDate = parseISO(notification.due_date)
+          if (isNaN(dueDate.getTime())) {
+            results.push({
+              status: 'error',
+              error: 'Invalid due date format',
+            })
+            continue
+          }
+        } catch (error) {
+          console.error('Error parsing due date:', error)
+          results.push({
+            status: 'error',
+            error: 'Error parsing due date',
+          })
+          continue
+        }
+
+        // Always update notification type based on current date
+        const currentType = this.getNotificationTypeFromDueDate(dueDate)
+        const currentTitle = this.getNotificationTitle(dueDate)
+        
+        // Format a fresh message with the latest date information
+        let message = notification.message
+        if (notification.message.includes('"') && notification.message.includes('due')) {
+          // Likely already a formatted message, let's just update it
+          // Extract the task title from the message
+          const titleMatch = notification.message.match(/"([^"]+)"/)
+          if (titleMatch && titleMatch[1]) {
+            message = this.formatNotificationMessage(titleMatch[1], dueDate)
+          }
+        }
 
         if (existingNotification) {
-          if (shouldShow) {
-            const { data, error } = await supabaseAdmin
-              .from('notifications')
-              .update({
-                title: notification.title,
-                message: notification.message,
-                due_date: notification.due_date,
-                dismissed: false,
-              })
-              .eq('id', existingNotification.id)
-              .select()
-
-            if (error) {
-              results.push({ status: 'error', error })
-            } else {
-              results.push({ status: 'updated', notification: data?.[0] })
-            }
-          } else {
-            results.push({
-              status: 'skipped',
-              message: 'Not relevant based on due date',
+          const { data, error } = await supabaseAdmin
+            .from('notifications')
+            .update({
+              title: currentTitle,
+              message: message,
+              notification_type: currentType,
+              due_date: notification.due_date,
+              dismissed: false,
+              updated_at: new Date().toISOString(),
             })
+            .eq('id', existingNotification.data.id)
+            .select()
+
+          if (error) {
+            results.push({ status: 'error', error })
+          } else {
+            results.push({ status: 'updated', notification: data?.[0] })
           }
-        } else if (shouldShow) {
+        } else {
           const newNotification = {
             ...notification,
+            title: currentTitle,
+            message: message,
+            notification_type: currentType,
             user_id: userId,
             read: false,
             dismissed: false,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
           }
 
           const { data, error } = await supabaseAdmin
@@ -253,59 +363,12 @@ export const notificationsService = {
           } else {
             results.push({ status: 'created', notification: data?.[0] })
           }
-        } else {
-          results.push({
-            status: 'skipped',
-            message: 'Not relevant based on due date',
-          })
         }
       } catch (error) {
         results.push({ status: 'error', error })
       }
     }
     return results
-  },
-
-  /**
-   * Determines if a notification should be shown based on its type and due date
-   */
-  shouldShowNotification(type: string, dueDateString: string | null): boolean {
-    if (!dueDateString) return false
-
-    try {
-      let dueDate: Date
-      try {
-        dueDate = parseISO(dueDateString)
-
-        if (isNaN(dueDate.getTime())) {
-          return false
-        }
-      } catch {
-        return false
-      }
-
-      const now = new Date()
-      now.setHours(0, 0, 0, 0)
-
-      const dueDay = new Date(dueDate)
-      dueDay.setHours(0, 0, 0, 0)
-
-      const diffTime = dueDay.getTime() - now.getTime()
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
-
-      switch (type) {
-        case 'danger':
-          return diffDays < 0
-        case 'warning':
-          return diffDays >= 0 && diffDays <= 2
-        case 'info':
-          return diffDays >= 2 && diffDays <= 4
-        default:
-          return false
-      }
-    } catch {
-      return false
-    }
   },
 
   /**
@@ -321,33 +384,31 @@ export const notificationsService = {
       return []
     }
 
-    const notifications: NotificationRequest[] = [
-      {
-        todo_id: todo.id,
-        notification_type: 'danger',
-        title: 'Overdue Task',
-        message: `"${todo.title}" is overdue`,
-        due_date: todo.due_date,
-        origin_id: `danger-${todo.id}`,
-      },
-      {
-        todo_id: todo.id,
-        notification_type: 'warning',
-        title: 'Due Soon',
-        message: `"${todo.title}" is due soon`,
-        due_date: todo.due_date,
-        origin_id: `warning-${todo.id}`,
-      },
-      {
-        todo_id: todo.id,
-        notification_type: 'info',
-        title: 'Upcoming Deadline',
-        message: `"${todo.title}" is due in the next few days`,
-        due_date: todo.due_date,
-        origin_id: `info-${todo.id}`,
-      },
-    ]
+    try {
+      const dueDate = parseISO(todo.due_date)
+      
+      if (isNaN(dueDate.getTime())) {
+        console.error('Invalid due date format:', todo.due_date)
+        return []
+      }
+      
+      const type = this.getNotificationTypeFromDueDate(dueDate)
+      const title = this.getNotificationTitle(dueDate)
+      const message = this.formatNotificationMessage(todo.title, dueDate)
 
-    return notifications
+      return [
+        {
+          todo_id: todo.id,
+          notification_type: type,
+          title: title,
+          message: message,
+          due_date: todo.due_date,
+          origin_id: `${type}-${todo.id}`,
+        }
+      ]
+    } catch (error) {
+      console.error('Error generating todo notifications:', error)
+      return []
+    }
   },
 }

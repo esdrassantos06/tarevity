@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import axios from 'axios'
 import { showSuccess, showError } from '@/lib/toast'
 import { Notification } from '@/lib/notifications'
+import { useEffect, useCallback } from 'react'
 
 interface QueryOptions {
   enabled?: boolean
@@ -9,15 +10,55 @@ interface QueryOptions {
 }
 
 export function useNotificationsQuery(options: QueryOptions = {}) {
+  const queryClient = useQueryClient()
+  
+  // Function to refresh notifications from the server
+  const refreshNotifications = useCallback(async () => {
+    try {
+      await axios.post('/api/notifications/refresh')
+      await queryClient.invalidateQueries({ queryKey: ['notifications'] })
+    } catch (error) {
+      console.error('Failed to refresh notifications:', error)
+    }
+  }, [queryClient])
+
+  // Run the refresh when the component mounts and notifications are enabled
+  useEffect(() => {
+    if (options.enabled !== false) {
+      refreshNotifications()
+    }
+    
+    // Set up periodic refresh (every 5 minutes)
+    const refreshInterval = setInterval(() => {
+      if (document.visibilityState === 'visible') {
+        refreshNotifications()
+      }
+    }, 5 * 60 * 1000)
+    
+    // Also refresh when the tab becomes visible again
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        refreshNotifications()
+      }
+    }
+    
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+    
+    return () => {
+      clearInterval(refreshInterval)
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
+    }
+  }, [refreshNotifications, options.enabled])
+
   return useQuery({
     queryKey: ['notifications'],
     queryFn: async () => {
       const response = await axios.get<Notification[]>('/api/notifications')
       return response.data
     },
-    staleTime: 5 * 60 * 1000,
-    refetchOnWindowFocus: false,
-    refetchInterval: 3 * 60 * 1000,
+    staleTime: 2 * 60 * 1000, // 2 minutes
+    refetchOnWindowFocus: true,
+    refetchInterval: 3 * 60 * 1000, // 3 minutes
     refetchIntervalInBackground: false,
     retry: 1,
     ...options,

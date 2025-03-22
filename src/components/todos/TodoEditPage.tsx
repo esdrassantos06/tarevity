@@ -17,6 +17,7 @@ import ConfirmationDialog, {
 } from '@/components/common/ConfirmationDialog'
 import axios from 'axios'
 import { showError } from '@/lib/toast'
+import { refreshNotificationsClient } from '@/lib/notification-updater'
 
 interface Todo {
   id: string
@@ -89,7 +90,7 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
       if (hasUnsavedChanges) {
         e.preventDefault()
-        return 'You have unsaved changes. Are you sure you want to leave?'
+        return 'Você tem alterações não salvas. Tem certeza que deseja sair?'
       }
     }
 
@@ -146,94 +147,29 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
           setHasUnsavedChanges(false)
 
           if (!response.data) {
-            console.error('No data returned from update mutation')
+            console.error('Nenhum dado retornado pela mutação de atualização')
             router.push(`/todo/${todoId}`)
             return
           }
 
-          const originalTodo = todos.find((t) => t.id === todoId)
-
           try {
             if (updateData.is_completed) {
+              // Se a tarefa foi marcada como completa, vamos descartar as notificações
               await axios.post('/api/notifications/dismiss-for-todo', {
                 todoId,
               })
             } else if (originalDueDate && !updateData.due_date) {
+              // Se a data de vencimento foi removida, vamos excluir as notificações
               await axios.delete(`/api/notifications/delete-for-todo/${todoId}`)
-            } else if (updateData.due_date) {
-              const hasDueDateChanged = originalDueDate !== updateData.due_date
-              const hasTitleChanged = originalTodo?.title !== updateData.title
-
-              if (hasDueDateChanged || hasTitleChanged) {
-                axios
-                  .delete(`/api/notifications/delete-for-todo/${todoId}`)
-                  .then(() => {
-                    if (!updateData.due_date) {
-                      return Promise.resolve(null)
-                    }
-
-                    const dueDate = new Date(updateData.due_date)
-                    const today = new Date()
-                    today.setHours(0, 0, 0, 0)
-
-                    let notification
-
-                    if (dueDate < today) {
-                      notification = {
-                        todo_id: todoId,
-                        notification_type: 'danger',
-                        title: 'Overdue Task',
-                        message: `The task "${updateData.title}" is overdue`,
-                        due_date: updateData.due_date,
-                        origin_id: `danger-${todoId}-${Date.now()}`,
-                      }
-                    } else {
-                      const diffTime = Math.abs(
-                        dueDate.getTime() - today.getTime(),
-                      )
-                      const diffDays = Math.ceil(
-                        diffTime / (1000 * 60 * 60 * 24),
-                      )
-
-                      if (diffDays <= 2) {
-                        notification = {
-                          todo_id: todoId,
-                          notification_type: 'warning',
-                          title: 'Upcoming Deadline',
-                          message: `The task "${updateData.title}" has an upcoming deadline (${diffDays} day${diffDays !== 1 ? 's' : ''})`,
-                          due_date: updateData.due_date,
-                          origin_id: `warning-${todoId}-${Date.now()}`,
-                        }
-                      } else {
-                        notification = {
-                          todo_id: todoId,
-                          notification_type: 'info',
-                          title: 'Task Reminder',
-                          message: `Reminder for the task "${updateData.title}" (due in ${diffDays} days)`,
-                          due_date: updateData.due_date,
-                          origin_id: `info-${todoId}-${Date.now()}`,
-                        }
-                      }
-                    }
-
-                    return axios.post('/api/notifications', {
-                      notifications: [notification],
-                    })
-                  })
-                  .then(() => {
-                    queryClient.invalidateQueries({
-                      queryKey: ['notifications'],
-                    })
-                  })
-                  .catch((error) => {
-                    console.error('❌ Erro gerenciando notificações:', error)
-                  })
-              }
+            } else {
+              // Caso contrário, apenas atualizamos as notificações através da API
+              await refreshNotificationsClient()
             }
 
+            // Invalidar a consulta de notificações para atualizar a UI
             queryClient.invalidateQueries({ queryKey: ['notifications'] })
           } catch (error) {
-            console.error('Error managing notifications:', error)
+            console.error('Erro ao gerenciar notificações:', error)
           }
 
           setTimeout(() => {
@@ -242,9 +178,9 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
         },
         onError: (error) => {
           showError(
-            error instanceof Error ? error.message : 'Error updating task',
+            error instanceof Error ? error.message : 'Erro ao atualizar tarefa',
           )
-          console.error('Error updating task:', error)
+          console.error('Erro ao atualizar tarefa:', error)
         },
       },
     )
@@ -256,12 +192,12 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
   const handleCancel = () => {
     if (hasUnsavedChanges) {
       openConfirmDialog({
-        title: 'Discard Changes',
+        title: 'Descartar Alterações',
         description:
-          'You have unsaved changes. Are you sure you want to leave?',
+          'Você tem alterações não salvas. Tem certeza que deseja sair?',
         variant: 'warning',
-        confirmText: 'Discard',
-        cancelText: 'Stay',
+        confirmText: 'Descartar',
+        cancelText: 'Ficar',
         onConfirm: () => {
           router.push(`/todo/${todoId}`)
           closeConfirmDialog()
@@ -275,12 +211,12 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
   const handleConfirmClearDueDate = () => {
     if (formData.due_date) {
       openConfirmDialog({
-        title: 'Clear Due Date',
+        title: 'Limpar Data de Vencimento',
         description:
-          'Clearing the due date will also remove all notifications for this task. Continue?',
+          'Limpar a data de vencimento também removerá todas as notificações para essa tarefa. Continuar?',
         variant: 'warning',
-        confirmText: 'Clear',
-        cancelText: 'Cancel',
+        confirmText: 'Limpar',
+        cancelText: 'Cancelar',
         onConfirm: () => {
           handleClearDueDate()
           closeConfirmDialog()
@@ -302,18 +238,18 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
       {/* Header */}
       <div className="mb-6 flex items-center justify-between">
         <button
-          aria-label="Back"
+          aria-label="Voltar"
           onClick={handleCancel}
           className="flex items-center text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white"
         >
           <FaArrowLeft className="mr-2" />
-          <span>Back to Details</span>
+          <span>Voltar para Detalhes</span>
         </button>
         <div className="text-xl font-bold text-gray-900 dark:text-white">
-          Edit Task
+          Editar Tarefa
         </div>
       </div>
-
+  
       {/* Edit Form */}
       <div className="dark:bg-BlackLight overflow-hidden rounded-lg bg-white shadow-lg">
         <form onSubmit={handleSubmit} className="p-6">
@@ -323,7 +259,7 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
               htmlFor="title"
               className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
             >
-              Title*
+              Título*
             </label>
             <input
               type="text"
@@ -333,17 +269,17 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
               onChange={handleChange}
               required
               className="w-full rounded-md border border-gray-300 px-4 py-2 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-              placeholder="Task title"
+              placeholder="Título da tarefa"
             />
           </div>
-
+  
           {/* Description field */}
           <div className="mb-4">
             <label
               htmlFor="description"
               className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
             >
-              Description
+              Descrição
             </label>
             <textarea
               id="description"
@@ -352,10 +288,10 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
               onChange={handleChange}
               rows={5}
               className="w-full rounded-md border border-gray-300 px-4 py-2 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-              placeholder="Task description"
+              placeholder="Descrição da tarefa"
             ></textarea>
           </div>
-
+  
           {/* Priority, Status and Due date */}
           <div className="mb-4 grid grid-cols-1 gap-4 md:grid-cols-3">
             <div>
@@ -364,7 +300,7 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
                 className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
               >
                 <FaFlag className="mr-1 inline text-blue-500" />
-                Priority
+                Prioridade
               </label>
               <select
                 id="priority"
@@ -373,12 +309,12 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
                 onChange={handleChange}
                 className="w-full rounded-md border border-gray-300 px-4 py-2 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
               >
-                <option value="1">Low Priority</option>
-                <option value="2">Medium Priority</option>
-                <option value="3">High Priority</option>
+                <option value="1">Prioridade Baixa</option>
+                <option value="2">Prioridade Média</option>
+                <option value="3">Prioridade Alta</option>
               </select>
             </div>
-
+  
             <div>
               <label
                 htmlFor="status"
@@ -397,24 +333,24 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
                 disabled={formData.is_completed}
                 className="w-full rounded-md border border-gray-300 px-4 py-2 focus:border-blue-500 focus:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-70 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
               >
-                <option value="active">Active</option>
-                <option value="review">In Review</option>
+                <option value="active">Ativa</option>
+                <option value="review">Em Revisão</option>
               </select>
               {formData.is_completed && (
                 <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                  Status is set to completed because the task is marked as
-                  complete
+                  Status está definido como concluído porque a tarefa está marcada como
+                  completa
                 </p>
               )}
             </div>
-
+  
             <div>
               <label
                 htmlFor="due_date"
                 className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
               >
                 <FaClock className="mr-1 inline text-blue-500" />
-                Due Date
+                Data de Vencimento
               </label>
               <div className="flex">
                 <input
@@ -427,11 +363,11 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
                 />
                 {formData.due_date && (
                   <button
-                    aria-label="clear-due-date"
+                    aria-label="limpar data de vencimento"
                     type="button"
                     onClick={handleConfirmClearDueDate}
                     className="rounded-r-md border border-l-0 border-gray-300 bg-red-100 px-3 hover:bg-red-200 dark:border-gray-600 dark:bg-red-900 dark:text-white dark:hover:bg-red-800"
-                    title="Clear due date"
+                    title="Limpar data de vencimento"
                   >
                     <FaCalendarTimes className="text-red-500 dark:text-red-300" />
                   </button>
@@ -439,12 +375,12 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
               </div>
               <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
                 {formData.due_date
-                  ? 'Clear the due date to remove deadline notifications'
-                  : 'No due date set (no notifications will be created)'}
+                  ? 'Limpar a data de vencimento para remover notificações de prazo'
+                  : 'Sem data de vencimento definida (nenhuma notificação será criada)'}
               </p>
             </div>
           </div>
-
+  
           {/* Status checkbox */}
           <div className="mb-6">
             <div className="flex items-center">
@@ -460,23 +396,23 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
                 htmlFor="is_completed"
                 className="ml-2 block text-sm text-gray-700 dark:text-gray-300"
               >
-                Mark as completed
+                Marcar como concluída
               </label>
             </div>
           </div>
-
+  
           {/* Form buttons */}
           <div className="flex justify-end space-x-3">
             <button
-              aria-label="cancel-edit"
+              aria-label="cancelar edição"
               type="button"
               onClick={handleCancel}
               className="rounded-md border border-gray-300 px-4 py-2 text-gray-700 hover:bg-gray-50 focus:ring-2 focus:ring-gray-500 focus:outline-none dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
             >
-              <FaTimes className="mr-1 inline" /> Cancel
+              <FaTimes className="mr-1 inline" /> Cancelar
             </button>
             <button
-              aria-label="save-edit"
+              aria-label="salvar edição"
               type="submit"
               className="rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
               disabled={updateTodoMutation.isPending}
@@ -503,11 +439,11 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
                       d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                     ></path>
                   </svg>
-                  Saving...
+                  Salvando...
                 </>
               ) : (
                 <>
-                  <FaSave className="mr-1 inline" /> Save Changes
+                  <FaSave className="mr-1 inline" /> Salvar Alterações
                 </>
               )}
             </button>

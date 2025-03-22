@@ -3,6 +3,8 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/auth-options'
 import { NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
 import { NextRequest } from 'next/server'
+import { notificationsService } from '@/lib/notifications'
+import { updateNotificationMessages } from '@/lib/notification-updater'
 
 export async function GET(
   request: NextRequest,
@@ -78,8 +80,15 @@ export async function PUT(
       .single()
 
     if (checkError || !existingTask) {
-      console.error('Erro ao verificar tarefa:', checkError)
+      console.error('Error checking task:', checkError)
       return NextResponse.json({ message: 'Task not found' }, { status: 404 })
+    }
+
+    // Determine if there are changes that would affect notifications
+    const notificationChanges = {
+      titleChanged: updateData.title && updateData.title !== existingTask.title,
+      dueDateChanged: 'due_date' in updateData && updateData.due_date !== existingTask.due_date,
+      completionChanged: 'is_completed' in updateData && updateData.is_completed !== existingTask.is_completed,
     }
 
     const { data, error } = await supabaseAdmin
@@ -92,6 +101,50 @@ export async function PUT(
     if (error) {
       console.error('Supabase update error:', error)
       throw error
+    }
+
+    // Handle notifications based on changes
+    try {
+      // If task is completed, dismiss all notifications
+      if (notificationChanges.completionChanged && data.is_completed) {
+        await notificationsService.dismissTodoNotifications(userId, taskId)
+      } 
+      // If due date was removed, delete all notifications
+      else if (notificationChanges.dueDateChanged && !data.due_date) {
+        await notificationsService.deleteNotifications({
+          userId,
+          todoId: taskId,
+        })
+      } 
+      // If title or due date changed, update notifications
+      else if ((notificationChanges.titleChanged || notificationChanges.dueDateChanged) && data.due_date) {
+        // First, remove existing notifications
+        await notificationsService.deleteNotifications({
+          userId,
+          todoId: taskId,
+        })
+
+        // Then create appropriate new ones based on current status
+        const notifications = notificationsService.generateTodoNotifications(data)
+        if (notifications.length > 0) {
+          await notificationsService.processNotifications(userId, notifications)
+        }
+      }
+      // In case task was marked as not completed, but had a due date, ensure notifications exist
+      else if (notificationChanges.completionChanged && !data.is_completed && data.due_date) {
+        const notifications = notificationsService.generateTodoNotifications(data)
+        if (notifications.length > 0) {
+          await notificationsService.processNotifications(userId, notifications)
+        }
+      }
+      // If nothing changed that would affect notifications but we have a due date,
+      // update the message to ensure it reflects current time relative to due date
+      else if (data.due_date && !data.is_completed) {
+        await updateNotificationMessages(data)
+      }
+    } catch (error) {
+      console.error('Error handling task notifications:', error)
+      // Don't fail the response if notification handling fails
     }
 
     return NextResponse.json(data, { status: 200 })
@@ -137,6 +190,17 @@ export async function DELETE(
 
     if (checkError || !existingTask) {
       return NextResponse.json({ message: 'Task not found' }, { status: 404 })
+    }
+
+    // Delete all notifications for this task
+    try {
+      await notificationsService.deleteNotifications({
+        userId,
+        todoId: taskId,
+      })
+    } catch (error) {
+      console.error('Error deleting task notifications:', error)
+      // Don't fail the response if notification deletion fails
     }
 
     const { error } = await supabaseAdmin

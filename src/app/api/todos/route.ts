@@ -4,6 +4,7 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/auth-options'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
 import { validateRequest } from '@/lib/validateRequest'
 import { z } from 'zod'
+import { notificationsService } from '@/lib/notifications'
 
 export async function GET() {
   const session = await getServerSession(authOptions)
@@ -88,6 +89,20 @@ export async function POST(req: NextRequest) {
         { message: 'Database error: ' + error.message },
         { status: 500 },
       )
+    }
+
+    // Create notifications based on due date if task is not completed
+    if (data && data.due_date && !data.is_completed) {
+      try {
+        const notifications = notificationsService.generateTodoNotifications(data)
+        
+        if (notifications.length > 0) {
+          await notificationsService.processNotifications(userId, notifications)
+        }
+      } catch (notificationError) {
+        console.error('Error creating notifications for new task:', notificationError)
+        // Don't fail the task creation if notification creation fails
+      }
     }
 
     return NextResponse.json(data, { status: 201 })

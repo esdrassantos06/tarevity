@@ -7,8 +7,8 @@ import { showError, showLoading, updateToast, showInfo } from '@/lib/toast'
 import ConfirmationDialog, {
   useConfirmationDialog,
 } from '@/components/common/ConfirmationDialog'
-import axios from 'axios'
 import { useQueryClient } from '@tanstack/react-query'
+import { refreshNotificationsClient } from '@/lib/notification-updater'
 
 interface TodoFormData {
   title: string
@@ -36,7 +36,6 @@ interface ApiResult<T = Todo> {
 const NewTodoPage: React.FC = () => {
   const router = useRouter()
   const createTodoMutation = useCreateTodoMutation()
-
   const queryClient = useQueryClient()
 
   const [formData, setFormData] = useState<TodoFormData>({
@@ -65,11 +64,11 @@ const NewTodoPage: React.FC = () => {
     e.preventDefault()
 
     if (!formData.title.trim()) {
-      showError('Please enter a title for the task')
+      showError('Insira um título para a tarefa')
       return
     }
 
-    const toastId = showLoading('Creating task...')
+    const toastId = showLoading('Criando tarefa...')
 
     const todoData = {
       ...formData,
@@ -79,7 +78,7 @@ const NewTodoPage: React.FC = () => {
 
     createTodoMutation.mutate(todoData, {
       onSuccess: async (data: ApiResult<Todo>) => {
-        updateToast(toastId, 'Task created successfully!', {
+        updateToast(toastId, 'Tarefa criada com sucesso!', {
           type: 'success',
           isLoading: false,
           autoClose: 3000,
@@ -88,58 +87,16 @@ const NewTodoPage: React.FC = () => {
         if (data.data && data.data.id) {
           const todoId = data.data.id
 
+          // Se a tarefa tem data de vencimento, atualizar notificações via API
           if (todoData.due_date && !todoData.is_completed) {
             try {
-              const dueDate = new Date(todoData.due_date)
-              const today = new Date()
-              today.setHours(0, 0, 0, 0)
-
-              let notification
-
-              if (dueDate < today) {
-                notification = {
-                  todo_id: todoId,
-                  notification_type: 'danger',
-                  title: 'Overdue Task',
-                  message: `The task "${todoData.title}" is overdue`,
-                  due_date: todoData.due_date,
-                  origin_id: `danger-${todoId}-${Date.now()}`,
-                }
-              } else {
-                const diffTime = Math.abs(dueDate.getTime() - today.getTime())
-                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
-
-                if (diffDays <= 2) {
-                  notification = {
-                    todo_id: todoId,
-                    notification_type: 'warning',
-                    title: 'Upcoming Deadline',
-                    message: `The task "${todoData.title}" has an upcoming deadline (${diffDays} day${diffDays !== 1 ? 's' : ''})`,
-                    due_date: todoData.due_date,
-                    origin_id: `warning-${todoId}-${Date.now()}`,
-                  }
-                } else {
-                  notification = {
-                    todo_id: todoId,
-                    notification_type: 'info',
-                    title: 'Task Reminder',
-                    message: `Reminder for the task "${todoData.title}" (due in ${diffDays} days)`,
-                    due_date: todoData.due_date,
-                    origin_id: `info-${todoId}-${Date.now()}`,
-                  }
-                }
-              }
-
-              axios
-                .post('/api/notifications', { notifications: [notification] })
-                .then(() => {
-                  queryClient.invalidateQueries({ queryKey: ['notifications'] })
-                })
-                .catch((error) => {
-                  console.error('❌ Error calling notifications API:', error)
-                })
+              // Em vez de criar a notificação manualmente, apenas atualizamos via API
+              await refreshNotificationsClient()
+              
+              // Invalidar a consulta de notificações para atualizar a UI
+              queryClient.invalidateQueries({ queryKey: ['notifications'] })
             } catch (error) {
-              console.error('⚠️ Error creating notifications:', error)
+              console.error('⚠️ Erro ao atualizar notificações:', error)
             }
           }
 
@@ -151,7 +108,7 @@ const NewTodoPage: React.FC = () => {
         }
       },
       onError: (error) => {
-        updateToast(toastId, 'Failed to create task', {
+        updateToast(toastId, 'Falha ao criar tarefa', {
           type: 'error',
           isLoading: false,
           autoClose: 5000,
@@ -160,7 +117,7 @@ const NewTodoPage: React.FC = () => {
         showError(
           error instanceof Error
             ? error.message
-            : 'An error occurred while creating the task',
+            : 'Ocorreu um erro ao criar a tarefa',
         )
       },
     })
@@ -176,13 +133,13 @@ const NewTodoPage: React.FC = () => {
       formData.due_date
     ) {
       openConfirmDialog({
-        title: 'Discard Changes',
-        description: 'Discard changes? Any unsaved changes will be lost.',
+        title: 'Descartar Alterações',
+        description: 'Descartar alterações? Quaisquer alterações não salvas serão perdidas.',
         variant: 'warning',
-        confirmText: 'Discard',
-        cancelText: 'Cancel',
+        confirmText: 'Descartar',
+        cancelText: 'Cancelar',
         onConfirm: () => {
-          showInfo('Changes discarded')
+          showInfo('Alterações descartadas')
           router.push('/dashboard')
           closeConfirmDialog()
         },
@@ -197,15 +154,15 @@ const NewTodoPage: React.FC = () => {
       {/* Header */}
       <div className="mb-6 flex items-center justify-between">
         <button
-          aria-label="Go back to dashboard"
+          aria-label="Voltar para o painel"
           onClick={() => router.push('/dashboard')}
           className="flex items-center text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white"
         >
           <FaArrowLeft className="mr-2" />
-          <span>Back to Dashboard</span>
+          <span>Voltar para o Painel</span>
         </button>
         <div className="text-xl font-bold text-gray-900 dark:text-white">
-          Create New Task
+          Criar Nova Tarefa
         </div>
       </div>
 
@@ -218,7 +175,7 @@ const NewTodoPage: React.FC = () => {
               htmlFor="title"
               className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
             >
-              Title*
+              Título*
             </label>
             <input
               type="text"
@@ -228,7 +185,7 @@ const NewTodoPage: React.FC = () => {
               onChange={handleChange}
               required
               className="w-full rounded-md border border-gray-300 px-4 py-2 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-              placeholder="Enter task title"
+              placeholder="Digite o título da tarefa"
             />
           </div>
 
@@ -238,7 +195,7 @@ const NewTodoPage: React.FC = () => {
               htmlFor="description"
               className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
             >
-              Description
+              Descrição
             </label>
             <textarea
               id="description"
@@ -247,7 +204,7 @@ const NewTodoPage: React.FC = () => {
               onChange={handleChange}
               rows={5}
               className="w-full rounded-md border border-gray-300 px-4 py-2 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-              placeholder="Enter task description (optional)"
+              placeholder="Digite a descrição da tarefa (opcional)"
             ></textarea>
           </div>
 
@@ -259,7 +216,7 @@ const NewTodoPage: React.FC = () => {
                 className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
               >
                 <FaFlag className="mr-1 inline text-blue-500" />
-                Priority
+                Prioridade
               </label>
               <select
                 id="priority"
@@ -268,9 +225,9 @@ const NewTodoPage: React.FC = () => {
                 onChange={handleChange}
                 className="w-full rounded-md border border-gray-300 px-4 py-2 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
               >
-                <option value="1">Low Priority</option>
-                <option value="2">Medium Priority</option>
-                <option value="3">High Priority</option>
+                <option value="1">Prioridade Baixa</option>
+                <option value="2">Prioridade Média</option>
+                <option value="3">Prioridade Alta</option>
               </select>
             </div>
 
@@ -280,7 +237,7 @@ const NewTodoPage: React.FC = () => {
                 className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
               >
                 <FaClock className="mr-1 inline text-blue-500" />
-                Due Date
+                Data de Vencimento
               </label>
               <input
                 type="date"
@@ -308,7 +265,7 @@ const NewTodoPage: React.FC = () => {
                 htmlFor="is_completed"
                 className="ml-2 block text-sm text-gray-700 dark:text-gray-300"
               >
-                Mark as completed
+                Marcar como concluída
               </label>
             </div>
           </div>
@@ -316,15 +273,15 @@ const NewTodoPage: React.FC = () => {
           {/* Form buttons */}
           <div className="flex justify-end space-x-3">
             <button
-              aria-label="Cancel"
+              aria-label="Cancelar"
               type="button"
               onClick={handleCancel}
               className="rounded-md border border-gray-300 px-4 py-2 text-gray-700 hover:bg-gray-50 focus:ring-2 focus:ring-gray-500 focus:outline-none dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
             >
-              <FaTimes className="mr-1 inline" /> Cancel
+              <FaTimes className="mr-1 inline" /> Cancelar
             </button>
             <button
-              aria-label="Save"
+              aria-label="Salvar"
               type="submit"
               className="rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
               disabled={createTodoMutation.isPending}
@@ -351,11 +308,11 @@ const NewTodoPage: React.FC = () => {
                       d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                     ></path>
                   </svg>
-                  Creating...
+                  Criando...
                 </>
               ) : (
                 <>
-                  <FaSave className="mr-1 inline" /> Create Task
+                  <FaSave className="mr-1 inline" /> Criar Tarefa
                 </>
               )}
             </button>
