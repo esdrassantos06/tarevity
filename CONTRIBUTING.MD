@@ -4,6 +4,12 @@ Thank you for considering contributing to this project! Here are the guidelines 
 
 ## Contribution Process
 
+
+
+
+ASMJOIDMASPOAS
+
+
 1. Fork the repository
 2. Create a branch following the convention: `type/short-description`
    - Types: `feature`, `bugfix`, `docs`, `test`, `refactor`
