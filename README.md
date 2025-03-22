@@ -170,8 +170,8 @@ Security is a core focus of Tarevity with:
 - [ ] Mobile application (Futureeeeee.....)
 
 ## 🤝 Contribution Guidelines
-Contributions are welcome! Please feel free to open issues or submit pull requests. Please review our [CONTRIBUTING](CONTRIBUTING.MD) for detailed contribution protocols.
 
+Contributions are welcome! Please feel free to open issues or submit pull requests. Please review our [CONTRIBUTING](CONTRIBUTING.MD) for detailed contribution protocols.
 
 ## 📄 License
 
