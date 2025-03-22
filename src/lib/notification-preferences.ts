@@ -3,18 +3,24 @@ import { supabaseAdmin } from './supabaseAdmin'
 /**
  * Records user preference to not receive notifications for a specific task
  */
-export async function muteNotificationsForTodo(userId: string, todoId: string): Promise<boolean> {
+export async function muteNotificationsForTodo(
+  userId: string,
+  todoId: string,
+): Promise<boolean> {
   try {
     const { error } = await supabaseAdmin
       .from('notification_preferences')
-      .upsert({
-        user_id: userId,
-        todo_id: todoId,
-        muted: true,
-        updated_at: new Date().toISOString()
-      }, {
-        onConflict: 'user_id,todo_id'
-      })
+      .upsert(
+        {
+          user_id: userId,
+          todo_id: todoId,
+          muted: true,
+          updated_at: new Date().toISOString(),
+        },
+        {
+          onConflict: 'user_id,todo_id',
+        },
+      )
 
     if (error) {
       console.error('Error muting notifications:', error)
@@ -31,7 +37,10 @@ export async function muteNotificationsForTodo(userId: string, todoId: string): 
 /**
  * Checks if notifications for a specific task are muted
  */
-export async function areNotificationsMutedForTodo(userId: string, todoId: string): Promise<boolean> {
+export async function areNotificationsMutedForTodo(
+  userId: string,
+  todoId: string,
+): Promise<boolean> {
   try {
     const { data, error } = await supabaseAdmin
       .from('notification_preferences')
@@ -59,18 +68,24 @@ export async function areNotificationsMutedForTodo(userId: string, todoId: strin
 /**
  * Reactivates notifications for a specific task
  */
-export async function unmuteNotificationsForTodo(userId: string, todoId: string): Promise<boolean> {
+export async function unmuteNotificationsForTodo(
+  userId: string,
+  todoId: string,
+): Promise<boolean> {
   try {
     const { error } = await supabaseAdmin
       .from('notification_preferences')
-      .upsert({
-        user_id: userId,
-        todo_id: todoId,
-        muted: false,
-        updated_at: new Date().toISOString()
-      }, {
-        onConflict: 'user_id,todo_id'
-      })
+      .upsert(
+        {
+          user_id: userId,
+          todo_id: todoId,
+          muted: false,
+          updated_at: new Date().toISOString(),
+        },
+        {
+          onConflict: 'user_id,todo_id',
+        },
+      )
 
     if (error) {
       console.error('Error unmuting notifications:', error)

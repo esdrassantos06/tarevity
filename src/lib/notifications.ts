@@ -1,5 +1,11 @@
 import { supabaseAdmin } from './supabaseAdmin'
-import { parseISO, formatDistanceToNow, isPast, isToday, isTomorrow } from 'date-fns'
+import {
+  parseISO,
+  formatDistanceToNow,
+  isPast,
+  isToday,
+  isTomorrow,
+} from 'date-fns'
 import { permanentlyDismissTodoNotifications } from './notification-updater'
 
 export interface Notification {
@@ -107,8 +113,10 @@ export const notificationsService = {
   }) {
     try {
       // Import notification preference function
-      const { muteNotificationsForTodo } = await import('./notification-preferences')
-      
+      const { muteNotificationsForTodo } = await import(
+        './notification-preferences'
+      )
+
       if (id) {
         // Get the task associated with the notification before deleting it
         const { data: notification } = await supabaseAdmin
@@ -117,32 +125,32 @@ export const notificationsService = {
           .eq('id', id)
           .eq('user_id', userId)
           .single()
-          
+
         if (notification) {
           // Mute notifications for this task (store permanent preference)
           await muteNotificationsForTodo(userId, notification.todo_id)
         }
-        
+
         // Now delete the notification
         const { error } = await supabaseAdmin
           .from('notifications')
           .delete()
           .eq('id', id)
           .eq('user_id', userId)
-  
+
         if (error) throw error
         return { success: true, count: 1 }
       } else if (todoId) {
         // Mute notifications for this specific task
         await muteNotificationsForTodo(userId, todoId)
-        
+
         // Delete all notifications for this task
         const { error, count } = await supabaseAdmin
           .from('notifications')
           .delete()
           .eq('user_id', userId)
           .eq('todo_id', todoId)
-  
+
         if (error) throw error
         return { success: true, count: count || 0 }
       } else if (all) {
@@ -151,7 +159,7 @@ export const notificationsService = {
           .from('notifications')
           .delete()
           .eq('user_id', userId)
-  
+
         if (error) throw error
         return { success: true, count: count || 0 }
       }
@@ -168,7 +176,7 @@ export const notificationsService = {
     try {
       // Mark with permanent dismissal flag
       await permanentlyDismissTodoNotifications(userId, todoId)
-      
+
       // Then actually update them to dismissed
       const { error, count } = await supabaseAdmin
         .from('notifications')
@@ -193,7 +201,7 @@ export const notificationsService = {
     } else if (isToday(dueDate)) {
       return `"${title}" expires today!`
     } else if (isTomorrow(dueDate)) {
-      return `"${title}" expires tomorrow`  
+      return `"${title}" expires tomorrow`
     } else {
       return `"${title}" expires ${formatDistanceToNow(dueDate, { addSuffix: true })}`
     }
@@ -204,21 +212,23 @@ export const notificationsService = {
    */
   getNotificationTypeFromDueDate(dueDate: Date): 'danger' | 'warning' | 'info' {
     const now = new Date()
-    
+
     if (isPast(dueDate) || isToday(dueDate)) {
       return 'danger'
     }
-    
+
     if (isTomorrow(dueDate)) {
       return 'warning'
     }
-    
-    const daysDiff = Math.ceil((dueDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
-    
+
+    const daysDiff = Math.ceil(
+      (dueDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24),
+    )
+
     if (daysDiff <= 2) {
       return 'warning'
     }
-    
+
     return 'info'
   },
 
@@ -233,7 +243,9 @@ export const notificationsService = {
     } else if (isTomorrow(dueDate)) {
       return 'Expires tomorrow'
     } else {
-      const daysDiff = Math.ceil((dueDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))
+      const daysDiff = Math.ceil(
+        (dueDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24),
+      )
       return daysDiff <= 2 ? 'Deadline Approaching' : 'Future Task'
     }
   },
@@ -282,7 +294,7 @@ export const notificationsService = {
           .ilike('origin_id', '%donotrecreate%')
           .order('updated_at', { ascending: false })
           .limit(1)
-          
+
         // Skip if the user has explicitly dismissed this notification type
         if (recentlyDismissed && recentlyDismissed.length > 0) {
           // Check if this notification type was dismissed
@@ -304,7 +316,7 @@ export const notificationsService = {
           .eq('todo_id', notification.todo_id)
           .eq('notification_type', notification.notification_type)
           .eq('dismissed', false)
-          
+
         // Skip creation if already exists to prevent duplicates
         if (existing && existing.length > 0) {
           // Update the existing notification instead of creating a new one
@@ -317,7 +329,7 @@ export const notificationsService = {
             })
             .eq('id', existing[0].id)
             .select()
-            
+
           if (error) {
             results.push({ status: 'error', error })
           } else {
@@ -357,10 +369,13 @@ export const notificationsService = {
         // Always update notification type based on current date
         const currentType = this.getNotificationTypeFromDueDate(dueDate)
         const currentTitle = this.getNotificationTitle(dueDate)
-        
+
         // Format a fresh message with the latest date information
         let message = notification.message
-        if (notification.message.includes('"') && notification.message.includes('due')) {
+        if (
+          notification.message.includes('"') &&
+          notification.message.includes('due')
+        ) {
           // Likely already a formatted message, let's just update it
           // Extract the task title from the message
           const titleMatch = notification.message.match(/"([^"]+)"/)
@@ -396,15 +411,17 @@ export const notificationsService = {
         results.push({ status: 'error', error })
       }
     }
-    
+
     // After processing all notifications, clean up any duplicates
     try {
-      const { cleanupDuplicateNotifications } = await import('./notification-updater')
+      const { cleanupDuplicateNotifications } = await import(
+        './notification-updater'
+      )
       await cleanupDuplicateNotifications()
     } catch (error) {
       console.error('Error cleaning up duplicates after processing:', error)
     }
-    
+
     return results
   },
 
@@ -423,12 +440,12 @@ export const notificationsService = {
 
     try {
       const dueDate = parseISO(todo.due_date)
-      
+
       if (isNaN(dueDate.getTime())) {
         console.error('Invalid due date format:', todo.due_date)
         return []
       }
-      
+
       const type = this.getNotificationTypeFromDueDate(dueDate)
       const title = this.getNotificationTitle(dueDate)
       const message = this.formatNotificationMessage(todo.title, dueDate)
@@ -442,14 +459,13 @@ export const notificationsService = {
           message: message,
           due_date: todo.due_date,
           origin_id: `${type}-${todo.id}-${Date.now()}`,
-        }
+        },
       ]
     } catch (error) {
       console.error('Error generating todo notifications:', error)
       return []
     }
   },
-
 
   /**
    * Fetches a single notification by ID
@@ -466,11 +482,12 @@ export const notificationsService = {
       return { data, error }
     } catch (error) {
       console.error('Error fetching notification:', error)
-      return { 
-        data: null, 
-        error: error instanceof Error 
-          ? error 
-          : new Error('Unknown error fetching notification') 
+      return {
+        data: null,
+        error:
+          error instanceof Error
+            ? error
+            : new Error('Unknown error fetching notification'),
       }
     }
   },

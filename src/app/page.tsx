@@ -158,7 +158,7 @@ export default function HomePage() {
           </div>
         </article>
 
-        {/* Testemonials Section */}
+        {/* Testimonials Section */}
         <div className="container mx-auto mt-10 hidden rounded-lg shadow-lg">
           <div className="mx-auto max-w-2xl px-4 py-16 text-center sm:px-6 sm:py-20 lg:px-8"></div>
         </div>

@@ -87,8 +87,12 @@ export async function PUT(
     // Determine if there are changes that would affect notifications
     const notificationChanges = {
       titleChanged: updateData.title && updateData.title !== existingTask.title,
-      dueDateChanged: 'due_date' in updateData && updateData.due_date !== existingTask.due_date,
-      completionChanged: 'is_completed' in updateData && updateData.is_completed !== existingTask.is_completed,
+      dueDateChanged:
+        'due_date' in updateData &&
+        updateData.due_date !== existingTask.due_date,
+      completionChanged:
+        'is_completed' in updateData &&
+        updateData.is_completed !== existingTask.is_completed,
     }
 
     const { data, error } = await supabaseAdmin
@@ -108,16 +112,20 @@ export async function PUT(
       // If task is completed, dismiss all notifications
       if (notificationChanges.completionChanged && data.is_completed) {
         await notificationsService.dismissTodoNotifications(userId, taskId)
-      } 
+      }
       // If due date was removed, delete all notifications
       else if (notificationChanges.dueDateChanged && !data.due_date) {
         await notificationsService.deleteNotifications({
           userId,
           todoId: taskId,
         })
-      } 
+      }
       // If title or due date changed, update notifications
-      else if ((notificationChanges.titleChanged || notificationChanges.dueDateChanged) && data.due_date) {
+      else if (
+        (notificationChanges.titleChanged ||
+          notificationChanges.dueDateChanged) &&
+        data.due_date
+      ) {
         // First, remove existing notifications
         await notificationsService.deleteNotifications({
           userId,
@@ -125,14 +133,20 @@ export async function PUT(
         })
 
         // Then create appropriate new ones based on current status
-        const notifications = notificationsService.generateTodoNotifications(data)
+        const notifications =
+          notificationsService.generateTodoNotifications(data)
         if (notifications.length > 0) {
           await notificationsService.processNotifications(userId, notifications)
         }
       }
       // In case task was marked as not completed, but had a due date, ensure notifications exist
-      else if (notificationChanges.completionChanged && !data.is_completed && data.due_date) {
-        const notifications = notificationsService.generateTodoNotifications(data)
+      else if (
+        notificationChanges.completionChanged &&
+        !data.is_completed &&
+        data.due_date
+      ) {
+        const notifications =
+          notificationsService.generateTodoNotifications(data)
         if (notifications.length > 0) {
           await notificationsService.processNotifications(userId, notifications)
         }

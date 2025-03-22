@@ -10,7 +10,7 @@ import {
   FaEnvelopeOpen,
   FaTrash,
   FaCheckCircle,
-  FaSyncAlt
+  FaSyncAlt,
 } from 'react-icons/fa'
 import { formatDistanceToNow } from 'date-fns'
 import { showSuccess, showError } from '@/lib/toast'
@@ -47,27 +47,27 @@ export default function NotificationDropdown() {
 
   const [allRead, setAllRead] = useState(false)
 
-  // Manualmente atualiza notificações via API
+  // Manually update notifications via API
   const handleRefresh = async () => {
     if (isRefreshing) return
-    
+
     setIsRefreshing(true)
     try {
       await refreshNotificationsClient()
       await queryClient.invalidateQueries({ queryKey: ['notifications'] })
-      showSuccess('Notificações atualizadas')
+      showSuccess('Notifications updated')
     } catch (error) {
-      console.error('Erro ao atualizar notificações:', error)
+      console.error('Error updating notifications:', error)
     } finally {
       setIsRefreshing(false)
     }
   }
 
-  // Atualiza notificações quando o dropdown é aberto
+  // Update notifications when dropdown is opened
   useEffect(() => {
     if (isOpen) {
-      refreshNotificationsClient().catch(error => {
-        console.error('Erro ao atualizar notificações ao abrir:', error)
+      refreshNotificationsClient().catch((error) => {
+        console.error('Error updating notifications when opening:', error)
       })
     }
   }, [isOpen])
@@ -110,8 +110,8 @@ export default function NotificationDropdown() {
           queryClient.invalidateQueries({ queryKey: ['notifications'] })
         },
         onError: (error) => {
-          showError('Falha ao atualizar notificação')
-          console.error('Erro ao atualizar notificação:', error)
+          showError('Failed to update notification')
+          console.error('Error updating notification:', error)
         },
       },
     )
@@ -122,12 +122,12 @@ export default function NotificationDropdown() {
       { id: notificationId },
       {
         onSuccess: () => {
-          showSuccess('Notificação removida')
+          showSuccess('Notification removed')
           queryClient.invalidateQueries({ queryKey: ['notifications'] })
         },
         onError: (error) => {
-          showError('Falha ao remover notificação')
-          console.error('Erro ao remover notificação:', error)
+          showError('Failed to remove notification')
+          console.error('Error removing notification:', error)
         },
       },
     )
@@ -142,8 +142,8 @@ export default function NotificationDropdown() {
             queryClient.invalidateQueries({ queryKey: ['notifications'] })
           },
           onError: (error) => {
-            console.error('Erro ao marcar notificações como não lidas:', error)
-            showError('Falha ao marcar notificações como não lidas')
+            console.error('Error marking notifications as unread:', error)
+            showError('Failed to mark notifications as unread')
           },
         },
       )
@@ -155,8 +155,8 @@ export default function NotificationDropdown() {
             queryClient.invalidateQueries({ queryKey: ['notifications'] })
           },
           onError: (error) => {
-            console.error('Erro ao marcar notificações como lidas:', error)
-            showError('Falha ao marcar notificações como lidas')
+            console.error('Error marking notifications as read:', error)
+            showError('Failed to mark notifications as read')
           },
         },
       )
@@ -165,12 +165,12 @@ export default function NotificationDropdown() {
 
   const deleteAllNotifications = () => {
     openConfirmDialog({
-      title: 'Remover Todas as Notificações',
+      title: 'Remove All Notifications',
       description:
-        'Isso removerá todas as suas notificações atuais. Esta ação não pode ser desfeita. Continuar?',
+        'This will remove all your current notifications. This action cannot be undone. Continue?',
       variant: 'danger',
-      confirmText: 'Remover Todas',
-      cancelText: 'Cancelar',
+      confirmText: 'Remove All',
+      cancelText: 'Cancel',
       onConfirm: () => {
         setLoading(true)
 
@@ -178,14 +178,14 @@ export default function NotificationDropdown() {
           { all: true },
           {
             onSuccess: () => {
-              showSuccess('Todas as notificações foram removidas')
+              showSuccess('All notifications have been removed')
               setIsOpen(false)
               closeConfirmDialog()
               queryClient.invalidateQueries({ queryKey: ['notifications'] })
             },
             onError: (error) => {
-              console.error('Erro ao remover todas as notificações:', error)
-              showError('Falha ao remover notificações')
+              console.error('Error removing all notifications:', error)
+              showError('Failed to remove notifications')
               closeConfirmDialog()
             },
             onSettled: () => {
@@ -234,7 +234,7 @@ export default function NotificationDropdown() {
       <button
         onClick={toggleDropdown}
         className="border-BorderLight hover:bg-BorderLight dark:border-BorderDark dark:hover:bg-BorderDark relative mr-3 cursor-pointer rounded-lg border-2 p-2 transition-all duration-300"
-        aria-label="Notificações"
+        aria-label="Notifications"
       >
         <IoNotificationsOutline className="h-5 w-5" />
         {unreadCount > 0 && (
@@ -254,23 +254,25 @@ export default function NotificationDropdown() {
           <div className="border-b border-gray-200 px-4 py-3 dark:border-gray-700">
             <div className="flex items-center justify-between">
               <h3 className="font-medium text-gray-900 dark:text-white">
-                Notificações
+                Notifications
               </h3>
               <div className="flex space-x-4">
                 <button
-                  aria-label="Atualizar notificações"
+                  aria-label="Refresh notifications"
                   onClick={handleRefresh}
                   className="flex items-center text-xs text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
                   disabled={isRefreshing}
                 >
-                  <FaSyncAlt className={`mr-1 ${isRefreshing ? 'animate-spin' : ''}`} />
-                  Atualizar
+                  <FaSyncAlt
+                    className={`mr-1 ${isRefreshing ? 'animate-spin' : ''}`}
+                  />
+                  Refresh
                 </button>
                 {notifications.length > 0 && (
                   <>
                     <button
                       aria-label={
-                        allRead ? 'Marcar todas como não lidas' : 'Marcar todas como lidas'
+                        allRead ? 'Mark all as unread' : 'Mark all as read'
                       }
                       onClick={toggleReadStatus}
                       className="flex items-center text-xs text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
@@ -278,21 +280,21 @@ export default function NotificationDropdown() {
                       {allRead ? (
                         <>
                           <FaEnvelope className="mr-1" />
-                          Marcar não lidas
+                          Mark unread
                         </>
                       ) : (
                         <>
                           <FaEnvelopeOpen className="mr-1" />
-                          Marcar lidas
+                          Mark read
                         </>
                       )}
                     </button>
                     <button
-                      aria-label="Remover todas as notificações"
+                      aria-label="Remove all notifications"
                       onClick={deleteAllNotifications}
                       className="text-xs text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
                     >
-                      Remover todas
+                      Remove all
                     </button>
                   </>
                 )}
@@ -311,7 +313,7 @@ export default function NotificationDropdown() {
                   <FaBell className="h-6 w-6 text-gray-400" />
                 </div>
                 <p className="text-gray-500 dark:text-gray-400">
-                  Nenhuma notificação
+                  No notifications
                 </p>
               </div>
             ) : (
@@ -341,7 +343,7 @@ export default function NotificationDropdown() {
                         {notification.title}
                         {notification.read && (
                           <span className="ml-2 text-xs text-gray-500">
-                            (Lida)
+                            (Read)
                           </span>
                         )}
                       </h4>
@@ -360,13 +362,13 @@ export default function NotificationDropdown() {
                         })}
                       </p>
 
-                      {/* Botões de ação */}
+                      {/* Action buttons */}
                       <div className="mt-2 flex justify-end space-x-2">
                         <button
                           aria-label={
                             notification.read
-                              ? 'Marcar como não lida'
-                              : 'Marcar como lida'
+                              ? 'Mark as unread'
+                              : 'Mark as read'
                           }
                           onClick={(e) => {
                             e.stopPropagation()
@@ -379,34 +381,34 @@ export default function NotificationDropdown() {
                           }`}
                           title={
                             notification.read
-                              ? 'Marcar como não lida'
-                              : 'Marcar como lida'
+                              ? 'Mark as unread'
+                              : 'Mark as read'
                           }
                         >
                           {notification.read ? (
                             <>
                               <FaEnvelope className="mr-1 h-3 w-3" />
-                              <span>Não lida</span>
+                              <span>Unread</span>
                             </>
                           ) : (
                             <>
                               <FaCheckCircle className="mr-1 h-3 w-3" />
-                              <span>Lida</span>
+                              <span>Read</span>
                             </>
                           )}
                         </button>
 
                         <button
-                          aria-label="Remover notificação"
+                          aria-label="Remove notification"
                           onClick={(e) => {
                             e.stopPropagation()
                             handleDeleteNotification(notification.id)
                           }}
                           className="flex items-center rounded-md bg-red-100 px-2 py-1 text-xs text-red-700 hover:bg-red-200 dark:bg-red-900/30 dark:text-red-300 dark:hover:bg-red-800/50"
-                          title="Remover notificação"
+                          title="Remove notification"
                         >
                           <FaTrash className="mr-1 h-3 w-3" />
-                          <span>Remover</span>
+                          <span>Remove</span>
                         </button>
                       </div>
                     </div>
@@ -418,7 +420,7 @@ export default function NotificationDropdown() {
         </div>
       )}
 
-      {/* Diálogo de confirmação */}
+      {/* Confirmation dialog */}
       <ConfirmationDialog
         isOpen={dialogState.isOpen}
         onClose={closeConfirmDialog}

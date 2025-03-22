@@ -11,7 +11,7 @@ interface QueryOptions {
 
 export function useNotificationsQuery(options: QueryOptions = {}) {
   const queryClient = useQueryClient()
-  
+
   // Function to refresh notifications from the server
   const refreshNotifications = useCallback(async () => {
     try {
@@ -27,23 +27,26 @@ export function useNotificationsQuery(options: QueryOptions = {}) {
     if (options.enabled !== false) {
       refreshNotifications()
     }
-    
+
     // Set up periodic refresh (every 5 minutes)
-    const refreshInterval = setInterval(() => {
-      if (document.visibilityState === 'visible') {
-        refreshNotifications()
-      }
-    }, 5 * 60 * 1000)
-    
+    const refreshInterval = setInterval(
+      () => {
+        if (document.visibilityState === 'visible') {
+          refreshNotifications()
+        }
+      },
+      5 * 60 * 1000,
+    )
+
     // Also refresh when the tab becomes visible again
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible') {
         refreshNotifications()
       }
     }
-    
+
     document.addEventListener('visibilitychange', handleVisibilityChange)
-    
+
     return () => {
       clearInterval(refreshInterval)
       document.removeEventListener('visibilitychange', handleVisibilityChange)

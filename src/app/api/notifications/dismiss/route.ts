@@ -18,73 +18,74 @@ export async function POST(req: Request) {
     // Process based on the provided parameters
     if (id) {
       // Handle single notification dismissal
-      const { data: notification, error: fetchError } = await notificationsService.fetchNotification(id, userId)
-      
+      const { data: notification, error: fetchError } =
+        await notificationsService.fetchNotification(id, userId)
+
       if (fetchError) {
         return NextResponse.json(
           { message: fetchError.message || 'Error fetching notification' },
-          { status: 500 }
+          { status: 500 },
         )
       }
-      
+
       if (!notification) {
         return NextResponse.json(
           { message: 'Notification not found' },
-          { status: 404 }
+          { status: 404 },
         )
       }
-      
+
       // First mute notifications for this task
       await muteNotificationsForTodo(userId, notification.todo_id)
-      
+
       // Then delete the notification
       await notificationsService.deleteNotifications({
         id,
-        userId
+        userId,
       })
 
       return NextResponse.json(
         {
           message: 'Notification deleted successfully',
-          count: 1
+          count: 1,
         },
-        { status: 200 }
+        { status: 200 },
       )
     } else if (todoId) {
       // Handle dismissal of all notifications for a specific todo
       await muteNotificationsForTodo(userId, todoId)
-      
+
       const result = await notificationsService.deleteNotifications({
         userId,
-        todoId
+        todoId,
       })
 
       return NextResponse.json(
         {
           message: 'Notifications for todo deleted',
-          count: result.count || 0
+          count: result.count || 0,
         },
-        { status: 200 }
+        { status: 200 },
       )
     } else if (all) {
       // Handle dismissal of all notifications
       const result = await notificationsService.deleteNotifications({
         userId,
-        all: true
+        all: true,
       })
 
       return NextResponse.json(
         {
           message: 'All notifications deleted',
-          count: result.count || 0
+          count: result.count || 0,
         },
-        { status: 200 }
+        { status: 200 },
       )
     }
 
     return NextResponse.json(
       { message: 'Missing id, todoId, or all parameter' },
-      { status: 400 }
+      { status: 400 },
     )
   } catch (error: unknown) {
     console.error('Error deleting notifications:', error)

@@ -94,13 +94,17 @@ export async function POST(req: NextRequest) {
     // Create notifications based on due date if task is not completed
     if (data && data.due_date && !data.is_completed) {
       try {
-        const notifications = notificationsService.generateTodoNotifications(data)
-        
+        const notifications =
+          notificationsService.generateTodoNotifications(data)
+
         if (notifications.length > 0) {
           await notificationsService.processNotifications(userId, notifications)
         }
       } catch (notificationError) {
-        console.error('Error creating notifications for new task:', notificationError)
+        console.error(
+          'Error creating notifications for new task:',
+          notificationError,
+        )
         // Don't fail the task creation if notification creation fails
       }
     }
