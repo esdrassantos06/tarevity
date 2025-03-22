@@ -169,15 +169,9 @@ Security is a core focus of Tarevity with:
 - [ ] Subtasks and task dependencies
 - [ ] Mobile application (Futureeeeee.....)
 
-## 🤝 Contributing
+## 🤝 Contribution Guidelines
+Contributions are welcome! Please feel free to open issues or submit pull requests. Please review our [CONTRIBUTING](CONTRIBUTING.MD) for detailed contribution protocols.
 
-Contributions are welcome! Please feel free to open issues or submit pull requests.
-
-1. Fork the project
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
 
 ## 📄 License
 
@@ -186,3 +180,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 👨‍💻 Author
 
 - **Esdras Santos** - [GitHub](https://github.com/esdrassantos06)
+
+---
+
+Star ⭐ this repository if you find it helpful!
