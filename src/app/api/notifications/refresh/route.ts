@@ -11,7 +11,6 @@ export async function POST() {
       return NextResponse.json({ message: 'Unauthorized' }, { status: 401 })
     }
 
-    // Process notifications for this user
     await processDynamicNotificationUpdates()
     await createMissingNotifications()
 
