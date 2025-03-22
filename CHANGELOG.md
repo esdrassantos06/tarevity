@@ -5,20 +5,16 @@ All notable changes to the Tarevity project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-
 ## [1.0.1] - 2025-03-22
 
 ### Added
-- Changelog and tag versions 
 
-
-
-
-
+- Changelog and tag versions
 
 ## [1.0.0] - 2025-03-22
 
 ### Added
+
 - Initial release of Tarevity task management application
 - Complete task management functionality with create, edit, and complete actions
 - Priority levels (Low, Medium, High) with visual indicators
@@ -42,6 +38,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Account management features including profile editing and deletion
 
 ### Security
+
 - Implemented CSRF protection for all state-changing operations
 - Added strict CSP headers to prevent XSS attacks
 - HttpOnly cookies for secure session management
