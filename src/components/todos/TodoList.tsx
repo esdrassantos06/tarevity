@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useMemo, useCallback } from 'react'
+import React, { useMemo, useCallback, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useQueryClient } from '@tanstack/react-query'
 import { FiPlus } from 'react-icons/fi'
@@ -45,6 +45,41 @@ const RedesignedTodoList: React.FC = () => {
     currentTodos,
     paginate,
   } = useTodoFilters(todos)
+
+  // New effect to check and refresh notifications when component mounts
+  useEffect(() => {
+    const lastRefreshStr = localStorage.getItem('dashboard_notification_refresh')
+    const now = new Date()
+    
+    // Only refresh once per day
+    if (!lastRefreshStr || isRefreshNeeded(lastRefreshStr)) {
+      // Refresh notifications to ensure they're up-to-date with current dates
+      axios.post('/api/notifications/refresh')
+        .then(() => {
+          queryClient.invalidateQueries({ queryKey: ['notifications'] })
+          localStorage.setItem('dashboard_notification_refresh', now.toISOString())
+        })
+        .catch(error => {
+          console.error('Failed to refresh notifications:', error)
+        })
+    }
+  }, [queryClient])
+  
+  // Function to determine if we need to refresh notifications
+  const isRefreshNeeded = (lastRefreshStr: string) => {
+    try {
+      const lastRefresh = new Date(lastRefreshStr)
+      const now = new Date()
+      
+      // If last refresh was on a different day, refresh again
+      return lastRefresh.getDate() !== now.getDate() ||
+             lastRefresh.getMonth() !== now.getMonth() ||
+             lastRefresh.getFullYear() !== now.getFullYear()
+    } catch (e) {
+      console.error('Error parsing last refresh date:', e)
+      return true // If there's an error, better to refresh
+    }
+  }
 
   const handleDeleteTodo = useCallback(
     (id: string, title: string) => {
@@ -141,7 +176,7 @@ const RedesignedTodoList: React.FC = () => {
                   const notifications = [
                     {
                       todo_id: id,
-                      notification_type: 'danger',
+                      notification_type: 'danger' as const,
                       title: 'Overdue Task',
                       message: `"${todoToUpdate.title}" is due ${formatDistanceToNow(dueDate, { addSuffix: true })}`,
                       due_date: todoToUpdate.due_date,
@@ -149,7 +184,7 @@ const RedesignedTodoList: React.FC = () => {
                     },
                     {
                       todo_id: id,
-                      notification_type: 'warning',
+                      notification_type: 'warning' as const,
                       title: 'Due Soon',
                       message: `"${todoToUpdate.title}" is due ${formatDistanceToNow(dueDate, { addSuffix: true })}`,
                       due_date: todoToUpdate.due_date,
@@ -157,7 +192,7 @@ const RedesignedTodoList: React.FC = () => {
                     },
                     {
                       todo_id: id,
-                      notification_type: 'info',
+                      notification_type: 'info' as const,
                       title: 'Upcoming Deadline',
                       message: `"${todoToUpdate.title}" is due ${formatDistanceToNow(dueDate, { addSuffix: true })}`,
                       due_date: todoToUpdate.due_date,
@@ -380,8 +415,7 @@ const RedesignedTodoList: React.FC = () => {
               : 'Get started by creating your first task.'}
           </p>
           <button
-            onClick={createNewTodo}
-            className="mt-4 flex items-center rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
+            onClick={createNewTodo} className="mt-4 flex items-center rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
             aria-label="Create new task"
           >
             <FiPlus className="mr-1" aria-hidden="true" /> Create New Task
