@@ -10,7 +10,6 @@ import {
   FaEnvelopeOpen,
   FaTrash,
   FaCheckCircle,
-  FaSync,
 } from 'react-icons/fa'
 import { formatDistanceToNow } from 'date-fns'
 import { showSuccess, showError } from '@/lib/toast'
@@ -20,27 +19,22 @@ import {
   useMarkNotificationReadMutation,
   useDismissNotificationMutation,
 } from '@/hooks/useNotificationsQuery'
-import { useTodosQuery } from '@/hooks/useTodosQuery'
 import ConfirmationDialog, {
   useConfirmationDialog,
 } from '@/components/common/ConfirmationDialog'
 import { useSession } from 'next-auth/react'
 import { Notification } from '@/lib/notifications'
-import axios from 'axios'
 
 export default function NotificationDropdown() {
   const { status } = useSession()
   const [isOpen, setIsOpen] = useState(false)
   const [unreadCount, setUnreadCount] = useState(0)
-  const [isRefreshing, setIsRefreshing] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
   const queryClient = useQueryClient()
 
   const { data: notifications = [], isLoading } = useNotificationsQuery({
     enabled: status === 'authenticated',
   })
-  
-  const { data: todos = [] } = useTodosQuery()
 
   const markReadMutation = useMarkNotificationReadMutation()
   const dismissMutation = useDismissNotificationMutation()
@@ -50,14 +44,13 @@ export default function NotificationDropdown() {
 
   const [allRead, setAllRead] = useState(false)
 
-  // Update states when notifications data changes
   useEffect(() => {
     const unread = notifications.filter((n: Notification) => !n.read).length
     setUnreadCount(unread)
+
     setAllRead(unread === 0 && notifications.length > 0)
   }, [notifications])
 
-  // Handle outside clicks to close the dropdown
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (
@@ -73,34 +66,6 @@ export default function NotificationDropdown() {
       document.removeEventListener('mousedown', handleClickOutside)
     }
   }, [])
-  
-  // This effect runs when the dropdown is opened
-  // It will check and update notifications that may have changed status due to date changes
-  useEffect(() => {
-    if (!isOpen || isRefreshing || !todos.length) return
-    
-    // Check if we need to refresh based on last refresh time
-    const lastRefresh = localStorage.getItem('notification_last_check')
-    const now = Date.now()
-    
-    // Refresh at most once per hour
-    if (lastRefresh && now - parseInt(lastRefresh, 10) < 3600000) return
-    
-    setIsRefreshing(true)
-    
-    // Call the refresh endpoint to update notifications
-    axios.post('/api/notifications/refresh')
-      .then(() => {
-        queryClient.invalidateQueries({ queryKey: ['notifications'] })
-        localStorage.setItem('notification_last_check', now.toString())
-      })
-      .catch(error => {
-        console.error('Failed to refresh notifications:', error)
-      })
-      .finally(() => {
-        setIsRefreshing(false)
-      })
-  }, [isOpen, isRefreshing, todos, queryClient])
 
   const toggleDropdown = () => {
     setIsOpen(!isOpen)
@@ -203,26 +168,6 @@ export default function NotificationDropdown() {
       },
     })
   }
-  
-  // Manual refresh function
-  const refreshNotifications = () => {
-    if (isRefreshing) return
-    
-    setIsRefreshing(true)
-    axios.post('/api/notifications/refresh')
-      .then(() => {
-        queryClient.invalidateQueries({ queryKey: ['notifications'] })
-        showSuccess('Notifications refreshed')
-        localStorage.setItem('notification_last_check', Date.now().toString())
-      })
-      .catch(error => {
-        console.error('Failed to refresh notifications:', error)
-        showError('Failed to refresh notifications')
-      })
-      .finally(() => {
-        setIsRefreshing(false)
-      })
-  }
 
   const getNotificationBgColor = (type: string, isRead: boolean) => {
     if (isRead) {
@@ -286,15 +231,6 @@ export default function NotificationDropdown() {
               <div className="flex space-x-4">
                 {notifications.length > 0 && (
                   <>
-                    <button
-                      aria-label="Refresh notifications"
-                      onClick={refreshNotifications}
-                      disabled={isRefreshing}
-                      className={`flex items-center text-xs text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 ${isRefreshing ? 'opacity-50 cursor-not-allowed' : ''}`}
-                    >
-                      <FaSync className={`mr-1 ${isRefreshing ? 'animate-spin' : ''}`} />
-                      Refresh
-                    </button>
                     <button
                       aria-label={
                         allRead ? 'Mark all as unread' : 'Mark all as read'

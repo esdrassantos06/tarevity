@@ -1,6 +1,7 @@
 'use client'
 import React, { useState, useEffect, ChangeEvent, FormEvent } from 'react'
 import { useRouter } from 'next/navigation'
+import { useQueryClient } from '@tanstack/react-query'
 import {
   FaArrowLeft,
   FaSave,
@@ -14,6 +15,7 @@ import { useTodosQuery, useUpdateTodoMutation } from '@/hooks/useTodosQuery'
 import ConfirmationDialog, {
   useConfirmationDialog,
 } from '@/components/common/ConfirmationDialog'
+import axios from 'axios'
 import { showError } from '@/lib/toast'
 
 interface Todo {
@@ -47,6 +49,7 @@ const formatDateForInput = (dateString: string | null): string => {
 
 const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
   const router = useRouter()
+  const queryClient = useQueryClient()
   const { data: todos = [] as Todo[], isLoading } = useTodosQuery()
   const updateTodoMutation = useUpdateTodoMutation()
 
@@ -58,7 +61,9 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
     is_completed: false,
     status: 'active',
   })
+
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
+  const [originalDueDate, setOriginalDueDate] = useState<string | null>(null)
 
   useEffect(() => {
     if (todos.length > 0) {
@@ -73,6 +78,7 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
           status: todo.status || 'active',
         })
 
+        setOriginalDueDate(todo.due_date)
       } else {
         router.push('/dashboard')
       }
@@ -143,6 +149,91 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
             console.error('No data returned from update mutation')
             router.push(`/todo/${todoId}`)
             return
+          }
+
+          const originalTodo = todos.find((t) => t.id === todoId)
+
+          try {
+            if (updateData.is_completed) {
+              await axios.post('/api/notifications/dismiss-for-todo', {
+                todoId,
+              })
+            } else if (originalDueDate && !updateData.due_date) {
+              await axios.delete(`/api/notifications/delete-for-todo/${todoId}`)
+            } else if (updateData.due_date) {
+              const hasDueDateChanged = originalDueDate !== updateData.due_date
+              const hasTitleChanged = originalTodo?.title !== updateData.title
+
+              if (hasDueDateChanged || hasTitleChanged) {
+                axios
+                  .delete(`/api/notifications/delete-for-todo/${todoId}`)
+                  .then(() => {
+                    if (!updateData.due_date) {
+                      return Promise.resolve(null)
+                    }
+
+                    const dueDate = new Date(updateData.due_date)
+                    const today = new Date()
+                    today.setHours(0, 0, 0, 0)
+
+                    let notification
+
+                    if (dueDate < today) {
+                      notification = {
+                        todo_id: todoId,
+                        notification_type: 'danger',
+                        title: 'Overdue Task',
+                        message: `The task "${updateData.title}" is overdue`,
+                        due_date: updateData.due_date,
+                        origin_id: `danger-${todoId}-${Date.now()}`,
+                      }
+                    } else {
+                      const diffTime = Math.abs(
+                        dueDate.getTime() - today.getTime(),
+                      )
+                      const diffDays = Math.ceil(
+                        diffTime / (1000 * 60 * 60 * 24),
+                      )
+
+                      if (diffDays <= 2) {
+                        notification = {
+                          todo_id: todoId,
+                          notification_type: 'warning',
+                          title: 'Upcoming Deadline',
+                          message: `The task "${updateData.title}" has an upcoming deadline (${diffDays} day${diffDays !== 1 ? 's' : ''})`,
+                          due_date: updateData.due_date,
+                          origin_id: `warning-${todoId}-${Date.now()}`,
+                        }
+                      } else {
+                        notification = {
+                          todo_id: todoId,
+                          notification_type: 'info',
+                          title: 'Task Reminder',
+                          message: `Reminder for the task "${updateData.title}" (due in ${diffDays} days)`,
+                          due_date: updateData.due_date,
+                          origin_id: `info-${todoId}-${Date.now()}`,
+                        }
+                      }
+                    }
+
+                    return axios.post('/api/notifications', {
+                      notifications: [notification],
+                    })
+                  })
+                  .then(() => {
+                    queryClient.invalidateQueries({
+                      queryKey: ['notifications'],
+                    })
+                  })
+                  .catch((error) => {
+                    console.error('❌ Erro gerenciando notificações:', error)
+                  })
+              }
+            }
+
+            queryClient.invalidateQueries({ queryKey: ['notifications'] })
+          } catch (error) {
+            console.error('Error managing notifications:', error)
           }
 
           setTimeout(() => {

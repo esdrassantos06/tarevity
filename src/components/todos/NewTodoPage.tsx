@@ -90,10 +90,54 @@ const NewTodoPage: React.FC = () => {
 
           if (todoData.due_date && !todoData.is_completed) {
             try {
+              const dueDate = new Date(todoData.due_date)
               const today = new Date()
               today.setHours(0, 0, 0, 0)
 
-              
+              let notification
+
+              if (dueDate < today) {
+                notification = {
+                  todo_id: todoId,
+                  notification_type: 'danger',
+                  title: 'Overdue Task',
+                  message: `The task "${todoData.title}" is overdue`,
+                  due_date: todoData.due_date,
+                  origin_id: `danger-${todoId}-${Date.now()}`,
+                }
+              } else {
+                const diffTime = Math.abs(dueDate.getTime() - today.getTime())
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+
+                if (diffDays <= 2) {
+                  notification = {
+                    todo_id: todoId,
+                    notification_type: 'warning',
+                    title: 'Upcoming Deadline',
+                    message: `The task "${todoData.title}" has an upcoming deadline (${diffDays} day${diffDays !== 1 ? 's' : ''})`,
+                    due_date: todoData.due_date,
+                    origin_id: `warning-${todoId}-${Date.now()}`,
+                  }
+                } else {
+                  notification = {
+                    todo_id: todoId,
+                    notification_type: 'info',
+                    title: 'Task Reminder',
+                    message: `Reminder for the task "${todoData.title}" (due in ${diffDays} days)`,
+                    due_date: todoData.due_date,
+                    origin_id: `info-${todoId}-${Date.now()}`,
+                  }
+                }
+              }
+
+              axios
+                .post('/api/notifications', { notifications: [notification] })
+                .then(() => {
+                  queryClient.invalidateQueries({ queryKey: ['notifications'] })
+                })
+                .catch((error) => {
+                  console.error('❌ Error calling notifications API:', error)
+                })
             } catch (error) {
               console.error('⚠️ Error creating notifications:', error)
             }
