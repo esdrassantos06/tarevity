@@ -1,9 +1,10 @@
 'use client'
 
 import React, { useMemo, useCallback } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useQueryClient } from '@tanstack/react-query'
 import { FiPlus } from 'react-icons/fi'
+import { FaTimes } from 'react-icons/fa'
 import { Todo } from '@/lib/api'
 import axios from 'axios'
 import {
@@ -19,10 +20,11 @@ import TodoItem from './TodoItem'
 import Pagination from '../ui/Pagination'
 import TodoFilters from './TodoFilters'
 import TodoStats from './TodoStats'
-import { formatDistanceToNow } from 'date-fns'
+import { formatDistanceToNow, format, isValid, parseISO } from 'date-fns'
 
 const RedesignedTodoList: React.FC = () => {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const queryClient = useQueryClient()
 
   const { dialogState, openConfirmDialog, closeConfirmDialog, setLoading } =
@@ -31,6 +33,10 @@ const RedesignedTodoList: React.FC = () => {
   const { data: todos = [], isLoading } = useTodosQuery()
   const updateTodoMutation = useUpdateTodoMutation()
   const deleteTodoMutation = useDeleteTodoMutation()
+  
+  const dueDateParam = searchParams.get('dueDate')
+  const formattedDueDate = dueDateParam ? 
+    (isValid(parseISO(dueDateParam)) ? format(parseISO(dueDateParam), 'MMM d, yyyy') : null) : null
 
   const {
     activeTab,
@@ -44,7 +50,9 @@ const RedesignedTodoList: React.FC = () => {
     filteredTodos,
     currentTodos,
     paginate,
-  } = useTodoFilters(todos)
+    dueDateFilter,
+    clearDueDateFilter
+  } = useTodoFilters(todos, dueDateParam)
 
   const handleDeleteTodo = useCallback(
     (id: string, title: string) => {
@@ -332,6 +340,23 @@ const RedesignedTodoList: React.FC = () => {
           createNewTodo={createNewTodo}
         />
 
+        {/* Date filter indicator */}
+        {formattedDueDate && (
+          <div className="mb-4 mt-4 flex items-center rounded-lg bg-white px-4 py-2 text-primary dark:bg-BlackLight dark:text-blue-200">
+            <span className="mr-4">Showing tasks due on {formattedDueDate}</span>
+            <button
+              aria-label="Clear date filter"
+              onClick={() => {
+                clearDueDateFilter();
+                router.push('/dashboard');
+              }}
+              className="ml-auto flex items-center rounded-md bg-blue-100 px-2 py-1 text-xs text-blue-700 hover:bg-blue-200 dark:bg-blue-800 dark:text-blue-200 dark:hover:bg-blue-700"
+            >
+              <FaTimes className="mr-1" /> Clear Filter
+            </button>
+          </div>
+        )}
+
         <TodoStats stats={stats} pieSegments={pieSegments} />
       </div>
 
@@ -375,8 +400,8 @@ const RedesignedTodoList: React.FC = () => {
             No tasks found
           </h3>
           <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-            {searchQuery
-              ? 'No tasks match your search. Try adjusting your filters.'
+            {searchQuery || dueDateFilter
+              ? 'No tasks match your search or date filter. Try adjusting your filters.'
               : 'Get started by creating your first task.'}
           </p>
           <button

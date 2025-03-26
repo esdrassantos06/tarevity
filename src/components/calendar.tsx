@@ -5,18 +5,14 @@ import { ChevronLeft, ChevronRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import CalendarEvent from "./calendar-event"
-
-// Sample events data
-const events = [
-  { id: 1, title: "Team Meeting", date: new Date(2025, 2, 15), color: "bg-blue-500" },
-  { id: 2, title: "Project Deadline", date: new Date(2025, 2, 20), color: "bg-red-500" },
-  { id: 3, title: "Lunch with Client", date: new Date(2025, 2, 18), color: "bg-green-500" },
-  { id: 4, title: "Conference Call", date: new Date(2025, 2, 22), color: "bg-purple-500" },
-  { id: 5, title: "Birthday Party", date: new Date(2025, 2, 25), color: "bg-yellow-500" },
-]
+import { useRouter } from "next/navigation"
+import { useTodosQuery } from "@/hooks/useTodosQuery"
+import { Todo } from "@/lib/api"
 
 export default function Calendar() {
+  const router = useRouter()
   const [currentDate, setCurrentDate] = useState(new Date())
+  const { data: todos = [] } = useTodosQuery()
 
   const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
 
@@ -74,39 +70,56 @@ export default function Calendar() {
     })
   }
 
-  // Navigate to previous month
   const prevMonth = () => {
     setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1))
   }
 
-  // Navigate to next month
   const nextMonth = () => {
     setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1))
   }
 
-  // Navigate to today
   const goToToday = () => {
     setCurrentDate(new Date())
   }
 
-  // Get events for a specific date
-  interface Event {
-    id: number;
-    title: string;
-    date: Date;
-    color: string;
-  }
-
-  const getEventsForDate = (date: Date): Event[] => {
-    return events.filter(
-      (event: Event) =>
-        event.date.getDate() === date.getDate() &&
-        event.date.getMonth() === date.getMonth() &&
-        event.date.getFullYear() === date.getFullYear(),
+  const getEventsForDate = (date: Date): Todo[] => {
+    return todos.filter(
+      (todo: Todo) => {
+        if (!todo.due_date) return false
+        
+        // Format both dates to YYYY-MM-DD for comparison to avoid timezone issues
+        const todoDate = new Date(todo.due_date)
+        return (
+          todoDate.getFullYear() === date.getFullYear() &&
+          todoDate.getMonth() === date.getMonth() &&
+          todoDate.getDate() === date.getDate()
+        )
+      }
     )
   }
 
-  // Format month and year
+  // Format a date to YYYY-MM-DD without timezone issues
+  const formatDateForURL = (date: Date) => {
+    const year = date.getFullYear()
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const day = String(date.getDate()).padStart(2, '0')
+    return `${year}-${month}-${day}`
+  }
+
+  const handleDayClick = (date: Date) => {
+    const todosOnDate = getEventsForDate(date)
+    
+    // If only one todo, go directly to that todo
+    if (todosOnDate.length === 1) {
+      router.push(`/todo/${todosOnDate[0].id}`)
+    } 
+    // If multiple todos, redirect to dashboard with date filter
+    else if (todosOnDate.length > 1) {
+      const formattedDate = formatDateForURL(date)
+      router.push(`/dashboard?dueDate=${formattedDate}`)
+    }
+  }
+
   const monthYearFormat = new Intl.DateTimeFormat("en-US", { month: "long", year: "numeric" }).format(currentDate)
 
   return (
@@ -149,9 +162,12 @@ export default function Calendar() {
           return (
             <div
               key={index}
+              onClick={() => dayEvents.length > 0 && handleDayClick(day.date)}
               className={cn(
                 "relative border-b border-r table p-1 last:border-r-0 md:p-2",
+                dayEvents.length > 0 ? "cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800" : "",
                 !day.isCurrentMonth && "bg-muted/50 text-muted-foreground",
+                dayEvents.length > 0 && "bg-blue-50 dark:bg-blue-900/30"
               )}
             >
               <div className="flex justify-between">
@@ -159,6 +175,7 @@ export default function Calendar() {
                   className={cn(
                     "flex h-6 w-6 items-center justify-center rounded-full text-sm",
                     isToday && "bg-primary text-white",
+                    dayEvents.length > 0 && "font-bold text-blue-600 dark:text-blue-400"
                   )}
                 >
                   {day.day}
@@ -166,9 +183,16 @@ export default function Calendar() {
               </div>
 
               {/* Events */}
-              <div className="mt-1 space-y-1">
+              <div className="mt-1 space-y-1 max-h-20 overflow-y-auto">
                 {dayEvents.map((event) => (
-                  <CalendarEvent key={event.id} event={event} />
+                  <CalendarEvent key={event.id} event={{
+                    id: Number(event.id),
+                    title: event.title,
+                    date: new Date(event.due_date!),
+                    color: event.priority === 3 ? 'bg-red-500' : 
+                           event.priority === 2 ? 'bg-yellow-500' : 
+                           'bg-green-500'
+                  }} />
                 ))}
               </div>
             </div>
@@ -178,4 +202,3 @@ export default function Calendar() {
     </div>
   )
 }
-

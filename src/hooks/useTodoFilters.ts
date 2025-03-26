@@ -1,30 +1,42 @@
 import { useMemo, useState, useEffect, useCallback } from 'react'
+import { parseISO } from 'date-fns'
 import { Todo } from '@/lib/api'
 
 export interface TodoFilters {
   activeTab: string
   searchQuery: string
   prioritySortDirection: 'asc' | 'desc'
+  dueDateFilter: string | null
 }
 
 /**
  * Custom hook for filtering and sorting todos with optimized performance using memoization
  */
-export function useTodoFilters(todos: Todo[]) {
+export function useTodoFilters(todos: Todo[], initialDueDate: string | null = null) {
   const [activeTab, setActiveTab] = useState('all')
   const [searchQuery, setSearchQuery] = useState('')
   const [prioritySortDirection, setPrioritySortDirection] = useState<
     'asc' | 'desc'
   >('desc')
+  const [dueDateFilter, setDueDateFilter] = useState<string | null>(initialDueDate)
   const [currentPage, setCurrentPage] = useState(1)
   const todosPerPage = 9
 
   useEffect(() => {
     setCurrentPage(1)
-  }, [activeTab, searchQuery, prioritySortDirection])
+  }, [activeTab, searchQuery, prioritySortDirection, dueDateFilter])
+  
+  // Update dueDateFilter when initialDueDate changes (from URL)
+  useEffect(() => {
+    setDueDateFilter(initialDueDate);
+  }, [initialDueDate]);
 
   const togglePrioritySort = useCallback(() => {
     setPrioritySortDirection((prev) => (prev === 'desc' ? 'asc' : 'desc'))
+  }, [])
+  
+  const clearDueDateFilter = useCallback(() => {
+    setDueDateFilter(null)
   }, [])
 
   const tabFilteredTodos = useMemo(() => {
@@ -51,17 +63,44 @@ export function useTodoFilters(todos: Todo[]) {
     return todos
   }, [todos, activeTab])
 
+  const dateFilteredTodos = useMemo(() => {
+    if (!dueDateFilter) return tabFilteredTodos
+    
+    try {
+      const targetDate = parseISO(dueDateFilter);
+      
+      // Use local date parts for comparison to avoid timezone issues
+      const filterYear = targetDate.getFullYear();
+      const filterMonth = targetDate.getMonth();
+      const filterDay = targetDate.getDate();
+      
+      return tabFilteredTodos.filter(todo => {
+        if (!todo.due_date) return false;
+        
+        const todoDate = parseISO(todo.due_date);
+        
+        // Compare year, month, day directly to avoid timezone issues
+        return todoDate.getFullYear() === filterYear &&
+               todoDate.getMonth() === filterMonth &&
+               todoDate.getDate() === filterDay;
+      });
+    } catch (error) {
+      console.error('Error filtering by date:', error);
+      return tabFilteredTodos;
+    }
+  }, [tabFilteredTodos, dueDateFilter]);
+
   const searchFilteredTodos = useMemo(() => {
-    if (!searchQuery) return tabFilteredTodos
+    if (!searchQuery) return dateFilteredTodos
 
     const lowerCaseQuery = searchQuery.toLowerCase()
-    return tabFilteredTodos.filter(
+    return dateFilteredTodos.filter(
       (todo) =>
         todo.title.toLowerCase().includes(lowerCaseQuery) ||
         (todo.description &&
           todo.description.toLowerCase().includes(lowerCaseQuery)),
     )
-  }, [tabFilteredTodos, searchQuery])
+  }, [dateFilteredTodos, searchQuery])
 
   const filteredTodos = useMemo(() => {
     return [...searchFilteredTodos].sort((a, b) => {
@@ -112,5 +151,8 @@ export function useTodoFilters(todos: Todo[]) {
     filteredTodos,
     currentTodos,
     paginate,
+    dueDateFilter,
+    setDueDateFilter,
+    clearDueDateFilter
   }
 }
