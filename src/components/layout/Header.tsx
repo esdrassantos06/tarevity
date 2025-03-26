@@ -76,9 +76,9 @@ export default function Header() {
                 {/* Notification Dropdown Component */}
                 <NotificationDropdown />
 
-                <div className="border-BorderLight hover:bg-BorderLight dark:hover:bg-BorderDark dark:border-BorderDark mr-3 cursor-pointer rounded-lg border-2 p-2 transition-all duration-300">
+                <Link href='/calendar' className="border-BorderLight hover:bg-BorderLight dark:hover:bg-BorderDark dark:border-BorderDark mr-3 cursor-pointer rounded-lg border-2 p-2 transition-all duration-300">
                   <IoCalendarClearOutline className="h-5 w-5" />
-                </div>
+                </Link>
                 <div className="hidden items-center gap-2 sm:flex">
                   {/* Profile Dropdown */}
                   <div className="relative" ref={dropdownRef}>
