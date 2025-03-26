@@ -12,29 +12,34 @@ export interface TodoFilters {
 /**
  * Custom hook for filtering and sorting todos with optimized performance using memoization
  */
-export function useTodoFilters(todos: Todo[], initialDueDate: string | null = null) {
+export function useTodoFilters(
+  todos: Todo[],
+  initialDueDate: string | null = null,
+) {
   const [activeTab, setActiveTab] = useState('all')
   const [searchQuery, setSearchQuery] = useState('')
   const [prioritySortDirection, setPrioritySortDirection] = useState<
     'asc' | 'desc'
   >('desc')
-  const [dueDateFilter, setDueDateFilter] = useState<string | null>(initialDueDate)
+  const [dueDateFilter, setDueDateFilter] = useState<string | null>(
+    initialDueDate,
+  )
   const [currentPage, setCurrentPage] = useState(1)
   const todosPerPage = 9
 
   useEffect(() => {
     setCurrentPage(1)
   }, [activeTab, searchQuery, prioritySortDirection, dueDateFilter])
-  
+
   // Update dueDateFilter when initialDueDate changes (from URL)
   useEffect(() => {
-    setDueDateFilter(initialDueDate);
-  }, [initialDueDate]);
+    setDueDateFilter(initialDueDate)
+  }, [initialDueDate])
 
   const togglePrioritySort = useCallback(() => {
     setPrioritySortDirection((prev) => (prev === 'desc' ? 'asc' : 'desc'))
   }, [])
-  
+
   const clearDueDateFilter = useCallback(() => {
     setDueDateFilter(null)
   }, [])
@@ -65,30 +70,32 @@ export function useTodoFilters(todos: Todo[], initialDueDate: string | null = nu
 
   const dateFilteredTodos = useMemo(() => {
     if (!dueDateFilter) return tabFilteredTodos
-    
+
     try {
-      const targetDate = parseISO(dueDateFilter);
-      
+      const targetDate = parseISO(dueDateFilter)
+
       // Use local date parts for comparison to avoid timezone issues
-      const filterYear = targetDate.getFullYear();
-      const filterMonth = targetDate.getMonth();
-      const filterDay = targetDate.getDate();
-      
-      return tabFilteredTodos.filter(todo => {
-        if (!todo.due_date) return false;
-        
-        const todoDate = parseISO(todo.due_date);
-        
+      const filterYear = targetDate.getFullYear()
+      const filterMonth = targetDate.getMonth()
+      const filterDay = targetDate.getDate()
+
+      return tabFilteredTodos.filter((todo) => {
+        if (!todo.due_date) return false
+
+        const todoDate = parseISO(todo.due_date)
+
         // Compare year, month, day directly to avoid timezone issues
-        return todoDate.getFullYear() === filterYear &&
-               todoDate.getMonth() === filterMonth &&
-               todoDate.getDate() === filterDay;
-      });
+        return (
+          todoDate.getFullYear() === filterYear &&
+          todoDate.getMonth() === filterMonth &&
+          todoDate.getDate() === filterDay
+        )
+      })
     } catch (error) {
-      console.error('Error filtering by date:', error);
-      return tabFilteredTodos;
+      console.error('Error filtering by date:', error)
+      return tabFilteredTodos
     }
-  }, [tabFilteredTodos, dueDateFilter]);
+  }, [tabFilteredTodos, dueDateFilter])
 
   const searchFilteredTodos = useMemo(() => {
     if (!searchQuery) return dateFilteredTodos
@@ -153,6 +160,6 @@ export function useTodoFilters(todos: Todo[], initialDueDate: string | null = nu
     paginate,
     dueDateFilter,
     setDueDateFilter,
-    clearDueDateFilter
+    clearDueDateFilter,
   }
 }

@@ -1,7 +1,9 @@
 #!/bin/bash
 
 # to execute this script:	(Change version to number)
-# ./tag-version.sh version (6.6.6)
+# ./tag-version.sh 1.1.1
+
+# To save: Ctrl + O, Enter, Ctrl + X
 
 # Helper script to tag versions and update CHANGELOG.md
 

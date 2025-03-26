@@ -1,24 +1,28 @@
 # Changelog
 
 All notable changes to the Tarevity project will be documented in this file.
+
 ## [1.0.2] - 2025-03-26
 
 ### Added
-- Integrate todos into calendar and enhance todo list with date filtering 
+
+- Integrate todos into calendar and enhance todo list with date filtering
 
 ### Changed
+
 - useTodoFilters, calendar and TodoList for implementation
 
 ### Fixed
+
 - Bugs with date filtering, clicking on day 31 in the calendar would redirect to day 30 due to timezone issues
 
 ### Security
+
 - ...
 
 ### Removed
+
 - ...
-
-
 
 ## [1.0.1] - 2025-03-22
 

@@ -33,10 +33,13 @@ const RedesignedTodoList: React.FC = () => {
   const { data: todos = [], isLoading } = useTodosQuery()
   const updateTodoMutation = useUpdateTodoMutation()
   const deleteTodoMutation = useDeleteTodoMutation()
-  
+
   const dueDateParam = searchParams.get('dueDate')
-  const formattedDueDate = dueDateParam ? 
-    (isValid(parseISO(dueDateParam)) ? format(parseISO(dueDateParam), 'MMM d, yyyy') : null) : null
+  const formattedDueDate = dueDateParam
+    ? isValid(parseISO(dueDateParam))
+      ? format(parseISO(dueDateParam), 'MMM d, yyyy')
+      : null
+    : null
 
   const {
     activeTab,
@@ -51,7 +54,7 @@ const RedesignedTodoList: React.FC = () => {
     currentTodos,
     paginate,
     dueDateFilter,
-    clearDueDateFilter
+    clearDueDateFilter,
   } = useTodoFilters(todos, dueDateParam)
 
   const handleDeleteTodo = useCallback(
@@ -342,13 +345,15 @@ const RedesignedTodoList: React.FC = () => {
 
         {/* Date filter indicator */}
         {formattedDueDate && (
-          <div className="mb-4 mt-4 flex items-center rounded-lg bg-white px-4 py-2 text-primary dark:bg-BlackLight dark:text-blue-200">
-            <span className="mr-4">Showing tasks due on {formattedDueDate}</span>
+          <div className="text-primary dark:bg-BlackLight mt-4 mb-4 flex items-center rounded-lg bg-white px-4 py-2 dark:text-blue-200">
+            <span className="mr-4">
+              Showing tasks due on {formattedDueDate}
+            </span>
             <button
               aria-label="Clear date filter"
               onClick={() => {
-                clearDueDateFilter();
-                router.push('/dashboard');
+                clearDueDateFilter()
+                router.push('/dashboard')
               }}
               className="ml-auto flex items-center rounded-md bg-blue-100 px-2 py-1 text-xs text-blue-700 hover:bg-blue-200 dark:bg-blue-800 dark:text-blue-200 dark:hover:bg-blue-700"
             >

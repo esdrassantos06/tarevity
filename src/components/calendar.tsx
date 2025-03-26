@@ -1,26 +1,42 @@
-"use client"
+'use client'
 
-import { useState } from "react"
-import { ChevronLeft, ChevronRight } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { cn } from "@/lib/utils"
-import CalendarEvent from "./calendar-event"
-import { useRouter } from "next/navigation"
-import { useTodosQuery } from "@/hooks/useTodosQuery"
-import { Todo } from "@/lib/api"
+import { useState } from 'react'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
+import CalendarEvent from './calendar-event'
+import { useRouter } from 'next/navigation'
+import { useTodosQuery } from '@/hooks/useTodosQuery'
+import { Todo } from '@/lib/api'
 
 export default function Calendar() {
   const router = useRouter()
   const [currentDate, setCurrentDate] = useState(new Date())
   const { data: todos = [] } = useTodosQuery()
 
-  const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
+  const daysOfWeek = [
+    'Sunday',
+    'Monday',
+    'Tuesday',
+    'Wednesday',
+    'Thursday',
+    'Friday',
+    'Saturday',
+  ]
 
   // Get the first day of the month
-  const firstDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1)
+  const firstDayOfMonth = new Date(
+    currentDate.getFullYear(),
+    currentDate.getMonth(),
+    1,
+  )
 
   // Get the last day of the month
-  const lastDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0)
+  const lastDayOfMonth = new Date(
+    currentDate.getFullYear(),
+    currentDate.getMonth() + 1,
+    0,
+  )
 
   // Get the day of the week for the first day of the month (0-6)
   const firstDayOfWeek = firstDayOfMonth.getDay()
@@ -38,7 +54,11 @@ export default function Calendar() {
   const calendarDays = []
 
   // Previous month days
-  const prevMonthLastDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), 0).getDate()
+  const prevMonthLastDay = new Date(
+    currentDate.getFullYear(),
+    currentDate.getMonth(),
+    0,
+  ).getDate()
   for (let i = 0; i < daysFromPrevMonth; i++) {
     calendarDays.push({
       day: prevMonthLastDay - daysFromPrevMonth + i + 1,
@@ -71,11 +91,15 @@ export default function Calendar() {
   }
 
   const prevMonth = () => {
-    setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1))
+    setCurrentDate(
+      new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1),
+    )
   }
 
   const nextMonth = () => {
-    setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1))
+    setCurrentDate(
+      new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1),
+    )
   }
 
   const goToToday = () => {
@@ -83,19 +107,17 @@ export default function Calendar() {
   }
 
   const getEventsForDate = (date: Date): Todo[] => {
-    return todos.filter(
-      (todo: Todo) => {
-        if (!todo.due_date) return false
-        
-        // Format both dates to YYYY-MM-DD for comparison to avoid timezone issues
-        const todoDate = new Date(todo.due_date)
-        return (
-          todoDate.getFullYear() === date.getFullYear() &&
-          todoDate.getMonth() === date.getMonth() &&
-          todoDate.getDate() === date.getDate()
-        )
-      }
-    )
+    return todos.filter((todo: Todo) => {
+      if (!todo.due_date) return false
+
+      // Format both dates to YYYY-MM-DD for comparison to avoid timezone issues
+      const todoDate = new Date(todo.due_date)
+      return (
+        todoDate.getFullYear() === date.getFullYear() &&
+        todoDate.getMonth() === date.getMonth() &&
+        todoDate.getDate() === date.getDate()
+      )
+    })
   }
 
   // Format a date to YYYY-MM-DD without timezone issues
@@ -108,11 +130,11 @@ export default function Calendar() {
 
   const handleDayClick = (date: Date) => {
     const todosOnDate = getEventsForDate(date)
-    
+
     // If only one todo, go directly to that todo
     if (todosOnDate.length === 1) {
       router.push(`/todo/${todosOnDate[0].id}`)
-    } 
+    }
     // If multiple todos, redirect to dashboard with date filter
     else if (todosOnDate.length > 1) {
       const formattedDate = formatDateForURL(date)
@@ -120,10 +142,13 @@ export default function Calendar() {
     }
   }
 
-  const monthYearFormat = new Intl.DateTimeFormat("en-US", { month: "long", year: "numeric" }).format(currentDate)
+  const monthYearFormat = new Intl.DateTimeFormat('en-US', {
+    month: 'long',
+    year: 'numeric',
+  }).format(currentDate)
 
   return (
-    <div className="flex h-full bg-BlackLight rounded-lg w-full p-2 flex-col">
+    <div className="bg-BlackLight flex h-full w-full flex-col rounded-lg p-2">
       {/* Calendar Header */}
       <div className="flex items-center justify-between border-b p-4">
         <h1 className="text-2xl font-bold">{monthYearFormat}</h1>
@@ -144,7 +169,10 @@ export default function Calendar() {
       <div className="grid flex-1 grid-cols-7 grid-rows-[auto_1fr]">
         {/* Days of Week Header */}
         {daysOfWeek.map((day, index) => (
-          <div key={index} className="border-b border-r p-2 text-center font-medium last:border-r-0">
+          <div
+            key={index}
+            className="border-r border-b p-2 text-center font-medium last:border-r-0"
+          >
             <span className="hidden md:inline">{day}</span>
             <span className="md:hidden">{day.slice(0, 3)}</span>
           </div>
@@ -164,18 +192,21 @@ export default function Calendar() {
               key={index}
               onClick={() => dayEvents.length > 0 && handleDayClick(day.date)}
               className={cn(
-                "relative border-b border-r table p-1 last:border-r-0 md:p-2",
-                dayEvents.length > 0 ? "cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800" : "",
-                !day.isCurrentMonth && "bg-muted/50 text-muted-foreground",
-                dayEvents.length > 0 && "bg-blue-50 dark:bg-blue-900/30"
+                'relative table border-r border-b p-1 last:border-r-0 md:p-2',
+                dayEvents.length > 0
+                  ? 'cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800'
+                  : '',
+                !day.isCurrentMonth && 'bg-muted/50 text-muted-foreground',
+                dayEvents.length > 0 && 'bg-blue-50 dark:bg-blue-900/30',
               )}
             >
               <div className="flex justify-between">
                 <span
                   className={cn(
-                    "flex h-6 w-6 items-center justify-center rounded-full text-sm",
-                    isToday && "bg-primary text-white",
-                    dayEvents.length > 0 && "font-bold text-blue-600 dark:text-blue-400"
+                    'flex h-6 w-6 items-center justify-center rounded-full text-sm',
+                    isToday && 'bg-primary text-white',
+                    dayEvents.length > 0 &&
+                      'font-bold text-blue-600 dark:text-blue-400',
                   )}
                 >
                   {day.day}
@@ -183,16 +214,22 @@ export default function Calendar() {
               </div>
 
               {/* Events */}
-              <div className="mt-1 space-y-1 max-h-20 overflow-y-auto">
+              <div className="mt-1 max-h-20 space-y-1 overflow-y-auto">
                 {dayEvents.map((event) => (
-                  <CalendarEvent key={event.id} event={{
-                    id: Number(event.id),
-                    title: event.title,
-                    date: new Date(event.due_date!),
-                    color: event.priority === 3 ? 'bg-red-500' : 
-                           event.priority === 2 ? 'bg-yellow-500' : 
-                           'bg-green-500'
-                  }} />
+                  <CalendarEvent
+                    key={event.id}
+                    event={{
+                      id: Number(event.id),
+                      title: event.title,
+                      date: new Date(event.due_date!),
+                      color:
+                        event.priority === 3
+                          ? 'bg-red-500'
+                          : event.priority === 2
+                            ? 'bg-yellow-500'
+                            : 'bg-green-500',
+                    }}
+                  />
                 ))}
               </div>
             </div>

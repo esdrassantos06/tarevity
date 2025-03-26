@@ -1,6 +1,6 @@
 @import 'tailwindcss';
 @import 'tailwindcss-animated';
-@import "tw-animate-css";
+@import 'tw-animate-css';
 
 @custom-variant dark (&:where(.dark, .dark *));
 
@@ -21,7 +21,6 @@
   --color-DescriptionLight: #4a4754;
 
   --color-GrayDark: #77757f;
-
 
   /* Border */
   /* navbar icons must have border-2 */
