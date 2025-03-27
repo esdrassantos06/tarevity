@@ -262,7 +262,7 @@ export default function EnhancedResetPasswordForm() {
     return (
       <div className="dark:bg-BlackLight mx-auto w-full max-w-md rounded-lg bg-white p-6 shadow-md">
         <div className="text-center">
-          <FaSpinner className="mx-auto h-12 w-12 animate-spin text-blue-500" />
+          <FaSpinner className="mx-auto size-12 animate-spin text-blue-500" />
           <p className="mt-4 text-gray-600 dark:text-gray-400">
             Verifying password reset link...
           </p>
@@ -275,7 +275,7 @@ export default function EnhancedResetPasswordForm() {
     return (
       <div className="dark:bg-BlackLight mx-auto w-full max-w-md rounded-lg bg-white p-6 shadow-md">
         <div className="mb-6 text-center">
-          <FaExclamationTriangle className="mx-auto h-16 w-16 text-red-500" />
+          <FaExclamationTriangle className="mx-auto size-16 text-red-500" />
           <h1 className="mt-4 text-2xl font-bold text-gray-900 dark:text-white">
             Invalid or expired link
           </h1>
@@ -319,7 +319,7 @@ export default function EnhancedResetPasswordForm() {
       {isSubmitted ? (
         <div className="text-center">
           <div className="mb-6 rounded-lg bg-green-50 p-4 dark:bg-green-900/30">
-            <FaCheck className="mx-auto mb-2 h-12 w-12 text-green-500 dark:text-green-400" />
+            <FaCheck className="mx-auto mb-2 size-12 text-green-500 dark:text-green-400" />
             <p className="text-green-800 dark:text-green-200">
               Your password has been reset successfully. You will be redirected
               to the login page.
@@ -380,7 +380,7 @@ export default function EnhancedResetPasswordForm() {
           >
             {isLoading ? (
               <>
-                <FaSpinner className="mr-2 h-4 w-4 animate-spin" />
+                <FaSpinner className="mr-2 size-4 animate-spin" />
                 Processing...
               </>
             ) : (

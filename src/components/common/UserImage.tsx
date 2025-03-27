@@ -13,7 +13,7 @@ interface UserImageProps {
 }
 
 const UserImage: React.FC<UserImageProps> = ({
-  className = 'h-10 w-10 cursor-pointer rounded-full object-cover',
+  className = 'size-10 cursor-pointer rounded-full object-cover',
   size = 40,
   onClick,
 }) => {
@@ -70,7 +70,7 @@ const UserImage: React.FC<UserImageProps> = ({
         className={`flex items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900 ${className}`}
         onClick={onClick}
       >
-        <FaUser className="h-5 w-5 text-blue-500 dark:text-blue-300" />
+        <FaUser className="size-5 text-blue-500 dark:text-blue-300" />
       </div>
     )
   }

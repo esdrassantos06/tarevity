@@ -132,17 +132,17 @@ export default function ProfileImageManager({
           title="Remove profile image"
           type="button"
         >
-          <FaTrash className="h-4 w-4" />
+          <FaTrash className="size-4" />
         </button>
       )}
 
-      <div className="bg-bgLight border-BorderLight dark:border-BorderDark relative h-24 w-24 overflow-hidden rounded-full border-4">
+      <div className="bg-bgLight border-BorderLight dark:border-BorderDark relative size-24 overflow-hidden rounded-full border-4">
         {isEditing ? (
-          <div className="relative h-full w-full">
+          <div className="relative size-full">
             {/* Preview image or current image */}
             {previewUrl ? (
               <div
-                className="h-full w-full cursor-pointer"
+                className="size-full cursor-pointer"
                 onClick={handleImageClick}
               >
                 <Image
@@ -150,13 +150,13 @@ export default function ProfileImageManager({
                   alt="Preview"
                   width={96}
                   height={96}
-                  className="h-full w-full object-cover"
+                  className="size-full object-cover"
                   onError={handleImageError}
                 />
               </div>
             ) : profileImageUrl && !imageError ? (
               <div
-                className="h-full w-full cursor-pointer"
+                className="size-full cursor-pointer"
                 onClick={handleImageClick}
               >
                 <Image
@@ -164,16 +164,16 @@ export default function ProfileImageManager({
                   alt={profileData.name || 'Profile Picture'}
                   width={96}
                   height={96}
-                  className="h-full w-full object-cover"
+                  className="size-full object-cover"
                   onError={handleImageError}
                 />
               </div>
             ) : (
               <div
-                className="flex h-full w-full cursor-pointer items-center justify-center bg-blue-100 dark:bg-blue-900"
+                className="flex size-full cursor-pointer items-center justify-center bg-blue-100 dark:bg-blue-900"
                 onClick={handleImageClick}
               >
-                <FaUser className="h-12 w-12 text-blue-500 dark:text-blue-300" />
+                <FaUser className="size-12 text-blue-500 dark:text-blue-300" />
               </div>
             )}
 
@@ -182,7 +182,7 @@ export default function ProfileImageManager({
               className="absolute inset-0 flex cursor-pointer items-center justify-center bg-black/50"
               onClick={handleImageClick}
             >
-              <FaCamera className="h-8 w-8 text-white" />
+              <FaCamera className="size-8 text-white" />
             </div>
 
             {/* Hidden file input */}
@@ -200,14 +200,14 @@ export default function ProfileImageManager({
             alt={profileData.name || 'Profile Picture'}
             width={96}
             height={96}
-            className="h-full w-full object-cover"
+            className="size-full object-cover"
             priority
             unoptimized={true}
             onError={handleImageError}
           />
         ) : (
-          <div className="flex h-full w-full items-center justify-center bg-blue-100 dark:bg-blue-900">
-            <FaUser className="h-12 w-12 text-blue-500 dark:text-blue-300" />
+          <div className="flex size-full items-center justify-center bg-blue-100 dark:bg-blue-900">
+            <FaUser className="size-12 text-blue-500 dark:text-blue-300" />
           </div>
         )}
       </div>

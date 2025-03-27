@@ -114,7 +114,7 @@ export default function EnhancedForgotPasswordForm() {
       {isSubmitted ? (
         <div className="text-center">
           <div className="mb-6 rounded-lg bg-green-50 p-4 dark:bg-green-900/30">
-            <FaEnvelope className="mx-auto mb-2 h-12 w-12 text-green-500 dark:text-green-400" />
+            <FaEnvelope className="mx-auto mb-2 size-12 text-green-500 dark:text-green-400" />
             <p className="text-green-800 dark:text-green-200">
               We have sent you an email with instructions on how to reset your
               password. The link will expire in 1 hour.
@@ -173,7 +173,7 @@ export default function EnhancedForgotPasswordForm() {
           >
             {isLoading ? (
               <>
-                <FaSpinner className="mr-2 h-4 w-4 animate-spin" />
+                <FaSpinner className="mr-2 size-4 animate-spin" />
                 Sending...
               </>
             ) : (

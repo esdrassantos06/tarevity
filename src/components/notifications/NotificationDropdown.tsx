@@ -239,9 +239,9 @@ export default function NotificationDropdown() {
         className="border-BorderLight hover:bg-BorderLight dark:border-BorderDark dark:hover:bg-BorderDark relative mr-3 cursor-pointer rounded-lg border-2 p-2 transition-all duration-300"
         aria-label="Notifications"
       >
-        <IoNotificationsOutline className="h-5 w-5" />
+        <IoNotificationsOutline className="size-5" />
         {unreadCount > 0 && (
-          <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-xs text-white">
+          <span className="absolute -top-1 -right-1 flex size-4 items-center justify-center rounded-full bg-red-500 text-xs text-white">
             {unreadCount > 9 ? '9+' : unreadCount}
           </span>
         )}
@@ -309,12 +309,12 @@ export default function NotificationDropdown() {
           <div className="max-h-80 overflow-y-auto p-2">
             {isLoading ? (
               <div className="flex items-center justify-center py-10">
-                <div className="h-6 w-6 animate-spin rounded-full border-2 border-blue-500 border-t-transparent"></div>
+                <div className="size-6 animate-spin rounded-full border-2 border-blue-500 border-t-transparent"></div>
               </div>
             ) : notifications.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-6">
                 <div className="mb-2 rounded-full bg-gray-100 p-3 dark:bg-gray-800">
-                  <FaBell className="h-6 w-6 text-gray-400" />
+                  <FaBell className="size-6 text-gray-400" />
                 </div>
                 <p className="text-gray-500 dark:text-gray-400">
                   No notifications
@@ -391,12 +391,12 @@ export default function NotificationDropdown() {
                         >
                           {notification.read ? (
                             <>
-                              <FaEnvelope className="mr-1 h-3 w-3" />
+                              <FaEnvelope className="mr-1 size-3" />
                               <span>Unread</span>
                             </>
                           ) : (
                             <>
-                              <FaCheckCircle className="mr-1 h-3 w-3" />
+                              <FaCheckCircle className="mr-1 size-3" />
                               <span>Read</span>
                             </>
                           )}
@@ -411,7 +411,7 @@ export default function NotificationDropdown() {
                           className="flex items-center rounded-md bg-red-100 px-2 py-1 text-xs text-red-700 hover:bg-red-200 dark:bg-red-900/30 dark:text-red-300 dark:hover:bg-red-800/50"
                           title="Remove notification"
                         >
-                          <FaTrash className="mr-1 h-3 w-3" />
+                          <FaTrash className="mr-1 size-3" />
                           <span>Remove</span>
                         </button>
                       </div>

@@ -345,7 +345,7 @@ export default function EnhancedRegisterForm() {
                 id="acceptTerms"
                 type="checkbox"
                 {...register('acceptTerms')}
-                className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700"
+                className="size-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700"
                 disabled={isSubmitting}
               />
             </div>
@@ -387,7 +387,7 @@ export default function EnhancedRegisterForm() {
         >
           {isSubmitting ? (
             <>
-              <svg className="mr-2 h-4 w-4 animate-spin" viewBox="0 0 24 24">
+              <svg className="mr-2 size-4 animate-spin" viewBox="0 0 24 24">
                 <circle
                   className="opacity-25"
                   cx="12"

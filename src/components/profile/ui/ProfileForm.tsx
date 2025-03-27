@@ -205,7 +205,7 @@ export default function ProfileForm({
           disabled={isSubmitting}
           className="bg-primary hover:bg-primaryHover inline-flex items-center rounded-md border border-transparent px-4 py-2 text-sm font-medium text-white shadow-sm outline-none"
         >
-          <FaSave className="mr-2 -ml-1 h-4 w-4" />
+          <FaSave className="mr-2 -ml-1 size-4" />
           {isSubmitting ? 'Saving...' : 'Save'}
         </button>
         <button
@@ -214,7 +214,7 @@ export default function ProfileForm({
           onClick={onCancel}
           className="inline-flex items-center rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 shadow-sm outline-none hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
         >
-          <FaTimes className="mr-2 -ml-1 h-4 w-4" />
+          <FaTimes className="mr-2 -ml-1 size-4" />
           Cancel
         </button>
       </div>

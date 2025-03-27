@@ -31,7 +31,7 @@ const Pagination: React.FC<PaginationProps> = ({
         }`}
         aria-label="Previous page"
       >
-        <FaChevronLeft className="group-hover:text-primary h-4 w-4 text-gray-600 dark:text-gray-400" />{' '}
+        <FaChevronLeft className="group-hover:text-primary size-4 text-gray-600 dark:text-gray-400" />{' '}
         Prev
       </button>
 
@@ -42,7 +42,7 @@ const Pagination: React.FC<PaginationProps> = ({
             <button
               key={i + 1}
               onClick={() => onPageChange(i + 1)}
-              className={`h-9 w-9 rounded-md ${
+              className={`size-9 rounded-md ${
                 currentPage === i + 1
                   ? 'bg-primary text-white'
                   : 'text-gray-700 hover:bg-gray-300 dark:text-gray-300 dark:hover:bg-gray-700'
@@ -56,7 +56,7 @@ const Pagination: React.FC<PaginationProps> = ({
             {/* Always show first page */}
             <button
               onClick={() => onPageChange(1)}
-              className={`h-9 w-9 rounded-md ${
+              className={`size-9 rounded-md ${
                 currentPage === 1
                   ? 'bg-blue-600 text-white'
                   : 'text-gray-700 hover:bg-gray-300 dark:text-gray-300 dark:hover:bg-gray-700'
@@ -84,7 +84,7 @@ const Pagination: React.FC<PaginationProps> = ({
                   <button
                     key={pageNum}
                     onClick={() => onPageChange(pageNum)}
-                    className={`h-9 w-9 rounded-md ${
+                    className={`size-9 rounded-md ${
                       currentPage === pageNum
                         ? 'bg-blue-600 text-white'
                         : 'text-gray-700 hover:bg-gray-300 dark:text-gray-300 dark:hover:bg-gray-700'
@@ -105,7 +105,7 @@ const Pagination: React.FC<PaginationProps> = ({
             {/* Always show last page */}
             <button
               onClick={() => onPageChange(totalPages)}
-              className={`h-9 w-9 rounded-md ${
+              className={`size-9 rounded-md ${
                 currentPage === totalPages
                   ? 'bg-blue-600 text-white'
                   : 'text-gray-700 hover:bg-gray-300 dark:text-gray-300 dark:hover:bg-gray-700'
@@ -128,7 +128,7 @@ const Pagination: React.FC<PaginationProps> = ({
         aria-label="Next page"
       >
         Next{' '}
-        <FaChevronRight className="group-hover:text-primary h-4 w-4 text-gray-600 dark:text-gray-400" />
+        <FaChevronRight className="group-hover:text-primary size-4 text-gray-600 dark:text-gray-400" />
       </button>
     </div>
   )

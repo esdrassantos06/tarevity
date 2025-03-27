@@ -150,7 +150,7 @@ export default function Calendar() {
   }).format(currentDate)
 
   return (
-    <div className="dark:bg-BlackLight flex h-full w-full flex-col rounded-lg bg-white p-2">
+    <div className="dark:bg-BlackLight flex size-full flex-col rounded-lg bg-white p-2">
       {/* Calendar Header */}
       <div className="flex items-center justify-between border-b p-4">
         <h1 className="text-2xl font-bold">{monthYearFormat}</h1>
@@ -159,10 +159,10 @@ export default function Calendar() {
             Today
           </Button>
           <Button variant="outline" size="icon" onClick={prevMonth}>
-            <ChevronLeft className="h-4 w-4" />
+            <ChevronLeft className="size-4" />
           </Button>
           <Button variant="outline" size="icon" onClick={nextMonth}>
-            <ChevronRight className="h-4 w-4" />
+            <ChevronRight className="size-4" />
           </Button>
         </div>
       </div>
@@ -205,7 +205,7 @@ export default function Calendar() {
               <div className="flex justify-between">
                 <span
                   className={cn(
-                    'flex h-6 w-6 items-center justify-center rounded-full text-sm',
+                    'flex size-6 items-center justify-center rounded-full text-sm',
                     isToday && 'bg-primary text-white',
                     dayEvents.length > 0 &&
                       'font-bold text-blue-600 dark:text-blue-400',

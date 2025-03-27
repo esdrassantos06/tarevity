@@ -34,7 +34,7 @@ const TodoFilters: React.FC<TodoFiltersProps> = ({
             onClick={createNewTodo}
             className="flex w-40 cursor-pointer items-center justify-center gap-2 rounded-md bg-blue-600 py-2.5 text-white transition-colors hover:bg-blue-700"
           >
-            <FiPlus className="h-5 w-5" /> Create Task
+            <FiPlus className="size-5" /> Create Task
           </button>
           <ExpandableSearch value={searchQuery} onChange={onSearchChange} />
         </div>
@@ -52,7 +52,7 @@ const TodoFilters: React.FC<TodoFiltersProps> = ({
             }`}
             onClick={() => onTabChange('all')}
           >
-            <span className="mr-2 h-3 w-3 rounded-full bg-blue-600"></span>
+            <span className="mr-2 size-3 rounded-full bg-blue-600"></span>
             All
           </button>
 

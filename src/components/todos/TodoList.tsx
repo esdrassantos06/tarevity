@@ -321,7 +321,7 @@ const RedesignedTodoList: React.FC = () => {
         aria-label="Loading tasks"
       >
         <div
-          className="h-12 w-12 animate-spin rounded-full border-4 border-blue-500 border-t-transparent"
+          className="size-12 animate-spin rounded-full border-4 border-blue-500 border-t-transparent"
           role="status"
         >
           <span className="sr-only">Loading...</span>
@@ -386,7 +386,7 @@ const RedesignedTodoList: React.FC = () => {
         >
           <div className="mb-2 rounded-full bg-gray-100 p-4 dark:bg-gray-800">
             <svg
-              className="h-8 w-8 text-gray-400"
+              className="size-8 text-gray-400"
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
               viewBox="0 0 24 24"

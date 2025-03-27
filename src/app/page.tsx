@@ -85,8 +85,8 @@ export default function HomePage() {
                 {/* Feature 1 */}
                 <section className="flex">
                   <div className="flex-shrink-0">
-                    <div className="bg-primary flex h-12 w-12 items-center justify-center rounded-md text-white">
-                      <FaCheckCircle className="h-6 w-6" />
+                    <div className="bg-primary flex size-12 items-center justify-center rounded-md text-white">
+                      <FaCheckCircle className="size-6" />
                     </div>
                   </div>
                   <div className="ml-4">
@@ -103,8 +103,8 @@ export default function HomePage() {
                 {/* Feature 2 */}
                 <section className="flex">
                   <div className="flex-shrink-0">
-                    <div className="bg-primary flex h-12 w-12 items-center justify-center rounded-md text-white">
-                      <FaBell className="h-6 w-6" />
+                    <div className="bg-primary flex size-12 items-center justify-center rounded-md text-white">
+                      <FaBell className="size-6" />
                     </div>
                   </div>
                   <div className="ml-4">
@@ -121,8 +121,8 @@ export default function HomePage() {
                 {/* Feature 3 */}
                 <section className="flex">
                   <div className="flex-shrink-0">
-                    <div className="bg-primary flex h-12 w-12 items-center justify-center rounded-md text-white">
-                      <FaLock className="h-6 w-6" />
+                    <div className="bg-primary flex size-12 items-center justify-center rounded-md text-white">
+                      <FaLock className="size-6" />
                     </div>
                   </div>
                   <div className="ml-4">
@@ -139,8 +139,8 @@ export default function HomePage() {
                 {/* Feature 4 */}
                 <section className="flex">
                   <div className="flex-shrink-0">
-                    <div className="bg-primary flex h-12 w-12 items-center justify-center rounded-md text-white">
-                      <FaMobileAlt className="h-6 w-6" />
+                    <div className="bg-primary flex size-12 items-center justify-center rounded-md text-white">
+                      <FaMobileAlt className="size-6" />
                     </div>
                   </div>
                   <div className="ml-4">

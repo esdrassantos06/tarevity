@@ -35,7 +35,7 @@ const TodoStats = memo(
             <div className="relative h-16">
               <svg
                 viewBox="0 0 100 100"
-                className="h-25 w-25"
+                className="size-25"
                 aria-hidden="true"
                 role="presentation"
               >
@@ -89,7 +89,7 @@ const TodoStats = memo(
               <div className="flex flex-col gap-2">
                 <div className="flex items-center">
                   <div
-                    className="mr-2 h-3 w-3 rounded-full bg-blue-600"
+                    className="mr-2 size-3 rounded-full bg-blue-600"
                     aria-hidden="true"
                   ></div>
                   <span className="text-sm">Active</span>
@@ -99,7 +99,7 @@ const TodoStats = memo(
                 </div>
                 <div className="flex items-center">
                   <div
-                    className="mr-2 h-3 w-3 rounded-full bg-green-500"
+                    className="mr-2 size-3 rounded-full bg-green-500"
                     aria-hidden="true"
                   ></div>
                   <span className="text-sm">Completed</span>
@@ -109,7 +109,7 @@ const TodoStats = memo(
                 </div>
                 <div className="flex items-center">
                   <div
-                    className="mr-2 h-3 w-3 rounded-full bg-amber-500"
+                    className="mr-2 size-3 rounded-full bg-amber-500"
                     aria-hidden="true"
                   ></div>
                   <span className="text-sm">Review</span>
@@ -119,7 +119,7 @@ const TodoStats = memo(
                 </div>
                 <div className="flex items-center">
                   <div
-                    className="mr-2 h-3 w-3 rounded-full bg-gray-400"
+                    className="mr-2 size-3 rounded-full bg-gray-400"
                     aria-hidden="true"
                   ></div>
                   <span className="text-sm">Total</span>

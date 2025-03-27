@@ -161,7 +161,7 @@ export default function ValidatedInput({
           id={`${id}-error`}
           className="mt-1 flex items-center text-sm text-red-600 dark:text-red-400"
         >
-          <FaExclamationCircle className="mr-1 h-3 w-3 flex-shrink-0" />
+          <FaExclamationCircle className="mr-1 size-3 flex-shrink-0" />
           <span>{error}</span>
         </div>
       )}
@@ -172,7 +172,7 @@ export default function ValidatedInput({
           id={`${id}-helper`}
           className="mt-1 flex items-center text-sm text-gray-500 dark:text-gray-400"
         >
-          <FaInfoCircle className="mr-1 h-3 w-3 flex-shrink-0" />
+          <FaInfoCircle className="mr-1 size-3 flex-shrink-0" />
           <span>{helperText}</span>
         </div>
       )}

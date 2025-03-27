@@ -218,7 +218,7 @@ export default function PasswordStrengthMeter({
 
         {state.isChecking && (
           <div className="flex items-center text-xs text-gray-500">
-            <div className="mr-1 h-3 w-3 animate-spin rounded-full border-2 border-gray-300 border-t-blue-600"></div>
+            <div className="mr-1 size-3 animate-spin rounded-full border-2 border-gray-300 border-t-blue-600"></div>
             <span>Checking security...</span>
           </div>
         )}

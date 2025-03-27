@@ -356,7 +356,7 @@ export default function EnhancedLoginForm() {
               id="rememberMe"
               type="checkbox"
               {...register('rememberMe')}
-              className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700"
+              className="size-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700"
               disabled={isLoading || isLocked}
             />
             <label
@@ -393,7 +393,7 @@ export default function EnhancedLoginForm() {
           {isLoading ? (
             <>
               <svg
-                className="mr-2 h-4 w-4 animate-spin"
+                className="mr-2 size-4 animate-spin"
                 viewBox="0 0 24 24"
                 aria-hidden="true"
               >

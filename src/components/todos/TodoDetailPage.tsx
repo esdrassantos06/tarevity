@@ -70,7 +70,7 @@ const TodoDetailPage: React.FC<TodoDetailPageProps> = ({ todoId }) => {
   if (isLoading) {
     return (
       <div className="flex h-64 items-center justify-center">
-        <div className="h-12 w-12 animate-spin rounded-full border-4 border-blue-500 border-t-transparent"></div>
+        <div className="size-12 animate-spin rounded-full border-4 border-blue-500 border-t-transparent"></div>
       </div>
     )
   }
@@ -263,7 +263,7 @@ const TodoDetailPage: React.FC<TodoDetailPageProps> = ({ todoId }) => {
           <div className="flex flex-col space-y-3 sm:flex-row sm:items-start sm:justify-between sm:space-y-0">
             <div className="flex items-start space-x-3 sm:space-x-4">
               <div
-                className={`${priority.color} flex h-10 w-10 items-center justify-center rounded-md p-1 text-white sm:h-12 sm:w-12`}
+                className={`${priority.color} flex size-10 items-center justify-center rounded-md p-1 text-white sm:size-12`}
               >
                 <FaFlag />
               </div>
@@ -363,7 +363,7 @@ const TodoDetailPage: React.FC<TodoDetailPageProps> = ({ todoId }) => {
               </h3>
               <div className="flex items-center">
                 <div
-                  className={`h-3 w-3 rounded-full ${status.color} mr-2`}
+                  className={`size-3 rounded-full ${status.color} mr-2`}
                 ></div>
                 <p className="text-sm font-medium text-gray-900 sm:text-base dark:text-white">
                   {status.label}
@@ -404,7 +404,7 @@ const TodoDetailPage: React.FC<TodoDetailPageProps> = ({ todoId }) => {
                 Assigned To
               </h3>
               <div className="flex items-center">
-                <div className="mr-2 flex h-6 w-6 items-center justify-center rounded-full bg-blue-500 text-white sm:h-8 sm:w-8">
+                <div className="mr-2 flex size-6 items-center justify-center rounded-full bg-blue-500 text-white sm:size-8">
                   <FaUser />
                 </div>
                 <p className="text-sm font-medium text-gray-900 sm:text-base dark:text-white">

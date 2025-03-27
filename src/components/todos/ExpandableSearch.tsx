@@ -58,7 +58,7 @@ const ExpandableSearch: React.FC<ExpandableSearchProps> = ({
       <div
         className={`border-BorderLight dark:border-BorderDark dark:bg-BlackLight grid grid-cols-[40px_1fr_auto] items-center overflow-hidden rounded-md border-2 bg-white transition-all duration-300 ease-in-out ${isMobile ? 'w-40' : isExpanded ? 'w-60' : 'w-10'} `}
       >
-        <div className="relative grid h-9 w-9 place-items-center">
+        <div className="relative grid size-9 place-items-center">
           <button
             onClick={toggleSearch}
             aria-label={isExpanded ? 'Close search' : 'Expand search'}
@@ -91,7 +91,7 @@ const ExpandableSearch: React.FC<ExpandableSearchProps> = ({
               type="button"
               tabIndex={isExpanded ? 0 : -1}
             >
-              <FaXmark className="h-4 w-4" />
+              <FaXmark className="size-4" />
             </button>
           </div>
         )}

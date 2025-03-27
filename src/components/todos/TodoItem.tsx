@@ -110,7 +110,7 @@ const TodoItem = memo(
           <div className="mb-2 flex items-start justify-between">
             <div className="mr-2 flex items-center overflow-hidden">
               <div
-                className={`h-5 w-5 flex-shrink-0 rounded-full ${priority.color} mr-2`}
+                className={`size-5 flex-shrink-0 rounded-full ${priority.color} mr-2`}
                 aria-hidden="true"
               ></div>
               <h3
@@ -135,7 +135,7 @@ const TodoItem = memo(
                   onToggleComplete(todo.id, todo.is_completed, e)
                 }
                 onClick={(e) => e.stopPropagation()}
-                className="h-4 w-4 rounded text-blue-600 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                className="size-4 rounded text-blue-600 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                 aria-label={`Mark ${todo.title} as ${todo.is_completed ? 'not completed' : 'completed'}`}
               />
             </div>

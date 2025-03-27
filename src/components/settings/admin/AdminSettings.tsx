@@ -179,7 +179,7 @@ const AdminSettings: React.FC = () => {
 
             {isLoadingUsers ? (
               <div className="flex justify-center py-8">
-                <div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-500 border-t-transparent"></div>
+                <div className="size-8 animate-spin rounded-full border-4 border-blue-500 border-t-transparent"></div>
               </div>
             ) : (
               <div className="w-full">
@@ -265,14 +265,14 @@ const AdminSettings: React.FC = () => {
 
             {isLoadingStats ? (
               <div className="flex justify-center py-8">
-                <div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-500 border-t-transparent"></div>
+                <div className="size-8 animate-spin rounded-full border-4 border-blue-500 border-t-transparent"></div>
               </div>
             ) : (
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 <div className="rounded-lg bg-white p-6 shadow dark:bg-gray-800">
                   <div className="flex items-center">
                     <div className="rounded-md bg-blue-100 p-3 dark:bg-blue-900/30">
-                      <FaUsers className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+                      <FaUsers className="size-6 text-blue-600 dark:text-blue-400" />
                     </div>
                     <div className="ml-4">
                       <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400">
@@ -288,7 +288,7 @@ const AdminSettings: React.FC = () => {
                 <div className="rounded-lg bg-white p-6 shadow dark:bg-gray-800">
                   <div className="flex items-center">
                     <div className="rounded-md bg-green-100 p-3 dark:bg-green-900/30">
-                      <FaChartBar className="h-6 w-6 text-green-600 dark:text-green-400" />
+                      <FaChartBar className="size-6 text-green-600 dark:text-green-400" />
                     </div>
                     <div className="ml-4">
                       <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400">
@@ -304,7 +304,7 @@ const AdminSettings: React.FC = () => {
                 <div className="rounded-lg bg-white p-6 shadow dark:bg-gray-800">
                   <div className="flex items-center">
                     <div className="rounded-md bg-purple-100 p-3 dark:bg-purple-900/30">
-                      <FaUserShield className="h-6 w-6 text-purple-600 dark:text-purple-400" />
+                      <FaUserShield className="size-6 text-purple-600 dark:text-purple-400" />
                     </div>
                     <div className="ml-4">
                       <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400">

@@ -27,12 +27,12 @@ export default function ProfileHeader({
           className="inline-flex items-center rounded-md border border-transparent p-2 text-sm text-blue-600 hover:text-blue-800 focus:outline-none dark:text-blue-400 dark:hover:text-blue-300"
           aria-label="Edit profile"
         >
-          <FaPencilAlt className="h-4 w-4" />
+          <FaPencilAlt className="size-4" />
           <span className="ml-1">Edit</span>
         </button>
       </div>
       <div className="mt-2 flex items-center text-gray-600 dark:text-gray-400">
-        <FaEnvelope className="mr-2 h-4 w-4" />
+        <FaEnvelope className="mr-2 size-4" />
         <span>{profileData.email}</span>
       </div>
       <div className="mt-4 border-t border-gray-200 pt-4 dark:border-gray-700">

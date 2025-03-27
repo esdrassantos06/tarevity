@@ -259,7 +259,7 @@ const NewTodoPage: React.FC = () => {
                 name="is_completed"
                 checked={formData.is_completed}
                 onChange={handleChange}
-                className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                className="size-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
               />
               <label
                 htmlFor="is_completed"
@@ -289,7 +289,7 @@ const NewTodoPage: React.FC = () => {
               {createTodoMutation.isPending ? (
                 <>
                   <svg
-                    className="mr-2 -ml-1 inline h-4 w-4 animate-spin text-white"
+                    className="mr-2 -ml-1 inline size-4 animate-spin text-white"
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
                     viewBox="0 0 24 24"

@@ -152,7 +152,7 @@ export default function SettingsComponent() {
                   : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700'
               }`}
             >
-              <FaDesktop className="mr-3 h-4 w-4" />
+              <FaDesktop className="mr-3 size-4" />
               Appearance
             </button>
             <button
@@ -164,7 +164,7 @@ export default function SettingsComponent() {
                   : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700'
               }`}
             >
-              <FaUserCircle className="mr-3 h-4 w-4" />
+              <FaUserCircle className="mr-3 size-4" />
               Account
             </button>
 
@@ -179,7 +179,7 @@ export default function SettingsComponent() {
                     : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700'
                 }`}
               >
-                <FaShieldAlt className="mr-3 h-4 w-4" />
+                <FaShieldAlt className="mr-3 size-4" />
                 Admin Panel
               </button>
             )}
@@ -211,7 +211,7 @@ export default function SettingsComponent() {
                       onClick={() => handleThemeChange('light')}
                     >
                       <FaSun
-                        className={`xs:flex hidden h-5 w-5 items-center ${
+                        className={`xs:flex hidden size-5 items-center ${
                           theme === 'light'
                             ? 'text-blue-600 dark:text-blue-400'
                             : 'text-gray-500 dark:text-gray-400'
@@ -230,7 +230,7 @@ export default function SettingsComponent() {
                       onClick={() => handleThemeChange('dark')}
                     >
                       <FaMoon
-                        className={`xs:flex hidden h-5 w-5 ${
+                        className={`xs:flex hidden size-5 ${
                           theme === 'dark'
                             ? 'text-blue-600 dark:text-blue-400'
                             : 'text-gray-500 dark:text-gray-400'
@@ -249,7 +249,7 @@ export default function SettingsComponent() {
                       onClick={() => handleThemeChange('system')}
                     >
                       <FaDesktop
-                        className={`xs:flex hidden h-5 w-5 ${
+                        className={`xs:flex hidden size-5 ${
                           theme === 'system'
                             ? 'text-blue-600 dark:text-blue-400'
                             : 'text-gray-500 dark:text-gray-400'
