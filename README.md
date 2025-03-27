@@ -125,23 +125,13 @@ Security is a core focus of Tarevity with:
    - Redis settings for rate limiting
    - Cron (For notifications)
 
-NextAuth configuration
-OAuth provider credentials (GitHub, Google)
-Supabase settings
-Email configuration (Brevo)
-Redis settings for rate limiting
-
-```
-   cp .env.local.example .env.local
-```
-
-1. Start the development server
+4. Start the development server
 
    ```bash
    npm run dev
    ```
 
-2. Access the app at [http://localhost:3000](http://localhost:3000)
+5. Access the app at [http://localhost:3000](http://localhost:3000)
 
 ## 📁 Project Structure
 
