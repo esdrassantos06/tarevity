@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import Link from 'next/link'
+import {Link} from '@/i18n/navigation';
 import { toast } from 'react-toastify'
 import { FaEnvelope, FaArrowLeft, FaCheck, FaSpinner } from 'react-icons/fa'
 import { authAPI } from '@/lib/api'

@@ -1,8 +1,10 @@
-import Link from 'next/link'
+import {Link} from '@/i18n/navigation';
 import { LuGithub, LuLinkedin, LuHeart, LuMail } from 'react-icons/lu'
 import TarevityLogo from '../logo/TarevityLogo'
+import {useTranslations} from 'next-intl';
 
 export default function Footer() {
+  const t = useTranslations('footer');
   const currentYear = new Date().getFullYear()
 
   return (
@@ -15,14 +17,14 @@ export default function Footer() {
               <TarevityLogo className="w-30 fill-black dark:fill-white" />
             </Link>
             <p className="text-GraySecondaryLight dark:text-GrayDark mt-2 text-sm">
-              &copy; {currentYear} Tarevity. All rights reserved.
+              &copy; {currentYear} Tarevity. {t('copyright')}
             </p>
           </div>
 
           {/* Navigation and Legal */}
           <div>
             <h3 className="text-BlackLight text-lg font-medium dark:text-white">
-              Navigation
+              {t('navigation')}
             </h3>
             <ul className="mt-4 space-y-2">
               <li>
@@ -30,7 +32,7 @@ export default function Footer() {
                   href="/"
                   className="text-muted-foreground hover:text-foreground transition-all duration-300"
                 >
-                  Home
+                  {t('home')}
                 </Link>
               </li>
               <li>
@@ -38,7 +40,7 @@ export default function Footer() {
                   href="/dashboard"
                   className="text-muted-foreground hover:text-foreground transition-all duration-300"
                 >
-                  Dashboard
+                  {t('dashboard')}
                 </Link>
               </li>
               <li>
@@ -46,7 +48,7 @@ export default function Footer() {
                   href="/profile"
                   className="text-muted-foreground hover:text-foreground transition-all duration-300"
                 >
-                  Profile
+                  {t('profile')}
                 </Link>
               </li>
             </ul>
@@ -54,7 +56,7 @@ export default function Footer() {
 
           <div>
             <h3 className="text-BlackLight text-lg font-medium dark:text-white">
-              Legal
+              {t('legal')}
             </h3>
             <ul className="mt-4 space-y-2">
               <li>
@@ -62,7 +64,7 @@ export default function Footer() {
                   href="/privacy"
                   className="text-muted-foreground hover:text-foreground transition-all duration-300"
                 >
-                  Privacy
+                  {t('privacy')}
                 </Link>
               </li>
               <li>
@@ -70,7 +72,7 @@ export default function Footer() {
                   href="/terms"
                   className="text-muted-foreground hover:text-foreground transition-all duration-300"
                 >
-                  Terms of Use
+                  {t('termsOfUse')}
                 </Link>
               </li>
             </ul>
@@ -80,7 +82,7 @@ export default function Footer() {
           <div className="flex flex-col space-y-4">
             <div>
               <h3 className="text-BlackLight text-lg font-medium dark:text-white">
-                Contact
+                {t('contact')}
               </h3>
               <ul className="mt-2 flex gap-4">
                 <li>
@@ -91,14 +93,14 @@ export default function Footer() {
                     aria-label="Email"
                     className="text-muted-foreground hover:text-foreground flex items-center gap-2 transition-all duration-300"
                   >
-                    <LuMail className="size-5" /> Email
+                    <LuMail className="size-5" /> {t('email')}
                   </a>
                 </li>
               </ul>
             </div>
             <div>
               <h3 className="text-BlackLight text-lg font-medium dark:text-white">
-                Social Media
+                {t('socialMedia')}
               </h3>
               <div className="mt-2 flex gap-4">
                 <a
@@ -129,7 +131,7 @@ export default function Footer() {
         {/* Made with love */}
         <div className="mt-8 flex items-center justify-center border-t pt-6">
           <p className="text-BlackLight flex items-center gap-1 text-sm dark:text-white">
-            Made with <LuHeart className="size-4 text-red-500" /> by
+            {t('madeWith')} <LuHeart className="size-4 text-red-500" /> {t('by')}
             <a
               aria-label={`Esdras's Github`}
               href="https://github.com/esdrassantos06"

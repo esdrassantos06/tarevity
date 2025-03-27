@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { useSession, signOut } from 'next-auth/react'
-import Link from 'next/link'
+import {Link} from '@/i18n/navigation';
 import { FaUser, FaCog, FaSignOutAlt, FaBars, FaTimes } from 'react-icons/fa'
 import { MdSpaceDashboard } from 'react-icons/md'
 import { IoCalendarClearOutline } from 'react-icons/io5'
@@ -12,8 +12,10 @@ import UserImage from '../common/UserImage'
 import NotificationDropdown from '../notifications/NotificationDropdown'
 import { useProfileQuery } from '@/hooks/useProfileQuery'
 import LanguageSwitcher from '../common/LanguageSwitcher'
+import {useTranslations} from 'next-intl';
 
 export default function Header() {
+  const t = useTranslations('header')
   const { data: session, status } = useSession()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
@@ -81,6 +83,7 @@ export default function Header() {
                 <Link
                   href="/calendar"
                   className="border-BorderLight hover:bg-BorderLight dark:hover:bg-BorderDark dark:border-BorderDark mr-3 cursor-pointer rounded-lg border-2 size-10 p-2 transition-all duration-300"
+                  aria-label={t('calendar')}
                 >
                   <IoCalendarClearOutline className="size-5" />
                 </Link>
@@ -88,12 +91,12 @@ export default function Header() {
                   {/* Profile Dropdown */}
                   <div className="relative" ref={dropdownRef}>
                     <button
-                      aria-label="Open user menu"
+                      aria-label={t('openUserMenu')}
                       onClick={toggleDropdown}
                       className="border-BorderLight dark:border-BorderDark flex items-center rounded-full border-2 transition-colors duration-300 focus:outline-none"
                       aria-expanded={isDropdownOpen}
                     >
-                      <span className="sr-only">Open user menu</span>
+                      <span className="sr-only">{t('openUserMenu')}</span>
                       <UserImage onClick={toggleDropdown} />
                     </button>
 
@@ -116,7 +119,7 @@ export default function Header() {
                           onClick={() => setIsDropdownOpen(false)}
                         >
                           <FaUser className="mr-2 inline" />
-                          Profile
+                          {t('profile')}
                         </Link>
                         <Link
                           href="/settings"
@@ -124,10 +127,10 @@ export default function Header() {
                           onClick={() => setIsDropdownOpen(false)}
                         >
                           <FaCog className="mr-2 inline" />
-                          Settings
+                          {t('settings')}
                         </Link>
                         <button
-                          aria-label="Logout"
+                          aria-label={t('logout')}
                           onClick={() => {
                             setIsDropdownOpen(false)
                             signOut({ callbackUrl: '/' })
@@ -135,7 +138,7 @@ export default function Header() {
                           className="flex w-full items-center justify-start px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
                         >
                           <FaSignOutAlt className="mr-2 inline" />
-                          Logout
+                          {t('logout')}
                         </button>
                       </div>
                     )}
@@ -148,26 +151,26 @@ export default function Header() {
                   href="/auth/login"
                   className="dark:hover:bg-BorderDark/40 hover:bg-BorderLight/70 text-primary dark:border-BorderDark border-BorderLight inline-flex items-center rounded-lg border bg-transparent px-3 py-2 backdrop-blur-sm transition-colors duration-300 dark:text-white"
                 >
-                  Log in
+                  {t('login')}
                 </Link>
                 <Link
                   href="/auth/register"
                   className="bg-primary hover:bg-primary/80 inline-flex items-center rounded-md px-3 py-2 text-white transition-all duration-300"
                 >
-                  Sign up
+                  {t('signup')}
                 </Link>
               </div>
             )}
 
             <div className="-mr-2 flex items-center sm:hidden">
               <button
-                aria-label="Open main menu"
+                aria-label={t('openMainMenu')}
                 onClick={toggleMenu}
                 type="button"
                 className="inline-flex items-center justify-center rounded-md p-2"
                 aria-expanded="false"
               >
-                <span className="sr-only">Open main menu</span>
+                <span className="sr-only">{t('openMainMenu')}</span>
                 {isMenuOpen ? (
                   <FaTimes
                     size={22}
@@ -209,29 +212,29 @@ export default function Header() {
                   className="text-BlackLight block px-3 py-2 dark:text-white"
                 >
                   <MdSpaceDashboard className="mr-1 inline" />
-                  Dashboard
+                  {t('dashboard')}
                 </Link>
                 <Link
                   href="/profile"
                   className="text-BlackLight block px-3 py-2 dark:text-white"
                 >
                   <FaUser className="mr-1 inline" />
-                  Profile
+                  {t('profile')}
                 </Link>
                 <Link
                   href="/settings"
                   className="text-BlackLight block px-3 py-2 dark:text-white"
                 >
                   <FaCog className="mr-1 inline" />
-                  Settings
+                  {t('settings')}
                 </Link>
                 <button
-                  aria-label="Logout"
+                  aria-label={t('logout')}
                   onClick={() => signOut({ callbackUrl: '/' })}
                   className="text-BlackLight block w-full px-3 py-2 text-left dark:text-white"
                 >
                   <FaSignOutAlt className="mr-1 inline" />
-                  Logout
+                  {t('logout')}
                 </button>
               </>
             ) : (
@@ -242,13 +245,13 @@ export default function Header() {
                   href="/auth/login"
                   className="text-BlackLight block px-3 py-2 font-medium dark:text-white"
                 >
-                  Log in
+                  {t('login')}
                 </Link>
                 <Link
                   href="/auth/register"
                   className="text-BlackLight block px-3 py-2 font-medium dark:text-white"
                 >
-                  Sign up
+                  {t('signup')}
                 </Link>
               </div>
             )}

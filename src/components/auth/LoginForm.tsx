@@ -6,7 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { signIn } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import Link from 'next/link'
+import {Link} from '@/i18n/navigation';
 import { FaEnvelope, FaLock, FaExclamationTriangle } from 'react-icons/fa'
 import { showSuccess, showError, showWarning } from '@/lib/toast'
 import ValidatedInput from './ValidatedInput'

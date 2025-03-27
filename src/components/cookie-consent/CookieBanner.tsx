@@ -4,7 +4,7 @@ import React from 'react'
 import CookieConsent from 'react-cookie-consent'
 import { useTheme } from 'next-themes'
 import TarevityIcon from '@/components/logo/TarevityIcon'
-import Link from 'next/link'
+import {Link} from '@/i18n/navigation';
 
 export default function CookieBanner() {
   const { resolvedTheme } = useTheme()
