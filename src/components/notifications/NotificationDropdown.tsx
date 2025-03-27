@@ -34,11 +34,11 @@ export default function NotificationDropdown() {
   const dropdownRef = useRef<HTMLDivElement>(null)
   const queryClient = useQueryClient()
 
-  const { 
-    data: notifications = [], 
+  const {
+    data: notifications = [],
     isLoading,
     refreshNotifications,
-    forceRefreshNotifications
+    forceRefreshNotifications,
   } = useNotificationsQuery({
     enabled: status === 'authenticated',
   })

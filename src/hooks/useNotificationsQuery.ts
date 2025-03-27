@@ -20,24 +20,25 @@ export async function refreshNotifications(): Promise<void> {
 export function useNotificationsQuery(options: QueryOptions = {}) {
   const queryClient = useQueryClient()
   const lastRefreshRef = useRef<number>(Date.now())
+  const initialLoadDone = useRef<boolean>(false)
 
   const forceRefreshNotifications = useCallback(async () => {
     try {
       await axios.post('/api/notifications/refresh')
       await queryClient.invalidateQueries({ queryKey: ['notifications'] })
-      lastRefreshRef.current = Date.now() // Atualiza o timestamp
+      lastRefreshRef.current = Date.now()
       return true
     } catch (error) {
       console.error('Failed to force refresh notifications:', error)
       return false
     }
-  }, [queryClient]);
+  }, [queryClient])
 
   // Function to refresh notifications from the server
   const refreshNotificationsWithThrottling = useCallback(async () => {
     const now = Date.now()
 
-    if (now - lastRefreshRef.current < 30000) {
+    if (now - lastRefreshRef.current < 60000) {
       return
     }
     try {
@@ -50,8 +51,9 @@ export function useNotificationsQuery(options: QueryOptions = {}) {
   }, [queryClient])
 
   useEffect(() => {
-    if (options.enabled !== false) {
+    if (options.enabled !== false && !initialLoadDone.current) {
       refreshNotificationsWithThrottling()
+      initialLoadDone.current = true
     }
 
     // Set up periodic refresh (every 10 minutes)

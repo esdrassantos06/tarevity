@@ -49,16 +49,21 @@ const nextConfig: NextConfig = {
               'camera=(), microphone=(), geolocation=(self), interest-cohort=(), accelerometer=(), autoplay=(), encrypted-media=(), gyroscope=(), magnetometer=(), midi=(), payment=(), picture-in-picture=(), usb=(), xr-spatial-tracking=()',
           },
           {
-            key: 'Cache-Control',
-            value: 'no-store, max-age=0',
-          },
-          {
             key: 'Timing-Allow-Origin',
             value: '*',
           },
           {
             key: 'Feature-Policy',
             value: "sync-xhr 'self'",
+          },
+        ],
+      },
+      {
+        source: '/dashboard',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'private, max-age=0, must-revalidate',
           },
         ],
       },
@@ -119,5 +124,4 @@ const nextConfig: NextConfig = {
     ]
   },
 }
-
 export default nextConfig

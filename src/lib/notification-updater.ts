@@ -1,7 +1,6 @@
 import { formatDistanceToNow, isPast, isToday, isTomorrow } from 'date-fns'
 import { Todo } from './api'
 
-
 export interface NotificationUpdate {
   id: string
   notification_type: 'danger' | 'warning' | 'info'
@@ -10,16 +9,27 @@ export interface NotificationUpdate {
   updated_at: string
 }
 
-
 // This line checks if the code is running on the server
 // If it is not the server, the functions below will export versions that throw errors
 const isServer = typeof window === 'undefined'
+
+const notificationCache = new Map<
+  string,
+  { count: number; timestamp: number }
+>()
 
 /**
  * Processes and updates notifications based on current date and due dates
  * @returns Number of updated notifications
  */
 export async function processDynamicNotificationUpdates(): Promise<number> {
+  const cacheKey = 'notifications-update'
+  const cachedResult = notificationCache.get(cacheKey)
+
+  if (cachedResult && Date.now() - cachedResult.timestamp < 60000) {
+    return cachedResult.count
+  }
+
   // Return 0 or throw error if not on the server
   if (!isServer) {
     console.error(
@@ -86,7 +96,10 @@ export async function processDynamicNotificationUpdates(): Promise<number> {
       if (!todo.due_date) continue
 
       const dueDate = new Date(todo.due_date)
-      let newType = notification.notification_type
+      let newType = notification.notification_type as
+        | 'danger'
+        | 'warning'
+        | 'info'
       let newTitle = notification.title
       let newMessage = notification.message
       let shouldUpdate = false
@@ -208,6 +221,11 @@ export async function processDynamicNotificationUpdates(): Promise<number> {
 
     // Clear duplicate notifications
     await cleanupDuplicateNotifications()
+
+    notificationCache.set(cacheKey, {
+      count: updates.length,
+      timestamp: Date.now(),
+    })
 
     return updates.length
   } catch (error) {
