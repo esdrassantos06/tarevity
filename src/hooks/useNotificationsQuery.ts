@@ -11,10 +11,17 @@ interface QueryOptions {
 
 export function useNotificationsQuery(options: QueryOptions = {}) {
   const queryClient = useQueryClient()
+  const lastRefreshRef = useRef<number>(Date.now())
 
   // Function to refresh notifications from the server
   const refreshNotifications = useCallback(async () => {
+    const now = Date.now()
+
+    if (now - lastRefreshRef.current < 30000) {
+      return
+    }
     try {
+      lastRefreshRef.current = now
       await axios.post('/api/notifications/refresh')
       await queryClient.invalidateQueries({ queryKey: ['notifications'] })
     } catch (error) {
@@ -22,26 +29,31 @@ export function useNotificationsQuery(options: QueryOptions = {}) {
     }
   }, [queryClient])
 
-  // Run the refresh when the component mounts and notifications are enabled
   useEffect(() => {
     if (options.enabled !== false) {
       refreshNotifications()
     }
 
-    // Set up periodic refresh (every 5 minutes)
+    // Set up periodic refresh (every 10 minutes)
     const refreshInterval = setInterval(
       () => {
         if (document.visibilityState === 'visible') {
           refreshNotifications()
         }
       },
-      5 * 60 * 1000,
+      10 * 60 * 1000,
     )
 
-    // Also refresh when the tab becomes visible again
+    let visibilityTimeout: NodeJS.Timeout | null = null
     const handleVisibilityChange = () => {
-      if (document.visibilityState === 'visible') {
-        refreshNotifications()
+      if (
+        document.visibilityState === 'visible' &&
+        visibilityTimeout === null
+      ) {
+        visibilityTimeout = setTimeout(() => {
+          refreshNotifications()
+          visibilityTimeout = null
+        }, 1000)
       }
     }
 
@@ -59,9 +71,9 @@ export function useNotificationsQuery(options: QueryOptions = {}) {
       const response = await axios.get<Notification[]>('/api/notifications')
       return response.data
     },
-    staleTime: 2 * 60 * 1000, // 2 minutes
-    refetchOnWindowFocus: true,
-    refetchInterval: 3 * 60 * 1000, // 3 minutes
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    refetchOnWindowFocus: false,
+    refetchInterval: 10 * 60 * 1000, // 10 minutes
     refetchIntervalInBackground: false,
     retry: 1,
     ...options,
@@ -158,4 +170,7 @@ export function useDeleteNotificationsForTodoMutation() {
       showError('Failed to delete notifications')
     },
   })
+}
+function useRef<T>(initialValue: T): { current: T } {
+  return { current: initialValue }
 }
