@@ -1,6 +1,24 @@
 # Changelog
 
 All notable changes to the Tarevity project will be documented in this file.
+## [1.0.4] - 2025-03-27
+
+### Added
+-Updated next to version 15.2.4
+-Updated @types/node to version 22.13.14 
+
+### Changed
+- Allowed future updates by adding ^ to next, eslint-config-next, and @types/node in package.json
+
+### Fixed
+- Resolved an issue where npm update was not updating dependencies due to fixed versions in package.json
+
+### Security
+- Updated dependencies to the latest versions to address potential security vulnerabilities
+
+### Removed
+- 
+
 ## [1.0.3] - 2025-03-27
 
 ### Added
