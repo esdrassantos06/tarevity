@@ -1,23 +1,28 @@
 # Changelog
 
 All notable changes to the Tarevity project will be documented in this file.
+
 ## [1.0.8] - 2025-03-27
 
 ### Added
-- ... 
+
+- ...
 
 ### Changed
+
 - Update size classes across components
 
 ### Fixed
-- ... 
+
+- ...
 
 ### Security
+
 - ...
 
 ### Removed
-- w- h- and added size-
 
+- w- h- and added size-
 
 ## [1.0.6] - 2025-03-27
 
