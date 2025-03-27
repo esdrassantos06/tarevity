@@ -34,10 +34,6 @@ Thank you for considering contributing to this project! Here are the guidelines 
 - Describe the changes made
 - List any dependencies added
 
-## Code of Conduct
-
-This project follows a code of conduct - please read it before contributing.
-
 ## Questions?
 
 If you have any questions, feel free to open an issue or contact the project maintainers.
