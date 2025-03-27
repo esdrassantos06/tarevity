@@ -1,27 +1,32 @@
 # Changelog
 
 All notable changes to the Tarevity project will be documented in this file.
+
 ## [1.0.6] - 2025-03-27
 
 ### Added
+
 - Implemented back/forward cache support to improve navigation
-- Optimized component loading to reduce layout shifts 
+- Optimized component loading to reduce layout shifts
 
 ### Changed
+
 - Modified HTTP headers to allow proper bfcache functionality
 - Adjusted Next.js cache configuration to balance performance and security
 
 ### Fixed
+
 - Resolved issue preventing back/forward cache usage on dashboard pages
-- Fixed significant layout shift (CLS 0.557) in task listing component 
+- Fixed significant layout shift (CLS 0.557) in task listing component
 
 ### Security
+
 - Maintained all existing security policies (X-Content-Type-Options, X-Frame-Options, etc.)
 - Preserved cache configuration for sensitive APIs
 
 ### Removed
-- Eliminated global "no-store" header that was negatively impacting navigation performance
 
+- Eliminated global "no-store" header that was negatively impacting navigation performance
 
 ## [1.0.5] - 2025-03-27
 
