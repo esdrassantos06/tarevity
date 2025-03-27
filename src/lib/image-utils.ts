@@ -31,7 +31,7 @@ export function ensureAbsoluteUrl(
  */
 export function validateImageFile(
   file: File,
-  maxSizeBytes: number = 5 * 1024 * 1024,
+  maxSizeBytes: number = 2 * 1024 * 1024, // 2MB
 ): { valid: boolean; error?: string } {
   const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp']
 

@@ -8,7 +8,7 @@ import ConfirmationDialog, {
   useConfirmationDialog,
 } from '@/components/common/ConfirmationDialog'
 import { useQueryClient } from '@tanstack/react-query'
-import { refreshNotificationsClient } from '@/lib/notification-updater'
+import { refreshNotifications } from '@/hooks/useNotificationsQuery'
 
 interface TodoFormData {
   title: string
@@ -91,7 +91,7 @@ const NewTodoPage: React.FC = () => {
           if (todoData.due_date && !todoData.is_completed) {
             try {
               // Instead of creating the notification manually, we just update via API
-              await refreshNotificationsClient()
+              await refreshNotifications()
 
               // Invalidate the notifications query to update the UI
               queryClient.invalidateQueries({ queryKey: ['notifications'] })

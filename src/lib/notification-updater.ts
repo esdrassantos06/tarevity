@@ -1,6 +1,7 @@
 import { formatDistanceToNow, isPast, isToday, isTomorrow } from 'date-fns'
 import { Todo } from './api'
 
+
 export interface NotificationUpdate {
   id: string
   notification_type: 'danger' | 'warning' | 'info'
@@ -9,22 +10,6 @@ export interface NotificationUpdate {
   updated_at: string
 }
 
-/**
- * Client-side function to refresh notifications before displaying them
- * Can be called from the frontend during user interaction
- */
-export async function refreshNotificationsClient(): Promise<void> {
-  try {
-    await fetch('/api/notifications/refresh', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    })
-  } catch (error) {
-    console.error('Error refreshing notifications:', error)
-  }
-}
 
 // This line checks if the code is running on the server
 // If it is not the server, the functions below will export versions that throw errors

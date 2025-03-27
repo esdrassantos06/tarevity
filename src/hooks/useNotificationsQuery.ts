@@ -9,12 +9,32 @@ interface QueryOptions {
   [key: string]: unknown
 }
 
+export async function refreshNotifications(): Promise<void> {
+  try {
+    await axios.post('/api/notifications/refresh')
+  } catch (error) {
+    console.error('Error refreshing notifications:', error)
+  }
+}
+
 export function useNotificationsQuery(options: QueryOptions = {}) {
   const queryClient = useQueryClient()
   const lastRefreshRef = useRef<number>(Date.now())
 
+  const forceRefreshNotifications = useCallback(async () => {
+    try {
+      await axios.post('/api/notifications/refresh')
+      await queryClient.invalidateQueries({ queryKey: ['notifications'] })
+      lastRefreshRef.current = Date.now() // Atualiza o timestamp
+      return true
+    } catch (error) {
+      console.error('Failed to force refresh notifications:', error)
+      return false
+    }
+  }, [queryClient]);
+
   // Function to refresh notifications from the server
-  const refreshNotifications = useCallback(async () => {
+  const refreshNotificationsWithThrottling = useCallback(async () => {
     const now = Date.now()
 
     if (now - lastRefreshRef.current < 30000) {
@@ -31,14 +51,14 @@ export function useNotificationsQuery(options: QueryOptions = {}) {
 
   useEffect(() => {
     if (options.enabled !== false) {
-      refreshNotifications()
+      refreshNotificationsWithThrottling()
     }
 
     // Set up periodic refresh (every 10 minutes)
     const refreshInterval = setInterval(
       () => {
         if (document.visibilityState === 'visible') {
-          refreshNotifications()
+          refreshNotificationsWithThrottling()
         }
       },
       10 * 60 * 1000,
@@ -51,7 +71,7 @@ export function useNotificationsQuery(options: QueryOptions = {}) {
         visibilityTimeout === null
       ) {
         visibilityTimeout = setTimeout(() => {
-          refreshNotifications()
+          refreshNotificationsWithThrottling()
           visibilityTimeout = null
         }, 1000)
       }
@@ -63,9 +83,9 @@ export function useNotificationsQuery(options: QueryOptions = {}) {
       clearInterval(refreshInterval)
       document.removeEventListener('visibilitychange', handleVisibilityChange)
     }
-  }, [refreshNotifications, options.enabled])
+  }, [refreshNotificationsWithThrottling, options.enabled])
 
-  return useQuery({
+  const result = useQuery({
     queryKey: ['notifications'],
     queryFn: async () => {
       const response = await axios.get<Notification[]>('/api/notifications')
@@ -78,6 +98,12 @@ export function useNotificationsQuery(options: QueryOptions = {}) {
     retry: 1,
     ...options,
   })
+
+  return {
+    ...result,
+    refreshNotifications: refreshNotificationsWithThrottling,
+    forceRefreshNotifications,
+  }
 }
 
 export function useCreateNotificationsMutation() {

@@ -17,7 +17,7 @@ import ConfirmationDialog, {
 } from '@/components/common/ConfirmationDialog'
 import axios from 'axios'
 import { showError } from '@/lib/toast'
-import { refreshNotificationsClient } from '@/lib/notification-updater'
+import { refreshNotifications } from '@/hooks/useNotificationsQuery'
 
 interface Todo {
   id: string
@@ -163,7 +163,7 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
               await axios.delete(`/api/notifications/delete-for-todo/${todoId}`)
             } else {
               // Otherwise, we just update the notifications through the API
-              await refreshNotificationsClient()
+              await refreshNotifications()
             }
 
             // Invalidate the notifications query to refresh the UI

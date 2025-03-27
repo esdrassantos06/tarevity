@@ -25,7 +25,6 @@ import ConfirmationDialog, {
 } from '@/components/common/ConfirmationDialog'
 import { useSession } from 'next-auth/react'
 import { Notification } from '@/lib/notifications'
-import { refreshNotificationsClient } from '@/lib/notification-updater'
 
 export default function NotificationDropdown() {
   const { status } = useSession()
@@ -35,7 +34,12 @@ export default function NotificationDropdown() {
   const dropdownRef = useRef<HTMLDivElement>(null)
   const queryClient = useQueryClient()
 
-  const { data: notifications = [], isLoading } = useNotificationsQuery({
+  const { 
+    data: notifications = [], 
+    isLoading,
+    refreshNotifications,
+    forceRefreshNotifications
+  } = useNotificationsQuery({
     enabled: status === 'authenticated',
   })
 
@@ -53,8 +57,7 @@ export default function NotificationDropdown() {
 
     setIsRefreshing(true)
     try {
-      await refreshNotificationsClient()
-      await queryClient.invalidateQueries({ queryKey: ['notifications'] })
+      await forceRefreshNotifications()
       showSuccess('Notifications updated')
     } catch (error) {
       console.error('Error updating notifications:', error)
@@ -66,11 +69,11 @@ export default function NotificationDropdown() {
   // Update notifications when dropdown is opened
   useEffect(() => {
     if (isOpen) {
-      refreshNotificationsClient().catch((error) => {
+      refreshNotifications().catch((error: unknown) => {
         console.error('Error updating notifications when opening:', error)
       })
     }
-  }, [isOpen])
+  }, [isOpen, refreshNotifications])
 
   useEffect(() => {
     const unread = notifications.filter((n: Notification) => !n.read).length
