@@ -1,11 +1,14 @@
-import './globals.css'
-import type { Metadata, Viewport } from 'next'
 import { Inter } from 'next/font/google'
+import { NextIntlClientProvider, hasLocale } from 'next-intl';
+import { notFound } from 'next/navigation';
+import { routing } from '@/i18n/routing';
+import type { Metadata, Viewport } from 'next'
 import { NextAuthProvider } from '@/components/auth/NextAuthProvider'
 import { ThemeProvider } from '@/components/common/ThemeProvider'
 import ToastProvider from '@/components/common/ToastProvider'
 import Providers from '@/components/common/Providers'
 import CookieBanner from '@/components/cookie-consent/CookieBanner'
+import './globals.css'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -53,21 +56,6 @@ export const metadata: Metadata = {
     title: 'Tarevity - Intelligent Task Management for Modern Professionals',
     description:
       "Elevate your productivity with Tarevity's secure, intuitive task management platform",
-    images: [
-      {
-        url: 'https://tarevity.pt/og-image.jpg',
-        width: 1200,
-        height: 630,
-        alt: 'Tarevity - Task Management Platform',
-      },
-    ],
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'Tarevity - Intelligent Task Management',
-    description:
-      "Elevate your productivity with Tarevity's secure, intuitive task management platform",
-    images: ['https://tarevity.pt/twitter-image.jpg'],
   },
   icons: {
     icon: '/icon.png',
@@ -95,13 +83,22 @@ export const viewport: Viewport = {
   ],
 }
 
-export default async function RootLayout({
+export default async function LocaleLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode
-}>) {
+  params
+}: {
+  children: React.ReactNode;
+  params: Promise<{locale: string}> | {locale: string};
+}) {
+  const { locale } = params instanceof Promise ? await params : params;
+  
+  // Ensure that the incoming `locale` is valid
+  if (!hasLocale(routing.locales, locale)) {
+    notFound();
+  }
+
   return (
-    <html lang="en" suppressHydrationWarning className="overflow-x-hidden">
+    <html lang={locale} suppressHydrationWarning className="overflow-x-hidden">
       <head>
         <link rel="manifest" href="/manifest.json" />
       </head>
@@ -112,20 +109,22 @@ export default async function RootLayout({
         <Providers>
           <NextAuthProvider>
             <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-              <a
-                aria-label="Skip to main content"
-                href="#main-content"
-                className="focus:text-primary sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:rounded focus:bg-white focus:px-4 focus:py-2 focus:outline focus:outline-offset-2"
-              >
-                Skip to main content
-              </a>
-              <main id="main-content">{children}</main>
-              <CookieBanner />
-              <ToastProvider />
+              <NextIntlClientProvider>
+                <a
+                  aria-label="Skip to main content"
+                  href="#main-content"
+                  className="focus:text-primary sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:rounded focus:bg-white focus:px-4 focus:py-2 focus:outline focus:outline-offset-2"
+                >
+                  Skip to main content
+                </a>
+                <main id="main-content">{children}</main>
+                <CookieBanner />
+                <ToastProvider />
+              </NextIntlClientProvider>
             </ThemeProvider>
           </NextAuthProvider>
         </Providers>
       </body>
     </html>
-  )
+  );
 }

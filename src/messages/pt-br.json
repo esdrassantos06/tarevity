@@ -1,0 +1,66 @@
+{
+  "HomePage": {
+    "metadata": {
+      "title": "Tarevity - Otimize sua produtividade com gestão inteligente de tarefas",
+      "description": "Transforme a forma como organiza o seu trabalho diário com a gestão intuitiva de tarefas da Tarevity.",
+      "keywords": {
+        "taskManagement": "gestão de tarefas",
+        "productivityTool": "ferramenta de produtividade",
+        "todoApplication": "aplicação de to-do",
+        "projectOrganization": "organização de projetos",
+        "taskPriority": "prioridade de tarefas",
+        "deadlineTracking": "acompanhamento de prazos",
+        "productivityDashboard": "painel de produtividade"
+      }
+    },
+    "structuredData": {
+      "description": "Uma aplicação moderna de gestão de tarefas que ajuda profissionais a organizarem seu trabalho e aumentarem a produtividade."
+    },
+    "hero": {
+      "title": "Gerencie suas tarefas de forma eficiente",
+      "description": "Organize suas tarefas, defina prioridades e nunca mais esqueça prazos importantes. Uma maneira simples e eficiente de aumentar sua produtividade.",
+      "getStarted": "Começar Agora"
+    },
+    "features": {
+      "heading": "Funcionalidades",
+      "subheading": "Tudo o que você precisa para se manter organizado",
+      "feature1": {
+        "title": "Gestão simples de tarefas",
+        "description": "Adicione, edite e marque tarefas como concluídas com facilidade. Interface intuitiva e amigável."
+      },
+      "feature2": {
+        "title": "Nunca perca um prazo",
+        "description": "Defina datas de vencimento para suas tarefas e mantenha o controle dos seus compromissos."
+      },
+      "feature3": {
+        "title": "Seguro e privado",
+        "description": "Suas tarefas são armazenadas com segurança. Faça login com GitHub e Google para maior conveniência."
+      },
+      "feature4": {
+        "title": "Acesse de qualquer lugar",
+        "description": "Design responsivo que funciona em todos os dispositivos. Suas tarefas estão sempre ao seu alcance."
+      }
+    },
+    "cta": {
+      "title1": "Pronto para se organizar?",
+      "title2": "Comece a usar Tarevity hoje.",
+      "description": "Cadastre-se gratuitamente e experimente todas as funcionalidades do Tarevity.",
+      "button": "Criar Conta Gratuita"
+    }
+  },
+  "Common": {
+    "languageSwitcher": {
+      "english": "Inglês",
+      "portuguese": "Português",
+      "selectLanguage": "Selecionar idioma",
+      "changeLanguage": "Mudar idioma",
+      "currentLanguage": "Idioma atual"
+    },
+    "navigation": {
+      "home": "Início",
+      "dashboard": "Painel",
+      "tasks": "Tarefas",
+      "login": "Entrar"
+    }
+  }
+}

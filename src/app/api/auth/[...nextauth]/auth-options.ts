@@ -11,12 +11,13 @@ declare module 'next-auth' {
   interface Session {
     error?: string
     user: {
-      id?: string
+      id: string
+      provider?: string
+      is_admin?: boolean
+    } & {
       name?: string | null
       email?: string | null
       image?: string | null
-      provider?: string
-      is_admin?: boolean
     }
   }
 }

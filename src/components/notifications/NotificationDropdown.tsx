@@ -236,7 +236,7 @@ export default function NotificationDropdown() {
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={toggleDropdown}
-        className="border-BorderLight hover:bg-BorderLight dark:border-BorderDark dark:hover:bg-BorderDark relative mr-3 cursor-pointer rounded-lg border-2 p-2 transition-all duration-300"
+        className="border-BorderLight size-10 hover:bg-BorderLight dark:border-BorderDark dark:hover:bg-BorderDark relative mr-2 cursor-pointer rounded-lg border-2 p-2 transition-all duration-300"
         aria-label="Notifications"
       >
         <IoNotificationsOutline className="size-5" />

@@ -14,6 +14,9 @@ export async function csrfProtection(req: NextRequest) {
     '/api/auth/signout',
     '/api/auth/session',
     '/api/auth/csrf',
+    '/api/auth/_log',
+    '/api/trpc',
+    '/api/notifications/refresh',
   ]
 
   if (exemptPaths.some((path) => pathname.startsWith(path))) {

@@ -1,27 +1,50 @@
-import Link from 'next/link'
 import { FaCheckCircle, FaBell, FaLock, FaMobileAlt } from 'react-icons/fa'
 import { IoMdArrowForward } from 'react-icons/io'
 import Layout from '@/components/layout/Layout'
-import type { Metadata } from 'next'
 import { JsonLd } from '@/components/seo/JsonLd'
+import { useTranslations } from 'next-intl'
+import { Link } from '@/i18n/navigation'
+import { getTranslations } from 'next-intl/server';
 
-export const metadata: Metadata = {
-  title: 'Tarevity - Streamline Your Productivity with Smart Task Management',
-  description: `Transform how you organize daily work with Tarevity's intuitive task management.`,
-  keywords: [
-    'task management',
-    'productivity tool',
-    'to-do application',
-    'project organization',
-    'task priority',
-    'deadline tracking',
-    'productivity dashboard',
-  ],
-  authors: [{ name: 'Esdras Santos' }],
-  robots: 'index, follow',
+export async function generateMetadata({ 
+  params 
+}: { 
+  params: Promise<{ locale: string }> | { locale: string }
+}) {
+
+  const resolvedParams = params instanceof Promise ? await params : params;
+  const { locale } = resolvedParams;
+  
+  const t = await getTranslations({ locale, namespace: 'HomePage.metadata' });
+
+  return {
+    title: t('title'),
+    description: t('description'),
+    keywords: [
+      t('keywords.taskManagement'),
+      t('keywords.productivityTool'),
+      t('keywords.todoApplication'),
+      t('keywords.projectOrganization'),
+      t('keywords.taskPriority'),
+      t('keywords.deadlineTracking'),
+      t('keywords.productivityDashboard'),
+    ],
+    authors: [{ name: 'Esdras Santos' }],
+    robots: 'index, follow',
+    openGraph: {
+      locale: locale,
+      type: 'website',
+      url: `https://tarevity.pt/${locale}`,
+      siteName: 'Tarevity',
+      title: t('title'),
+      description: t('description'),
+    }
+  };
 }
 
 export default function HomePage() {
+  const t = useTranslations('HomePage');
+
   const structuredData = {
     '@context': 'https://schema.org',
     '@type': 'SoftwareApplication',
@@ -38,8 +61,7 @@ export default function HomePage() {
       ratingValue: '4.8',
       ratingCount: '1024',
     },
-    description:
-      'A modern task management application that helps professionals organize their work and increase productivity.',
+    description: t('structuredData.description'),
   }
 
   return (
@@ -50,12 +72,10 @@ export default function HomePage() {
         <section className="mx-auto max-w-7xl rounded-lg px-4 sm:px-6 lg:px-8">
           <div className="p-8 lg:text-center">
             <h1 className="text-BlackLight dark:text-darkText text-center text-5xl font-extrabold tracking-tight sm:text-6xl md:text-7xl dark:text-white">
-              Manage your tasks efficiently
+              {t('hero.title')}
             </h1>
             <p className="text-BlackLight dark:text-darkSecondaryText mx-auto mt-3 max-w-md text-center text-lg md:mt-5 md:max-w-3xl dark:text-white">
-              Organize your tasks, set priorities, and never forget important
-              deadlines again. A simple and efficient way to increase your
-              productivity.
+              {t('hero.description')}
             </p>
             <div className="mt-10 flex justify-center">
               <div className="rounded-md shadow">
@@ -63,7 +83,7 @@ export default function HomePage() {
                   href="/auth/login"
                   className="dark:bg-BlackLight flex w-full items-center justify-center rounded-md border border-transparent bg-white px-5 py-1.5 text-base font-medium transition-all duration-300 md:text-lg"
                 >
-                  Get Started <IoMdArrowForward size={18} className="ml-2" />
+                  {t('hero.getStarted')} <IoMdArrowForward size={18} className="ml-2" />
                 </Link>
               </div>
             </div>
@@ -74,9 +94,9 @@ export default function HomePage() {
         <article className="dark:bg-BlackLight container mx-auto mt-10 rounded-lg bg-white py-12 shadow-lg">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="lg:text-center">
-              <h2 className="text-center font-semibold uppercase">Features</h2>
+              <h2 className="text-center font-semibold uppercase">{t('features.heading')}</h2>
               <p className="text-center text-3xl font-extrabold sm:text-4xl">
-                Everything you need to stay organized
+                {t('features.subheading')}
               </p>
             </div>
 
@@ -91,11 +111,10 @@ export default function HomePage() {
                   </div>
                   <div className="ml-4">
                     <h3 className="text-lg leading-6 font-medium">
-                      Simple task management
+                      {t('features.feature1.title')}
                     </h3>
                     <p className="text-GraySecondaryLight dark:text-GrayDark mt-2 text-base">
-                      Add, edit, and mark tasks as completed with ease.
-                      Intuitive and user-friendly interface.
+                      {t('features.feature1.description')}
                     </p>
                   </div>
                 </section>
@@ -109,11 +128,10 @@ export default function HomePage() {
                   </div>
                   <div className="ml-4">
                     <h3 className="text-lightText dark:text-darkText text-lg leading-6 font-medium">
-                      Never miss a deadline
+                      {t('features.feature2.title')}
                     </h3>
                     <p className="text-GraySecondaryLight dark:text-GrayDark mt-2 text-base">
-                      Set due dates for your tasks and stay in control of your
-                      commitments.
+                      {t('features.feature2.description')}
                     </p>
                   </div>
                 </section>
@@ -127,11 +145,10 @@ export default function HomePage() {
                   </div>
                   <div className="ml-4">
                     <h3 className="text-lightText dark:text-darkText text-lg leading-6 font-medium">
-                      Secure and private
+                      {t('features.feature3.title')}
                     </h3>
                     <p className="text-GraySecondaryLight dark:text-GrayDark mt-2 text-base">
-                      Your tasks are stored securely. Login with GitHub and
-                      Google for greater convenience.
+                      {t('features.feature3.description')}
                     </p>
                   </div>
                 </section>
@@ -145,11 +162,10 @@ export default function HomePage() {
                   </div>
                   <div className="ml-4">
                     <h3 className="text-lightText dark:text-darkText text-lg leading-6 font-medium">
-                      Access from anywhere
+                      {t('features.feature4.title')}
                     </h3>
                     <p className="text-GraySecondaryLight dark:text-GrayDark mt-2 text-base">
-                      Responsive design that works on all devices. Your tasks
-                      are always within reach.
+                      {t('features.feature4.description')}
                     </p>
                   </div>
                 </section>
@@ -167,17 +183,17 @@ export default function HomePage() {
         <article className="bg-primary container mx-auto mt-10 rounded-lg shadow-lg">
           <div className="mx-auto max-w-2xl px-4 py-16 text-center sm:px-6 sm:py-20 lg:px-8">
             <h2 className="text-3xl font-extrabold text-white sm:text-4xl">
-              <span className="block">Ready to get organized?</span>
-              <span className="block">Start using Tarevity today.</span>
+              <span className="block">{t('cta.title1')}</span>
+              <span className="block">{t('cta.title2')}</span>
             </h2>
             <p className="mt-4 text-lg leading-6 text-white">
-              Sign up for free and try all features of Tarevity.
+              {t('cta.description')}
             </p>
             <Link
               href="/auth/register"
               className="text-primary mt-8 inline-flex w-full items-center justify-center rounded-md border border-transparent bg-white px-5 py-1.5 text-base font-medium transition-all duration-300 hover:bg-white/80 sm:w-auto"
             >
-              Create Free Account
+              {t('cta.button')}
             </Link>
           </div>
         </article>

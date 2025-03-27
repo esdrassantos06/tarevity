@@ -1,13 +1,29 @@
 import { getToken } from 'next-auth/jwt'
 import { NextRequest, NextResponse } from 'next/server'
 import { rateLimiter } from '@/lib/rateLimit'
-import { csrfProtection } from './csrf'
+import { csrfProtection } from './middleware/csrf'
+import createIntlMiddleware from 'next-intl/middleware'
+import { routing } from './i18n/routing'
+
+// Create the internationalization middleware
+// This only takes one argument (the request) and returns a response
+const intlMiddleware = createIntlMiddleware(routing)
 
 export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname
-
   const method = request.method
 
+  // Skip middleware for specific paths that should be handled by next-intl only
+  if (
+    pathname.startsWith('/_next') ||
+    pathname.startsWith('/_vercel') ||
+    pathname.startsWith('/trpc') ||
+    pathname.match(/\.(.*)$/) // Files with extensions
+  ) {
+    return intlMiddleware(request)
+  }
+
+  // CSRF protection for non-GET methods on API routes
   if (
     !['GET', 'HEAD', 'OPTIONS'].includes(method) &&
     pathname.startsWith('/api/')
@@ -20,6 +36,7 @@ export async function middleware(request: NextRequest) {
     }
   }
 
+  // Public paths that bypass authentication
   const publicPaths = ['/', '/privacy', '/terms', '/auth/error']
   if (
     publicPaths.includes(pathname) ||
@@ -27,9 +44,14 @@ export async function middleware(request: NextRequest) {
   ) {
     const response = NextResponse.next()
     addSecurityHeaders(response, request)
-    return response
+    
+    // Apply security headers first, then handle with intl middleware
+    const securedResponse = response;
+    addSecurityHeaders(securedResponse, request)
+    return intlMiddleware(request)
   }
 
+  // Rate limiting for specific routes
   const rateLimits = {
     '/api/auth/login': { limit: 5, window: 300 },
     '/api/auth/register': { limit: 3, window: 3600 },
@@ -78,6 +100,7 @@ export async function middleware(request: NextRequest) {
     }
   }
 
+  // Special handling for auth callback routes
   if (
     pathname.startsWith('/api/auth/callback') ||
     pathname.includes('/api/auth/callback/')
@@ -85,6 +108,7 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
+  // Redirect loop prevention
   const redirectCount = parseInt(
     request.headers.get('x-redirect-count') || '0',
     10,
@@ -98,6 +122,7 @@ export async function middleware(request: NextRequest) {
   const response = NextResponse.next()
   addSecurityHeaders(response, request)
 
+  // Handle API routes
   if (pathname.startsWith('/api/')) {
     const token = await getToken({
       req: request,
@@ -134,6 +159,7 @@ export async function middleware(request: NextRequest) {
     return response
   }
 
+  // Authentication check
   const token = await getToken({
     req: request,
     secureCookie: process.env.NODE_ENV === 'production',
@@ -174,6 +200,8 @@ export async function middleware(request: NextRequest) {
     redirectResponse.headers.set('Cache-Control', 'no-store, max-age=0')
     addSecurityHeaders(redirectResponse, request)
 
+    // We need to return the redirect response after security headers
+    // For redirects, we don't run the intl middleware as it would change the response type
     return redirectResponse
   }
 
@@ -192,10 +220,16 @@ export async function middleware(request: NextRequest) {
     redirectResponse.headers.set('Cache-Control', 'no-store, max-age=0')
     addSecurityHeaders(redirectResponse, request)
 
+    // We need to return the redirect response after security headers
+    // For redirects, we don't run the intl middleware as it would change the response type
     return redirectResponse
   }
 
-  return response
+  // For all other cases, apply security headers first
+  addSecurityHeaders(response, request)
+  
+  // Then run the internationalization middleware
+  return intlMiddleware(request)
 }
 
 function addSecurityHeaders(response: NextResponse, request: NextRequest) {
@@ -259,8 +293,10 @@ function addSecurityHeaders(response: NextResponse, request: NextRequest) {
   }
 }
 
+// Combine both matchers: your original matchers and the next-intl matchers
 export const config = {
   matcher: [
+    // Original security middleware paths
     '/dashboard/:path*',
     '/settings/:path*',
     '/profile/:path*',
@@ -270,5 +306,7 @@ export const config = {
     '/',
     '/privacy',
     '/terms',
+    // next-intl matcher (excluding some paths)
+    '/((?!api|trpc|_next|_vercel|.*\\..*).*)'
   ],
 }

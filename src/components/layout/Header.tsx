@@ -11,6 +11,7 @@ import TarevityIcon from '../logo/TarevityIcon'
 import UserImage from '../common/UserImage'
 import NotificationDropdown from '../notifications/NotificationDropdown'
 import { useProfileQuery } from '@/hooks/useProfileQuery'
+import LanguageSwitcher from '../common/LanguageSwitcher'
 
 export default function Header() {
   const { data: session, status } = useSession()
@@ -71,6 +72,7 @@ export default function Header() {
           </div>
 
           <div className="flex items-center">
+          <LanguageSwitcher />
             {isAuthenticated ? (
               <div className="flex items-center justify-center">
                 {/* Notification Dropdown Component */}
@@ -78,7 +80,7 @@ export default function Header() {
 
                 <Link
                   href="/calendar"
-                  className="border-BorderLight hover:bg-BorderLight dark:hover:bg-BorderDark dark:border-BorderDark mr-3 cursor-pointer rounded-lg border-2 p-2 transition-all duration-300"
+                  className="border-BorderLight hover:bg-BorderLight dark:hover:bg-BorderDark dark:border-BorderDark mr-3 cursor-pointer rounded-lg border-2 size-10 p-2 transition-all duration-300"
                 >
                   <IoCalendarClearOutline className="size-5" />
                 </Link>
