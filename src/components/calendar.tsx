@@ -44,7 +44,6 @@ export default function Calendar() {
   // Calculate the number of days in the month
   const daysInMonth = lastDayOfMonth.getDate()
 
-  // Calculate the number of days from the previous month to display
   const daysFromPrevMonth = firstDayOfWeek
 
   // Calculate the total number of cells needed (including days from prev/next months)
@@ -110,6 +109,10 @@ export default function Calendar() {
     return todos.filter((todo: Todo) => {
       if (!todo.due_date) return false
 
+      if (todo.is_completed) {
+        return false
+      }
+
       // Format both dates to YYYY-MM-DD for comparison to avoid timezone issues
       const todoDate = new Date(todo.due_date)
       return (
@@ -131,7 +134,6 @@ export default function Calendar() {
   const handleDayClick = (date: Date) => {
     const todosOnDate = getEventsForDate(date)
 
-    // If only one todo, go directly to that todo
     if (todosOnDate.length === 1) {
       router.push(`/todo/${todosOnDate[0].id}`)
     }
@@ -148,7 +150,7 @@ export default function Calendar() {
   }).format(currentDate)
 
   return (
-    <div className="bg-BlackLight flex h-full w-full flex-col rounded-lg p-2">
+    <div className="dark:bg-BlackLight flex h-full w-full flex-col rounded-lg bg-white p-2">
       {/* Calendar Header */}
       <div className="flex items-center justify-between border-b p-4">
         <h1 className="text-2xl font-bold">{monthYearFormat}</h1>

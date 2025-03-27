@@ -126,7 +126,7 @@ export default function ConfirmationDialog({
       <DialogContent onClick={(e) => e.stopPropagation()}>
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
-          <DialogDescription>{description}</DialogDescription>
+          <DialogDescription className="">{description}</DialogDescription>
         </DialogHeader>
         <DialogFooter>
           <button

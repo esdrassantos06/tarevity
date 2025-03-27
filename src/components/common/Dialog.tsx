@@ -59,7 +59,7 @@ const DialogContent = React.forwardRef<
       <DialogOverlay />
       <DialogPrimitive.Content
         ref={setRefs}
-        className="animate-in data-[state=open]:fade-in-90 data-[state=open]:slide-in-from-right dark:bg-BlackLight fixed z-101 grid w-full max-w-lg gap-4 rounded-lg bg-white p-6 shadow-lg transition-all duration-200 ease-out sm:max-w-lg sm:rounded-lg md:w-full"
+        className="animate-in data-[state=open]:fade-in-90 data-[state=open]:slide-in-from-right dark:bg-BlackLight fixed z-101 flex w-full max-w-lg flex-col gap-10 rounded-lg bg-white p-6 break-words shadow-lg transition-all duration-200 ease-out sm:max-w-lg sm:rounded-lg md:w-full"
         role="dialog"
         aria-modal="true"
         {...props}

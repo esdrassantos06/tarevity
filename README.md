@@ -109,40 +109,39 @@ Security is a core focus of Tarevity with:
    ```
 
 3. Set up environment variables
-   Create a `.env.local` file with the following variables:
+   The project includes an .env.local.example file with all the environment variables required for the application to function properly.
 
-   ```env
-   # Next Auth
-   NEXTAUTH_URL=http://localhost:3000
-   NEXTAUTH_SECRET=your_secure_secret
+   1. Copy the example file to create your own configuration file:
 
-   # OAuth Providers
-   GITHUB_ID=your_github_client_id
-   GITHUB_SECRET=your_github_client_secret
-   GOOGLE_ID=your_google_client_id
-   GOOGLE_SECRET=your_google_client_secret
-
-   # Supabase
-   NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
-   NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
-   SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
-
-   # Email (Brevo)
-   BREVO_API_KEY=your_brevo_api_key
-   EMAIL_FROM=noreply@yourdomain.com
-
-   # Rate Limiting (Redis)
-   REDIS_URL=your_redis_url
-   REDIS_TOKEN=your_redis_token
+   ```bash
+   cp .env.local.example .env.local
    ```
 
-4. Start the development server
+   2. Open the .env.local file and replace the example values with your own credentials:
+
+   - NextAuth configuration
+   - Supabase settings
+   - Email configuration (Brevo)
+   - Redis settings for rate limiting
+   - Cron (For notifications)
+
+NextAuth configuration
+OAuth provider credentials (GitHub, Google)
+Supabase settings
+Email configuration (Brevo)
+Redis settings for rate limiting
+
+```
+   cp .env.local.example .env.local
+```
+
+1. Start the development server
 
    ```bash
    npm run dev
    ```
 
-5. Access the app at [http://localhost:3000](http://localhost:3000)
+2. Access the app at [http://localhost:3000](http://localhost:3000)
 
 ## 📁 Project Structure
 
@@ -164,7 +163,7 @@ Security is a core focus of Tarevity with:
 
 ## 🔮 Future Enhancements
 
-- [ ] Calendar view integration
+- [x] Calendar view integration
 - [ ] Categories/Tags for tasks
 - [ ] Subtasks and task dependencies
 - [ ] Mobile application (Futureeeeee.....)
