@@ -4,6 +4,8 @@
 
 Tarevity is a sophisticated task management application built with Next.js 15, React 19, TypeScript, and Supabase. It provides an intuitive and secure interface to help users organize their tasks with efficiency and style.
 
+**Current Version: 1.0.7** (March 27, 2025)
+
 ## ✨ Key Features
 
 ### 📋 Task Management
@@ -14,6 +16,7 @@ Tarevity is a sophisticated task management application built with Next.js 15, R
 - **Due Date Management** with automated reminders
 - **Sorting & Filtering** capabilities for better organization
 - **Visual Indicators** showing task priority and status at a glance
+- **Calendar Integration** for date-based task visualization and management
 
 ### 🛡️ Enterprise-Grade Security
 
@@ -42,6 +45,8 @@ Tarevity is a sophisticated task management application built with Next.js 15, R
 - **Responsive Design** optimized for all screen sizes
 - **Animated Transitions** for a smooth user experience
 - **Interactive Components** with accessibility features
+- **Optimized Cache Configuration** for improved navigation performance
+- **Back/Forward Cache Support** for seamless browsing experience
 
 ## 🚀 Technology Stack
 
@@ -53,7 +58,7 @@ Tarevity is a sophisticated task management application built with Next.js 15, R
 - **Type Safety**: TypeScript
 - **State Management**: React Query v5
 - **Form Validation**: Zod with React Hook Form
-- **UI Components**: Radix UI primitives
+- **UI Components**: shadcn/ui and Radix UI
 
 ### Backend & Database
 
@@ -156,7 +161,7 @@ Security is a core focus of Tarevity with:
 - [x] Calendar view integration
 - [ ] Categories/Tags for tasks
 - [ ] Subtasks and task dependencies
-- [ ] Mobile application (Futureeeeee.....)
+- [ ] Mobile application (Future...)
 
 ## 🤝 Contribution Guidelines
 
