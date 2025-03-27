@@ -1,23 +1,28 @@
 # Changelog
 
 All notable changes to the Tarevity project will be documented in this file.
+
 ## [1.0.5] - 2025-03-27
 
 ### Added
--Reinstalled the `cookie` package to fix TypeScript type error. 
+
+-Reinstalled the `cookie` package to fix TypeScript type error.
 
 ### Changes
+
 -
 
 ### Fixed
--Type error in the `cookie` module fixed by reinstalling the dependency. 
+
+-Type error in the `cookie` module fixed by reinstalling the dependency.
 
 ### Security
-- 
+
+-
 
 ### Removed
-- 
 
+-
 
 ## [1.0.4] - 2025-03-27
 
