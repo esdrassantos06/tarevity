@@ -1,6 +1,23 @@
 # Changelog
 
 All notable changes to the Tarevity project will be documented in this file.
+## [1.0.3] - 2025-03-27
+
+### Added
+-... 
+
+### Changed
+- Updated outdated dependencies
+
+### Fixed
+- 
+
+### Security
+- Nextjs updated because had a security breach
+
+### Removed
+- 
+
 
 ## [1.0.2] - 2025-03-26
 
