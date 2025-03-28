@@ -1,25 +1,30 @@
 # Changelog
 
 All notable changes to the Tarevity project will be documented in this file.
+
 ## [1.0.9] - 2025-03-28
 
 ### Added
+
 - Implemented internationalization (i18n) system for multilingual support
 - Complete calendar translation including weekdays and navigation controls
 
 ### Changed
+
 - Modified date display to respect language-specific conventions
 
 ### Fixed
+
 - Corrected capitalization of month names in Portuguese to start with uppercase letter
 - Adjusted date formatting to follow regional patterns
 
 ### Security
-- 
+
+-
 
 ### Removed
-- 
 
+-
 
 ## [1.0.8] - 2025-03-27
 
