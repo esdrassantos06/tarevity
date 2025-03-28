@@ -31,27 +31,25 @@ export default function LanguageSwitcher() {
 
   const handleLocaleChange = (newLocale: string) => {
     startTransition(() => {
-      
-      const localeCodes = languages.map(lang => lang.code);
-      
-      let pathWithoutLocale = pathname;
+      const localeCodes = languages.map((lang) => lang.code)
+
+      let pathWithoutLocale = pathname
       for (const code of localeCodes) {
         if (pathname.startsWith(`/${code}`)) {
-
-          pathWithoutLocale = pathname.substring(code.length + 1) || '/';
-          break;
+          pathWithoutLocale = pathname.substring(code.length + 1) || '/'
+          break
         }
       }
 
       if (!pathWithoutLocale.startsWith('/')) {
-        pathWithoutLocale = '/' + pathWithoutLocale;
+        pathWithoutLocale = '/' + pathWithoutLocale
       }
-      
-      const newPath = `/${newLocale}${pathWithoutLocale === '/' ? '' : pathWithoutLocale}`;
-      
-      router.push(newPath);
-    });
-  };
+
+      const newPath = `/${newLocale}${pathWithoutLocale === '/' ? '' : pathWithoutLocale}`
+
+      router.push(newPath)
+    })
+  }
 
   return (
     <DropdownMenu>
@@ -60,7 +58,7 @@ export default function LanguageSwitcher() {
           variant="default"
           size="sm"
           className={cn(
-            'flex border-BorderLight bg-transparent hover:bg-BorderLight dark:hover:bg-BorderDark border-2 dark:border-BorderDark items-center size-10 p-2 mr-2 gap-2 rounded-md',
+            'border-BorderLight hover:bg-BorderLight dark:hover:bg-BorderDark dark:border-BorderDark mr-2 flex size-10 items-center gap-2 rounded-md border-2 bg-transparent p-2',
             isPending && 'cursor-not-allowed opacity-70',
           )}
           disabled={isPending}

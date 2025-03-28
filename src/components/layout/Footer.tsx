@@ -1,10 +1,10 @@
-import {Link} from '@/i18n/navigation';
+import { Link } from '@/i18n/navigation'
 import { LuGithub, LuLinkedin, LuHeart, LuMail } from 'react-icons/lu'
 import TarevityLogo from '../logo/TarevityLogo'
-import {useTranslations} from 'next-intl';
+import { useTranslations } from 'next-intl'
 
 export default function Footer() {
-  const t = useTranslations('footer');
+  const t = useTranslations('footer')
   const currentYear = new Date().getFullYear()
 
   return (
@@ -131,7 +131,8 @@ export default function Footer() {
         {/* Made with love */}
         <div className="mt-8 flex items-center justify-center border-t pt-6">
           <p className="text-BlackLight flex items-center gap-1 text-sm dark:text-white">
-            {t('madeWith')} <LuHeart className="size-4 text-red-500" /> {t('by')}
+            {t('madeWith')} <LuHeart className="size-4 text-red-500" />{' '}
+            {t('by')}
             <a
               aria-label={`Esdras's Github`}
               href="https://github.com/esdrassantos06"

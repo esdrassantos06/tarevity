@@ -1,7 +1,7 @@
 import { Inter } from 'next/font/google'
-import { NextIntlClientProvider, hasLocale } from 'next-intl';
-import { notFound } from 'next/navigation';
-import { routing } from '@/i18n/routing';
+import { NextIntlClientProvider, hasLocale } from 'next-intl'
+import { notFound } from 'next/navigation'
+import { routing } from '@/i18n/routing'
 import type { Metadata, Viewport } from 'next'
 import { NextAuthProvider } from '@/components/auth/NextAuthProvider'
 import { ThemeProvider } from '@/components/common/ThemeProvider'
@@ -85,16 +85,16 @@ export const viewport: Viewport = {
 
 export default async function LocaleLayout({
   children,
-  params
+  params,
 }: {
-  children: React.ReactNode;
-  params: Promise<{locale: string}> | {locale: string};
+  children: React.ReactNode
+  params: Promise<{ locale: string }> | { locale: string }
 }) {
-  const { locale } = params instanceof Promise ? await params : params;
-  
+  const { locale } = params instanceof Promise ? await params : params
+
   // Ensure that the incoming `locale` is valid
   if (!hasLocale(routing.locales, locale)) {
-    notFound();
+    notFound()
   }
 
   return (
@@ -126,5 +126,5 @@ export default async function LocaleLayout({
         </Providers>
       </body>
     </html>
-  );
+  )
 }

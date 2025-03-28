@@ -4,18 +4,17 @@ import Layout from '@/components/layout/Layout'
 import { JsonLd } from '@/components/seo/JsonLd'
 import { useTranslations } from 'next-intl'
 import { Link } from '@/i18n/navigation'
-import { getTranslations } from 'next-intl/server';
+import { getTranslations } from 'next-intl/server'
 
-export async function generateMetadata({ 
-  params 
-}: { 
+export async function generateMetadata({
+  params,
+}: {
   params: Promise<{ locale: string }> | { locale: string }
 }) {
+  const resolvedParams = params instanceof Promise ? await params : params
+  const { locale } = resolvedParams
 
-  const resolvedParams = params instanceof Promise ? await params : params;
-  const { locale } = resolvedParams;
-  
-  const t = await getTranslations({ locale, namespace: 'HomePage.metadata' });
+  const t = await getTranslations({ locale, namespace: 'HomePage.metadata' })
 
   return {
     title: t('title'),
@@ -38,12 +37,12 @@ export async function generateMetadata({
       siteName: 'Tarevity',
       title: t('title'),
       description: t('description'),
-    }
-  };
+    },
+  }
 }
 
 export default function HomePage() {
-  const t = useTranslations('HomePage');
+  const t = useTranslations('HomePage')
 
   const structuredData = {
     '@context': 'https://schema.org',
@@ -83,7 +82,8 @@ export default function HomePage() {
                   href="/auth/login"
                   className="dark:bg-BlackLight flex w-full items-center justify-center rounded-md border border-transparent bg-white px-5 py-1.5 text-base font-medium transition-all duration-300 md:text-lg"
                 >
-                  {t('hero.getStarted')} <IoMdArrowForward size={18} className="ml-2" />
+                  {t('hero.getStarted')}{' '}
+                  <IoMdArrowForward size={18} className="ml-2" />
                 </Link>
               </div>
             </div>
@@ -94,7 +94,9 @@ export default function HomePage() {
         <article className="dark:bg-BlackLight container mx-auto mt-10 rounded-lg bg-white py-12 shadow-lg">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="lg:text-center">
-              <h2 className="text-center font-semibold uppercase">{t('features.heading')}</h2>
+              <h2 className="text-center font-semibold uppercase">
+                {t('features.heading')}
+              </h2>
               <p className="text-center text-3xl font-extrabold sm:text-4xl">
                 {t('features.subheading')}
               </p>

@@ -1,170 +1,170 @@
 {
-    "HomePage": {
-      "metadata": {
-        "title": "Tarevity - Streamline Your Productivity with Smart Task Management",
-        "description": "Transform how you organize daily work with Tarevity's intuitive task management.",
-        "keywords": {
-          "taskManagement": "task management",
-          "productivityTool": "productivity tool",
-          "todoApplication": "to-do application",
-          "projectOrganization": "project organization",
-          "taskPriority": "task priority",
-          "deadlineTracking": "deadline tracking",
-          "productivityDashboard": "productivity dashboard"
-        }
-      },
-      "structuredData": {
-        "description": "A modern task management application that helps professionals organize their work and increase productivity."
-      },
-      "hero": {
-        "title": "Manage your tasks efficiently",
-        "description": "Organize your tasks, set priorities, and never forget important deadlines again. A simple and efficient way to increase your productivity.",
-        "getStarted": "Get Started"
-      },
-      "features": {
-        "heading": "Features",
-        "subheading": "Everything you need to stay organized",
-        "feature1": {
-          "title": "Simple task management",
-          "description": "Add, edit, and mark tasks as completed with ease. Intuitive and user-friendly interface."
-        },
-        "feature2": {
-          "title": "Never miss a deadline",
-          "description": "Set due dates for your tasks and stay in control of your commitments."
-        },
-        "feature3": {
-          "title": "Secure and private",
-          "description": "Your tasks are stored securely. Login with GitHub and Google for greater convenience."
-        },
-        "feature4": {
-          "title": "Access from anywhere",
-          "description": "Responsive design that works on all devices. Your tasks are always within reach."
-        }
-      },
-      "cta": {
-        "title1": "Ready to get organized?",
-        "title2": "Start using Tarevity today.",
-        "description": "Sign up for free and try all features of Tarevity.",
-        "button": "Create Free Account"
+  "HomePage": {
+    "metadata": {
+      "title": "Tarevity - Streamline Your Productivity with Smart Task Management",
+      "description": "Transform how you organize daily work with Tarevity's intuitive task management.",
+      "keywords": {
+        "taskManagement": "task management",
+        "productivityTool": "productivity tool",
+        "todoApplication": "to-do application",
+        "projectOrganization": "project organization",
+        "taskPriority": "task priority",
+        "deadlineTracking": "deadline tracking",
+        "productivityDashboard": "productivity dashboard"
       }
     },
-    "Common": {
-      "languageSwitcher": {
-        "english": "English",
-        "portuguese": "Portuguese",
-        "selectLanguage": "Select language",
-        "changeLanguage": "Change language",
-        "currentLanguage": "Current language"
+    "structuredData": {
+      "description": "A modern task management application that helps professionals organize their work and increase productivity."
+    },
+    "hero": {
+      "title": "Manage your tasks efficiently",
+      "description": "Organize your tasks, set priorities, and never forget important deadlines again. A simple and efficient way to increase your productivity.",
+      "getStarted": "Get Started"
+    },
+    "features": {
+      "heading": "Features",
+      "subheading": "Everything you need to stay organized",
+      "feature1": {
+        "title": "Simple task management",
+        "description": "Add, edit, and mark tasks as completed with ease. Intuitive and user-friendly interface."
       },
-      "navigation": {
-        "home": "Home",
-        "dashboard": "Dashboard",
-        "tasks": "Tasks",
-        "login": "Login"
+      "feature2": {
+        "title": "Never miss a deadline",
+        "description": "Set due dates for your tasks and stay in control of your commitments."
+      },
+      "feature3": {
+        "title": "Secure and private",
+        "description": "Your tasks are stored securely. Login with GitHub and Google for greater convenience."
+      },
+      "feature4": {
+        "title": "Access from anywhere",
+        "description": "Responsive design that works on all devices. Your tasks are always within reach."
       }
     },
-      "header": {
-        "dashboard": "Dashboard",
-        "profile": "Profile",
-        "settings": "Settings",
-        "logout": "Logout",
-        "login": "Log in",
-        "signup": "Sign up",
-        "openUserMenu": "Open user menu",
-        "openMainMenu": "Open main menu",
-        "calendar": "Calendar"
-      },
-      "notifications": {
-        "title": "Notifications"
-      },
-      "footer": {
-      "copyright": "All rights reserved.",
-      "navigation": "Navigation",
+    "cta": {
+      "title1": "Ready to get organized?",
+      "title2": "Start using Tarevity today.",
+      "description": "Sign up for free and try all features of Tarevity.",
+      "button": "Create Free Account"
+    }
+  },
+  "Common": {
+    "languageSwitcher": {
+      "english": "English",
+      "portuguese": "Portuguese",
+      "selectLanguage": "Select language",
+      "changeLanguage": "Change language",
+      "currentLanguage": "Current language"
+    },
+    "navigation": {
       "home": "Home",
       "dashboard": "Dashboard",
-      "profile": "Profile",
-      "legal": "Legal",
-      "privacy": "Privacy",
-      "termsOfUse": "Terms of Use",
-      "contact": "Contact",
-      "email": "Email",
-      "socialMedia": "Social Media",
-      "madeWith": "Made with",
-      "by": "by"
+      "tasks": "Tasks",
+      "login": "Login"
+    }
+  },
+  "header": {
+    "dashboard": "Dashboard",
+    "profile": "Profile",
+    "settings": "Settings",
+    "logout": "Logout",
+    "login": "Log in",
+    "signup": "Sign up",
+    "openUserMenu": "Open user menu",
+    "openMainMenu": "Open main menu",
+    "calendar": "Calendar"
+  },
+  "notifications": {
+    "title": "Notifications"
+  },
+  "footer": {
+    "copyright": "All rights reserved.",
+    "navigation": "Navigation",
+    "home": "Home",
+    "dashboard": "Dashboard",
+    "profile": "Profile",
+    "legal": "Legal",
+    "privacy": "Privacy",
+    "termsOfUse": "Terms of Use",
+    "contact": "Contact",
+    "email": "Email",
+    "socialMedia": "Social Media",
+    "madeWith": "Made with",
+    "by": "by"
+  },
+  "terms": {
+    "title": "Terms of Use",
+    "lastUpdated": "Last updated: March 14, 2025",
+    "agreement": {
+      "title": "Agreement to Terms",
+      "paragraph1": "These Terms of Use constitute a legally binding agreement made between you, whether personally or on behalf of an entity (\"you\") and Tarevity (\"we,\" \"us\" or \"our\"), concerning your access to and use of the Tarevity task management application.",
+      "paragraph2": "By accessing or using the application, you agree to be bound by these Terms of Use. If you disagree with any part of the terms, you may not access the application."
     },
-    "terms": {
-      "title": "Terms of Use",
-      "lastUpdated": "Last updated: March 14, 2025",
-      "agreement": {
-        "title": "Agreement to Terms",
-        "paragraph1": "These Terms of Use constitute a legally binding agreement made between you, whether personally or on behalf of an entity (\"you\") and Tarevity (\"we,\" \"us\" or \"our\"), concerning your access to and use of the Tarevity task management application.",
-        "paragraph2": "By accessing or using the application, you agree to be bound by these Terms of Use. If you disagree with any part of the terms, you may not access the application."
-      },
-      "userAccounts": {
-        "title": "User Accounts",
-        "paragraph1": "When you create an account with us, you guarantee that you are above the age of 13, and that the information you provide us is accurate, complete, and current at all times. Inaccurate, incomplete, or obsolete information may result in the immediate termination of your account on the application.",
-        "paragraph2": "You are responsible for maintaining the confidentiality of your account and password, including but not limited to the restriction of access to your computer and/or account. You agree to accept responsibility for any and all activities or actions that occur under your account and/or password.",
-        "paragraph3": "You must notify us immediately upon becoming aware of any breach of security or unauthorized use of your account."
-      },
-      "intellectualProperty": {
-        "title": "Intellectual Property",
-        "paragraph1": "The application and its original content, features, and functionality are and will remain the exclusive property of Tarevity and its licensors. The application is protected by copyright, trademark, and other laws of both the United States and foreign countries. Our trademarks and trade dress may not be used in connection with any product or service without the prior written consent of Tarevity.",
-        "paragraph2": "You retain ownership of any intellectual property rights that you hold in the content you create and store on Tarevity. By uploading content to Tarevity, you grant us a worldwide, non-exclusive, royalty-free license to use, reproduce, adapt, publish, translate, and distribute your content in any existing or future media. This license is for the purpose of operating and improving our services only."
-      },
-      "prohibitedUses": {
-        "title": "Prohibited Uses",
-        "intro": "You may use our application only for lawful purposes and in accordance with these Terms. You agree not to use the application:",
-        "item1": "In any way that violates any applicable federal, state, local, or international law or regulation.",
-        "item2": "For the purpose of exploiting, harming, or attempting to exploit or harm minors in any way.",
-        "item3": "To send, knowingly receive, upload, download, use, or re-use any material that does not comply with these Terms.",
-        "item4": "To transmit, or procure the sending of, any advertising or promotional material, including any \"junk mail,\" \"chain letter,\" \"spam,\" or any other similar solicitation.",
-        "item5": "To impersonate or attempt to impersonate Tarevity, a Tarevity employee, another user, or any other person or entity.",
-        "item6": "To engage in any other conduct that restricts or inhibits anyone's use or enjoyment of the application, or which, as determined by us, may harm Tarevity or users of the application, or expose them to liability."
-      },
-      "userContent": {
-        "title": "User Content",
-        "paragraph1": "Our application allows you to create, store, and share content such as tasks, descriptions, and other materials (collectively, \"User Content\"). You are solely responsible for your User Content and the consequences of posting or publishing it.",
-        "paragraph2": "By providing User Content, you represent and warrant that:",
-        "item1": "You own or have the necessary licenses, rights, consents, and permissions to use and authorize us to use all intellectual property rights in and to any User Content.",
-        "item2": "Your User Content does not violate the privacy rights, publicity rights, copyrights, contractual rights, intellectual property rights, or any other rights of any person or entity.",
-        "item3": "Your User Content does not contain any material that solicits personal information from anyone under the age of 18 or exploits people under the age of 18 in a sexual or violent manner.",
-        "item4": "Your User Content does not violate any applicable law concerning child pornography, or otherwise intended to protect the health or well-being of minors."
-      },
-      "externalLinks": {
-        "title": "Links to Other Websites",
-        "paragraph1": "Our application may contain links to third-party websites or services that are not owned or controlled by Tarevity.",
-        "paragraph2": "Tarevity has no control over, and assumes no responsibility for, the content, privacy policies, or practices of any third-party websites or services. You further acknowledge and agree that Tarevity shall not be responsible or liable, directly or indirectly, for any damage or loss caused or alleged to be caused by or in connection with the use of or reliance on any such content, goods, or services available on or through any such websites or services.",
-        "paragraph3": "We strongly advise you to read the terms and conditions and privacy policies of any third-party websites or services that you visit."
-      },
-      "termination": {
-        "title": "Termination",
-        "paragraph1": "We may terminate or suspend your account and bar access to the application immediately, without prior notice or liability, under our sole discretion, for any reason whatsoever and without limitation, including but not limited to a breach of the Terms.",
-        "paragraph2": "If you wish to terminate your account, you may simply discontinue using the application or request account deletion through the application's settings.",
-        "paragraph3": "All provisions of the Terms which by their nature should survive termination shall survive termination, including, without limitation, ownership provisions, warranty disclaimers, indemnity, and limitations of liability."
-      },
-      "disclaimer": {
-        "title": "Disclaimer",
-        "paragraph1": "Your use of the application is at your sole risk. The application is provided on an \"AS IS\" and \"AS AVAILABLE\" basis. The application is provided without warranties of any kind, whether express or implied, including, but not limited to, implied warranties of merchantability, fitness for a particular purpose, non-infringement, or course of performance.",
-        "paragraph2": "Tarevity, its subsidiaries, affiliates, and its licensors do not warrant that a) the application will function uninterrupted, secure, or available at any particular time or location; b) any errors or defects will be corrected; c) the application is free of viruses or other harmful components; or d) the results of using the application will meet your requirements."
-      },
-      "liability": {
-        "title": "Limitation of Liability",
-        "paragraph1": "In no event shall Tarevity, nor its directors, employees, partners, agents, suppliers, or affiliates, be liable for any indirect, incidental, special, consequential, or punitive damages, including without limitation, loss of profits, data, use, goodwill, or other intangible losses, resulting from (i) your access to or use of or inability to access or use the application; (ii) any conduct or content of any third party on the application; (iii) any content obtained from the application; and (iv) unauthorized access, use, or alteration of your transmissions or content, whether based on warranty, contract, tort (including negligence), or any other legal theory, whether or not we have been informed of the possibility of such damage."
-      },
-      "changes": {
-        "title": "Changes to Terms",
-        "paragraph1": "We reserve the right, at our sole discretion, to modify or replace these Terms at any time. We will provide notice of changes to these Terms by posting the updated terms on the application with the \"Last updated\" date revised accordingly. What constitutes a material change will be determined at our sole discretion.",
-        "paragraph2": "By continuing to access or use our application after any revisions become effective, you agree to be bound by the revised terms. If you do not agree to the new terms, you are no longer authorized to use the application."
-      },
-      "governingLaw": {
-        "title": "Governing Law",
-        "paragraph1": "These Terms shall be governed and construed in accordance with the laws of Europe, without regard to its conflict of law provisions.",
-        "paragraph2": "Our failure to enforce any right or provision of these Terms will not be considered a waiver of those rights. If any provision of these Terms is held to be invalid or unenforceable by a court, the remaining provisions of these Terms will remain in effect."
-      },
-      "contact": {
-        "title": "Contact Us",
-        "paragraph1": "If you have any questions about these Terms, please contact me:",
-        "email": "By email: esdrasirion1@gmail.com"
-      }
+    "userAccounts": {
+      "title": "User Accounts",
+      "paragraph1": "When you create an account with us, you guarantee that you are above the age of 13, and that the information you provide us is accurate, complete, and current at all times. Inaccurate, incomplete, or obsolete information may result in the immediate termination of your account on the application.",
+      "paragraph2": "You are responsible for maintaining the confidentiality of your account and password, including but not limited to the restriction of access to your computer and/or account. You agree to accept responsibility for any and all activities or actions that occur under your account and/or password.",
+      "paragraph3": "You must notify us immediately upon becoming aware of any breach of security or unauthorized use of your account."
+    },
+    "intellectualProperty": {
+      "title": "Intellectual Property",
+      "paragraph1": "The application and its original content, features, and functionality are and will remain the exclusive property of Tarevity and its licensors. The application is protected by copyright, trademark, and other laws of both the United States and foreign countries. Our trademarks and trade dress may not be used in connection with any product or service without the prior written consent of Tarevity.",
+      "paragraph2": "You retain ownership of any intellectual property rights that you hold in the content you create and store on Tarevity. By uploading content to Tarevity, you grant us a worldwide, non-exclusive, royalty-free license to use, reproduce, adapt, publish, translate, and distribute your content in any existing or future media. This license is for the purpose of operating and improving our services only."
+    },
+    "prohibitedUses": {
+      "title": "Prohibited Uses",
+      "intro": "You may use our application only for lawful purposes and in accordance with these Terms. You agree not to use the application:",
+      "item1": "In any way that violates any applicable federal, state, local, or international law or regulation.",
+      "item2": "For the purpose of exploiting, harming, or attempting to exploit or harm minors in any way.",
+      "item3": "To send, knowingly receive, upload, download, use, or re-use any material that does not comply with these Terms.",
+      "item4": "To transmit, or procure the sending of, any advertising or promotional material, including any \"junk mail,\" \"chain letter,\" \"spam,\" or any other similar solicitation.",
+      "item5": "To impersonate or attempt to impersonate Tarevity, a Tarevity employee, another user, or any other person or entity.",
+      "item6": "To engage in any other conduct that restricts or inhibits anyone's use or enjoyment of the application, or which, as determined by us, may harm Tarevity or users of the application, or expose them to liability."
+    },
+    "userContent": {
+      "title": "User Content",
+      "paragraph1": "Our application allows you to create, store, and share content such as tasks, descriptions, and other materials (collectively, \"User Content\"). You are solely responsible for your User Content and the consequences of posting or publishing it.",
+      "paragraph2": "By providing User Content, you represent and warrant that:",
+      "item1": "You own or have the necessary licenses, rights, consents, and permissions to use and authorize us to use all intellectual property rights in and to any User Content.",
+      "item2": "Your User Content does not violate the privacy rights, publicity rights, copyrights, contractual rights, intellectual property rights, or any other rights of any person or entity.",
+      "item3": "Your User Content does not contain any material that solicits personal information from anyone under the age of 18 or exploits people under the age of 18 in a sexual or violent manner.",
+      "item4": "Your User Content does not violate any applicable law concerning child pornography, or otherwise intended to protect the health or well-being of minors."
+    },
+    "externalLinks": {
+      "title": "Links to Other Websites",
+      "paragraph1": "Our application may contain links to third-party websites or services that are not owned or controlled by Tarevity.",
+      "paragraph2": "Tarevity has no control over, and assumes no responsibility for, the content, privacy policies, or practices of any third-party websites or services. You further acknowledge and agree that Tarevity shall not be responsible or liable, directly or indirectly, for any damage or loss caused or alleged to be caused by or in connection with the use of or reliance on any such content, goods, or services available on or through any such websites or services.",
+      "paragraph3": "We strongly advise you to read the terms and conditions and privacy policies of any third-party websites or services that you visit."
+    },
+    "termination": {
+      "title": "Termination",
+      "paragraph1": "We may terminate or suspend your account and bar access to the application immediately, without prior notice or liability, under our sole discretion, for any reason whatsoever and without limitation, including but not limited to a breach of the Terms.",
+      "paragraph2": "If you wish to terminate your account, you may simply discontinue using the application or request account deletion through the application's settings.",
+      "paragraph3": "All provisions of the Terms which by their nature should survive termination shall survive termination, including, without limitation, ownership provisions, warranty disclaimers, indemnity, and limitations of liability."
+    },
+    "disclaimer": {
+      "title": "Disclaimer",
+      "paragraph1": "Your use of the application is at your sole risk. The application is provided on an \"AS IS\" and \"AS AVAILABLE\" basis. The application is provided without warranties of any kind, whether express or implied, including, but not limited to, implied warranties of merchantability, fitness for a particular purpose, non-infringement, or course of performance.",
+      "paragraph2": "Tarevity, its subsidiaries, affiliates, and its licensors do not warrant that a) the application will function uninterrupted, secure, or available at any particular time or location; b) any errors or defects will be corrected; c) the application is free of viruses or other harmful components; or d) the results of using the application will meet your requirements."
+    },
+    "liability": {
+      "title": "Limitation of Liability",
+      "paragraph1": "In no event shall Tarevity, nor its directors, employees, partners, agents, suppliers, or affiliates, be liable for any indirect, incidental, special, consequential, or punitive damages, including without limitation, loss of profits, data, use, goodwill, or other intangible losses, resulting from (i) your access to or use of or inability to access or use the application; (ii) any conduct or content of any third party on the application; (iii) any content obtained from the application; and (iv) unauthorized access, use, or alteration of your transmissions or content, whether based on warranty, contract, tort (including negligence), or any other legal theory, whether or not we have been informed of the possibility of such damage."
+    },
+    "changes": {
+      "title": "Changes to Terms",
+      "paragraph1": "We reserve the right, at our sole discretion, to modify or replace these Terms at any time. We will provide notice of changes to these Terms by posting the updated terms on the application with the \"Last updated\" date revised accordingly. What constitutes a material change will be determined at our sole discretion.",
+      "paragraph2": "By continuing to access or use our application after any revisions become effective, you agree to be bound by the revised terms. If you do not agree to the new terms, you are no longer authorized to use the application."
+    },
+    "governingLaw": {
+      "title": "Governing Law",
+      "paragraph1": "These Terms shall be governed and construed in accordance with the laws of Europe, without regard to its conflict of law provisions.",
+      "paragraph2": "Our failure to enforce any right or provision of these Terms will not be considered a waiver of those rights. If any provision of these Terms is held to be invalid or unenforceable by a court, the remaining provisions of these Terms will remain in effect."
+    },
+    "contact": {
+      "title": "Contact Us",
+      "paragraph1": "If you have any questions about these Terms, please contact me:",
+      "email": "By email: esdrasirion1@gmail.com"
     }
-    }
+  }
+}

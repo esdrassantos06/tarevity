@@ -3,7 +3,7 @@
 import { FaHome } from 'react-icons/fa'
 import Layout from '@/components/layout/Layout'
 import React from 'react'
-import {Link} from '@/i18n/navigation';
+import { Link } from '@/i18n/navigation'
 
 export default function NotFoundComponent() {
   return (

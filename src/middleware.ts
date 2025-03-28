@@ -44,9 +44,9 @@ export async function middleware(request: NextRequest) {
   ) {
     const response = NextResponse.next()
     addSecurityHeaders(response, request)
-    
+
     // Apply security headers first, then handle with intl middleware
-    const securedResponse = response;
+    const securedResponse = response
     addSecurityHeaders(securedResponse, request)
     return intlMiddleware(request)
   }
@@ -227,7 +227,7 @@ export async function middleware(request: NextRequest) {
 
   // For all other cases, apply security headers first
   addSecurityHeaders(response, request)
-  
+
   // Then run the internationalization middleware
   return intlMiddleware(request)
 }
@@ -307,6 +307,6 @@ export const config = {
     '/privacy',
     '/terms',
     // next-intl matcher (excluding some paths)
-    '/((?!api|trpc|_next|_vercel|.*\\..*).*)'
+    '/((?!api|trpc|_next|_vercel|.*\\..*).*)',
   ],
 }

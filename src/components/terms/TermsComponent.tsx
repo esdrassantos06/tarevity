@@ -8,20 +8,18 @@ import {
   FaExclamationTriangle,
   FaFileContract,
 } from 'react-icons/fa'
-import {useTranslations} from 'next-intl';
+import { useTranslations } from 'next-intl'
 
 export default function TermsOfUseComponent() {
-  const t = useTranslations('terms');
-  
+  const t = useTranslations('terms')
+
   return (
     <div className="mx-auto max-w-4xl px-6 py-8">
       <div className="mb-8 text-center">
         <h1 className="mb-4 text-3xl font-bold text-gray-900 md:text-4xl dark:text-white">
           {t('title')}
         </h1>
-        <p className="text-gray-600 dark:text-gray-400">
-          {t('lastUpdated')}
-        </p>
+        <p className="text-gray-600 dark:text-gray-400">{t('lastUpdated')}</p>
       </div>
 
       <div className="dark:bg-BlackLight mb-8 overflow-hidden rounded-lg bg-white shadow-md">
@@ -93,24 +91,12 @@ export default function TermsOfUseComponent() {
             {t('prohibitedUses.intro')}
           </p>
           <ul className="mb-4 list-disc pl-6 text-gray-700 dark:text-gray-300">
-            <li className="mb-2">
-              {t('prohibitedUses.item1')}
-            </li>
-            <li className="mb-2">
-              {t('prohibitedUses.item2')}
-            </li>
-            <li className="mb-2">
-              {t('prohibitedUses.item3')}
-            </li>
-            <li className="mb-2">
-              {t('prohibitedUses.item4')}
-            </li>
-            <li className="mb-2">
-              {t('prohibitedUses.item5')}
-            </li>
-            <li className="mb-2">
-              {t('prohibitedUses.item6')}
-            </li>
+            <li className="mb-2">{t('prohibitedUses.item1')}</li>
+            <li className="mb-2">{t('prohibitedUses.item2')}</li>
+            <li className="mb-2">{t('prohibitedUses.item3')}</li>
+            <li className="mb-2">{t('prohibitedUses.item4')}</li>
+            <li className="mb-2">{t('prohibitedUses.item5')}</li>
+            <li className="mb-2">{t('prohibitedUses.item6')}</li>
           </ul>
         </div>
       </div>
@@ -128,18 +114,10 @@ export default function TermsOfUseComponent() {
             {t('userContent.paragraph2')}
           </p>
           <ul className="mb-4 list-disc pl-6 text-gray-700 dark:text-gray-300">
-            <li className="mb-2">
-              {t('userContent.item1')}
-            </li>
-            <li className="mb-2">
-              {t('userContent.item2')}
-            </li>
-            <li className="mb-2">
-              {t('userContent.item3')}
-            </li>
-            <li className="mb-2">
-              {t('userContent.item4')}
-            </li>
+            <li className="mb-2">{t('userContent.item1')}</li>
+            <li className="mb-2">{t('userContent.item2')}</li>
+            <li className="mb-2">{t('userContent.item3')}</li>
+            <li className="mb-2">{t('userContent.item4')}</li>
           </ul>
         </div>
       </div>

@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { useSession, signOut } from 'next-auth/react'
-import {Link} from '@/i18n/navigation';
+import { Link } from '@/i18n/navigation'
 import { FaUser, FaCog, FaSignOutAlt, FaBars, FaTimes } from 'react-icons/fa'
 import { MdSpaceDashboard } from 'react-icons/md'
 import { IoCalendarClearOutline } from 'react-icons/io5'
@@ -12,7 +12,7 @@ import UserImage from '../common/UserImage'
 import NotificationDropdown from '../notifications/NotificationDropdown'
 import { useProfileQuery } from '@/hooks/useProfileQuery'
 import LanguageSwitcher from '../common/LanguageSwitcher'
-import {useTranslations} from 'next-intl';
+import { useTranslations } from 'next-intl'
 
 export default function Header() {
   const t = useTranslations('header')
@@ -74,7 +74,7 @@ export default function Header() {
           </div>
 
           <div className="flex items-center">
-          <LanguageSwitcher />
+            <LanguageSwitcher />
             {isAuthenticated ? (
               <div className="flex items-center justify-center">
                 {/* Notification Dropdown Component */}
@@ -82,7 +82,7 @@ export default function Header() {
 
                 <Link
                   href="/calendar"
-                  className="border-BorderLight hover:bg-BorderLight dark:hover:bg-BorderDark dark:border-BorderDark mr-3 cursor-pointer rounded-lg border-2 size-10 p-2 transition-all duration-300"
+                  className="border-BorderLight hover:bg-BorderLight dark:hover:bg-BorderDark dark:border-BorderDark mr-3 size-10 cursor-pointer rounded-lg border-2 p-2 transition-all duration-300"
                   aria-label={t('calendar')}
                 >
                   <IoCalendarClearOutline className="size-5" />

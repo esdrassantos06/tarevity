@@ -139,7 +139,9 @@ export function useTodoFilters(
     (pageNumber: number) => {
       if (pageNumber >= 1 && pageNumber <= totalPages) {
         setCurrentPage(pageNumber)
-        window.scrollTo({ top: 0, behavior: 'smooth' })
+        setTimeout(() => {
+          window.scrollTo({ top: 0, behavior: 'smooth' })
+        }, 0)
       }
     },
     [totalPages],
