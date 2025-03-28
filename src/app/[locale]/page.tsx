@@ -6,13 +6,12 @@ import { useTranslations } from 'next-intl'
 import { Link } from '@/i18n/navigation'
 import { getTranslations } from 'next-intl/server'
 
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ locale: string }> | { locale: string }
-}) {
-  const resolvedParams = params instanceof Promise ? await params : params
-  const { locale } = resolvedParams
+type PageProps = {
+  params: Promise<{ locale: string }>
+}
+
+export async function generateMetadata({ params }: PageProps) {
+  const { locale } = await params
 
   const t = await getTranslations({ locale, namespace: 'HomePage.metadata' })
 
