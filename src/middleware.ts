@@ -57,9 +57,12 @@ export async function middleware(request: NextRequest) {
     '/api/auth/forgot-password': { limit: 3, window: 3600 },
     '/api/auth/reset-password': { limit: 5, window: 3600 },
     '/api/account/delete': { limit: 2, window: 86400 },
-    '/api/profile/upload-image': { limit: 10, window: 3600 },
+    '/api/profile/upload-image': { limit: 5, window: 3600 },
     '/api/admin/': { limit: 20, window: 60 },
     '/api/todos': { limit: 50, window: 60 },
+    'api/notifications': { limit: 50, window: 60 },
+    'api/profile': { limit: 50, window: 60 },
+    'api/stats': { limit: 50, window: 60 },
   }
 
   let matchedConfig = null
