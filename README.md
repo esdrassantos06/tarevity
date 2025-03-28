@@ -21,7 +21,6 @@ Tarevity is a sophisticated task management application built with Next.js 15, R
 ### 🌐 Internationalization
 
 - **Multi-language Support** with Next Intl integration
-- **Locale Detection** to automatically switch to user's preferred language
 - **Dynamic Content Translation** across the entire application
 - **Date & Time Formatting** according to locale preferences
 
