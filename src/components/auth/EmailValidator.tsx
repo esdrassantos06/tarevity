@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { FaCheck, FaTimes, FaExclamationTriangle } from 'react-icons/fa'
+import { useTranslations } from 'next-intl'
 
 interface EmailValidatorProps {
   email: string
@@ -14,6 +15,7 @@ export default function EmailValidator({
   onValidation,
   className = '',
 }: EmailValidatorProps) {
+  const t = useTranslations('auth.emailValidator')
   const [isValid, setIsValid] = useState(false)
   const [errors, setErrors] = useState<string[]>([])
 
@@ -55,40 +57,39 @@ export default function EmailValidator({
     const newErrors: string[] = []
 
     if (!patterns.format.test(email)) {
-      newErrors.push('Invalid email format')
+      newErrors.push(t('errors.format'))
     }
 
     if (email.length > 0 && !patterns.noConsecutiveSpecials.test(email)) {
-      newErrors.push('Email should not contain consecutive special characters')
+      newErrors.push(t('errors.consecutiveSpecials'))
     }
 
     if (email.length > 0 && !patterns.domainFormat.test(email)) {
-      newErrors.push('Email domain should be valid (e.g., example.com)')
+      newErrors.push(t('errors.domainFormat'))
     }
 
     if (patterns.disposableDomains.test(email)) {
-      newErrors.push('Disposable email addresses are not allowed')
+      newErrors.push(t('errors.disposable'))
     }
 
     if (!patterns.noNumericOnly.test(email)) {
-      newErrors.push('Email username should not be numbers only')
+      newErrors.push(t('errors.numericOnly'))
     }
 
     if (email.length > 254) {
-      newErrors.push('Email is too long (maximum 254 characters)')
+      newErrors.push(t('errors.tooLong'))
     }
 
     const localPart = email.split('@')[0]
     if (localPart && localPart.length > 64) {
-      newErrors.push(
-        'Username part of email is too long (maximum 64 characters)',
-      )
+      newErrors.push(t('errors.usernameTooLong'))
     }
 
     const domain = email.split('@')[1]?.toLowerCase()
     if (domain && commonTypos[domain as keyof typeof commonTypos]) {
+      const suggestion = commonTypos[domain as keyof typeof commonTypos]
       newErrors.push(
-        `Did you mean ${commonTypos[domain as keyof typeof commonTypos]}?`,
+        t('errors.typo').replace('{{suggestion}}', suggestion)
       )
     }
 
@@ -111,7 +112,7 @@ export default function EmailValidator({
     if (onValidation) {
       onValidation(isValidEmail)
     }
-  }, [email, onValidation, patterns, commonTypos])
+  }, [email, onValidation, patterns, commonTypos, t])
 
   useEffect(() => {
     const timeoutId = setTimeout(validateEmail, 300)
@@ -127,12 +128,12 @@ export default function EmailValidator({
         {isValid ? (
           <div className="flex items-center text-xs text-green-500">
             <FaCheck className="mr-1" />
-            <span>Valid email format</span>
+            <span>{t('valid')}</span>
           </div>
         ) : email.length > 0 ? (
           <div className="flex items-center text-xs text-red-500">
             <FaTimes className="mr-1" />
-            <span>Invalid email format</span>
+            <span>{t('invalid')}</span>
           </div>
         ) : null}
       </div>

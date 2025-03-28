@@ -94,7 +94,7 @@
   },
   "terms": {
     "title": "Terms of Use",
-    "lastUpdated": "Last updated: March 14, 2025",
+    "lastUpdated": "Last updated: March 28, 2025",
     "agreement": {
       "title": "Agreement to Terms",
       "paragraph1": "These Terms of Use constitute a legally binding agreement made between you, whether personally or on behalf of an entity (\"you\") and Tarevity (\"we,\" \"us\" or \"our\"), concerning your access to and use of the Tarevity task management application.",
@@ -166,5 +166,318 @@
       "paragraph1": "If you have any questions about these Terms, please contact me:",
       "email": "By email: esdrasirion1@gmail.com"
     }
+  },
+  "privacy": {
+    "title": "Privacy Policy",
+    "lastUpdated": "Last updated: March 28, 2025",
+    "commitment": {
+      "title": "Our Commitment to Privacy",
+      "description": "At Tarevity, we take your privacy seriously. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our task management application. Please read this privacy policy carefully. If you do not agree with the terms of this privacy policy, please do not access the application."
+    },
+    "information": {
+      "title": "Information We Collect",
+      "personalData": {
+        "title": "Personal Data",
+        "description": "While using our application, we may ask you to provide us with certain personally identifiable information that can be used to contact or identify you. Personally identifiable information may include, but is not limited to:",
+        "items": {
+          "email": "Email address",
+          "name": "First name and last name",
+          "picture": "Profile picture (if provided)",
+          "usage": "Usage data and application preferences"
+        }
+      },
+      "usageData": {
+        "title": "Usage Data",
+        "description": "We may also collect information on how the application is accessed and used (\"Usage Data\"). This Usage Data may include information such as your device's IP address, browser type, browser version, the pages of our application that you visit, the time and date of your visit, the time spent on those pages, unique device identifiers, and other diagnostic data."
+      }
+    },
+    "usage": {
+      "title": "How We Use Your Information",
+      "description": "We use the collected data for various purposes:",
+      "items": {
+        "provide": "To provide and maintain our service",
+        "notify": "To notify you about changes to our service",
+        "support": "To provide customer support",
+        "analysis": "To gather analysis or valuable information so that we can improve our service",
+        "monitor": "To monitor the usage of the service",
+        "technical": "To detect, prevent and address technical issues"
+      }
+    },
+    "cookies": {
+      "title": "Cookies and Tracking Technologies",
+      "description1": "We use cookies and similar tracking technologies to track activity on our application and store certain information. Cookies are files with a small amount of data which may include an anonymous unique identifier. Cookies are sent to your browser from a website and stored on your device.",
+      "description2": "You can instruct your browser to refuse all cookies or to indicate when a cookie is being sent. However, if you do not accept cookies, you may not be able to use some portions of our application.",
+      "examples": "Examples of Cookies we use:",
+      "items": {
+        "session": {
+          "title": "Session Cookies:",
+          "description": "We use Session Cookies to operate our service."
+        },
+        "preference": {
+          "title": "Preference Cookies:",
+          "description": "We use Preference Cookies to remember your preferences and various settings."
+        },
+        "security": {
+          "title": "Security Cookies:",
+          "description": "We use Security Cookies for security purposes."
+        }
+      }
+    },
+    "security": {
+      "title": "Data Security",
+      "description1": "The security of your data is important to us, but remember that no method of transmission over the Internet, or method of electronic storage is 100% secure. While we strive to use commercially acceptable means to protect your Personal Data, we cannot guarantee its absolute security.",
+      "description2": "Our security measures include:",
+      "items": {
+        "encryption": "End-to-end encryption for sensitive data",
+        "audits": "Regular security audits",
+        "breach": "Password breach checking via HIBP API",
+        "cookies": "Secure HTTP-only cookies",
+        "csp": "Strict Content Security Policy (CSP) implementation"
+      }
+    },
+    "thirdParty": {
+      "title": "Third-Party Authentication Providers",
+      "description1": "Our application allows you to sign in using third-party authentication providers, such as Google and GitHub. When you choose to sign in using one of these services, we may collect personal information that your privacy settings on that service permit us to access.",
+      "description2": "We only use this information for authentication purposes and to create your user profile within our application. We do not share this information with additional third parties without your consent."
+    },
+    "rights": {
+      "title": "Your Data Rights",
+      "description": "Depending on your location, you may have certain rights regarding your personal information, such as:",
+      "items": {
+        "access": "The right to access personal information we hold about you",
+        "correction": "The right to request correction of inaccurate data",
+        "deletion": "The right to request deletion of your data",
+        "withdraw": "The right to withdraw consent",
+        "portability": "The right to data portability"
+      },
+      "contact": "To exercise any of these rights, please contact us using the information provided below."
+    },
+    "changes": {
+      "title": "Changes to This Privacy Policy",
+      "description1": "We may update our Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy on this page and updating the \"Last updated\" date.",
+      "description2": "You are advised to review this Privacy Policy periodically for any changes. Changes to this Privacy Policy are effective when they are posted on this page."
+    },
+    "contact": {
+      "title": "Contact Us",
+      "description": "If you have any questions about this Privacy Policy, please contact me:",
+      "email": "By email: esdrasirion1@gmail.com"
+    }
+  },
+  "auth": {
+    "register": {
+      "title": "Create Your Account",
+      "name": {
+        "label": "Full Name",
+        "placeholder": "John Doe",
+        "helper": "Your name as you'd like it to appear",
+        "error": {
+          "min": "Name must be at least 2 characters",
+          "max": "Name is too long (maximum 50 characters)",
+          "invalid": "Name contains invalid characters"
+        }
+      },
+      "email": {
+        "label": "Email Address",
+        "placeholder": "you@example.com",
+        "error": {
+          "invalid": "Please enter a valid email address"
+        }
+      },
+      "password": {
+        "label": "Password",
+        "placeholder": "Create a secure password",
+        "confirmLabel": "Confirm Password",
+        "confirmPlaceholder": "Confirm your password",
+        "error": {
+          "min": "Password must be at least 8 characters",
+          "max": "Password is too long (maximum 100 characters)",
+          "uppercase": "Password must contain at least one uppercase letter",
+          "lowercase": "Password must contain at least one lowercase letter",
+          "number": "Password must contain at least one number",
+          "special": "Password must contain at least one special character",
+          "notMatch": "Passwords do not match",
+          "notStrong": "This password is not secure enough. Please choose another.",
+          "compromised": "This password has appeared in data breaches and cannot be used. Please choose a different password."
+        }
+      },
+      "terms": {
+        "text": "I agree to the ",
+        "terms": "Terms of Service",
+        "privacy": "Privacy Policy",
+        "error": "You must accept the Terms of Service and Privacy Policy",
+        "and": "and"
+      },
+      "button": {
+        "submit": "Create Account",
+        "loading": "Creating Account..."
+      },
+      "divider": "Or continue with",
+      "login": {
+        "text": "Already have an account?",
+        "link": "Log in"
+      },
+      "errors": {
+        "emailExists": "This email is already registered. Please log in or use a different email.",
+        "generic": "An error occurred during registration",
+        "unexpectedError": "An unexpected error occurred during registration"
+      },
+      "success": "Account created successfully! Please log in to continue."
+    },
+    "login": {
+      "title": "Login to Tarevity",
+      "error": {
+        "session_expired": "Your session has expired. Please log in again to continue.",
+        "invalid_credentials": "Invalid email or password. {attemptsRemaining} remaining before temporary lockout.",
+        "attempts_singular": "1 attempt",
+        "attempts_plural": "{count} attempts",
+        "lockout": "Too many failed attempts. Account locked for {time}.",
+        "default": "An unexpected error occurred while logging in",
+        "unknown": "Unknown error while logging in"
+      },
+      "lockout": {
+        "warning": "Account is temporarily locked due to too many failed attempts.",
+        "try_again": "Please try again in {time}.",
+        "currently_locked": "Account is locked. Please try again in {time}."
+      },
+      "form": {
+        "email": {
+          "label": "Email Address",
+          "placeholder": "you@example.com",
+          "validation": "Please enter a valid email address",
+          "required": "Email is required"
+        },
+        "password": {
+          "label": "Password",
+          "placeholder": "Your password",
+          "required": "Password must be at least 6 characters"
+        },
+        "remember_me": "Remember me",
+        "forgot_password": "Forgot password?",
+        "submit": {
+          "default": "Log in",
+          "loading": "Logging in...",
+          "locked": "Account Locked"
+        }
+      },
+      "oauth": {
+        "divider": "Or continue with"
+      },
+      "register": {
+        "prompt": "Don't have an account?",
+        "link": "Sign up"
+      },
+      "time_format": {
+        "seconds": "{seconds} seconds",
+        "minute_singular": "1 minute",
+        "minutes_plural": "{minutes} minutes",
+        "minute_seconds": "{minutes} minute and {seconds} second",
+        "minutes_seconds": "{minutes} minutes and {seconds} seconds"
+      }
+    },
+    "forgotPassword": {
+      "title": "Forgot your password?",
+      "instructionsPrompt": "Enter your email and we will send instructions to reset your password.",
+      "checkEmail": "Check your email to reset your password.",
+      "emailSent": "We have sent you an email with instructions on how to reset your password. The link will expire in 1 hour.",
+      "noEmail": "Didn't receive the email? Check your spam folder or try again.",
+      "tryAgain": "Try again",
+      "backToLogin": "Back to login",
+      "email": {
+        "label": "Email",
+        "placeholder": "your@email.com",
+        "required": "Email is required",
+        "invalid": "Please enter a valid email address"
+      },
+      "button": {
+        "send": "Send Instructions",
+        "sending": "Sending..."
+      }
+    },
+    "emailValidator": {
+      "valid": "Valid email format",
+      "invalid": "Invalid email format",
+      "errors": {
+        "format": "Invalid email format",
+        "consecutiveSpecials": "Email should not contain consecutive special characters",
+        "domainFormat": "Email domain should be valid (e.g., example.com)",
+        "disposable": "Disposable email addresses are not allowed",
+        "numericOnly": "Email username should not be numbers only",
+        "tooLong": "Email is too long (maximum 254 characters)",
+        "usernameTooLong": "Username part of email is too long (maximum 64 characters)",
+        "typo": "Did you mean {{suggestion}}?"
+      }
+    },
+    "oauth": {
+      "githubAriaLabel": "Sign in with GitHub",
+      "googleAriaLabel": "Sign in with Google",
+      "continueWithGithub": "Continue with GitHub",
+      "continueWithGoogle": "Continue with Google"
+    },
+    "passwordStrength": {
+    "status": {
+      "weak": "Weak Password",
+      "moderate": "Moderate Password",
+      "strong": "Strong Password",
+      "compromised": "Compromised Password"
+    },
+    "checking": "Checking security...",
+    "compromisedWarning": "Password found in data breaches",
+    "criteria": {
+      "minLength": "At least 8 characters",
+      "uppercase": "One uppercase letter",
+      "lowercase": "One lowercase letter",
+      "number": "One number",
+      "special": "One special character",
+      "noSequential": "No sequential patterns"
+    },
+    "errors": {
+      "checkingError": "Error checking password security.",
+      "unexpectedError": "An unexpected error occurred"
+    }
+  },
+  "resetPassword": {
+    "title": "Reset Password",
+    "createNewPassword": "Create a new password for your account.",
+    "verifying": "Verifying password reset link...",
+    "requestNewLink": "Request new link",
+    "backToLogin": "Back to login",
+    "fields": {
+      "newPassword": "New password",
+      "newPasswordPlaceholder": "Create a secure password",
+      "confirmPassword": "Confirm new password",
+      "confirmPasswordPlaceholder": "Confirm your password"
+    },
+    "buttons": {
+      "resetPassword": "Reset Password",
+      "processing": "Processing..."
+    },
+    "validation": {
+      "minLength": "Password must be at least 8 characters",
+      "maxLength": "Password is too long (maximum 100 characters)",
+      "uppercase": "Password must contain at least one uppercase letter",
+      "lowercase": "Password must contain at least one lowercase letter",
+      "number": "Password must contain at least one number",
+      "special": "Password must contain at least one special character",
+      "confirmRequired": "Password confirmation is required",
+      "passwordsDoNotMatch": "Passwords do not match",
+      "sameAsCurrentPassword": "New password cannot be the same as your current password",
+      "weakPassword": "Please choose a stronger password"
+    },
+    "errors": {
+      "noToken": "No reset token provided. Please request a new reset link.",
+      "invalidToken": "Invalid or expired token",
+      "validationError": "An error occurred while validating the token",
+      "missingToken": "Reset token is missing",
+      "resetError": "An error occurred while resetting your password",
+      "unexpectedError": "An unexpected error occurred",
+      "invalidLinkTitle": "Invalid or expired link",
+      "invalidLinkDesc": "This password reset link is invalid or has expired. Please request a new link."
+    },
+    "success": {
+      "resetComplete": "Password reset successfully",
+      "passwordReset": "Your password has been reset successfully.",
+      "passwordResetDetails": "Your password has been reset successfully. You will be redirected to the login page."
+    }
+  }
   }
 }

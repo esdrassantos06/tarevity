@@ -17,46 +17,10 @@ import {
 import { authAPI } from '@/lib/api'
 import ValidatedInput from './ValidatedInput'
 import PasswordStrengthMeter from './PasswordStrengthMeter'
-
-const passwordPattern = {
-  uppercase: /[A-Z]/,
-  lowercase: /[a-z]/,
-  number: /[0-9]/,
-  special: /[^A-Za-z0-9]/,
-}
-
-const resetPasswordSchema = z
-  .object({
-    password: z
-      .string()
-      .min(8, 'Password must be at least 8 characters')
-      .max(100, 'Password is too long (maximum 100 characters)')
-      .regex(
-        passwordPattern.uppercase,
-        'Password must contain at least one uppercase letter',
-      )
-      .regex(
-        passwordPattern.lowercase,
-        'Password must contain at least one lowercase letter',
-      )
-      .regex(
-        passwordPattern.number,
-        'Password must contain at least one number',
-      )
-      .regex(
-        passwordPattern.special,
-        'Password must contain at least one special character',
-      ),
-    confirmPassword: z.string().min(1, 'Password confirmation is required'),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: 'Passwords do not match',
-    path: ['confirmPassword'],
-  })
-
-type ResetPasswordFormValues = z.infer<typeof resetPasswordSchema>
+import { useTranslations } from 'next-intl'
 
 export default function EnhancedResetPasswordForm() {
+  const t = useTranslations('auth.resetPassword')
   const [isLoading, setIsLoading] = useState(false)
   const [isSubmitted, setIsSubmitted] = useState(false)
   const [isValidToken, setIsValidToken] = useState<boolean | null>(null)
@@ -69,6 +33,44 @@ export default function EnhancedResetPasswordForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const token = searchParams?.get('token')
+
+  const passwordPattern = {
+    uppercase: /[A-Z]/,
+    lowercase: /[a-z]/,
+    number: /[0-9]/,
+    special: /[^A-Za-z0-9]/,
+  }
+
+  const resetPasswordSchema = z
+    .object({
+      password: z
+        .string()
+        .min(8, t('validation.minLength'))
+        .max(100, t('validation.maxLength'))
+        .regex(
+          passwordPattern.uppercase,
+          t('validation.uppercase'),
+        )
+        .regex(
+          passwordPattern.lowercase,
+          t('validation.lowercase'),
+        )
+        .regex(
+          passwordPattern.number,
+          t('validation.number'),
+        )
+        .regex(
+          passwordPattern.special,
+          t('validation.special'),
+        ),
+      confirmPassword: z.string().min(1, t('validation.confirmRequired')),
+    })
+    .refine((data) => data.password === data.confirmPassword, {
+      message: t('validation.passwordsDoNotMatch'),
+      path: ['confirmPassword'],
+    })
+
+  type ResetPasswordFormValues = z.infer<typeof resetPasswordSchema>
 
   const {
     register,
@@ -92,9 +94,7 @@ export default function EnhancedResetPasswordForm() {
     const validateToken = async () => {
       if (!token) {
         setIsValidToken(false)
-        setTokenError(
-          'No reset token provided. Please request a new reset link.',
-        )
+        setTokenError(t('errors.noToken'))
         return
       }
 
@@ -103,7 +103,7 @@ export default function EnhancedResetPasswordForm() {
 
         if (result.error) {
           setIsValidToken(false)
-          setTokenError(result.error.message || 'Invalid or expired token')
+          setTokenError(result.error.message || t('errors.invalidToken'))
         } else {
           setIsValidToken(true)
         }
@@ -112,13 +112,13 @@ export default function EnhancedResetPasswordForm() {
         setTokenError(
           error instanceof Error
             ? error.message
-            : 'An error occurred while validating the token',
+            : t('errors.validationError')
         )
       }
     }
 
     validateToken()
-  }, [token])
+  }, [token, t])
 
   const handlePasswordValidation = (isValid: boolean, isStrong: boolean) => {
     setPasswordValid(isValid)
@@ -159,7 +159,7 @@ export default function EnhancedResetPasswordForm() {
         setIsCurrentPassword(true)
         setFormError('password', {
           type: 'manual',
-          message: 'New password cannot be the same as your current password',
+          message: t('validation.sameAsCurrentPassword'),
         })
       } else if (result === false) {
         setIsCurrentPassword(false)
@@ -176,13 +176,14 @@ export default function EnhancedResetPasswordForm() {
     setFormError,
     clearErrors,
     errors.password?.type,
+    t
   ])
 
   useEffect(() => {
     if (watchedConfirmPassword && watchedPassword !== watchedConfirmPassword) {
       setFormError('confirmPassword', {
         type: 'manual',
-        message: 'Passwords do not match',
+        message: t('validation.passwordsDoNotMatch'),
       })
     } else if (
       errors.confirmPassword?.type === 'manual' &&
@@ -196,18 +197,19 @@ export default function EnhancedResetPasswordForm() {
     setFormError,
     clearErrors,
     errors.confirmPassword?.type,
+    t
   ])
 
   const onSubmit = async (data: ResetPasswordFormValues) => {
     if (!token) {
-      toast.error('Reset token is missing')
+      toast.error(t('errors.missingToken'))
       return
     }
 
     if (!passwordValid || !passwordStrong) {
       setFormError('password', {
         type: 'manual',
-        message: 'Please choose a stronger password',
+        message: t('validation.weakPassword'),
       })
       return
     }
@@ -215,7 +217,7 @@ export default function EnhancedResetPasswordForm() {
     if (isCurrentPassword === true) {
       setFormError('password', {
         type: 'manual',
-        message: 'New password cannot be the same as your current password',
+        message: t('validation.sameAsCurrentPassword'),
       })
       return
     }
@@ -228,8 +230,7 @@ export default function EnhancedResetPasswordForm() {
       if (result.error) {
         console.error('Error in reset password:', result.error)
         toast.error(
-          result.error.message ||
-            'An error occurred while resetting your password',
+          result.error.message || t('errors.resetError'),
           {
             position: 'top-center',
             icon: <FaExclamationTriangle />,
@@ -237,7 +238,7 @@ export default function EnhancedResetPasswordForm() {
         )
       } else {
         setIsSubmitted(true)
-        toast.success('Password reset successfully', {
+        toast.success(t('success.resetComplete'), {
           position: 'top-center',
           icon: <FaCheck />,
         })
@@ -248,7 +249,7 @@ export default function EnhancedResetPasswordForm() {
       }
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : 'An unexpected error occurred',
+        error instanceof Error ? error.message : t('errors.unexpectedError'),
         {
           position: 'top-center',
         },
@@ -264,7 +265,7 @@ export default function EnhancedResetPasswordForm() {
         <div className="text-center">
           <FaSpinner className="mx-auto size-12 animate-spin text-blue-500" />
           <p className="mt-4 text-gray-600 dark:text-gray-400">
-            Verifying password reset link...
+            {t('verifying')}
           </p>
         </div>
       </div>
@@ -277,11 +278,10 @@ export default function EnhancedResetPasswordForm() {
         <div className="mb-6 text-center">
           <FaExclamationTriangle className="mx-auto size-16 text-red-500" />
           <h1 className="mt-4 text-2xl font-bold text-gray-900 dark:text-white">
-            Invalid or expired link
+            {t('errors.invalidLinkTitle')}
           </h1>
           <p className="mt-2 text-gray-600 dark:text-gray-400">
-            {tokenError ||
-              'This password reset link is invalid or has expired. Please request a new link.'}
+            {tokenError || t('errors.invalidLinkDesc')}
           </p>
         </div>
         <div className="text-center">
@@ -289,14 +289,14 @@ export default function EnhancedResetPasswordForm() {
             href="/auth/forgot-password"
             className="inline-block rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none dark:bg-blue-700 dark:hover:bg-blue-800"
           >
-            Request new link
+            {t('requestNewLink')}
           </Link>
           <Link
             href="/auth/login"
             className="mt-4 block text-sm text-blue-600 hover:text-blue-500 dark:text-blue-400"
           >
             <FaArrowLeft className="mr-1 inline" />
-            Back to login
+            {t('backToLogin')}
           </Link>
         </div>
       </div>
@@ -307,12 +307,12 @@ export default function EnhancedResetPasswordForm() {
     <div className="dark:bg-BlackLight mx-auto w-full max-w-md rounded-lg bg-white p-6 shadow-md">
       <div className="mb-6 text-center">
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-          Reset Password
+          {t('title')}
         </h1>
         <p className="mt-2 text-gray-600 dark:text-gray-400">
           {isSubmitted
-            ? 'Your password has been reset successfully.'
-            : 'Create a new password for your account.'}
+            ? t('success.passwordReset')
+            : t('createNewPassword')}
         </p>
       </div>
 
@@ -321,8 +321,7 @@ export default function EnhancedResetPasswordForm() {
           <div className="mb-6 rounded-lg bg-green-50 p-4 dark:bg-green-900/30">
             <FaCheck className="mx-auto mb-2 size-12 text-green-500 dark:text-green-400" />
             <p className="text-green-800 dark:text-green-200">
-              Your password has been reset successfully. You will be redirected
-              to the login page.
+              {t('success.passwordResetDetails')}
             </p>
           </div>
 
@@ -331,7 +330,7 @@ export default function EnhancedResetPasswordForm() {
             className="text-sm text-blue-600 hover:text-blue-500 dark:text-blue-400"
           >
             <FaArrowLeft className="mr-1 inline" />
-            Back to login
+            {t('backToLogin')}
           </Link>
         </div>
       ) : (
@@ -339,10 +338,10 @@ export default function EnhancedResetPasswordForm() {
           <ValidatedInput
             id="password"
             type="password"
-            label="New password"
+            label={t('fields.newPassword')}
             registration={register('password')}
             error={errors.password?.message}
-            placeholder="Create a secure password"
+            placeholder={t('fields.newPasswordPlaceholder')}
             disabled={isLoading}
             required
             icon={<FaLock />}
@@ -358,10 +357,10 @@ export default function EnhancedResetPasswordForm() {
           <ValidatedInput
             id="confirmPassword"
             type="password"
-            label="Confirm new password"
+            label={t('fields.confirmPassword')}
             registration={register('confirmPassword')}
             error={errors.confirmPassword?.message}
-            placeholder="Confirm your password"
+            placeholder={t('fields.confirmPasswordPlaceholder')}
             disabled={isLoading}
             required
             icon={<FaLock />}
@@ -369,7 +368,7 @@ export default function EnhancedResetPasswordForm() {
           />
 
           <button
-            aria-label="Reset Password"
+            aria-label={t('buttons.resetPassword')}
             type="submit"
             disabled={isLoading || isCurrentPassword === true}
             className={`flex w-full items-center justify-center rounded-md border border-transparent px-4 py-2 text-sm font-medium text-white shadow-sm focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none ${
@@ -381,10 +380,10 @@ export default function EnhancedResetPasswordForm() {
             {isLoading ? (
               <>
                 <FaSpinner className="mr-2 size-4 animate-spin" />
-                Processing...
+                {t('buttons.processing')}
               </>
             ) : (
-              'Reset Password'
+              t('buttons.resetPassword')
             )}
           </button>
         </form>

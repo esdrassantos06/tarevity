@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { FaCheck, FaTimes, FaExclamationTriangle, FaLock } from 'react-icons/fa'
 import { authAPI } from '@/lib/api'
+import { useTranslations } from 'next-intl'
 
 interface PasswordStrengthMeterProps {
   password: string
@@ -15,6 +16,8 @@ export default function PasswordStrengthMeter({
   onValidation,
   className = '',
 }: PasswordStrengthMeterProps) {
+  const t = useTranslations('auth.passwordStrength')
+  
   const passwordRef = useRef(password)
   const checkTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const onValidationRef = useRef(onValidation)
@@ -85,7 +88,7 @@ export default function PasswordStrengthMeter({
             isChecking: false,
             strength: localStrength,
             errors: [
-              result.error?.message || 'Error checking password security.',
+              result.error?.message || t('errors.checkingError'),
             ],
           }))
           if (currentOnValidation)
@@ -128,13 +131,13 @@ export default function PasswordStrengthMeter({
           ...prev,
           isChecking: false,
           strength: localStrength,
-          errors: ['An unexpected error occurred'],
+          errors: [t('errors.unexpectedError')],
         }))
         if (currentOnValidation)
           currentOnValidation(localStrength >= 40, localStrength >= 70)
       }
     }
-  }, [calculateLocalStrength])
+  }, [calculateLocalStrength, t])
 
   useEffect(() => {
     passwordRef.current = password
@@ -208,18 +211,18 @@ export default function PasswordStrengthMeter({
           }`}
         >
           {state.isCompromised
-            ? 'Compromised Password'
+            ? t('status.compromised')
             : state.strength < 40
-              ? 'Weak Password'
+              ? t('status.weak')
               : state.strength < 70
-                ? 'Moderate Password'
-                : 'Strong Password'}
+                ? t('status.moderate')
+                : t('status.strong')}
         </span>
 
         {state.isChecking && (
           <div className="flex items-center text-xs text-gray-500">
             <div className="mr-1 size-3 animate-spin rounded-full border-2 border-gray-300 border-t-blue-600"></div>
-            <span>Checking security...</span>
+            <span>{t('checking')}</span>
           </div>
         )}
 
@@ -227,7 +230,7 @@ export default function PasswordStrengthMeter({
         {state.isCompromised && (
           <div className="flex items-center text-xs text-red-500">
             <FaLock className="mr-1" />
-            <span>Password found in data breaches</span>
+            <span>{t('compromisedWarning')}</span>
           </div>
         )}
       </div>
@@ -238,27 +241,27 @@ export default function PasswordStrengthMeter({
           {[
             {
               check: criteria.hasLength,
-              label: 'At least 8 characters',
+              label: t('criteria.minLength'),
               icon: criteria.hasLength ? FaCheck : FaTimes,
             },
             {
               check: criteria.hasUppercase,
-              label: 'One uppercase letter',
+              label: t('criteria.uppercase'),
               icon: criteria.hasUppercase ? FaCheck : FaTimes,
             },
             {
               check: criteria.hasLowercase,
-              label: 'One lowercase letter',
+              label: t('criteria.lowercase'),
               icon: criteria.hasLowercase ? FaCheck : FaTimes,
             },
             {
               check: criteria.hasDigit,
-              label: 'One number',
+              label: t('criteria.number'),
               icon: criteria.hasDigit ? FaCheck : FaTimes,
             },
             {
               check: criteria.hasSpecial,
-              label: 'One special character',
+              label: t('criteria.special'),
               icon: criteria.hasSpecial ? FaCheck : FaTimes,
             },
           ].map(({ check, label, icon: Icon }, index) => (
@@ -286,7 +289,7 @@ export default function PasswordStrengthMeter({
               ) : (
                 <FaExclamationTriangle className="mr-1" />
               )}
-              <span>No sequential patterns</span>
+              <span>{t('criteria.noSequential')}</span>
             </div>
           )}
         </div>

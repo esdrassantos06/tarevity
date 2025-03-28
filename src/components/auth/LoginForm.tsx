@@ -12,6 +12,7 @@ import { showSuccess, showError, showWarning } from '@/lib/toast'
 import ValidatedInput from './ValidatedInput'
 import EmailValidator from './EmailValidator'
 import OAuthButtons from '@/components/auth/OAuthButtons'
+import { useTranslations } from 'next-intl'
 
 const loginSchema = z.object({
   email: z
@@ -25,6 +26,9 @@ const loginSchema = z.object({
 type LoginFormValues = z.infer<typeof loginSchema>
 
 export default function EnhancedLoginForm() {
+  const t = useTranslations('auth.login')
+
+  
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [error, setError] = useState<string | null>(null)
   const [failedAttempts, setFailedAttempts] = useState<number>(0)
@@ -106,7 +110,7 @@ export default function EnhancedLoginForm() {
     if (errorParam === 'session_expired') {
       setFailedAttempts(0)
       localStorage.removeItem('loginLockout')
-      showWarning('Your session has expired. Please log in again to continue.')
+      showWarning(t('error.session_expired'))
 
       if (typeof window !== 'undefined') {
         const url = new URL(window.location.href)
@@ -114,7 +118,7 @@ export default function EnhancedLoginForm() {
         window.history.replaceState({}, document.title, url.toString())
       }
     }
-  }, [errorParam])
+  }, [errorParam, t])
 
   const handleEmailValidation = (isValid: boolean) => {
     setEmailValid(isValid)
@@ -157,10 +161,29 @@ export default function EnhancedLoginForm() {
     }, 1000)
   }
 
+  const formatLockoutTime = (seconds: number): string => {
+    if (seconds < 60) {
+      return t('time_format.seconds', { seconds })
+    }
+
+    const minutes = Math.floor(seconds / 60)
+    const remainingSeconds = seconds % 60
+
+    if (remainingSeconds === 0) {
+      return minutes === 1 
+        ? t('time_format.minute_singular') 
+        : t('time_format.minutes_plural', { minutes })
+    }
+
+    return minutes === 1
+      ? t('time_format.minute_seconds', { minutes, seconds: remainingSeconds })
+      : t('time_format.minutes_seconds', { minutes, seconds: remainingSeconds })
+  }
+
   const onSubmit = async (data: LoginFormValues) => {
     if (isLocked) {
       showWarning(
-        `Account is locked. Please try again in ${formatLockoutTime(lockoutTime)}.`,
+        t('lockout.currently_locked', { time: formatLockoutTime(lockoutTime) }),
       )
       return
     }
@@ -168,7 +191,7 @@ export default function EnhancedLoginForm() {
     if (!emailValid) {
       setFormError('email', {
         type: 'manual',
-        message: 'Please enter a valid email address',
+        message: t('form.email.validation'),
       })
       return
     }
@@ -190,25 +213,24 @@ export default function EnhancedLoginForm() {
         if (newAttemptCount >= MAX_ATTEMPTS) {
           setLoginLockout(newAttemptCount)
           setError(
-            `Too many failed attempts. Your account is locked for ${formatLockoutTime(lockoutTime)}.`,
+            t('error.lockout', { time: formatLockoutTime(lockoutTime) }),
           )
 
           showWarning(
-            `Too many failed attempts. Account locked for ${formatLockoutTime(lockoutTime)}.`,
+            t('error.lockout', { time: formatLockoutTime(lockoutTime) }),
           )
           reset()
         } else {
-          const attemptsMessage =
-            MAX_ATTEMPTS - newAttemptCount === 1
-              ? '1 attempt'
-              : `${MAX_ATTEMPTS - newAttemptCount} attempts`
+          const attemptsMessage = MAX_ATTEMPTS - newAttemptCount === 1
+            ? t('error.attempts_singular')
+            : t('error.attempts_plural', { count: MAX_ATTEMPTS - newAttemptCount })
 
           setError(
-            `Invalid email or password. ${attemptsMessage} remaining before temporary lockout.`,
+            t('error.invalid_credentials', { attemptsRemaining: attemptsMessage }),
           )
 
           showError(
-            `Invalid email or password. ${attemptsMessage} remaining before temporary lockout.`,
+            t('error.invalid_credentials', { attemptsRemaining: attemptsMessage }),
           )
         }
         return
@@ -237,39 +259,25 @@ export default function EnhancedLoginForm() {
     } catch (error: unknown) {
       if (error instanceof Error) {
         setError(
-          error.message || 'An unexpected error occurred while logging in',
+          error.message || t('error.default'),
         )
         showError(
-          error.message || 'An unexpected error occurred while logging in',
+          error.message || t('error.default'),
         )
       } else {
-        setError('Unknown error while logging in')
-        showError('Unknown error while logging in')
+        setError(t('error.unknown'))
+        showError(t('error.unknown'))
       }
     } finally {
       setIsLoading(false)
     }
   }
-
-  const formatLockoutTime = (seconds: number): string => {
-    if (seconds < 60) {
-      return `${seconds} seconds`
-    }
-
-    const minutes = Math.floor(seconds / 60)
-    const remainingSeconds = seconds % 60
-
-    if (remainingSeconds === 0) {
-      return `${minutes} minute${minutes > 1 ? 's' : ''}`
-    }
-
-    return `${minutes} minute${minutes > 1 ? 's' : ''} and ${remainingSeconds} second${remainingSeconds > 1 ? 's' : ''}`
-  }
+  
 
   return (
     <div className="dark:bg-BlackLight mx-auto w-full max-w-md rounded-2xl bg-white p-6 shadow-md">
       <h1 className="mb-6 text-center text-2xl font-bold text-gray-900 dark:text-white">
-        Login to Tarevity
+        {t('title')}
       </h1>
 
       {/* Error message banner */}
@@ -295,9 +303,9 @@ export default function EnhancedLoginForm() {
           role="alert"
           aria-live="polite"
         >
-          <p>Account is temporarily locked due to too many failed attempts.</p>
+          <p>{t('lockout.warning')}</p>
           <p className="font-medium">
-            Please try again in {formatLockoutTime(lockoutTime)}.
+            {t('lockout.try_again', { time: formatLockoutTime(lockoutTime) })}
           </p>
         </div>
       )}
@@ -317,10 +325,10 @@ export default function EnhancedLoginForm() {
         <ValidatedInput
           id="email"
           type="email"
-          label="Email Address"
+          label={t('form.email.label')}
           registration={register('email')}
           error={errors.email?.message}
-          placeholder="you@example.com"
+          placeholder={t('form.email.placeholder')}
           disabled={isLoading || isLocked}
           required
           icon={<FaEnvelope aria-hidden="true" />}
@@ -338,10 +346,10 @@ export default function EnhancedLoginForm() {
         <ValidatedInput
           id="password"
           type="password"
-          label="Password"
+          label={t('form.password.label')}
           registration={register('password')}
           error={errors.password?.message}
-          placeholder="Your password"
+          placeholder={t('form.password.placeholder')}
           disabled={isLoading || isLocked}
           required
           icon={<FaLock aria-hidden="true" />}
@@ -363,7 +371,7 @@ export default function EnhancedLoginForm() {
               htmlFor="rememberMe"
               className="ml-2 block text-sm text-gray-700 dark:text-gray-300"
             >
-              Remember me
+              {t('form.remember_me')}
             </label>
           </div>
 
@@ -371,16 +379,16 @@ export default function EnhancedLoginForm() {
             <Link
               href="/auth/forgot-password"
               className="font-medium text-blue-600 hover:text-blue-500 focus:underline focus:outline-none dark:text-blue-400"
-              aria-label="Forgot password? Reset it here"
+              aria-label={t('form.forgot_password')}
             >
-              Forgot password?
+              {t('form.forgot_password')}
             </Link>
           </div>
         </div>
 
         {/* Submit Button */}
         <button
-          aria-label="Login"
+          aria-label={t('form.submit.default')}
           type="submit"
           disabled={isLoading || isLocked}
           className={`flex w-full justify-center rounded-md border border-transparent px-4 py-2 text-sm font-medium text-white shadow-sm focus:outline-none ${
@@ -412,12 +420,12 @@ export default function EnhancedLoginForm() {
                   d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                 />
               </svg>
-              Logging in...
+              {t('form.submit.loading')}
             </>
           ) : isLocked ? (
-            'Account Locked'
+            t('form.submit.locked')
           ) : (
-            'Log in'
+            t('form.submit.default')
           )}
         </button>
       </form>
@@ -429,8 +437,8 @@ export default function EnhancedLoginForm() {
             <div className="w-full border-t border-gray-300 dark:border-gray-600"></div>
           </div>
           <div className="relative flex justify-center text-sm">
-            <span className="bg-white px-2 text-gray-500 dark:bg-zinc-800 dark:text-gray-400">
-              Or continue with
+            <span className="bg-white px-2 text-gray-500 dark:bg-BlackLight dark:text-gray-400">
+              {t('oauth.divider')}
             </span>
           </div>
         </div>
@@ -443,12 +451,12 @@ export default function EnhancedLoginForm() {
       {/* Register Link */}
       <div className="mt-6 text-center">
         <p className="text-sm text-gray-600 dark:text-gray-400">
-          Don&apos;t have an account?{' '}
+          {t('register.prompt')}{' '}
           <Link
             href="/auth/register"
             className="font-medium text-blue-600 hover:text-blue-500 focus:underline focus:outline-none dark:text-blue-400"
           >
-            Sign up
+            {t('register.link')}
           </Link>
         </p>
       </div>

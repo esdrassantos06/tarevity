@@ -94,7 +94,7 @@
   },
   "terms": {
     "title": "Termos de Uso",
-    "lastUpdated": "Última atualização: 14 de março de 2025",
+    "lastUpdated": "Última atualização: 28 de março de 2025",
     "agreement": {
       "title": "Concordância com os Termos",
       "paragraph1": "Estes Termos de Uso constituem um acordo legalmente vinculativo entre você, seja pessoalmente ou em nome de uma entidade (\"você\") e Tarevity (\"nós\", \"nos\" ou \"nosso\"), referente ao seu acesso e uso do aplicativo de gerenciamento de tarefas Tarevity.",
@@ -162,9 +162,322 @@
       "paragraph2": "Nossa falha em fazer cumprir qualquer direito ou disposição destes Termos não será considerada uma renúncia a esses direitos. Se qualquer disposição destes Termos for considerada inválida ou inexequível por um tribunal, as disposições restantes destes Termos permanecerão em vigor."
     },
     "contact": {
-      "title": "Contate-nos",
+      "title": "Entre em Contato",
       "paragraph1": "Se você tiver alguma dúvida sobre estes Termos, entre em contato comigo:",
       "email": "Por e-mail: esdrasirion1@gmail.com"
+    }
+  },
+  "privacy": {
+    "title": "Política de Privacidade",
+    "lastUpdated": "Última atualização: 28 de março de 2025",
+    "commitment": {
+      "title": "Nosso Compromisso com a Privacidade",
+      "description": "Na Tarevity, levamos sua privacidade a sério. Esta Política de Privacidade explica como coletamos, usamos, divulgamos e protegemos suas informações quando você utiliza nosso aplicativo de gerenciamento de tarefas. Por favor, leia esta política de privacidade cuidadosamente. Se você não concordar com os termos desta política de privacidade, por favor não acesse o aplicativo."
+    },
+    "information": {
+      "title": "Informações que Coletamos",
+      "personalData": {
+        "title": "Dados Pessoais",
+        "description": "Ao usar nosso aplicativo, podemos solicitar que você nos forneça certas informações de identificação pessoal que podem ser usadas para contatá-lo ou identificá-lo. As informações de identificação pessoal podem incluir, mas não se limitam a:",
+        "items": {
+          "email": "Endereço de e-mail",
+          "name": "Nome e sobrenome",
+          "picture": "Foto de perfil (se fornecida)",
+          "usage": "Dados de uso e preferências de aplicativo"
+        }
+      },
+      "usageData": {
+        "title": "Dados de Uso",
+        "description": "Também podemos coletar informações sobre como o aplicativo é acessado e usado (\"Dados de Uso\"). Esses Dados de Uso podem incluir informações como o endereço IP do seu dispositivo, tipo de navegador, versão do navegador, as páginas do nosso aplicativo que você visita, a hora e data da sua visita, o tempo gasto nessas páginas, identificadores únicos de dispositivo e outros dados de diagnóstico."
+      }
+    },
+    "usage": {
+      "title": "Como Usamos Suas Informações",
+      "description": "Utilizamos os dados coletados para várias finalidades:",
+      "items": {
+        "provide": "Para fornecer e manter nosso serviço",
+        "notify": "Para notificá-lo sobre mudanças em nosso serviço",
+        "support": "Para fornecer suporte ao cliente",
+        "analysis": "Para coletar análises ou informações valiosas para melhorar nosso serviço",
+        "monitor": "Para monitorar o uso do serviço",
+        "technical": "Para detectar, prevenir e solucionar problemas técnicos"
+      }
+    },
+    "cookies": {
+      "title": "Cookies e Tecnologias de Rastreamento",
+      "description1": "Usamos cookies e tecnologias de rastreamento semelhantes para monitorar a atividade em nosso aplicativo e armazenar certas informações. Cookies são arquivos com uma pequena quantidade de dados que podem incluir um identificador exclusivo anônimo. Os cookies são enviados ao seu navegador a partir de um site e armazenados no seu dispositivo.",
+      "description2": "Você pode instruir seu navegador a recusar todos os cookies ou indicar quando um cookie está sendo enviado. No entanto, se você não aceitar cookies, pode não conseguir usar algumas partes do nosso aplicativo.",
+      "examples": "Exemplos de cookies que usamos:",
+      "items": {
+        "session": {
+          "title": "Cookies de Sessão:",
+          "description": "Usamos cookies de sessão para operar nosso serviço."
+        },
+        "preference": {
+          "title": "Cookies de Preferência:",
+          "description": "Usamos cookies de preferência para lembrar suas preferências e várias configurações."
+        },
+        "security": {
+          "title": "Cookies de Segurança:",
+          "description": "Usamos cookies de segurança para fins de segurança."
+        }
+      }
+    },
+    "security": {
+      "title": "Segurança de Dados",
+      "description1": "A segurança dos seus dados é importante para nós, mas lembre-se que nenhum método de transmissão pela Internet ou método de armazenamento eletrônico é 100% seguro. Embora nos esforcemos para usar meios comercialmente aceitáveis para proteger seus Dados Pessoais, não podemos garantir sua segurança absoluta.",
+      "description2": "Nossas medidas de segurança incluem:",
+      "items": {
+        "encryption": "Criptografia de ponta a ponta para dados sensíveis",
+        "audits": "Auditorias de segurança regulares",
+        "breach": "Verificação de violação de senhas via API HIBP",
+        "cookies": "Cookies HTTP seguros",
+        "csp": "Implementação rigorosa de Política de Segurança de Conteúdo (CSP)"
+      }
+    },
+    "thirdParty": {
+      "title": "Provedores de Autenticação de Terceiros",
+      "description1": "Nosso aplicativo permite que você faça login usando provedores de autenticação de terceiros, como Google e GitHub. Quando você escolhe fazer login usando um desses serviços, podemos coletar informações pessoais que suas configurações de privacidade nesse serviço nos permitem acessar.",
+      "description2": "Usamos essas informações apenas para fins de autenticação e para criar seu perfil de usuário em nosso aplicativo. Não compartilhamos essas informações com terceiros adicionais sem o seu consentimento."
+    },
+    "rights": {
+      "title": "Seus Direitos de Dados",
+      "description": "Dependendo da sua localização, você pode ter certos direitos em relação às suas informações pessoais, como:",
+      "items": {
+        "access": "O direito de acessar informações pessoais que mantemos sobre você",
+        "correction": "O direito de solicitar a correção de dados imprecisos",
+        "deletion": "O direito de solicitar a exclusão de seus dados",
+        "withdraw": "O direito de retirar o consentimento",
+        "portability": "O direito à portabilidade de dados"
+      },
+      "contact": "Para exercer qualquer um desses direitos, entre em contato conosco usando as informações fornecidas abaixo."
+    },
+    "changes": {
+      "title": "Alterações nesta Política de Privacidade",
+      "description1": "Podemos atualizar nossa Política de Privacidade de tempos em tempos. Notificaremos você sobre quaisquer alterações publicando a nova Política de Privacidade nesta página e atualizando a data de \"Última atualização\".",
+      "description2": "Recomendamos que você revise esta Política de Privacidade periodicamente para verificar se há alterações. As alterações nesta Política de Privacidade entram em vigor quando são publicadas nesta página."
+    },
+    "contact": {
+      "title": "Entre em Contato",
+      "description": "Se você tiver alguma dúvida sobre esta Política de Privacidade, entre em contato comigo:",
+      "email": "Por e-mail: esdrasirion1@gmail.com"
+    }
+  },
+  "auth": {
+    "register": {
+      "title": "Crie Sua Conta",
+      "name": {
+        "label": "Nome Completo",
+        "placeholder": "João Silva",
+        "helper": "Seu nome como você gostaria que aparecesse",
+        "error": {
+          "min": "O nome deve ter pelo menos 2 caracteres",
+          "max": "O nome é muito longo (máximo de 50 caracteres)",
+          "invalid": "O nome contém caracteres inválidos"
+        }
+      },
+      "email": {
+        "label": "Endereço de Email",
+        "placeholder": "voce@exemplo.com",
+        "error": {
+          "invalid": "Por favor, digite um endereço de email válido"
+        }
+      },
+      "password": {
+        "label": "Senha",
+        "placeholder": "Crie uma senha segura",
+        "confirmLabel": "Confirmar Senha",
+        "confirmPlaceholder": "Confirme sua senha",
+        "error": {
+          "min": "A senha deve ter pelo menos 8 caracteres",
+          "max": "A senha é muito longa (máximo de 100 caracteres)",
+          "uppercase": "A senha deve conter pelo menos uma letra maiúscula",
+          "lowercase": "A senha deve conter pelo menos uma letra minúscula",
+          "number": "A senha deve conter pelo menos um número",
+          "special": "A senha deve conter pelo menos um caractere especial",
+          "notMatch": "As senhas não coincidem",
+          "notStrong": "Esta senha não é segura o suficiente. Por favor, escolha outra.",
+          "compromised": "Esta senha apareceu em violações de dados e não pode ser usada. Por favor, escolha uma senha diferente."
+        }
+      },
+      "terms": {
+        "text": "Eu concordo com os ",
+        "terms": "Termos de Serviço",
+        "privacy": "Política de Privacidade",
+        "error": "Você deve aceitar os Termos de Serviço e a Política de Privacidade",
+        "and": "e"
+      },
+      "button": {
+        "submit": "Criar Conta",
+        "loading": "Criando Conta..."
+      },
+      "divider": "Ou continue com",
+      "login": {
+        "text": "Já tem uma conta?",
+        "link": "Entrar"
+      },
+      "errors": {
+        "emailExists": "Este email já está registrado. Por favor, faça login ou use um email diferente.",
+        "generic": "Ocorreu um erro durante o registro",
+        "unexpectedError": "Ocorreu um erro inesperado durante o registro"
+      },
+      "success": "Conta criada com sucesso! Por favor, faça login para continuar."
+    },
+    "login": {
+      "title": "Entrar no Tarevity",
+      "error": {
+        "session_expired": "Sua sessão expirou. Por favor, faça login novamente para continuar.",
+        "invalid_credentials": "Email ou senha inválidos. {attemptsRemaining} restantes antes do bloqueio temporário.",
+        "attempts_singular": "1 tentativa",
+        "attempts_plural": "{count} tentativas",
+        "lockout": "Muitas tentativas falhas. Conta bloqueada por {time}.",
+        "default": "Ocorreu um erro inesperado durante o login",
+        "unknown": "Erro desconhecido durante o login"
+      },
+      "lockout": {
+        "warning": "Conta temporariamente bloqueada devido a muitas tentativas falhas.",
+        "try_again": "Por favor, tente novamente em {time}.",
+        "currently_locked": "A conta está bloqueada. Por favor, tente novamente em {time}."
+      },
+      "form": {
+        "email": {
+          "label": "Endereço de Email",
+          "placeholder": "voce@exemplo.com",
+          "validation": "Por favor, insira um endereço de email válido",
+          "required": "Email é obrigatório"
+        },
+        "password": {
+          "label": "Senha",
+          "placeholder": "Sua senha",
+          "required": "A senha deve ter pelo menos 6 caracteres"
+        },
+        "remember_me": "Lembrar de mim",
+        "forgot_password": "Esqueceu a senha?",
+        "submit": {
+          "default": "Entrar",
+          "loading": "Entrando...",
+          "locked": "Conta Bloqueada"
+        }
+      },
+      "oauth": {
+        "divider": "Ou continue com"
+      },
+      "register": {
+        "prompt": "Não tem uma conta?",
+        "link": "Cadastre-se"
+      },
+      "time_format": {
+        "seconds": "{seconds} segundos",
+        "minute_singular": "1 minuto",
+        "minutes_plural": "{minutes} minutos",
+        "minute_seconds": "{minutes} minuto e {seconds} segundo",
+        "minutes_seconds": "{minutes} minutos e {seconds} segundos"
+      }
+    },
+    "forgotPassword": {
+      "title": "Esqueceu sua senha?",
+      "instructionsPrompt": "Digite seu e-mail e enviaremos instruções para redefinir sua senha.",
+      "checkEmail": "Verifique seu e-mail para redefinir sua senha.",
+      "emailSent": "Enviamos um e-mail com instruções sobre como redefinir sua senha. O link expirará em 1 hora.",
+      "noEmail": "Não recebeu o e-mail? Verifique sua pasta de spam ou tente novamente.",
+      "tryAgain": "Tentar novamente",
+      "backToLogin": "Voltar ao login",
+      "email": {
+        "label": "E-mail",
+        "placeholder": "seu@email.com",
+        "required": "E-mail é obrigatório",
+        "invalid": "Por favor, insira um endereço de e-mail válido"
+      },
+      "button": {
+        "send": "Enviar Instruções",
+        "sending": "Enviando..."
+      }
+    },
+    "emailValidator": {
+      "valid": "Formato de e-mail válido",
+      "invalid": "Formato de e-mail inválido",
+      "errors": {
+        "format": "Formato de e-mail inválido",
+        "consecutiveSpecials": "O e-mail não deve conter caracteres especiais consecutivos",
+        "domainFormat": "O domínio do e-mail deve ser válido (ex: exemplo.com)",
+        "disposable": "Endereços de e-mail descartáveis não são permitidos",
+        "numericOnly": "O nome de usuário do e-mail não deve conter apenas números",
+        "tooLong": "O e-mail é muito longo (máximo de 254 caracteres)",
+        "usernameTooLong": "A parte do nome de usuário do e-mail é muito longa (máximo de 64 caracteres)",
+        "typo": "Você quis dizer {{suggestion}}?"
+      }
+    },
+    "oauth": {
+      "githubAriaLabel": "Entrar com GitHub",
+      "googleAriaLabel": "Entrar com Google",
+      "continueWithGithub": "Continuar com GitHub",
+      "continueWithGoogle": "Continuar com Google"
+    },
+    "passwordStrength": {
+      "status": {
+        "weak": "Senha Fraca",
+        "moderate": "Senha Moderada",
+        "strong": "Senha Forte",
+        "compromised": "Senha Comprometida"
+      },
+      "checking": "Verificando segurança...",
+      "compromisedWarning": "Senha encontrada em vazamentos de dados",
+      "criteria": {
+        "minLength": "Pelo menos 8 caracteres",
+        "uppercase": "Uma letra maiúscula",
+        "lowercase": "Uma letra minúscula",
+        "number": "Um número",
+        "special": "Um caractere especial",
+        "noSequential": "Sem padrões sequenciais"
+      },
+      "errors": {
+        "checkingError": "Erro ao verificar a segurança da senha.",
+        "unexpectedError": "Ocorreu um erro inesperado"
+      }
+    },
+    "resetPassword": {
+      "title": "Redefinir Senha",
+      "createNewPassword": "Crie uma nova senha para sua conta.",
+      "verifying": "Verificando link de redefinição de senha...",
+      "requestNewLink": "Solicitar novo link",
+      "backToLogin": "Voltar ao login",
+      "fields": {
+        "newPassword": "Nova senha",
+        "newPasswordPlaceholder": "Crie uma senha segura",
+        "confirmPassword": "Confirme a nova senha",
+        "confirmPasswordPlaceholder": "Confirme sua senha"
+      },
+      "buttons": {
+        "resetPassword": "Redefinir Senha",
+        "processing": "Processando..."
+      },
+      "validation": {
+        "minLength": "A senha deve ter pelo menos 8 caracteres",
+        "maxLength": "A senha é muito longa (máximo de 100 caracteres)",
+        "uppercase": "A senha deve conter pelo menos uma letra maiúscula",
+        "lowercase": "A senha deve conter pelo menos uma letra minúscula",
+        "number": "A senha deve conter pelo menos um número",
+        "special": "A senha deve conter pelo menos um caractere especial",
+        "confirmRequired": "A confirmação de senha é obrigatória",
+        "passwordsDoNotMatch": "As senhas não coincidem",
+        "sameAsCurrentPassword": "A nova senha não pode ser igual à senha atual",
+        "weakPassword": "Por favor, escolha uma senha mais forte"
+      },
+      "errors": {
+        "noToken": "Nenhum token de redefinição fornecido. Por favor, solicite um novo link.",
+        "invalidToken": "Token inválido ou expirado",
+        "validationError": "Ocorreu um erro ao validar o token",
+        "missingToken": "Token de redefinição ausente",
+        "resetError": "Ocorreu um erro ao redefinir sua senha",
+        "unexpectedError": "Ocorreu um erro inesperado",
+        "invalidLinkTitle": "Link inválido ou expirado",
+        "invalidLinkDesc": "Este link de redefinição de senha é inválido ou expirou. Por favor, solicite um novo link."
+      },
+      "success": {
+        "resetComplete": "Senha redefinida com sucesso",
+        "passwordReset": "Sua senha foi redefinida com sucesso.",
+        "passwordResetDetails": "Sua senha foi redefinida com sucesso. Você será redirecionado para a página de login."
+      }
     }
   }
 }

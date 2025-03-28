@@ -6,6 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useRouter } from 'next/navigation'
 import { Link } from '@/i18n/navigation'
+import { useTranslations } from 'next-intl'
 import {
   FaEnvelope,
   FaLock,
@@ -20,71 +21,59 @@ import PasswordStrengthMeter from './PasswordStrengthMeter'
 import EmailValidator from './EmailValidator'
 import OAuthButtons from '@/components/auth/OAuthButtons'
 
-const passwordPattern = {
-  uppercase: /[A-Z]/,
-  lowercase: /[a-z]/,
-  number: /[0-9]/,
-  special: /[^A-Za-z0-9]/,
-}
-
-const registerSchema = z
-  .object({
-    name: z
-      .string()
-      .min(2, 'Name must be at least 2 characters')
-      .max(50, 'Name is too long (maximum 50 characters)')
-      .regex(
-        /^[a-zA-Z0-9\s\u00C0-\u00FF]+$/,
-        'Name contains invalid characters',
-      )
-      .transform((val) => val.trim()),
-
-    email: z
-      .string()
-      .email('Please enter a valid email address')
-      .toLowerCase()
-      .transform((val) => val.trim()),
-
-    password: z
-      .string()
-      .min(8, 'Password must be at least 8 characters')
-      .max(100, 'Password is too long (maximum 100 characters)')
-      .regex(
-        passwordPattern.uppercase,
-        'Password must contain at least one uppercase letter',
-      )
-      .regex(
-        passwordPattern.lowercase,
-        'Password must contain at least one lowercase letter',
-      )
-      .regex(
-        passwordPattern.number,
-        'Password must contain at least one number',
-      )
-      .regex(
-        passwordPattern.special,
-        'Password must contain at least one special character',
-      ),
-
-    confirmPassword: z.string().min(1, 'Please confirm your password'),
-
-    acceptTerms: z.boolean().refine((val) => val === true, {
-      message: 'You must accept the Terms of Service and Privacy Policy',
-    }),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: 'Passwords do not match',
-    path: ['confirmPassword'],
-  })
-
-type RegisterFormValues = z.infer<typeof registerSchema>
-
 export default function EnhancedRegisterForm() {
+  const t = useTranslations('auth.register')
   const [error, setError] = useState<string | null>(null)
   const [passwordValid, setPasswordValid] = useState(false)
   const [passwordStrong, setPasswordStrong] = useState(false)
   const [emailValid, setEmailValid] = useState(false)
   const router = useRouter()
+
+  // Password validation patterns
+  const passwordPattern = {
+    uppercase: /[A-Z]/,
+    lowercase: /[a-z]/,
+    number: /[0-9]/,
+    special: /[^A-Za-z0-9]/,
+  }
+
+  // Create schema with translations
+  const registerSchema = z
+    .object({
+      name: z
+        .string()
+        .min(2, t('name.error.min'))
+        .max(50, t('name.error.max'))
+        .regex(/^[a-zA-Z0-9\s\u00C0-\u00FF]+$/, t('name.error.invalid'))
+        .transform((val) => val.trim()),
+
+      email: z
+        .string()
+        .email(t('email.error.invalid'))
+        .toLowerCase()
+        .transform((val) => val.trim()),
+
+      password: z
+        .string()
+        .min(8, t('password.error.min'))
+        .max(100, t('password.error.max'))
+        .regex(passwordPattern.uppercase, t('password.error.uppercase'))
+        .regex(passwordPattern.lowercase, t('password.error.lowercase'))
+        .regex(passwordPattern.number, t('password.error.number'))
+        .regex(passwordPattern.special, t('password.error.special')),
+
+      confirmPassword: z.string().min(1, t('password.error.notMatch')),
+
+      acceptTerms: z.boolean().refine((val) => val === true, {
+        message: t('terms.error'),
+      }),
+    })
+    .refine((data) => data.password === data.confirmPassword, {
+      message: t('password.error.notMatch'),
+      path: ['confirmPassword'],
+    })
+
+  type RegisterFormValues = z.infer<typeof registerSchema>
 
   const {
     register,
@@ -107,7 +96,6 @@ export default function EnhancedRegisterForm() {
 
   const watchedPassword = watch('password')
   const watchedEmail = watch('email')
-
   const watchedConfirmPassword = watch('confirmPassword')
 
   const registerMutation = useRegisterMutation()
@@ -119,7 +107,7 @@ export default function EnhancedRegisterForm() {
     if (!isValid && watchedPassword.length >= 8) {
       setFormError('password', {
         type: 'manual',
-        message: 'This password is not secure enough. Please choose another.',
+        message: t('password.error.notStrong'),
       })
     } else if (errors.password?.type === 'manual') {
       clearErrors('password')
@@ -134,7 +122,7 @@ export default function EnhancedRegisterForm() {
     if (watchedConfirmPassword && watchedPassword !== watchedConfirmPassword) {
       setFormError('confirmPassword', {
         type: 'manual',
-        message: 'Passwords do not match',
+        message: t('password.error.notMatch'),
       })
     } else if (
       errors.confirmPassword?.type === 'manual' &&
@@ -148,6 +136,7 @@ export default function EnhancedRegisterForm() {
     setFormError,
     clearErrors,
     errors.confirmPassword?.type,
+    t,
   ])
 
   const onSubmit = async (data: RegisterFormValues) => {
@@ -156,18 +145,18 @@ export default function EnhancedRegisterForm() {
     if (!passwordValid || !passwordStrong) {
       setFormError('password', {
         type: 'manual',
-        message: 'Please choose a stronger password',
+        message: t('password.error.notStrong'),
       })
-      showWarning('Please choose a stronger password for better security')
+      showWarning(t('password.error.notStrong'))
       return
     }
 
     if (!emailValid) {
       setFormError('email', {
         type: 'manual',
-        message: 'Please enter a valid email address',
+        message: t('email.error.invalid'),
       })
-      showWarning('Please enter a valid email address')
+      showWarning(t('email.error.invalid'))
       return
     }
 
@@ -181,7 +170,7 @@ export default function EnhancedRegisterForm() {
         {
           onSuccess: (result) => {
             if (result.error) {
-              const errorMessage = result.error.message || 'Registration failed'
+              const errorMessage = result.error.message || t('errors.generic')
               console.error('Registration error:', errorMessage)
 
               if (
@@ -191,12 +180,9 @@ export default function EnhancedRegisterForm() {
               ) {
                 setFormError('email', {
                   type: 'manual',
-                  message:
-                    'This email is already registered. Please log in or use a different email.',
+                  message: t('errors.emailExists'),
                 })
-                showWarning(
-                  'Email already registered. Please log in or use a different email.',
-                )
+                showWarning(t('errors.emailExists'))
                 return
               } else {
                 setError(errorMessage)
@@ -205,9 +191,7 @@ export default function EnhancedRegisterForm() {
               return
             }
 
-            showSuccess(
-              'Account created successfully! Please log in to continue.',
-            )
+            showSuccess(t('success'))
             setTimeout(() => {
               router.push('/auth/login')
             }, 1500)
@@ -216,40 +200,32 @@ export default function EnhancedRegisterForm() {
             console.error('Full registration error:', error)
 
             const errorMessage =
-              error instanceof Error
-                ? error.message
-                : 'An error occurred during registration'
+              error instanceof Error ? error.message : t('errors.generic')
 
             if (
               errorMessage.toLowerCase().includes('compromised password') ||
               errorMessage.toLowerCase().includes('been pwned')
             ) {
-              setError(
-                'This password has appeared in data breaches and cannot be used. Please choose a different password.',
-              )
+              setError(t('password.error.compromised'))
               document.getElementById('password')?.focus()
-              showError(
-                'Password security issue detected. Please choose a different password.',
-              )
+              showError(t('password.error.compromised'))
             } else {
               setError(errorMessage)
-              showError(
-                errorMessage || 'Registration failed. Please try again.',
-              )
+              showError(errorMessage || t('errors.unexpectedError'))
             }
           },
         },
       )
     } catch (error) {
       console.error('Unexpected registration error:', error)
-      showError('An unexpected error occurred during registration')
+      showError(t('errors.unexpectedError'))
     }
   }
 
   return (
     <div className="dark:bg-BlackLight mx-auto w-full max-w-md rounded-lg bg-white p-6 shadow-md">
       <h1 className="mb-6 text-center text-2xl font-bold text-gray-900 dark:text-white">
-        Create Your Account
+        {t('title')}
       </h1>
 
       {error && (
@@ -271,12 +247,12 @@ export default function EnhancedRegisterForm() {
         <ValidatedInput
           id="name"
           type="text"
-          label="Full Name"
+          label={t('name.label')}
           registration={register('name')}
           error={errors.name?.message}
-          placeholder="John Doe"
+          placeholder={t('name.placeholder')}
           disabled={isSubmitting}
-          helperText="Your name as you'd like it to appear"
+          helperText={t('name.helper')}
           required
           icon={<FaUserCircle />}
           maxLength={50}
@@ -287,10 +263,10 @@ export default function EnhancedRegisterForm() {
         <ValidatedInput
           id="email"
           type="email"
-          label="Email Address"
+          label={t('email.label')}
           registration={register('email')}
           error={errors.email?.message}
-          placeholder="you@example.com"
+          placeholder={t('email.placeholder')}
           disabled={isSubmitting}
           required
           validator={
@@ -307,10 +283,10 @@ export default function EnhancedRegisterForm() {
         <ValidatedInput
           id="password"
           type="password"
-          label="Password"
+          label={t('password.label')}
           registration={register('password')}
           error={errors.password?.message}
-          placeholder="Create a secure password"
+          placeholder={t('password.placeholder')}
           disabled={isSubmitting}
           required
           validator={
@@ -327,10 +303,10 @@ export default function EnhancedRegisterForm() {
         <ValidatedInput
           id="confirmPassword"
           type="password"
-          label="Confirm Password"
+          label={t('password.confirmLabel')}
           registration={register('confirmPassword')}
           error={errors.confirmPassword?.message}
-          placeholder="Confirm your password"
+          placeholder={t('password.confirmPlaceholder')}
           disabled={isSubmitting}
           required
           icon={<FaLock />}
@@ -354,19 +330,19 @@ export default function EnhancedRegisterForm() {
                 htmlFor="acceptTerms"
                 className="text-gray-600 dark:text-gray-400"
               >
-                I agree to the{' '}
+                {t('terms.text')}{' '}
                 <Link
                   href="/terms"
                   className="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400"
                 >
-                  Terms of Service
+                  {t('terms.terms')}
                 </Link>{' '}
-                and{' '}
+                {t('terms.and')}{' '}
                 <Link
                   href="/privacy"
                   className="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400"
                 >
-                  Privacy Policy
+                  {t('terms.privacy')}
                 </Link>
               </label>
               {errors.acceptTerms && (
@@ -380,7 +356,7 @@ export default function EnhancedRegisterForm() {
 
         {/* Submit Button */}
         <button
-          aria-label="Register"
+          aria-label={t('button.submit')}
           type="submit"
           disabled={isSubmitting}
           className={`flex w-full items-center justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none dark:bg-blue-700 dark:hover:bg-blue-800 ${isSubmitting ? 'cursor-not-allowed opacity-70' : ''} `}
@@ -403,10 +379,10 @@ export default function EnhancedRegisterForm() {
                   d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                 />
               </svg>
-              Creating Account...
+              {t('button.loading')}
             </>
           ) : (
-            'Create Account'
+            t('button.submit')
           )}
         </button>
       </form>
@@ -419,7 +395,7 @@ export default function EnhancedRegisterForm() {
           </div>
           <div className="relative flex justify-center text-sm">
             <span className="bg-white px-2 text-gray-500 dark:bg-zinc-800 dark:text-gray-400">
-              Or continue with
+              {t('divider')}
             </span>
           </div>
         </div>
@@ -432,12 +408,12 @@ export default function EnhancedRegisterForm() {
       {/* Login link */}
       <div className="mt-6 text-center">
         <p className="text-sm text-gray-600 dark:text-gray-400">
-          Already have an account?{' '}
+          {t('login.text')}{' '}
           <Link
             href="/auth/login"
             className="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400"
           >
-            Log in
+            {t('login.link')}
           </Link>
         </p>
       </div>

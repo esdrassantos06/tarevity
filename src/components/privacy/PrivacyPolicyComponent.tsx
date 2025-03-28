@@ -2,16 +2,19 @@
 
 import React from 'react'
 import { FaShieldAlt, FaLock, FaCookie, FaUserShield } from 'react-icons/fa'
+import { useTranslations } from 'next-intl'
 
 export default function PrivacyPolicyComponent() {
+  const t = useTranslations('privacy')
+  
   return (
     <div className="mx-auto max-w-4xl px-6 py-8">
       <div className="mb-8 text-center">
         <h1 className="mb-4 text-3xl font-bold text-gray-900 md:text-4xl dark:text-white">
-          Privacy Policy
+          {t('title')}
         </h1>
         <p className="text-gray-600 dark:text-gray-400">
-          Last updated: March 14, 2025
+          {t('lastUpdated')}
         </p>
       </div>
 
@@ -20,15 +23,11 @@ export default function PrivacyPolicyComponent() {
           <div className="mb-4 flex items-center">
             <FaShieldAlt className="mr-3 text-xl text-blue-600 dark:text-blue-400" />
             <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">
-              Our Commitment to Privacy
+              {t('commitment.title')}
             </h2>
           </div>
           <p className="mb-4 text-gray-700 dark:text-gray-300">
-            At Tarevity, we take your privacy seriously. This Privacy Policy
-            explains how we collect, use, disclose, and safeguard your
-            information when you use our task management application. Please
-            read this privacy policy carefully. If you do not agree with the
-            terms of this privacy policy, please do not access the application.
+            {t('commitment.description')}
           </p>
         </div>
       </div>
@@ -38,36 +37,28 @@ export default function PrivacyPolicyComponent() {
           <div className="mb-4 flex items-center">
             <FaUserShield className="mr-3 text-xl text-blue-600 dark:text-blue-400" />
             <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">
-              Information We Collect
+              {t('information.title')}
             </h2>
           </div>
 
           <h3 className="mt-6 mb-3 text-xl font-medium text-gray-800 dark:text-gray-200">
-            Personal Data
+            {t('information.personalData.title')}
           </h3>
           <p className="mb-4 text-gray-700 dark:text-gray-300">
-            While using our application, we may ask you to provide us with
-            certain personally identifiable information that can be used to
-            contact or identify you. Personally identifiable information may
-            include, but is not limited to:
+            {t('information.personalData.description')}
           </p>
           <ul className="mb-4 list-disc pl-6 text-gray-700 dark:text-gray-300">
-            <li className="mb-2">Email address</li>
-            <li className="mb-2">First name and last name</li>
-            <li className="mb-2">Profile picture (if provided)</li>
-            <li className="mb-2">Usage data and application preferences</li>
+            <li className="mb-2">{t('information.personalData.items.email')}</li>
+            <li className="mb-2">{t('information.personalData.items.name')}</li>
+            <li className="mb-2">{t('information.personalData.items.picture')}</li>
+            <li className="mb-2">{t('information.personalData.items.usage')}</li>
           </ul>
 
           <h3 className="mt-6 mb-3 text-xl font-medium text-gray-800 dark:text-gray-200">
-            Usage Data
+            {t('information.usageData.title')}
           </h3>
           <p className="mb-4 text-gray-700 dark:text-gray-300">
-            We may also collect information on how the application is accessed
-            and used (&quot;Usage Data&quot;). This Usage Data may include
-            information such as your device&apos;s IP address, browser type,
-            browser version, the pages of our application that you visit, the
-            time and date of your visit, the time spent on those pages, unique
-            device identifiers, and other diagnostic data.
+            {t('information.usageData.description')}
           </p>
         </div>
       </div>
@@ -77,25 +68,20 @@ export default function PrivacyPolicyComponent() {
           <div className="mb-4 flex items-center">
             <FaLock className="mr-3 text-xl text-blue-600 dark:text-blue-400" />
             <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">
-              How We Use Your Information
+              {t('usage.title')}
             </h2>
           </div>
 
           <p className="mb-4 text-gray-700 dark:text-gray-300">
-            We use the collected data for various purposes:
+            {t('usage.description')}
           </p>
           <ul className="mb-4 list-disc pl-6 text-gray-700 dark:text-gray-300">
-            <li className="mb-2">To provide and maintain our service</li>
-            <li className="mb-2">To notify you about changes to our service</li>
-            <li className="mb-2">To provide customer support</li>
-            <li className="mb-2">
-              To gather analysis or valuable information so that we can improve
-              our service
-            </li>
-            <li className="mb-2">To monitor the usage of the service</li>
-            <li className="mb-2">
-              To detect, prevent and address technical issues
-            </li>
+            <li className="mb-2">{t('usage.items.provide')}</li>
+            <li className="mb-2">{t('usage.items.notify')}</li>
+            <li className="mb-2">{t('usage.items.support')}</li>
+            <li className="mb-2">{t('usage.items.analysis')}</li>
+            <li className="mb-2">{t('usage.items.monitor')}</li>
+            <li className="mb-2">{t('usage.items.technical')}</li>
           </ul>
         </div>
       </div>
@@ -105,37 +91,28 @@ export default function PrivacyPolicyComponent() {
           <div className="mb-4 flex items-center">
             <FaCookie className="mr-3 text-xl text-blue-600 dark:text-blue-400" />
             <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">
-              Cookies and Tracking Technologies
+              {t('cookies.title')}
             </h2>
           </div>
 
           <p className="mb-4 text-gray-700 dark:text-gray-300">
-            We use cookies and similar tracking technologies to track activity
-            on our application and store certain information. Cookies are files
-            with a small amount of data which may include an anonymous unique
-            identifier. Cookies are sent to your browser from a website and
-            stored on your device.
+            {t('cookies.description1')}
           </p>
           <p className="mb-4 text-gray-700 dark:text-gray-300">
-            You can instruct your browser to refuse all cookies or to indicate
-            when a cookie is being sent. However, if you do not accept cookies,
-            you may not be able to use some portions of our application.
+            {t('cookies.description2')}
           </p>
           <p className="mb-4 text-gray-700 dark:text-gray-300">
-            Examples of Cookies we use:
+            {t('cookies.examples')}
           </p>
           <ul className="mb-4 list-disc pl-6 text-gray-700 dark:text-gray-300">
             <li className="mb-2">
-              <strong>Session Cookies:</strong> We use Session Cookies to
-              operate our service.
+              <strong>{t('cookies.items.session.title')}</strong> {t('cookies.items.session.description')}
             </li>
             <li className="mb-2">
-              <strong>Preference Cookies:</strong> We use Preference Cookies to
-              remember your preferences and various settings.
+              <strong>{t('cookies.items.preference.title')}</strong> {t('cookies.items.preference.description')}
             </li>
             <li className="mb-2">
-              <strong>Security Cookies:</strong> We use Security Cookies for
-              security purposes.
+              <strong>{t('cookies.items.security.title')}</strong> {t('cookies.items.security.description')}
             </li>
           </ul>
         </div>
@@ -144,27 +121,21 @@ export default function PrivacyPolicyComponent() {
       <div className="dark:bg-BlackLight mb-8 overflow-hidden rounded-lg bg-white shadow-md">
         <div className="p-6">
           <h2 className="mb-4 text-2xl font-semibold text-gray-900 dark:text-white">
-            Data Security
+            {t('security.title')}
           </h2>
 
           <p className="mb-4 text-gray-700 dark:text-gray-300">
-            The security of your data is important to us, but remember that no
-            method of transmission over the Internet, or method of electronic
-            storage is 100% secure. While we strive to use commercially
-            acceptable means to protect your Personal Data, we cannot guarantee
-            its absolute security.
+            {t('security.description1')}
           </p>
           <p className="mb-4 text-gray-700 dark:text-gray-300">
-            Our security measures include:
+            {t('security.description2')}
           </p>
           <ul className="mb-4 list-disc pl-6 text-gray-700 dark:text-gray-300">
-            <li className="mb-2">End-to-end encryption for sensitive data</li>
-            <li className="mb-2">Regular security audits</li>
-            <li className="mb-2">Password breach checking via HIBP API</li>
-            <li className="mb-2">Secure HTTP-only cookies</li>
-            <li className="mb-2">
-              Strict Content Security Policy (CSP) implementation
-            </li>
+            <li className="mb-2">{t('security.items.encryption')}</li>
+            <li className="mb-2">{t('security.items.audits')}</li>
+            <li className="mb-2">{t('security.items.breach')}</li>
+            <li className="mb-2">{t('security.items.cookies')}</li>
+            <li className="mb-2">{t('security.items.csp')}</li>
           </ul>
         </div>
       </div>
@@ -172,20 +143,14 @@ export default function PrivacyPolicyComponent() {
       <div className="dark:bg-BlackLight mb-8 overflow-hidden rounded-lg bg-white shadow-md">
         <div className="p-6">
           <h2 className="mb-4 text-2xl font-semibold text-gray-900 dark:text-white">
-            Third-Party Authentication Providers
+            {t('thirdParty.title')}
           </h2>
 
           <p className="mb-4 text-gray-700 dark:text-gray-300">
-            Our application allows you to sign in using third-party
-            authentication providers, such as Google and GitHub. When you choose
-            to sign in using one of these services, we may collect personal
-            information that your privacy settings on that service permit us to
-            access.
+            {t('thirdParty.description1')}
           </p>
           <p className="mb-4 text-gray-700 dark:text-gray-300">
-            We only use this information for authentication purposes and to
-            create your user profile within our application. We do not share
-            this information with additional third parties without your consent.
+            {t('thirdParty.description2')}
           </p>
         </div>
       </div>
@@ -193,27 +158,21 @@ export default function PrivacyPolicyComponent() {
       <div className="dark:bg-BlackLight mb-8 overflow-hidden rounded-lg bg-white shadow-md">
         <div className="p-6">
           <h2 className="mb-4 text-2xl font-semibold text-gray-900 dark:text-white">
-            Your Data Rights
+            {t('rights.title')}
           </h2>
 
           <p className="mb-4 text-gray-700 dark:text-gray-300">
-            Depending on your location, you may have certain rights regarding
-            your personal information, such as:
+            {t('rights.description')}
           </p>
           <ul className="mb-4 list-disc pl-6 text-gray-700 dark:text-gray-300">
-            <li className="mb-2">
-              The right to access personal information we hold about you
-            </li>
-            <li className="mb-2">
-              The right to request correction of inaccurate data
-            </li>
-            <li className="mb-2">The right to request deletion of your data</li>
-            <li className="mb-2">The right to withdraw consent</li>
-            <li className="mb-2">The right to data portability</li>
+            <li className="mb-2">{t('rights.items.access')}</li>
+            <li className="mb-2">{t('rights.items.correction')}</li>
+            <li className="mb-2">{t('rights.items.deletion')}</li>
+            <li className="mb-2">{t('rights.items.withdraw')}</li>
+            <li className="mb-2">{t('rights.items.portability')}</li>
           </ul>
           <p className="mb-4 text-gray-700 dark:text-gray-300">
-            To exercise any of these rights, please contact us using the
-            information provided below.
+            {t('rights.contact')}
           </p>
         </div>
       </div>
@@ -221,18 +180,14 @@ export default function PrivacyPolicyComponent() {
       <div className="dark:bg-BlackLight mb-8 overflow-hidden rounded-lg bg-white shadow-md">
         <div className="p-6">
           <h2 className="mb-4 text-2xl font-semibold text-gray-900 dark:text-white">
-            Changes to This Privacy Policy
+            {t('changes.title')}
           </h2>
 
           <p className="mb-4 text-gray-700 dark:text-gray-300">
-            We may update our Privacy Policy from time to time. We will notify
-            you of any changes by posting the new Privacy Policy on this page
-            and updating the &quot;Last updated&quot; date.
+            {t('changes.description1')}
           </p>
           <p className="mb-4 text-gray-700 dark:text-gray-300">
-            You are advised to review this Privacy Policy periodically for any
-            changes. Changes to this Privacy Policy are effective when they are
-            posted on this page.
+            {t('changes.description2')}
           </p>
         </div>
       </div>
@@ -240,15 +195,14 @@ export default function PrivacyPolicyComponent() {
       <div className="dark:bg-BlackLight mb-8 overflow-hidden rounded-lg bg-white shadow-md">
         <div className="p-6">
           <h2 className="mb-4 text-2xl font-semibold text-gray-900 dark:text-white">
-            Contact Us
+            {t('contact.title')}
           </h2>
 
           <p className="mb-4 text-gray-700 dark:text-gray-300">
-            If you have any questions about this Privacy Policy, please contact
-            me:
+            {t('contact.description')}
           </p>
           <ul className="mb-4 list-none text-gray-700 dark:text-gray-300">
-            <li className="mb-2">By email: esdrasirion1@gmail.com</li>
+            <li className="mb-2">{t('contact.email')}</li>
           </ul>
         </div>
       </div>
