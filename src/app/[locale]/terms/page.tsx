@@ -1,18 +1,28 @@
-import { Metadata } from 'next'
+import { Metadata, ResolvingMetadata } from 'next'
+import { getTranslations } from 'next-intl/server'
 import Layout from '@/components/layout/Layout'
 import TermsOfUseComponent from '@/components/terms/TermsComponent'
 
-export const metadata: Metadata = {
-  title: 'Terms of Service & User Agreement | Tarevity',
-  description:
-    'Review our detailed terms of service covering user responsibilities, data ownership, acceptable use policies, and service limitations.',
-  keywords: [
-    'terms of service',
-    'user agreement',
-    'legal terms',
-    'data ownership',
-  ],
-  robots: 'index, follow',
+type Params = Promise<{ locale: string }>
+
+export async function generateMetadata(
+  { params }: { params: Params },
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  parent: ResolvingMetadata,
+): Promise<Metadata> {
+  const resolvedParams = await params
+
+  const t = await getTranslations({
+    locale: resolvedParams.locale,
+    namespace: 'TermsPage.metadata',
+  })
+
+  return {
+    title: t('title'),
+    description: t('description'),
+    keywords: t('keywords'),
+    robots: 'index, follow',
+  }
 }
 
 export default function TermsPage() {

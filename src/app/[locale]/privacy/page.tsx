@@ -1,18 +1,28 @@
-import { Metadata } from 'next'
+import { Metadata, ResolvingMetadata } from 'next'
+import { getTranslations } from 'next-intl/server'
 import Layout from '@/components/layout/Layout'
 import PrivacyPolicyComponent from '@/components/privacy/PrivacyPolicyComponent'
 
-export const metadata: Metadata = {
-  title: 'Data Protection & Privacy Commitment | Tarevity',
-  description:
-    'Understand how Tarevity safeguards your data with end-to-end encryption, secure storage practices, and transparent usage policies.',
-  keywords: [
-    'data privacy',
-    'information security',
-    'user data protection',
-    'privacy policy',
-  ],
-  robots: 'index, follow',
+type Params = Promise<{ locale: string }>
+
+export async function generateMetadata(
+  { params }: { params: Params },
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  parent: ResolvingMetadata,
+): Promise<Metadata> {
+  const resolvedParams = await params
+
+  const t = await getTranslations({
+    locale: resolvedParams.locale,
+    namespace: 'PrivacyPage.metadata',
+  })
+
+  return {
+    title: t('title'),
+    description: t('description'),
+    keywords: t('keywords'),
+    robots: 'index, follow',
+  }
 }
 
 export default function PrivacyPage() {

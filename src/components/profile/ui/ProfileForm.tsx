@@ -1,6 +1,7 @@
 'use client'
 
 import React from 'react'
+import { useTranslations } from 'next-intl'
 import { FaSave, FaTimes } from 'react-icons/fa'
 import {
   useUpdateProfileMutation,
@@ -64,6 +65,7 @@ export default function ProfileForm({
   setPreviewUrl,
   setIsEditing,
 }: ProfileFormProps) {
+  const t = useTranslations('profile.form')
   const updateProfileMutation = useUpdateProfileMutation()
   const uploadImageMutation = useUploadImageMutation()
 
@@ -80,14 +82,14 @@ export default function ProfileForm({
 
     try {
       if (selectedImage) {
-        const loadingToastId = toast.loading('Uploading image...')
+        const loadingToastId = toast.loading(t('uploadingImageToast'))
 
         uploadImageMutation.mutate(selectedImage, {
           onSuccess: (response) => {
             if (response.data?.url) {
               const imageUrl = ensureAbsoluteUrl(response.data.url)
               toast.update(loadingToastId, {
-                render: 'Updating profile...',
+                render: t('updatingProfileToast'),
                 isLoading: true,
               })
 
@@ -112,7 +114,7 @@ export default function ProfileForm({
                       refetchProfile()
                     }
 
-                    toast.success('Profile updated successfully!')
+                    toast.success(t('successToast'))
                     setIsEditing(false)
                     setSelectedImage(null)
                     if (previewUrl) {
@@ -122,20 +124,20 @@ export default function ProfileForm({
                   },
                   onError: (error) => {
                     toast.dismiss(loadingToastId)
-                    toast.error('Error updating profile')
+                    toast.error(t('errorToast'))
                     console.error('Error updating profile:', error)
                   },
                 },
               )
             } else {
               toast.dismiss(loadingToastId)
-              toast.error('Failed to upload image: No URL returned')
+              toast.error(t('missingUrlErrorToast'))
               console.error('Upload response missing URL:', response)
             }
           },
           onError: (error: unknown) => {
             toast.loading('', { isLoading: false })
-            toast.error('Error uploading image')
+            toast.error(t('imageUploadErrorToast'))
             console.error('Error uploading image:', error)
           },
         })
@@ -158,18 +160,18 @@ export default function ProfileForm({
 
                 refetchProfile()
               }
-              toast.success('Profile updated successfully!')
+              toast.success(t('successToast'))
               setIsEditing(false)
             },
             onError: (error) => {
-              toast.error('Error updating profile')
+              toast.error(t('errorToast'))
               console.error('Error updating profile:', error)
             },
           },
         )
       }
     } catch (error) {
-      toast.error('An error occurred while updating your profile')
+      toast.error(t('genericErrorToast'))
       console.error('Error in form submission:', error)
     }
   }
@@ -184,7 +186,7 @@ export default function ProfileForm({
           htmlFor="name"
           className="block text-sm font-medium text-gray-700 dark:text-gray-300"
         >
-          Name
+          {t('nameLabel')}
         </label>
         <input
           type="text"
@@ -200,22 +202,22 @@ export default function ProfileForm({
 
       <div className="flex space-x-3">
         <button
-          aria-label="Upload Image"
+          aria-label={t('uploadImageAriaLabel')}
           type="submit"
           disabled={isSubmitting}
           className="bg-primary hover:bg-primaryHover inline-flex items-center rounded-md border border-transparent px-4 py-2 text-sm font-medium text-white shadow-sm outline-none"
         >
           <FaSave className="mr-2 -ml-1 size-4" />
-          {isSubmitting ? 'Saving...' : 'Save'}
+          {isSubmitting ? t('savingButton') : t('saveButton')}
         </button>
         <button
-          aria-label="Cancel"
+          aria-label={t('cancelAriaLabel')}
           type="button"
           onClick={onCancel}
           className="inline-flex items-center rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 shadow-sm outline-none hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
         >
           <FaTimes className="mr-2 -ml-1 size-4" />
-          Cancel
+          {t('cancelButton')}
         </button>
       </div>
     </form>

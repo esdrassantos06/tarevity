@@ -1,3 +1,5 @@
+import { getTranslations } from 'next-intl/server'
+
 /**
  * Ensures that a URL is absolute by adding appropriate prefixes if needed
  *
@@ -8,7 +10,6 @@ export function ensureAbsoluteUrl(
   url: string | null | undefined,
 ): string | null {
   if (!url) return null
-
   if (!url.startsWith('http')) {
     if (url.includes('/storage/v1/object/')) {
       const baseUrl =
@@ -18,7 +19,6 @@ export function ensureAbsoluteUrl(
     }
     return `https:${url.startsWith('//') ? '' : '//'}${url}`
   }
-
   return url
 }
 
@@ -26,26 +26,28 @@ export function ensureAbsoluteUrl(
  * Validates an image file for supported formats and size limits
  *
  * @param file The file to validate
- * @param maxSizeBytes Maximum file size in bytes (default: 5MB)
+ * @param maxSizeBytes Maximum file size in bytes (default: 2MB)
  * @returns An object with validation result and error message if applicable
  */
-export function validateImageFile(
+export async function validateImageFile(
   file: File,
   maxSizeBytes: number = 2 * 1024 * 1024, // 2MB
-): { valid: boolean; error?: string } {
+): Promise<{ valid: boolean; error?: string }> {
+  const t = await getTranslations('ImageValidation')
   const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp']
+  const maxSizeMB = Math.round(maxSizeBytes / (1024 * 1024))
 
   if (file.size > maxSizeBytes) {
     return {
       valid: false,
-      error: `Image is too large. Maximum size is ${Math.round(maxSizeBytes / (1024 * 1024))}MB.`,
+      error: t('fileSizeError', { maxSize: maxSizeMB }),
     }
   }
 
   if (!allowedTypes.includes(file.type)) {
     return {
       valid: false,
-      error: 'Invalid file type. Please select a JPG, PNG, GIF, or WebP image.',
+      error: t('fileTypeError'),
     }
   }
 

@@ -8,8 +8,10 @@ import ProfileImageManager from '../ui/ProfileImageManager'
 import ProfileForm from '../ui/ProfileForm'
 import UserStats from '../ui/UserStats'
 import ProfileDiscardDialog from '../dialog/ProfileDiscardDialog'
+import { useTranslations } from 'next-intl'
 
 export default function ProfileManager() {
+  const t = useTranslations('profile.manager')
   const { data: session } = useSession()
   const [isEditing, setIsEditing] = useState(false)
   const [formData, setFormData] = useState({
@@ -60,9 +62,7 @@ export default function ProfileManager() {
   if (!session?.user || !profileData) {
     return (
       <div className="dark:bg-BlackLight rounded-lg bg-white p-6 shadow">
-        <p className="text-gray-600 dark:text-gray-400">
-          Please log in to view your profile.
-        </p>
+        <p className="text-gray-600 dark:text-gray-400">{t('loginRequired')}</p>
       </div>
     )
   }

@@ -1,8 +1,11 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { todoAPI, Todo, TodoFormData } from '@/lib/api'
 import { showSuccess, showError } from '@/lib/toast'
+import { useTranslations } from 'next-intl'
 
 export function useTodosQuery() {
+  const t = useTranslations('useTodosQuery')
+
   return useQuery({
     queryKey: ['todos'],
     queryFn: async () => {
@@ -13,7 +16,7 @@ export function useTodosQuery() {
         return result.data || []
       } catch (error) {
         showError(
-          error instanceof Error ? error.message : 'Failed to load tasks',
+          error instanceof Error ? error.message : t('failedToLoadTasks'),
         )
         throw error
       }
@@ -24,6 +27,7 @@ export function useTodosQuery() {
 }
 
 export function useCreateTodoMutation() {
+  const t = useTranslations('useTodosQuery')
   const queryClient = useQueryClient()
 
   return useMutation({
@@ -61,7 +65,7 @@ export function useCreateTodoMutation() {
       if (context?.previousTodos) {
         queryClient.setQueryData(['todos'], context.previousTodos)
       }
-      showError(err instanceof Error ? err.message : 'Error creating task')
+      showError(err instanceof Error ? err.message : t('errorCreatingTask'))
     },
 
     onSuccess: (result, variables, context) => {
@@ -72,7 +76,7 @@ export function useCreateTodoMutation() {
           if (!old) return [todoData]
 
           if (!todoData.id) {
-            console.error('Unexpected API response format:', todoData)
+            console.error(t('unexpectedApiResponseFormat'), todoData)
             return old.filter((todo) => todo.id !== context.tempId)
           }
 
@@ -81,7 +85,7 @@ export function useCreateTodoMutation() {
           )
         })
       } else if (!result.data) {
-        console.error('Missing data in API response:', result)
+        console.error(t('missingDataInApiResponse'), result)
         queryClient.invalidateQueries({ queryKey: ['todos'] })
       }
     },
@@ -95,6 +99,7 @@ export function useCreateTodoMutation() {
 }
 
 export function useUpdateTodoMutation() {
+  const t = useTranslations('useTodosQuery')
   const queryClient = useQueryClient()
 
   return useMutation({
@@ -136,13 +141,13 @@ export function useUpdateTodoMutation() {
     },
 
     onError: (err, variables, context) => {
-      console.error('Error updating todo:', err)
+      console.error(t('errorUpdatingTodo'), err)
 
       if (context?.previousTodos) {
         queryClient.setQueryData(['todos'], context.previousTodos)
       }
 
-      showError(err instanceof Error ? err.message : 'Error updating task')
+      showError(err instanceof Error ? err.message : t('errorUpdatingTask'))
     },
 
     onSuccess: (result, variables) => {
@@ -153,7 +158,7 @@ export function useUpdateTodoMutation() {
           return old.map((todo) => {
             if (todo.id === variables.id) {
               if (!todoData.id) {
-                console.error('Invalid server response:', todoData)
+                console.error(t('invalidServerResponse'), todoData)
                 return todo
               }
               return { ...todo, ...todoData }
@@ -165,20 +170,20 @@ export function useUpdateTodoMutation() {
         if ('is_completed' in variables.data) {
           const isCompleted = variables.data.is_completed
           showSuccess(
-            isCompleted ? 'Task marked as completed' : 'Task marked as active',
+            isCompleted ? t('taskMarkedAsCompleted') : t('taskMarkedAsActive'),
           )
         } else if ('status' in variables.data) {
           const status = variables.data.status
           if (status === 'review') {
-            showSuccess('Task moved to review')
+            showSuccess(t('taskMovedToReview'))
           } else if (status === 'active') {
-            showSuccess('Task approved and moved to active')
+            showSuccess(t('taskApprovedAndActive'))
           }
         } else {
-          showSuccess('Task updated successfully')
+          showSuccess(t('taskUpdatedSuccessfully'))
         }
       } else {
-        console.error('Invalid response from server:', result)
+        console.error(t('invalidResponseFromServer'), result)
         queryClient.invalidateQueries({ queryKey: ['todos'] })
       }
     },
@@ -192,6 +197,7 @@ export function useUpdateTodoMutation() {
 }
 
 export function useDeleteTodoMutation() {
+  const t = useTranslations('useTodosQuery')
   const queryClient = useQueryClient()
 
   return useMutation({
@@ -214,11 +220,11 @@ export function useDeleteTodoMutation() {
         queryClient.setQueryData(['todos'], context.previousTodos)
       }
 
-      showError(err instanceof Error ? err.message : 'Error deleting task')
+      showError(err instanceof Error ? err.message : t('errorDeletingTask'))
     },
 
     onSuccess: () => {
-      showSuccess('Task deleted successfully')
+      showSuccess(t('taskDeletedSuccessfully'))
 
       queryClient.invalidateQueries({ queryKey: ['notifications'] })
     },

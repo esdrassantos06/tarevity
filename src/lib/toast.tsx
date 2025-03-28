@@ -27,8 +27,7 @@ export const showSuccess = (message: string, options?: ToastOptions) => {
 
 export const showError = (message: string, options?: ToastOptions) => {
   const displayMessage =
-    typeof message === 'string' ? message : 'An unexpected error occurred'
-
+    typeof message === 'string' ? message : 'An error occurred'
   return toast.error(displayMessage, {
     ...defaultOptions,
     icon: <FaTimes />,
@@ -64,7 +63,7 @@ export const updateToast = (
 }
 
 export const showLoading = (message: string, options?: ToastOptions) => {
-  return toast.loading(message, {
+  return toast.loading(message || 'Loading...', {
     ...defaultOptions,
     autoClose: false,
     ...options,
@@ -75,10 +74,9 @@ export const dismissAll = () => {
   toast.dismiss()
 }
 
-export const handleError = (
-  error: unknown,
-  fallbackMessage: string = 'An unexpected error occurred',
-) => {
+export const handleError = (error: unknown, fallbackMessage?: string) => {
+  const processFallback = fallbackMessage || 'Something went wrong'
+
   if (error instanceof Error) {
     showError(error.message)
   } else if (typeof error === 'string') {
@@ -90,6 +88,6 @@ export const handleError = (
   ) {
     showError((error as { message: string }).message)
   } else {
-    showError(fallbackMessage)
+    showError(processFallback)
   }
 }

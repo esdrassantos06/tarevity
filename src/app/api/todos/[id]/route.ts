@@ -135,8 +135,11 @@ export async function PUT(
         // Then create appropriate new ones based on current status
         const notifications =
           notificationsService.generateTodoNotifications(data)
-        if (notifications.length > 0) {
-          await notificationsService.processNotifications(userId, notifications)
+        if ((await notifications).length > 0) {
+          await notificationsService.processNotifications(
+            userId,
+            await notifications,
+          )
         }
       }
       // In case task was marked as not completed, but had a due date, ensure notifications exist
@@ -147,8 +150,11 @@ export async function PUT(
       ) {
         const notifications =
           notificationsService.generateTodoNotifications(data)
-        if (notifications.length > 0) {
-          await notificationsService.processNotifications(userId, notifications)
+        if ((await notifications).length > 0) {
+          await notificationsService.processNotifications(
+            userId,
+            await notifications,
+          )
         }
       }
       // If nothing changed that would affect notifications but we have a due date,

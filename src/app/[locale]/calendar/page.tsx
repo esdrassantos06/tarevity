@@ -1,17 +1,31 @@
-import Calendar from '@/components/calendar'
-import { Metadata } from 'next'
+import { Metadata, ResolvingMetadata } from 'next'
+import { getTranslations } from 'next-intl/server'
 import Layout from '@/components/layout/Layout'
+import Calendar from '@/components/calendar'
 
-export const metadata: Metadata = {
-  title: 'Task Calendar | Tarevity',
-  description:
-    'Stay organized and productive with Tarevity. Use the task calendar to manage your schedule, prioritize tasks, and track your progress effectively.',
-  robots: 'index, follow',
-  keywords:
-    'Tarevity, task calendar, productivity, task management, schedule tracking',
+type Params = Promise<{ locale: string }>
+
+export async function generateMetadata(
+  { params }: { params: Params },
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  parent: ResolvingMetadata,
+): Promise<Metadata> {
+  const resolvedParams = await params
+
+  const t = await getTranslations({
+    locale: resolvedParams.locale,
+    namespace: 'CalendarPage.metadata',
+  })
+
+  return {
+    title: t('title'),
+    description: t('description'),
+    robots: 'index, follow',
+    keywords: t('keywords'),
+  }
 }
 
-export default function Home() {
+export default function CalendarPage() {
   return (
     <Layout>
       <div className="max-w-8xl mx-auto flex">

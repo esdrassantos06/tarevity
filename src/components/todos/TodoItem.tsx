@@ -11,6 +11,7 @@ import {
   FaExclamationCircle,
   FaCheck,
 } from 'react-icons/fa'
+import { useTranslations } from 'next-intl'
 
 interface TodoItemProps {
   todo: Todo
@@ -25,26 +26,6 @@ interface TodoItemProps {
   className?: string
 }
 
-const formatDate = (dateString: string | null) => {
-  if (!dateString) return null
-  const date = new Date(dateString)
-  const months = [
-    'Jan',
-    'Feb',
-    'Mar',
-    'Apr',
-    'May',
-    'Jun',
-    'Jul',
-    'Aug',
-    'Sep',
-    'Oct',
-    'Nov',
-    'Dec',
-  ]
-  return `${months[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`
-}
-
 const TodoItem = memo(
   function TodoItem({
     todo,
@@ -54,8 +35,29 @@ const TodoItem = memo(
     onDelete,
     className,
   }: TodoItemProps) {
+    const t = useTranslations('todoItem')
     const router = useRouter()
     const isReview = todo.status === 'review'
+
+    const formatDate = (dateString: string | null) => {
+      if (!dateString) return null
+      const date = new Date(dateString)
+      const months = [
+        t('months.jan'),
+        t('months.feb'),
+        t('months.mar'),
+        t('months.apr'),
+        t('months.may'),
+        t('months.jun'),
+        t('months.jul'),
+        t('months.aug'),
+        t('months.sep'),
+        t('months.oct'),
+        t('months.nov'),
+        t('months.dec'),
+      ]
+      return `${months[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`
+    }
 
     const handleItemClick = () => {
       router.push(`/todo/${todo.id}`)
@@ -73,20 +75,20 @@ const TodoItem = memo(
         case 3:
           return {
             color: 'bg-red-500',
-            label: 'High',
+            label: t('priority.high'),
             textColor: 'text-red-500',
           }
         case 2:
           return {
             color: 'bg-yellow-500',
-            label: 'Medium',
+            label: t('priority.medium'),
             textColor: 'text-yellow-500',
           }
         case 1:
         default:
           return {
             color: 'bg-green-500',
-            label: 'Low',
+            label: t('priority.low'),
             textColor: 'text-green-500',
           }
       }
@@ -94,8 +96,8 @@ const TodoItem = memo(
 
     const priority = getPriorityInfo(todo.priority)
     const dueDate = todo.due_date ? formatDate(todo.due_date) : null
-    const completedText = todo.is_completed ? 'Completed' : 'Not completed'
-    const reviewText = isReview ? 'In review' : ''
+    const completedText = todo.is_completed ? t('completed') : t('notCompleted')
+    const reviewText = isReview ? t('inReview') : ''
 
     return (
       <div
@@ -104,7 +106,13 @@ const TodoItem = memo(
         onKeyDown={handleKeyPress}
         tabIndex={0}
         role="button"
-        aria-label={`Task: ${todo.title}. Status: ${completedText}${reviewText ? `. ${reviewText}` : ''}. Priority: ${priority.label}${dueDate ? `. Due: ${dueDate}` : ''}`}
+        aria-label={t('taskAriaLabel', {
+          title: todo.title,
+          status: completedText,
+          review: reviewText ? `. ${reviewText}` : '',
+          priority: priority.label,
+          due: dueDate ? t('dueDate', { date: dueDate }) : '',
+        })}
       >
         <div className="flex flex-grow flex-col overflow-hidden p-4">
           <div className="mb-2 flex items-start justify-between">
@@ -136,7 +144,12 @@ const TodoItem = memo(
                 }
                 onClick={(e) => e.stopPropagation()}
                 className="size-4 rounded text-blue-600 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-                aria-label={`Mark ${todo.title} as ${todo.is_completed ? 'not completed' : 'completed'}`}
+                aria-label={t('markTaskAs', {
+                  title: todo.title,
+                  status: todo.is_completed
+                    ? t('notCompleted')
+                    : t('completed'),
+                })}
               />
             </div>
           </div>
@@ -147,7 +160,7 @@ const TodoItem = memo(
                 className="mr-1 flex-shrink-0"
                 aria-hidden="true"
               />
-              <span>In Review</span>
+              <span>{t('inReview')}</span>
             </div>
           )}
 
@@ -167,13 +180,17 @@ const TodoItem = memo(
                 className={`mr-1 ${priority.textColor}`}
                 aria-hidden="true"
               />
-              <span>Priority: {priority.label}</span>
+              <span>
+                {t('priorityLabel')}: {priority.label}
+              </span>
             </div>
 
             {dueDate && (
               <div className="flex items-center">
                 <FaClock className="mr-1" aria-hidden="true" />
-                <span>Due: {dueDate}</span>
+                <span>
+                  {t('due')}: {dueDate}
+                </span>
               </div>
             )}
           </div>
@@ -181,14 +198,14 @@ const TodoItem = memo(
 
         <div
           className="mt-auto flex justify-end space-x-2 border-t border-gray-200 p-2 dark:border-gray-700"
-          aria-label="Task actions"
+          aria-label={t('taskActions')}
         >
           {!isReview && !todo.is_completed && (
             <button
               className="rounded p-1 text-amber-500 hover:text-amber-700 focus:ring-2 focus:ring-amber-500 focus:outline-none dark:text-amber-400"
               onClick={(e) => onSetReview(e, todo.id)}
-              aria-label={`Set ${todo.title} to review`}
-              title="Set to Review"
+              aria-label={t('setToReview', { title: todo.title })}
+              title={t('setToReviewTitle')}
             >
               <FaExclamationCircle aria-hidden="true" />
             </button>
@@ -197,8 +214,8 @@ const TodoItem = memo(
             <button
               className="rounded p-1 text-green-500 hover:text-green-700 focus:ring-2 focus:ring-green-500 focus:outline-none dark:text-green-400"
               onClick={(e) => onApproveReview(e, todo.id)}
-              aria-label={`Approve ${todo.title}`}
-              title="Approve"
+              aria-label={t('approve', { title: todo.title })}
+              title={t('approveTitle')}
             >
               <FaCheck aria-hidden="true" />
             </button>
@@ -209,8 +226,8 @@ const TodoItem = memo(
               e.stopPropagation()
               router.push(`/todo/${todo.id}/edit`)
             }}
-            aria-label={`Edit ${todo.title}`}
-            title="Edit task"
+            aria-label={t('edit', { title: todo.title })}
+            title={t('editTask')}
           >
             <FaEdit aria-hidden="true" />
           </button>
@@ -220,8 +237,8 @@ const TodoItem = memo(
               e.stopPropagation()
               onDelete(todo.id, todo.title)
             }}
-            aria-label={`Delete ${todo.title}`}
-            title="Delete task"
+            aria-label={t('delete', { title: todo.title })}
+            title={t('deleteTask')}
           >
             <FaTrash aria-hidden="true" />
           </button>

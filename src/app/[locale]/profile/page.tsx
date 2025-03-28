@@ -1,20 +1,38 @@
-import ProfileComponent from '@/components/profile/main/ProfileComponent'
+import { Metadata, ResolvingMetadata } from 'next'
+import { getTranslations } from 'next-intl/server'
+import { useTranslations } from 'next-intl'
 import Layout from '@/components/layout/Layout'
-import { Metadata } from 'next'
+import ProfileComponent from '@/components/profile/main/ProfileComponent'
 
-export const metadata: Metadata = {
-  title: 'Your Profile & Productivity Statistics | Tarevity',
-  description:
-    'Review your personalized task analytics, completion metrics, and account settings. Gain insights into your productivity patterns.',
-  robots: 'noindex, nofollow',
+type Params = Promise<{ locale: string }>
+
+export async function generateMetadata(
+  { params }: { params: Params },
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  parent: ResolvingMetadata,
+): Promise<Metadata> {
+  const resolvedParams = await params
+
+  const t = await getTranslations({
+    locale: resolvedParams.locale,
+    namespace: 'ProfilePage.metadata',
+  })
+
+  return {
+    title: t('title'),
+    description: t('description'),
+    robots: 'noindex, nofollow',
+  }
 }
 
 export default function ProfilePage() {
+  const t = useTranslations('ProfilePage')
+
   return (
     <Layout>
       <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
         <h1 className="mb-8 text-3xl font-bold text-gray-900 dark:text-white">
-          My Profile
+          {t('pageTitle')}
         </h1>
         <ProfileComponent />
       </div>

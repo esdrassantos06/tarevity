@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { Redis } from '@upstash/redis'
 import { getToken } from 'next-auth/jwt'
+import { getTranslations } from 'next-intl/server'
 
 let redis: Redis | null = null
 try {
@@ -24,24 +25,23 @@ export async function rateLimiter(
     identifier?: string
   },
 ) {
+  const t = await getTranslations('RateLimiter')
+
   if (!redis) {
-    console.warn('Rate limiting unavailable - Redis client not initialized')
+    console.warn(t('missingRedisConfig'))
     return null
   }
 
   const { limit, window, identifier } = options
-
   const ipHeader = req.headers.get('x-forwarded-for')
   const clientIp = ipHeader
     ? ipHeader.split(',')[0].trim()
     : req.headers.get('x-real-ip') || 'unknown-ip'
-
   const ipHashSeed = process.env.IP_HASH_SEED || 'tarevity-salt'
   const ipIdentifier = `${clientIp}:${ipHashSeed}`
-
   const path = req.nextUrl.pathname
-
   let userId = 'unauthenticated'
+
   try {
     const token = await getToken({ req })
     if (token?.id) {
@@ -53,14 +53,13 @@ export async function rateLimiter(
 
   const id = identifier || `${userId}:${ipIdentifier}`
   const key = `rate-limit:${path}:${id}`
-
   let count = 0
+
   try {
     const result = await redis.get(key)
     count = typeof result === 'number' ? result : 0
   } catch (error) {
     console.error('Redis error in rate limiting:', error)
-
     if (
       path.includes('/auth/') ||
       path.includes('/admin/') ||
@@ -68,13 +67,12 @@ export async function rateLimiter(
     ) {
       return NextResponse.json(
         {
-          error: 'Service temporarily unavailable',
-          message: 'Please try again later.',
+          error: t('serviceUnavailable.error'),
+          message: t('serviceUnavailable.message'),
         },
         { status: 503 },
       )
     }
-
     return null
   }
 
@@ -92,8 +90,10 @@ export async function rateLimiter(
 
     return NextResponse.json(
       {
-        error: 'Too many requests',
-        message: `Rate limit exceeded. Please try again in ${Math.ceil(retryAfter / 60)} minute(s).`,
+        error: t('tooManyRequests.error'),
+        message: t('tooManyRequests.message', {
+          minutes: Math.ceil(retryAfter / 60),
+        }),
         retryAfter,
       },
       {

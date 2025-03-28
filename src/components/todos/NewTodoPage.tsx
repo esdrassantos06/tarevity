@@ -9,6 +9,7 @@ import ConfirmationDialog, {
 } from '@/components/common/ConfirmationDialog'
 import { useQueryClient } from '@tanstack/react-query'
 import { refreshNotifications } from '@/hooks/useNotificationsQuery'
+import { useTranslations } from 'next-intl'
 
 interface TodoFormData {
   title: string
@@ -34,6 +35,7 @@ interface ApiResult<T = Todo> {
 }
 
 const NewTodoPage: React.FC = () => {
+  const t = useTranslations('NewTodoPage')
   const router = useRouter()
   const createTodoMutation = useCreateTodoMutation()
   const queryClient = useQueryClient()
@@ -64,11 +66,11 @@ const NewTodoPage: React.FC = () => {
     e.preventDefault()
 
     if (!formData.title.trim()) {
-      showError('Enter a title for the task')
+      showError(t('errorEnterTitle'))
       return
     }
 
-    const toastId = showLoading('Creating task...')
+    const toastId = showLoading(t('creatingTask'))
 
     const todoData = {
       ...formData,
@@ -78,7 +80,7 @@ const NewTodoPage: React.FC = () => {
 
     createTodoMutation.mutate(todoData, {
       onSuccess: async (data: ApiResult<Todo>) => {
-        updateToast(toastId, 'Task created successfully!', {
+        updateToast(await toastId, t('taskCreatedSuccessfully'), {
           type: 'success',
           isLoading: false,
           autoClose: 3000,
@@ -87,13 +89,10 @@ const NewTodoPage: React.FC = () => {
         if (data.data && data.data.id) {
           const todoId = data.data.id
 
-          // If the task has a due date, update notifications via API
           if (todoData.due_date && !todoData.is_completed) {
             try {
-              // Instead of creating the notification manually, we just update via API
               await refreshNotifications()
 
-              // Invalidate the notifications query to update the UI
               queryClient.invalidateQueries({ queryKey: ['notifications'] })
             } catch (error) {
               console.error('⚠️ Error updating notifications:', error)
@@ -107,17 +106,15 @@ const NewTodoPage: React.FC = () => {
           router.push('/dashboard')
         }
       },
-      onError: (error) => {
-        updateToast(toastId, 'Failed to create task', {
+      onError: async (error) => {
+        updateToast(await toastId, t('failedToCreateTask'), {
           type: 'error',
           isLoading: false,
           autoClose: 5000,
         })
 
         showError(
-          error instanceof Error
-            ? error.message
-            : 'An error occurred while creating the task',
+          error instanceof Error ? error.message : t('errorCreatingTask'),
         )
       },
     })
@@ -133,13 +130,13 @@ const NewTodoPage: React.FC = () => {
       formData.due_date
     ) {
       openConfirmDialog({
-        title: 'Discard Changes',
-        description: 'Discard changes? Any unsaved changes will be lost.',
+        title: t('discardChanges'),
+        description: t('discardChangesDescription'),
         variant: 'warning',
-        confirmText: 'Discard',
-        cancelText: 'Cancel',
+        confirmText: t('discard'),
+        cancelText: t('cancel'),
         onConfirm: () => {
-          showInfo('Changes discarded')
+          showInfo(t('changesDiscarded'))
           router.push('/dashboard')
           closeConfirmDialog()
         },
@@ -154,15 +151,15 @@ const NewTodoPage: React.FC = () => {
       {/* Header */}
       <div className="mb-6 flex items-center justify-between">
         <button
-          aria-label="Back to Dashboard"
+          aria-label={t('backToDashboard')}
           onClick={() => router.push('/dashboard')}
           className="flex items-center text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white"
         >
           <FaArrowLeft className="mr-2" />
-          <span>Back to Dashboard</span>
+          <span>{t('backToDashboard')}</span>
         </button>
         <div className="text-xl font-bold text-gray-900 dark:text-white">
-          Create New Task
+          {t('createNewTask')}
         </div>
       </div>
 
@@ -175,7 +172,7 @@ const NewTodoPage: React.FC = () => {
               htmlFor="title"
               className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
             >
-              Title*
+              {t('titleWithAsterisk')}
             </label>
             <input
               type="text"
@@ -185,7 +182,7 @@ const NewTodoPage: React.FC = () => {
               onChange={handleChange}
               required
               className="w-full rounded-md border border-gray-300 px-4 py-2 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-              placeholder="Enter task title"
+              placeholder={t('enterTaskTitle')}
             />
           </div>
 
@@ -195,7 +192,7 @@ const NewTodoPage: React.FC = () => {
               htmlFor="description"
               className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
             >
-              Description
+              {t('description')}
             </label>
             <textarea
               id="description"
@@ -204,7 +201,7 @@ const NewTodoPage: React.FC = () => {
               onChange={handleChange}
               rows={5}
               className="w-full rounded-md border border-gray-300 px-4 py-2 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-              placeholder="Enter task description (optional)"
+              placeholder={t('enterTaskDescription')}
             ></textarea>
           </div>
 
@@ -216,7 +213,7 @@ const NewTodoPage: React.FC = () => {
                 className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
               >
                 <FaFlag className="mr-1 inline text-blue-500" />
-                Priority
+                {t('priority')}
               </label>
               <select
                 id="priority"
@@ -225,9 +222,9 @@ const NewTodoPage: React.FC = () => {
                 onChange={handleChange}
                 className="w-full rounded-md border border-gray-300 px-4 py-2 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
               >
-                <option value="1">Low Priority</option>
-                <option value="2">Medium Priority</option>
-                <option value="3">High Priority</option>
+                <option value="1">{t('lowPriority')}</option>
+                <option value="2">{t('mediumPriority')}</option>
+                <option value="3">{t('highPriority')}</option>
               </select>
             </div>
 
@@ -237,7 +234,7 @@ const NewTodoPage: React.FC = () => {
                 className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
               >
                 <FaClock className="mr-1 inline text-blue-500" />
-                Due Date
+                {t('dueDate')}
               </label>
               <input
                 type="date"
@@ -265,7 +262,7 @@ const NewTodoPage: React.FC = () => {
                 htmlFor="is_completed"
                 className="ml-2 block text-sm text-gray-700 dark:text-gray-300"
               >
-                Mark as completed
+                {t('markAsCompleted')}
               </label>
             </div>
           </div>
@@ -273,15 +270,15 @@ const NewTodoPage: React.FC = () => {
           {/* Form buttons */}
           <div className="flex justify-end space-x-3">
             <button
-              aria-label="Cancel"
+              aria-label={t('cancel')}
               type="button"
               onClick={handleCancel}
               className="rounded-md border border-gray-300 px-4 py-2 text-gray-700 hover:bg-gray-50 focus:ring-2 focus:ring-gray-500 focus:outline-none dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
             >
-              <FaTimes className="mr-1 inline" /> Cancel
+              <FaTimes className="mr-1 inline" /> {t('cancel')}
             </button>
             <button
-              aria-label="Save"
+              aria-label={t('saveButton')}
               type="submit"
               className="rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
               disabled={createTodoMutation.isPending}
@@ -308,11 +305,11 @@ const NewTodoPage: React.FC = () => {
                       d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                     ></path>
                   </svg>
-                  Creating...
+                  {t('creating')}
                 </>
               ) : (
                 <>
-                  <FaSave className="mr-1 inline" /> Create Task
+                  <FaSave className="mr-1 inline" /> {t('createTask')}
                 </>
               )}
             </button>

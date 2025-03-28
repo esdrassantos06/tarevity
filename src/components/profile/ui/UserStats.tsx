@@ -1,6 +1,6 @@
 'use client'
-
 import React from 'react'
+import { useTranslations } from 'next-intl'
 import { FaClipboardList, FaClipboardCheck, FaClock } from 'react-icons/fa'
 
 interface UserStatsProps {
@@ -12,14 +12,16 @@ interface UserStatsProps {
 }
 
 export default function UserStats({ userStats }: UserStatsProps) {
+  const t = useTranslations('UserStats')
+
   if (!userStats) {
     return (
       <div className="border-t border-gray-200 px-6 py-6 dark:border-gray-700">
         <h3 className="mb-4 text-lg font-medium text-gray-900 dark:text-white">
-          Task Statistics
+          {t('title')}
         </h3>
         <div className="py-4 text-center text-gray-500 dark:text-gray-400">
-          Loading statistics...
+          {t('loading')}
         </div>
       </div>
     )
@@ -28,7 +30,7 @@ export default function UserStats({ userStats }: UserStatsProps) {
   return (
     <div className="border-t border-gray-200 px-6 py-6 dark:border-gray-700">
       <h3 className="mb-4 text-lg font-medium text-gray-900 dark:text-white">
-        Task Statistics
+        {t('title')}
       </h3>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         <div className="rounded-lg bg-blue-50 p-4 dark:bg-blue-900/30">
@@ -37,7 +39,7 @@ export default function UserStats({ userStats }: UserStatsProps) {
           </div>
           <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
             <FaClipboardList className="mr-1" />
-            Created Tasks
+            {t('createdTasks')}
           </div>
         </div>
         <div className="rounded-lg bg-green-50 p-4 dark:bg-green-900/30">
@@ -46,7 +48,7 @@ export default function UserStats({ userStats }: UserStatsProps) {
           </div>
           <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
             <FaClipboardCheck className="mr-1" />
-            Completed Tasks
+            {t('completedTasks')}
           </div>
         </div>
         <div className="rounded-lg bg-yellow-50 p-4 dark:bg-yellow-900/30">
@@ -55,7 +57,7 @@ export default function UserStats({ userStats }: UserStatsProps) {
           </div>
           <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
             <FaClock className="mr-1" />
-            Pending
+            {t('pendingTasks')}
           </div>
         </div>
       </div>

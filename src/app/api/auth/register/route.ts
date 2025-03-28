@@ -13,7 +13,12 @@ export async function POST(req: Request) {
     }
 
     try {
-      const newUser = await createUser(trimmedName, normalizedEmail, password)
+      const newUser = await createUser(
+        trimmedName,
+        normalizedEmail,
+        password,
+        (key) => key,
+      )
 
       return NextResponse.json(
         { message: 'User registered successfully', user: { id: newUser.id } },

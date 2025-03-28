@@ -28,7 +28,6 @@ type LoginFormValues = z.infer<typeof loginSchema>
 export default function EnhancedLoginForm() {
   const t = useTranslations('auth.login')
 
-  
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [error, setError] = useState<string | null>(null)
   const [failedAttempts, setFailedAttempts] = useState<number>(0)
@@ -170,8 +169,8 @@ export default function EnhancedLoginForm() {
     const remainingSeconds = seconds % 60
 
     if (remainingSeconds === 0) {
-      return minutes === 1 
-        ? t('time_format.minute_singular') 
+      return minutes === 1
+        ? t('time_format.minute_singular')
         : t('time_format.minutes_plural', { minutes })
     }
 
@@ -212,25 +211,30 @@ export default function EnhancedLoginForm() {
 
         if (newAttemptCount >= MAX_ATTEMPTS) {
           setLoginLockout(newAttemptCount)
-          setError(
-            t('error.lockout', { time: formatLockoutTime(lockoutTime) }),
-          )
+          setError(t('error.lockout', { time: formatLockoutTime(lockoutTime) }))
 
           showWarning(
             t('error.lockout', { time: formatLockoutTime(lockoutTime) }),
           )
           reset()
         } else {
-          const attemptsMessage = MAX_ATTEMPTS - newAttemptCount === 1
-            ? t('error.attempts_singular')
-            : t('error.attempts_plural', { count: MAX_ATTEMPTS - newAttemptCount })
+          const attemptsMessage =
+            MAX_ATTEMPTS - newAttemptCount === 1
+              ? t('error.attempts_singular')
+              : t('error.attempts_plural', {
+                  count: MAX_ATTEMPTS - newAttemptCount,
+                })
 
           setError(
-            t('error.invalid_credentials', { attemptsRemaining: attemptsMessage }),
+            t('error.invalid_credentials', {
+              attemptsRemaining: attemptsMessage,
+            }),
           )
 
           showError(
-            t('error.invalid_credentials', { attemptsRemaining: attemptsMessage }),
+            t('error.invalid_credentials', {
+              attemptsRemaining: attemptsMessage,
+            }),
           )
         }
         return
@@ -258,12 +262,8 @@ export default function EnhancedLoginForm() {
       }
     } catch (error: unknown) {
       if (error instanceof Error) {
-        setError(
-          error.message || t('error.default'),
-        )
-        showError(
-          error.message || t('error.default'),
-        )
+        setError(error.message || t('error.default'))
+        showError(error.message || t('error.default'))
       } else {
         setError(t('error.unknown'))
         showError(t('error.unknown'))
@@ -272,7 +272,6 @@ export default function EnhancedLoginForm() {
       setIsLoading(false)
     }
   }
-  
 
   return (
     <div className="dark:bg-BlackLight mx-auto w-full max-w-md rounded-2xl bg-white p-6 shadow-md">
@@ -437,7 +436,7 @@ export default function EnhancedLoginForm() {
             <div className="w-full border-t border-gray-300 dark:border-gray-600"></div>
           </div>
           <div className="relative flex justify-center text-sm">
-            <span className="bg-white px-2 text-gray-500 dark:bg-BlackLight dark:text-gray-400">
+            <span className="dark:bg-BlackLight bg-white px-2 text-gray-500 dark:text-gray-400">
               {t('oauth.divider')}
             </span>
           </div>

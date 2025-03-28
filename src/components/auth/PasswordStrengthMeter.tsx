@@ -17,7 +17,7 @@ export default function PasswordStrengthMeter({
   className = '',
 }: PasswordStrengthMeterProps) {
   const t = useTranslations('auth.passwordStrength')
-  
+
   const passwordRef = useRef(password)
   const checkTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const onValidationRef = useRef(onValidation)
@@ -87,9 +87,7 @@ export default function PasswordStrengthMeter({
             ...prev,
             isChecking: false,
             strength: localStrength,
-            errors: [
-              result.error?.message || t('errors.checkingError'),
-            ],
+            errors: [result.error?.message || t('errors.checkingError')],
           }))
           if (currentOnValidation)
             currentOnValidation(localStrength >= 40, localStrength >= 70)

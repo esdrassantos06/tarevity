@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useSession, signOut } from 'next-auth/react'
 import { useTheme } from 'next-themes'
+import { useTranslations } from 'next-intl'
 import {
   FaMoon,
   FaSun,
@@ -26,6 +27,7 @@ export default function SettingsComponent() {
   const { theme, setTheme } = useTheme()
   const [activeTab, setActiveTab] = useState('appearance')
   const router = useRouter()
+  const t = useTranslations('Settings')
 
   const {
     dialogState,
@@ -58,53 +60,59 @@ export default function SettingsComponent() {
 
   const handleDeleteAccount = () => {
     openConfirmDialog({
-      title: 'Delete Account',
-      description:
-        'Are you sure you want to delete your account? This action cannot be undone and all your data will be permanently removed.',
+      title: t('deleteAccount.firstConfirmTitle'),
+      description: t('deleteAccount.firstConfirmDescription'),
       variant: 'danger',
-      confirmText: 'Delete',
-      cancelText: 'Cancel',
+      confirmText: t('deleteAccount.confirmText'),
+      cancelText: t('deleteAccount.cancelText'),
       onConfirm: async () => {
         closeConfirmDialog()
 
         setTimeout(() => {
           openConfirmDialog({
-            title: 'WARNING: Permanent Action',
-            description:
-              'This is a permanent action. All your tasks and data will be lost. Do you want to continue?',
+            title: t('deleteAccount.secondConfirmTitle'),
+            description: t('deleteAccount.secondConfirmDescription'),
             variant: 'danger',
-            confirmText: 'Yes, Delete My Account',
-            cancelText: 'No, Keep My Account',
+            confirmText: t('deleteAccount.secondConfirmButton'),
+            cancelText: t('deleteAccount.secondCancelButton'),
             onConfirm: async () => {
               try {
                 setDialogLoading(true)
 
-                const toastId = showLoading('Deleting your account...')
+                const toastId = showLoading(t('deleteAccount.loadingMessage'))
 
                 deleteAccountMutation.mutate(undefined, {
                   onSuccess: async () => {
-                    updateToast(toastId, 'Account deleted successfully', {
-                      type: 'success',
-                      isLoading: false,
-                      autoClose: 3000,
-                    })
+                    updateToast(
+                      await toastId,
+                      t('deleteAccount.successMessage'),
+                      {
+                        type: 'success',
+                        isLoading: false,
+                        autoClose: 3000,
+                      },
+                    )
 
                     await signOut({ redirect: false })
                     router.push('/')
                   },
-                  onError: (error) => {
+                  onError: async (error) => {
                     console.error('Error deleting account:', error)
 
-                    updateToast(toastId, 'Failed to delete account', {
-                      type: 'error',
-                      isLoading: false,
-                      autoClose: 5000,
-                    })
+                    updateToast(
+                      await toastId,
+                      t('deleteAccount.errorMessage'),
+                      {
+                        type: 'error',
+                        isLoading: false,
+                        autoClose: 5000,
+                      },
+                    )
 
                     showError(
                       error instanceof Error
                         ? error.message
-                        : 'An error occurred while deleting your account',
+                        : t('deleteAccount.genericErrorMessage'),
                     )
                   },
                   onSettled: () => {
@@ -116,7 +124,7 @@ export default function SettingsComponent() {
                 console.error('Error initiating account deletion:', error)
                 setDialogLoading(false)
                 closeConfirmDialog()
-                showError('Failed to initiate account deletion')
+                showError(t('deleteAccount.initiationErrorMessage'))
               }
             },
           })
@@ -130,9 +138,7 @@ export default function SettingsComponent() {
   if (!session) {
     return (
       <div className="dark:bg-BlackLight rounded-lg bg-white p-6 shadow">
-        <p className="text-gray-600 dark:text-gray-400">
-          Please log in to access settings.
-        </p>
+        <p className="text-gray-600 dark:text-gray-400">{t('notLoggedIn')}</p>
       </div>
     )
   }
@@ -144,7 +150,7 @@ export default function SettingsComponent() {
         <div className="w-full border-b border-gray-200 md:w-64 md:flex-shrink-0 md:border-r md:border-b-0 dark:border-gray-700">
           <nav className="space-y-1 p-4">
             <button
-              aria-label="Appearance"
+              aria-label={t('tabs.appearance')}
               onClick={() => setActiveTab('appearance')}
               className={`flex w-full items-center rounded-md px-4 py-2 text-sm transition-colors ${
                 activeTab === 'appearance'
@@ -153,10 +159,10 @@ export default function SettingsComponent() {
               }`}
             >
               <FaDesktop className="mr-3 size-4" />
-              Appearance
+              {t('tabs.appearance')}
             </button>
             <button
-              aria-label="General"
+              aria-label={t('tabs.account')}
               onClick={() => setActiveTab('account')}
               className={`flex w-full items-center rounded-md px-4 py-2 text-sm transition-colors ${
                 activeTab === 'account'
@@ -165,13 +171,13 @@ export default function SettingsComponent() {
               }`}
             >
               <FaUserCircle className="mr-3 size-4" />
-              Account
+              {t('tabs.account')}
             </button>
 
             {/* Admin tab - only visible for admins */}
             {isAdmin && (
               <button
-                aria-label="Admin"
+                aria-label={t('tabs.admin')}
                 onClick={() => setActiveTab('admin')}
                 className={`flex w-full items-center rounded-md px-4 py-2 text-sm transition-colors ${
                   activeTab === 'admin'
@@ -180,7 +186,7 @@ export default function SettingsComponent() {
                 }`}
               >
                 <FaShieldAlt className="mr-3 size-4" />
-                Admin Panel
+                {t('tabs.admin')}
               </button>
             )}
           </nav>
@@ -192,16 +198,16 @@ export default function SettingsComponent() {
           {activeTab === 'appearance' && (
             <div>
               <h2 className="mb-4 text-xl font-semibold text-gray-900 dark:text-white">
-                Appearance
+                {t('appearance.title')}
               </h2>
               <div className="space-y-6">
                 <div>
                   <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                    Theme
+                    {t('appearance.theme.label')}
                   </label>
                   <div className="mt-3 grid grid-cols-3 gap-3">
                     <button
-                      aria-label="Light Theme"
+                      aria-label={t('appearance.theme.light')}
                       type="button"
                       className={`relative flex items-center justify-center rounded-md border px-4 py-3 ${
                         theme === 'light'
@@ -217,10 +223,12 @@ export default function SettingsComponent() {
                             : 'text-gray-500 dark:text-gray-400'
                         }`}
                       />
-                      <span className="ml-2">Light</span>
+                      <span className="ml-2">
+                        {t('appearance.theme.light')}
+                      </span>
                     </button>
                     <button
-                      aria-label="Dark Theme"
+                      aria-label={t('appearance.theme.dark')}
                       type="button"
                       className={`relative flex items-center justify-center rounded-md border px-4 py-3 ${
                         theme === 'dark'
@@ -236,10 +244,10 @@ export default function SettingsComponent() {
                             : 'text-gray-500 dark:text-gray-400'
                         }`}
                       />
-                      <span className="ml-2">Dark</span>
+                      <span className="ml-2">{t('appearance.theme.dark')}</span>
                     </button>
                     <button
-                      aria-label="System Theme"
+                      aria-label={t('appearance.theme.system')}
                       type="button"
                       className={`relative flex items-center justify-center rounded-md border px-4 py-3 ${
                         theme === 'system'
@@ -255,15 +263,13 @@ export default function SettingsComponent() {
                             : 'text-gray-500 dark:text-gray-400'
                         }`}
                       />
-                      <span className="ml-2">System</span>
+                      <span className="ml-2">
+                        {t('appearance.theme.system')}
+                      </span>
                     </button>
                   </div>
                   <p className="mt-4 text-sm text-gray-500 dark:text-gray-400">
-                    The theme affects how Tarevity appears to you. The dark
-                    theme is ideal for night use and can reduce eye strain. The
-                    light theme provides better visibility in well-lit
-                    environments. The system option automatically follows your
-                    device preferences.
+                    {t('appearance.theme.description')}
                   </p>
                 </div>
               </div>
@@ -274,37 +280,39 @@ export default function SettingsComponent() {
           {activeTab === 'account' && (
             <div>
               <h2 className="mb-4 text-xl font-semibold text-gray-900 dark:text-white">
-                Account
+                {t('account.title')}
               </h2>
               <div className="space-y-6">
                 <div className="bg-backgroundLight dark:bg-backgroundDark/50 rounded-lg p-4">
                   <h3 className="mb-2 text-base font-medium text-gray-800 dark:text-gray-200">
-                    Basic Information
+                    {t('account.basicInfo.title')}
                   </h3>
                   <div className="flex flex-col space-y-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-500 dark:text-gray-400">
-                        Name
+                        {t('account.basicInfo.name')}
                       </label>
                       <p className="text-base text-gray-900 dark:text-white">
                         {isLoadingProfile
                           ? 'Loading...'
-                          : profileData?.name || 'Name not set'}
+                          : profileData?.name ||
+                            t('account.basicInfo.nameNotSet')}
                       </p>
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-500 dark:text-gray-400">
-                        Email
+                        {t('account.basicInfo.email')}
                       </label>
                       <p className="text-base text-gray-900 dark:text-white">
                         {isLoadingProfile
                           ? 'Loading...'
-                          : profileData?.email || 'Email not available'}
+                          : profileData?.email ||
+                            t('account.basicInfo.emailNotAvailable')}
                       </p>
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-500 dark:text-gray-400">
-                        Login Method
+                        {t('account.basicInfo.loginMethod')}
                       </label>
                       <p className="text-base text-gray-900 dark:text-white">
                         {isLoadingProfile
@@ -312,7 +320,7 @@ export default function SettingsComponent() {
                           : profileData?.provider
                             ? profileData.provider.charAt(0).toUpperCase() +
                               profileData.provider.slice(1)
-                            : 'Email/Password'}
+                            : t('profile.header.defaultLoginMethod')}
                       </p>
                     </div>
                   </div>
@@ -320,35 +328,34 @@ export default function SettingsComponent() {
 
                 <div className="border-t border-gray-200 pt-6 dark:border-gray-700">
                   <h3 className="mb-4 text-base font-medium text-gray-800 dark:text-gray-200">
-                    Account Management
+                    {t('account.management.title')}
                   </h3>
                   <div className="flex flex-col space-y-4">
                     <button
-                      aria-label="Edit Profile"
+                      aria-label={t('account.management.editProfile')}
                       className="flex items-center text-sm font-medium text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
                       onClick={() => {
                         showSuccess('Redirecting to profile page')
                         router.push('/profile')
                       }}
                     >
-                      Edit profile
+                      {t('account.management.editProfile')}
                     </button>
 
                     <button
-                      aria-label="Delete Account"
+                      aria-label={t('account.management.deleteAccount')}
                       className="flex items-center text-sm font-medium text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
                       onClick={handleDeleteAccount}
                       disabled={deleteAccountMutation.isPending}
                     >
                       {deleteAccountMutation.isPending
-                        ? 'Deleting...'
-                        : 'Delete my account'}
+                        ? t('account.management.deleting')
+                        : t('account.management.deleteAccount')}
                     </button>
 
                     {deleteAccountMutation.isPending && (
                       <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                        We are processing your request. This may take a few
-                        moments.
+                        {t('account.management.deletingMessage')}
                       </p>
                     )}
                   </div>

@@ -1,11 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
+import { getTranslations } from 'next-intl/server'
 
 export async function validateRequest<T>(
   req: NextRequest,
   schema: z.ZodType<T>,
-  errorMessage = 'Invalid request data',
+  errorMessage?: string,
 ): Promise<{ data: T } | NextResponse> {
+  const t = await getTranslations('RequestValidation')
+
   try {
     const body = await req.json()
     const result = schema.safeParse(body)
@@ -18,7 +21,7 @@ export async function validateRequest<T>(
 
       return NextResponse.json(
         {
-          message: errorMessage,
+          message: errorMessage || t('invalidRequestData'),
           errors: formattedErrors,
         },
         { status: 400 },
@@ -28,9 +31,7 @@ export async function validateRequest<T>(
     return { data: result.data }
   } catch (error) {
     console.error('Error parsing request body:', error)
-    return NextResponse.json(
-      { message: 'Failed to parse request body' },
-      { status: 400 },
-    )
+
+    return NextResponse.json({ message: t('failedParseBody') }, { status: 400 })
   }
 }

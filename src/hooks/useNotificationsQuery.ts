@@ -3,6 +3,7 @@ import axios from 'axios'
 import { showSuccess, showError } from '@/lib/toast'
 import { Notification } from '@/lib/notifications'
 import { useEffect, useCallback } from 'react'
+import { useTranslations } from 'next-intl'
 
 interface QueryOptions {
   enabled?: boolean
@@ -18,6 +19,7 @@ export async function refreshNotifications(): Promise<void> {
 }
 
 export function useNotificationsQuery(options: QueryOptions = {}) {
+  const t = useTranslations('notificationsQuery')
   const queryClient = useQueryClient()
   const lastRefreshRef = useRef<number>(Date.now())
   const initialLoadDone = useRef<boolean>(false)
@@ -29,10 +31,10 @@ export function useNotificationsQuery(options: QueryOptions = {}) {
       lastRefreshRef.current = Date.now()
       return true
     } catch (error) {
-      console.error('Failed to force refresh notifications:', error)
+      console.error(t('failedToForceRefresh'), error)
       return false
     }
-  }, [queryClient])
+  }, [queryClient, t])
 
   // Function to refresh notifications from the server
   const refreshNotificationsWithThrottling = useCallback(async () => {
@@ -46,9 +48,9 @@ export function useNotificationsQuery(options: QueryOptions = {}) {
       await axios.post('/api/notifications/refresh')
       await queryClient.invalidateQueries({ queryKey: ['notifications'] })
     } catch (error) {
-      console.error('Failed to refresh notifications:', error)
+      console.error(t('failedToRefresh'), error)
     }
-  }, [queryClient])
+  }, [queryClient, t])
 
   useEffect(() => {
     if (options.enabled !== false && !initialLoadDone.current) {
@@ -109,6 +111,7 @@ export function useNotificationsQuery(options: QueryOptions = {}) {
 }
 
 export function useCreateNotificationsMutation() {
+  const t = useTranslations('notifications')
   const queryClient = useQueryClient()
 
   return useMutation({
@@ -119,12 +122,13 @@ export function useCreateNotificationsMutation() {
       queryClient.invalidateQueries({ queryKey: ['notifications'] })
     },
     onError: (error) => {
-      console.error('Error creating notifications:', error)
+      console.error(t('errorCreatingNotifications'), error)
     },
   })
 }
 
 export function useMarkNotificationReadMutation() {
+  const t = useTranslations('notifications')
   const queryClient = useQueryClient()
 
   return useMutation({
@@ -145,17 +149,18 @@ export function useMarkNotificationReadMutation() {
     },
     onSuccess: (response) => {
       const { message } = response.data
-      showSuccess(message || 'Notification read status updated')
+      showSuccess(message || t('notificationReadStatusUpdated'))
       queryClient.invalidateQueries({ queryKey: ['notifications'] })
     },
     onError: (error) => {
-      console.error('Error updating notification read status:', error)
-      showError('Failed to update notification read status')
+      console.error(t('errorUpdatingNotificationStatus'), error)
+      showError(t('failedToUpdateNotificationStatus'))
     },
   })
 }
 
 export function useDismissNotificationMutation() {
+  const t = useTranslations('notifications')
   const queryClient = useQueryClient()
 
   return useMutation({
@@ -177,13 +182,14 @@ export function useDismissNotificationMutation() {
       queryClient.invalidateQueries({ queryKey: ['notifications'] })
     },
     onError: (error) => {
-      console.error('Error dismissing notification:', error)
-      showError('Failed to dismiss notification')
+      console.error(t('errorDismissingNotification'), error)
+      showError(t('failedToDismissNotification'))
     },
   })
 }
 
 export function useDeleteNotificationsForTodoMutation() {
+  const t = useTranslations('notifications')
   const queryClient = useQueryClient()
 
   return useMutation({
@@ -194,11 +200,12 @@ export function useDeleteNotificationsForTodoMutation() {
       queryClient.invalidateQueries({ queryKey: ['notifications'] })
     },
     onError: (error) => {
-      console.error('Error deleting notifications for todo:', error)
-      showError('Failed to delete notifications')
+      console.error(t('errorDeletingNotifications'), error)
+      showError(t('failedToDeleteNotifications'))
     },
   })
 }
+
 function useRef<T>(initialValue: T): { current: T } {
   return { current: initialValue }
 }

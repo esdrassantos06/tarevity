@@ -2,75 +2,83 @@ import { Inter } from 'next/font/google'
 import { NextIntlClientProvider, hasLocale } from 'next-intl'
 import { notFound } from 'next/navigation'
 import { routing } from '@/i18n/routing'
-import type { Metadata, Viewport } from 'next'
+import type { Metadata, ResolvingMetadata, Viewport } from 'next'
 import { NextAuthProvider } from '@/components/auth/NextAuthProvider'
 import { ThemeProvider } from '@/components/common/ThemeProvider'
 import ToastProvider from '@/components/common/ToastProvider'
 import Providers from '@/components/common/Providers'
 import CookieBanner from '@/components/cookie-consent/CookieBanner'
 import './globals.css'
+import { getTranslations } from 'next-intl/server'
 
 const inter = Inter({ subsets: ['latin'] })
 
-export const metadata: Metadata = {
-  title: {
-    template: '%s | Tarevity',
-    default: 'Tarevity - Intelligent Task Management for Modern Professionals',
-  },
-  description: `Elevate your productivity with Tarevity's secure, intuitive task management platform featuring priority-based workflows and comprehensive analytics.`,
-  keywords: [
-    'task management',
-    'productivity system',
-    'priority management',
-    'deadline tracking',
-    'project organization',
-    'to-do list app',
-    'work management',
-    'task tracking',
-  ],
-  authors: [
-    { name: 'Esdras Santos', url: 'https://github.com/esdrassantos06' },
-  ],
-  creator: 'Esdras Santos',
-  publisher: 'Tarevity',
-  robots: {
-    index: true,
-    follow: true,
-    nocache: true,
-    googleBot: {
+type Params = Promise<{ locale: string }>
+
+export async function generateMetadata(
+  { params }: { params: Params },
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  parent: ResolvingMetadata,
+): Promise<Metadata> {
+  const resolvedParams = await params
+
+  const t = await getTranslations({
+    locale: resolvedParams.locale,
+    namespace: 'Layout.metadata',
+  })
+
+  return {
+    title: {
+      template: '%s | Tarevity',
+      default: t('defaultTitle'),
+    },
+    description: t('description'),
+    keywords: t('keywords')
+      .split(',')
+      .map((keyword) => keyword.trim()),
+    authors: [
+      { name: 'Esdras Santos', url: 'https://github.com/esdrassantos06' },
+    ],
+    creator: 'Esdras Santos',
+    publisher: 'Tarevity',
+    robots: {
       index: true,
       follow: true,
-      'max-image-preview': 'large',
-      'max-video-preview': -1,
-      'max-snippet': -1,
+      nocache: true,
+      googleBot: {
+        index: true,
+        follow: true,
+        'max-image-preview': 'large',
+        'max-video-preview': -1,
+        'max-snippet': -1,
+      },
     },
-  },
-  alternates: {
-    canonical: 'https://tarevity.pt',
-  },
-  openGraph: {
-    type: 'website',
-    locale: 'en_US',
-    url: 'https://tarevity.pt',
-    siteName: 'Tarevity',
-    title: 'Tarevity - Intelligent Task Management for Modern Professionals',
-    description:
-      "Elevate your productivity with Tarevity's secure, intuitive task management platform",
-  },
-  icons: {
-    icon: '/icon.png',
-    apple: '/apple-icon.png',
-  },
-  appleWebApp: {
-    title: 'Tarevity',
-    statusBarStyle: 'black-translucent',
-    capable: true,
-  },
-  formatDetection: {
-    telephone: false,
-  },
-  manifest: '/manifest.json',
-  category: 'productivity',
+    alternates: {
+      canonical: 'https://tarevity.pt',
+    },
+    openGraph: {
+      type: 'website',
+      locale: resolvedParams.locale,
+      url: 'https://tarevity.pt',
+      siteName: 'Tarevity',
+      title: t('defaultTitle'),
+      description: t('description'),
+    },
+    icons: {
+      icon: '/icon.png',
+      apple: '/apple-icon.png',
+    },
+    appleWebApp: {
+      title: 'Tarevity',
+      statusBarStyle: 'black-translucent',
+      capable: true,
+    },
+    formatDetection: {
+      telephone: false,
+    },
+    manifest: '/manifest.json',
+    category: 'productivity',
+  }
 }
 
 export const viewport: Viewport = {
@@ -92,7 +100,6 @@ export default async function LocaleLayout({
 }) {
   const { locale } = params instanceof Promise ? await params : params
 
-  // Ensure that the incoming `locale` is valid
   if (!hasLocale(routing.locales, locale)) {
     notFound()
   }
@@ -108,8 +115,12 @@ export default async function LocaleLayout({
       >
         <Providers>
           <NextAuthProvider>
-            <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-              <NextIntlClientProvider>
+            <NextIntlClientProvider>
+              <ThemeProvider
+                attribute="class"
+                defaultTheme="system"
+                enableSystem
+              >
                 <a
                   aria-label="Skip to main content"
                   href="#main-content"
@@ -120,8 +131,8 @@ export default async function LocaleLayout({
                 <main id="main-content">{children}</main>
                 <CookieBanner />
                 <ToastProvider />
-              </NextIntlClientProvider>
-            </ThemeProvider>
+              </ThemeProvider>
+            </NextIntlClientProvider>
           </NextAuthProvider>
         </Providers>
       </body>

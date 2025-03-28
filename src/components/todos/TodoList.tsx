@@ -21,8 +21,10 @@ import Pagination from '../ui/Pagination'
 import TodoFilters from './TodoFilters'
 import TodoStats from './TodoStats'
 import { formatDistanceToNow, format, isValid, parseISO } from 'date-fns'
+import { useTranslations } from 'next-intl'
 
-const RedesignedTodoList: React.FC = () => {
+const TodoList: React.FC = () => {
+  const t = useTranslations('todoList')
   const router = useRouter()
   const searchParams = useSearchParams()
   const queryClient = useQueryClient()
@@ -60,11 +62,11 @@ const RedesignedTodoList: React.FC = () => {
   const handleDeleteTodo = useCallback(
     (id: string, title: string) => {
       openConfirmDialog({
-        title: 'Delete Task',
-        description: `Are you sure you want to delete "${title}"? This action cannot be undone.`,
+        title: t('deleteTask'),
+        description: t('deleteTaskConfirmation', { title }),
         variant: 'danger',
-        confirmText: 'Delete',
-        cancelText: 'Cancel',
+        confirmText: t('delete'),
+        cancelText: t('cancel'),
         onConfirm: () => {
           setLoading(true)
 
@@ -111,6 +113,7 @@ const RedesignedTodoList: React.FC = () => {
       deleteTodoMutation,
       closeConfirmDialog,
       queryClient,
+      t,
     ],
   )
 
@@ -153,24 +156,39 @@ const RedesignedTodoList: React.FC = () => {
                     {
                       todo_id: id,
                       notification_type: 'danger',
-                      title: 'Overdue Task',
-                      message: `"${todoToUpdate.title}" is due ${formatDistanceToNow(dueDate, { addSuffix: true })}`,
+                      title: t('overdueTask'),
+                      message: t('overdueTaskMessage', {
+                        title: todoToUpdate.title,
+                        dueDate: formatDistanceToNow(dueDate, {
+                          addSuffix: true,
+                        }),
+                      }),
                       due_date: todoToUpdate.due_date,
                       origin_id: `danger-${id}`,
                     },
                     {
                       todo_id: id,
                       notification_type: 'warning',
-                      title: 'Due Soon',
-                      message: `"${todoToUpdate.title}" is due ${formatDistanceToNow(dueDate, { addSuffix: true })}`,
+                      title: t('dueSoon'),
+                      message: t('dueSoonMessage', {
+                        title: todoToUpdate.title,
+                        dueDate: formatDistanceToNow(dueDate, {
+                          addSuffix: true,
+                        }),
+                      }),
                       due_date: todoToUpdate.due_date,
                       origin_id: `warning-${id}`,
                     },
                     {
                       todo_id: id,
                       notification_type: 'info',
-                      title: 'Upcoming Deadline',
-                      message: `"${todoToUpdate.title}" is due ${formatDistanceToNow(dueDate, { addSuffix: true })}`,
+                      title: t('upcomingDeadline'),
+                      message: t('upcomingDeadlineMessage', {
+                        title: todoToUpdate.title,
+                        dueDate: formatDistanceToNow(dueDate, {
+                          addSuffix: true,
+                        }),
+                      }),
                       due_date: todoToUpdate.due_date,
                       origin_id: `info-${id}`,
                     },
@@ -197,7 +215,7 @@ const RedesignedTodoList: React.FC = () => {
         },
       )
     },
-    [todos, updateTodoMutation, queryClient],
+    [todos, updateTodoMutation, queryClient, t],
   )
 
   const handleSetReview = useCallback(
@@ -318,13 +336,13 @@ const RedesignedTodoList: React.FC = () => {
     return (
       <div
         className="flex h-64 items-center justify-center"
-        aria-label="Loading tasks"
+        aria-label={t('loadingTasks')}
       >
         <div
           className="size-12 animate-spin rounded-full border-4 border-blue-500 border-t-transparent"
           role="status"
         >
-          <span className="sr-only">Loading...</span>
+          <span className="sr-only">{t('loading')}</span>
         </div>
       </div>
     )
@@ -347,17 +365,17 @@ const RedesignedTodoList: React.FC = () => {
         {formattedDueDate && (
           <div className="text-primary dark:bg-BlackLight mt-4 mb-4 flex items-center rounded-lg bg-white px-4 py-2 dark:text-blue-200">
             <span className="mr-4">
-              Showing tasks due on {formattedDueDate}
+              {t('showingTasksDueOn', { date: formattedDueDate })}
             </span>
             <button
-              aria-label="Clear date filter"
+              aria-label={t('clearDateFilter')}
               onClick={() => {
                 clearDueDateFilter()
                 router.push('/dashboard')
               }}
               className="ml-auto flex items-center rounded-md bg-blue-100 px-2 py-1 text-xs text-blue-700 hover:bg-blue-200 dark:bg-blue-800 dark:text-blue-200 dark:hover:bg-blue-700"
             >
-              <FaTimes className="mr-1" /> Clear Filter
+              <FaTimes className="mr-1" /> {t('clearFilter')}
             </button>
           </div>
         )}
@@ -371,9 +389,11 @@ const RedesignedTodoList: React.FC = () => {
           className="mb-4 flex items-center text-sm text-gray-600 dark:text-gray-400"
           aria-live="polite"
         >
-          Showing {Math.min(filteredTodos.length, (pageToShow - 1) * 9 + 1)}-
-          {Math.min(pageToShow * 9, filteredTodos.length)} of{' '}
-          {filteredTodos.length} tasks
+          {t('showingTasksCount', {
+            start: Math.min(filteredTodos.length, (pageToShow - 1) * 9 + 1),
+            end: Math.min(pageToShow * 9, filteredTodos.length),
+            total: filteredTodos.length,
+          })}
         </div>
       )}
 
@@ -402,19 +422,19 @@ const RedesignedTodoList: React.FC = () => {
             </svg>
           </div>
           <h3 className="text-lg font-medium text-gray-900 dark:text-white">
-            No tasks found
+            {t('noTasksFound')}
           </h3>
           <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
             {searchQuery || dueDateFilter
-              ? 'No tasks match your search or date filter. Try adjusting your filters.'
-              : 'Get started by creating your first task.'}
+              ? t('noTasksMatchFilters')
+              : t('getStartedCreateTask')}
           </p>
           <button
             onClick={createNewTodo}
             className="mt-4 flex items-center rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
-            aria-label="Create new task"
+            aria-label={t('createNewTask')}
           >
-            <FiPlus className="mr-1" aria-hidden="true" /> Create New Task
+            <FiPlus className="mr-1" aria-hidden="true" /> {t('createNewTask')}
           </button>
         </div>
       )}
@@ -424,7 +444,7 @@ const RedesignedTodoList: React.FC = () => {
         <div
           className="grid w-full auto-rows-fr grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
           role="list"
-          aria-label="Task list"
+          aria-label={t('taskList')}
         >
           {currentTodos.map((todo) => (
             <TodoItem
@@ -443,7 +463,7 @@ const RedesignedTodoList: React.FC = () => {
             onClick={createNewTodo}
             tabIndex={0}
             role="button"
-            aria-label="Create new task"
+            aria-label={t('createNewTask')}
             onKeyDown={(e) => {
               if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault()
@@ -458,7 +478,9 @@ const RedesignedTodoList: React.FC = () => {
                   aria-hidden="true"
                 />
               </div>
-              <p className="text-gray-500 dark:text-gray-400">Add New Task</p>
+              <p className="text-gray-500 dark:text-gray-400">
+                {t('addNewTask')}
+              </p>
             </div>
           </div>
         </div>
@@ -489,4 +511,4 @@ const RedesignedTodoList: React.FC = () => {
   )
 }
 
-export default React.memo(RedesignedTodoList)
+export default React.memo(TodoList)

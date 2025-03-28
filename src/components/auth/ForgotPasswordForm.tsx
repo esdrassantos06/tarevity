@@ -15,7 +15,7 @@ import { useTranslations } from 'next-intl'
 
 export default function EnhancedForgotPasswordForm() {
   const t = useTranslations('auth.forgotPassword')
-  
+
   const [isLoading, setIsLoading] = useState(false)
   const [isSubmitted, setIsSubmitted] = useState(false)
   const [emailValid, setEmailValid] = useState(false)
@@ -29,10 +29,7 @@ export default function EnhancedForgotPasswordForm() {
   }, [status])
 
   const forgotPasswordSchema = z.object({
-    email: z
-      .string()
-      .email(t('email.invalid'))
-      .min(1, t('email.required')),
+    email: z.string().email(t('email.invalid')).min(1, t('email.required')),
   })
 
   type ForgotPasswordFormValues = z.infer<typeof forgotPasswordSchema>
@@ -81,13 +78,10 @@ export default function EnhancedForgotPasswordForm() {
         )
       } else {
         setIsSubmitted(true)
-        toast.success(
-          result.data?.message || t('emailSent'),
-          {
-            position: 'top-center',
-            icon: <FaCheck />,
-          },
-        )
+        toast.success(result.data?.message || t('emailSent'), {
+          position: 'top-center',
+          icon: <FaCheck />,
+        })
       }
     } catch (error) {
       toast.error(
@@ -108,9 +102,7 @@ export default function EnhancedForgotPasswordForm() {
           {t('title')}
         </h1>
         <p className="mt-2 text-gray-600 dark:text-gray-400">
-          {isSubmitted
-            ? t('checkEmail')
-            : t('instructionsPrompt')}
+          {isSubmitted ? t('checkEmail') : t('instructionsPrompt')}
         </p>
       </div>
 

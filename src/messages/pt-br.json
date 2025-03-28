@@ -48,6 +48,14 @@
       "button": "Criar Conta Gratuita"
     }
   },
+  "Layout": {
+    "skipToMainContent": "Pular para o conteúdo principal",
+    "metadata": {
+      "defaultTitle": "Tarevity - Gerenciamento Inteligente de Tarefas para Profissionais Modernos",
+      "description": "Eleve sua produtividade com a plataforma segura e intuitiva de gerenciamento de tarefas da Tarevity, com fluxos de trabalho baseados em prioridades e análises abrangentes.",
+      "keywords": "gerenciamento de tarefas, sistema de produtividade, gestão de prioridades, acompanhamento de prazos, organização de projetos, aplicativo de lista de tarefas, gerenciamento de trabalho, rastreamento de tarefas"
+    }
+  },
   "Common": {
     "languageSwitcher": {
       "english": "Inglês",
@@ -61,6 +69,22 @@
       "dashboard": "Painel",
       "tasks": "Tarefas",
       "login": "Entrar"
+    },
+    "dialog": {
+      "buttons": {
+        "confirm": "Confirmar",
+        "cancel": "Cancelar",
+        "processing": "Processando..."
+      }
+    },
+    "errorBoundary": {
+      "errorHeading": "Algo deu errado",
+      "errorMessage": "Pedimos desculpas pelo inconveniente. Por favor, tente atualizar a página.",
+      "refreshButton": "Atualizar Página",
+      "toastMessage": "Ocorreu um erro inesperado. Por favor, tente atualizar a página."
+    },
+    "profileImage": {
+      "defaultAlt": "Foto de Perfil"
     }
   },
   "header": {
@@ -73,9 +97,6 @@
     "openUserMenu": "Abrir menu do usuário",
     "openMainMenu": "Abrir menu principal",
     "calendar": "Calendário"
-  },
-  "notifications": {
-    "title": "Notificações"
   },
   "footer": {
     "copyright": "Todos os direitos reservados.",
@@ -479,5 +500,751 @@
         "passwordResetDetails": "Sua senha foi redefinida com sucesso. Você será redirecionado para a página de login."
       }
     }
+  },
+  "cookies": {
+    "acceptButton": "Aceitar Cookies",
+    "declineButton": "Recusar",
+    "messageStart": "Usamos cookies para melhorar sua experiência em nosso site. Ao continuar navegando, você concorda com nossa",
+    "privacyPolicy": "Política de Privacidade",
+    "messageEnd": "."
+  },
+  "notFound": {
+    "error": "Erro",
+    "title": "Página não encontrada",
+    "description": "Desculpe, não conseguimos encontrar a página que você está procurando.",
+    "goHome": "Ir para a Página Inicial"
+  },
+  "notifications": {
+    "title": "Notificações",
+    "empty": "Sem notificações",
+    "status": {
+      "read": "(Lida)"
+    },
+    "actions": {
+      "refresh": "Atualizar",
+      "markRead": "Lida",
+      "markUnread": "Não lida",
+      "removeAll": "Remover todas",
+      "read": "Lida",
+      "unread": "Não lida",
+      "remove": "Remover"
+    },
+    "aria": {
+      "notifications": "Notificações",
+      "refresh": "Atualizar notificações",
+      "markAllUnread": "Marcar todas como não lidas",
+      "markAllRead": "Marcar todas como lidas",
+      "removeAll": "Remover todas as notificações",
+      "markAsRead": "Marcar como lida",
+      "markAsUnread": "Marcar como não lida",
+      "removeNotification": "Remover notificação"
+    },
+    "tooltip": {
+      "markAsRead": "Marcar como lida",
+      "markAsUnread": "Marcar como não lida",
+      "removeNotification": "Remover notificação"
+    },
+    "success": {
+      "updated": "Notificações atualizadas",
+      "removed": "Notificação removida",
+      "allRemoved": "Todas as notificações foram removidas"
+    },
+    "error": {
+      "updateFailed": "Falha ao atualizar notificação",
+      "removeFailed": "Falha ao remover notificação",
+      "markReadFailed": "Falha ao marcar notificações como lidas",
+      "markUnreadFailed": "Falha ao marcar notificações como não lidas",
+      "removeAllFailed": "Falha ao remover notificações"
+    },
+    "dialog": {
+      "removeAll": {
+        "title": "Remover Todas as Notificações",
+        "description": "Isso removerá todas as suas notificações atuais. Esta ação não pode ser desfeita. Continuar?",
+        "confirm": "Remover Todas",
+        "cancel": "Cancelar"
+      }
+    }
+  },
+  "profile": {
+    "deleteImageDialog": {
+      "title": "Excluir Imagem de Perfil",
+      "description": "Tem certeza que deseja remover sua imagem de perfil? Esta ação não pode ser desfeita.",
+      "buttons": {
+        "cancel": "Cancelar",
+        "delete": "Excluir"
+      },
+      "aria": {
+        "cancel": "Cancelar",
+        "delete": "Excluir"
+      }
+    },
+    "discardDialog": {
+      "title": "Descartar Alterações",
+      "description": "Você tem alterações não salvas. Tem certeza que deseja descartá-las?",
+      "buttons": {
+        "cancel": "Cancelar",
+        "discard": "Descartar Alterações"
+      },
+      "aria": {
+        "cancel": "Cancelar",
+        "discard": "Descartar Alterações"
+      }
+    },
+    "component": {
+      "errors": {
+        "loadFailed": "Não foi possível carregar seu perfil"
+      }
+    },
+    "manager": {
+      "loginRequired": "Por favor, faça login para visualizar seu perfil."
+    },
+    "header": {
+      "editProfile": "Editar",
+      "editProfileAriaLabel": "Editar perfil",
+      "defaultName": "Usuário",
+      "loginMethod": "Método de login",
+      "defaultLoginMethod": "E-mail/Senha"
+    },
+    "form": {
+      "nameLabel": "Nome",
+      "saveButton": "Salvar",
+      "savingButton": "Salvando...",
+      "cancelButton": "Cancelar",
+      "uploadImageAriaLabel": "Carregar Imagem",
+      "cancelAriaLabel": "Cancelar",
+      "successToast": "Perfil atualizado com sucesso!",
+      "errorToast": "Erro ao atualizar o perfil",
+      "genericErrorToast": "Ocorreu um erro ao atualizar seu perfil",
+      "uploadingImageToast": "Carregando imagem...",
+      "updatingProfileToast": "Atualizando perfil...",
+      "imageUploadErrorToast": "Erro ao carregar imagem",
+      "missingUrlErrorToast": "Falha ao carregar imagem: Nenhuma URL retornada"
+    },
+    "imageManager": {
+      "previewAlt": "Pré-visualização",
+      "profilePictureAlt": "Foto de Perfil",
+      "removeImageAriaLabel": "Remover imagem de perfil",
+      "removeImageTitle": "Remover imagem de perfil",
+      "removeImageSuccessToast": "Imagem de perfil removida com sucesso"
+    }
+  },
+  "UserStats": {
+    "title": "Estatísticas de Tarefas",
+    "loading": "Carregando estatísticas...",
+    "createdTasks": "Tarefas Criadas",
+    "completedTasks": "Tarefas Concluídas",
+    "pendingTasks": "Pendentes"
+  },
+  "Settings": {
+    "notLoggedIn": "Por favor, faça login para acessar as configurações.",
+    "tabs": {
+      "appearance": "Aparência",
+      "account": "Conta",
+      "admin": "Painel Admin"
+    },
+    "appearance": {
+      "title": "Aparência",
+      "theme": {
+        "label": "Tema",
+        "light": "Claro",
+        "dark": "Escuro",
+        "system": "Sistema",
+        "description": "O tema afeta como o Tarevity aparece para você. O tema escuro é ideal para uso noturno e pode reduzir a fadiga visual. O tema claro fornece melhor visibilidade em ambientes bem iluminados. A opção de sistema segue automaticamente as preferências do seu dispositivo."
+      }
+    },
+    "account": {
+      "title": "Conta",
+      "basicInfo": {
+        "title": "Informações Básicas",
+        "name": "Nome",
+        "email": "E-mail",
+        "loginMethod": "Método de Login",
+        "nameNotSet": "Nome não definido",
+        "emailNotAvailable": "E-mail não disponível"
+      },
+      "management": {
+        "title": "Gerenciamento de Conta",
+        "editProfile": "Editar perfil",
+        "deleteAccount": "Excluir minha conta",
+        "deleting": "Excluindo...",
+        "deletingMessage": "Estamos processando sua solicitação. Isso pode levar alguns momentos."
+      }
+    },
+    "deleteAccount": {
+      "firstConfirmTitle": "Excluir Conta",
+      "firstConfirmDescription": "Tem certeza de que deseja excluir sua conta? Esta ação não pode ser desfeita e todos os seus dados serão permanentemente removidos.",
+      "secondConfirmTitle": "AVISO: Ação Permanente",
+      "secondConfirmDescription": "Esta é uma ação permanente. Todas as suas tarefas e dados serão perdidos. Deseja continuar?",
+      "confirmText": "Excluir",
+      "cancelText": "Cancelar",
+      "secondConfirmButton": "Sim, Excluir Minha Conta",
+      "secondCancelButton": "Não, Manter Minha Conta",
+      "loadingMessage": "Excluindo sua conta...",
+      "successMessage": "Conta excluída com sucesso",
+      "errorMessage": "Falha ao excluir conta",
+      "genericErrorMessage": "Ocorreu um erro ao excluir sua conta",
+      "initiationErrorMessage": "Falha ao iniciar a exclusão da conta"
+    }
+  },
+  "admin": {
+    "adminPanel": "Painel de Administração",
+    "userManagement": "Gerenciamento de Usuários",
+    "systemStats": "Estatísticas do Sistema",
+    "users": "Usuários",
+    "stats": "Estatísticas",
+    "name": "Nome",
+    "email": "E-mail",
+    "provider": "Provedor",
+    "status": "Status",
+    "actions": "Ações",
+    "admin": "Admin",
+    "user": "Usuário",
+    "cancel": "Cancelar",
+    "confirm": "Confirmar",
+    "delete": "Excluir",
+    "editUser": "Editar Usuário",
+    "deleteUser": "Excluir usuário",
+    "removeAdminPrivileges": "Remover privilégios de administrador",
+    "grantAdminPrivileges": "Conceder privilégios de administrador",
+    "noUsersFound": "Nenhum usuário encontrado",
+    "systemStatistics": "Estatísticas do Sistema",
+    "totalUsers": "Total de Usuários",
+    "totalTasks": "Total de Tarefas",
+    "adminUsers": "Usuários Administradores",
+    "errorLoadingAdminData": "Erro ao Carregar Dados de Administração",
+    "errorLoadingAdminDataMessage": "Ocorreu um erro ao carregar os dados de administração. Por favor, tente novamente mais tarde ou entre em contato com o suporte.",
+    "userAdminStatusUpdated": "Status de administrador do usuário atualizado com sucesso",
+    "failedToUpdateUserAdminStatus": "Falha ao atualizar o status de administrador do usuário",
+    "userDeletedSuccessfully": "Usuário excluído com sucesso",
+    "failedToDeleteUser": "Falha ao excluir usuário",
+    "confirmRemoveAdminPrivileges": "Tem certeza que deseja remover os privilégios de administrador de {name}?",
+    "confirmGrantAdminPrivileges": "Tem certeza que deseja conceder privilégios de administrador para {name}?",
+    "confirmDeleteUser": "Tem certeza que deseja excluir o usuário {name}? Esta ação não pode ser desfeita."
+  },
+  "search": {
+    "closeSearch": "Fechar busca",
+    "expandSearch": "Expandir busca",
+    "searchPlaceholder": "Pesquisar..."
+  },
+  "NewTodoPage": {
+    "backToDashboard": "Voltar para o Dashboard",
+    "createNewTask": "Criar Nova Tarefa",
+    "titleWithAsterisk": "Título*",
+    "enterTaskTitle": "Digite o título da tarefa",
+    "description": "Descrição",
+    "enterTaskDescription": "Digite a descrição da tarefa (opcional)",
+    "priority": "Prioridade",
+    "lowPriority": "Baixa Prioridade",
+    "mediumPriority": "Média Prioridade",
+    "highPriority": "Alta Prioridade",
+    "dueDate": "Data de Vencimento",
+    "markAsCompleted": "Marcar como concluída",
+    "cancel": "Cancelar",
+    "saveButton": "Salvar",
+    "creating": "Criando...",
+    "createTask": "Criar Tarefa",
+    "errorEnterTitle": "Digite um título para a tarefa",
+    "creatingTask": "Criando tarefa...",
+    "taskCreatedSuccessfully": "Tarefa criada com sucesso!",
+    "failedToCreateTask": "Falha ao criar tarefa",
+    "errorCreatingTask": "Ocorreu um erro ao criar a tarefa",
+    "discardChanges": "Descartar Alterações",
+    "discardChangesDescription": "Descartar alterações? Todas as alterações não salvas serão perdidas.",
+    "discard": "Descartar",
+    "changesDiscarded": "Alterações descartadas"
+  },
+  "todoDetail": {
+    "backToDashboard": "Voltar para o Dashboard",
+    "goBackToDashboard": "Voltar para o dashboard",
+    "editTask": "Editar tarefa",
+    "deleteTask": "Excluir tarefa",
+    "markAsComplete": "Marcar como concluída",
+    "markComplete": "Marcar Concluída",
+    "completed": "Concluída",
+    "description": "Descrição",
+    "noDescriptionProvided": "Nenhuma descrição fornecida",
+    "details": "Detalhes",
+    "share": "Compartilhar",
+    "submitForReview": "Enviar para Revisão",
+    "approve": "Aprovar",
+    "delete": "Excluir",
+    "cancel": "Cancelar",
+    "clear": "Limpar",
+    "errorLoadingTaskDetails": "Erro ao carregar detalhes da tarefa",
+    "unknownError": "Erro desconhecido",
+    "taskNotFound": "Tarefa não encontrada",
+    "clearDueDate": "Limpar Data de Vencimento",
+    "clearDueDateDescription": "Limpar a data de vencimento também removerá todas as notificações para esta tarefa. Continuar?",
+    "deleteTaskConfirmation": "Tem certeza que deseja excluir esta tarefa? Esta ação não pode ser desfeita.",
+    "noDueDate": "Sem data de vencimento",
+    "created": "Criada",
+    "dueDate": "Data de Vencimento",
+    "lastUpdated": "Última Atualização",
+    "assignedTo": "Atribuída a",
+    "you": "Você",
+    "taskUnderReview": "Esta tarefa está atualmente em revisão",
+    "taskUnderReviewDescription": "A tarefa foi enviada para revisão. Após aprovada, ela retornará ao status ativo.",
+    "priorityWithLabel": "Prioridade {priority}",
+    "priority": {
+      "high": "Alta",
+      "medium": "Média",
+      "low": "Baixa"
+    },
+    "status": {
+      "label": "Status",
+      "inReview": "Em Revisão",
+      "completed": "Concluída",
+      "active": "Ativa"
+    },
+    "months": {
+      "jan": "Jan",
+      "feb": "Fev",
+      "mar": "Mar",
+      "apr": "Abr",
+      "may": "Mai",
+      "jun": "Jun",
+      "jul": "Jul",
+      "aug": "Ago",
+      "sep": "Set",
+      "oct": "Out",
+      "nov": "Nov",
+      "dec": "Dez"
+    }
+  },
+  "todoEdit": {
+    "goBack": "Voltar",
+    "backToDetails": "Voltar para Detalhes",
+    "editTask": "Editar Tarefa",
+    "titleWithAsterisk": "Título*",
+    "taskTitle": "título da tarefa",
+    "description": "Descrição",
+    "taskDescription": "descrição da tarefa",
+    "priority": "Prioridade",
+    "lowPriority": "Baixa Prioridade",
+    "mediumPriority": "Média Prioridade",
+    "highPriority": "Alta Prioridade",
+    "status": "Status",
+    "statusActive": "Ativa",
+    "statusInReview": "Em Revisão",
+    "statusCompletedInfo": "O status está definido como concluído porque a tarefa está marcada como completa",
+    "dueDate": "Data de Vencimento",
+    "clearDueDate": "Limpar Data de Vencimento",
+    "clearDueDateHelp": "Limpe a data de vencimento para remover notificações de prazo",
+    "noDueDateHelp": "Sem data de vencimento definida (nenhuma notificação será criada)",
+    "markAsCompleted": "Marcar como concluída",
+    "cancelEdit": "cancelar edição",
+    "cancel": "Cancelar",
+    "saveEdit": "salvar edição",
+    "saving": "Salvando...",
+    "saveChanges": "Salvar Alterações",
+    "unsavedChangesWarning": "Você tem alterações não salvas. Tem certeza que deseja sair?",
+    "errorUpdatingTask": "Erro ao atualizar tarefa",
+    "discardChanges": "Descartar Alterações",
+    "discardChangesDescription": "Você tem alterações não salvas. Tem certeza que deseja sair?",
+    "discard": "Descartar",
+    "stay": "Ficar",
+    "clear": "Limpar",
+    "clearDueDateDescription": "Limpar a data de vencimento também removerá todas as notificações para esta tarefa. Continuar?"
+  },
+  "todoFilters": {
+    "tasks": "Tarefas",
+    "createNewTask": "Criar nova tarefa",
+    "createTask": "Criar Tarefa",
+    "allTasks": "Todas as tarefas",
+    "all": "Todas",
+    "activeTasks": "Tarefas ativas",
+    "active": "Ativas",
+    "completedTasks": "Tarefas concluídas",
+    "completed": "Concluídas",
+    "reviewTasks": "Tarefas em revisão",
+    "review": "Revisão",
+    "sortByPriority": "Ordenar por Prioridade"
+  },
+  "todoItem": {
+    "completed": "Concluída",
+    "notCompleted": "Não concluída",
+    "inReview": "Em Revisão",
+    "taskAriaLabel": "Tarefa: {title}. Status: {status}{review}. Prioridade: {priority}{due}",
+    "dueDate": ". Vencimento: {date}",
+    "markTaskAs": "Marcar {title} como {status}",
+    "priorityLabel": "Prioridade",
+    "due": "Vencimento",
+    "taskActions": "Ações da tarefa",
+    "setToReview": "Enviar {title} para revisão",
+    "setToReviewTitle": "Enviar para Revisão",
+    "approve": "Aprovar {title}",
+    "approveTitle": "Aprovar",
+    "edit": "Editar {title}",
+    "editTask": "Editar tarefa",
+    "delete": "Excluir {title}",
+    "deleteTask": "Excluir tarefa",
+    "priority": {
+      "high": "Alta",
+      "medium": "Média",
+      "low": "Baixa"
+    },
+    "months": {
+      "jan": "Jan",
+      "feb": "Fev",
+      "mar": "Mar",
+      "apr": "Abr",
+      "may": "Mai",
+      "jun": "Jun",
+      "jul": "Jul",
+      "aug": "Ago",
+      "sep": "Set",
+      "oct": "Out",
+      "nov": "Nov",
+      "dec": "Dez"
+    }
+  },
+  "todoList": {
+    "deleteTask": "Excluir Tarefa",
+    "deleteTaskConfirmation": "Tem certeza que deseja excluir \"{title}\"? Esta ação não pode ser desfeita.",
+    "delete": "Excluir",
+    "cancel": "Cancelar",
+    "overdueTask": "Tarefa Atrasada",
+    "overdueTaskMessage": "\"{title}\" vence {dueDate}",
+    "dueSoon": "Vencimento Próximo",
+    "dueSoonMessage": "\"{title}\" vence {dueDate}",
+    "upcomingDeadline": "Prazo Próximo",
+    "upcomingDeadlineMessage": "\"{title}\" vence {dueDate}",
+    "loadingTasks": "Carregando tarefas",
+    "loading": "Carregando...",
+    "showingTasksDueOn": "Mostrando tarefas com vencimento em {date}",
+    "clearDateFilter": "Limpar filtro de data",
+    "clearFilter": "Limpar Filtro",
+    "showingTasksCount": "Mostrando {start}-{end} de {total} tarefas",
+    "noTasksFound": "Nenhuma tarefa encontrada",
+    "noTasksMatchFilters": "Nenhuma tarefa corresponde à sua busca ou filtro de data. Tente ajustar seus filtros.",
+    "getStartedCreateTask": "Comece criando sua primeira tarefa.",
+    "createNewTask": "Criar Nova Tarefa",
+    "taskList": "Lista de tarefas",
+    "addNewTask": "Adicionar Nova Tarefa"
+  },
+  "todoStats": {
+    "tasksCount": "{count} Tarefas",
+    "active": "Ativas",
+    "completed": "Concluídas",
+    "review": "Revisão",
+    "total": "Total"
+  },
+  "calendar": {
+    "today": "Hoje",
+    "previousMonth": "Mês anterior",
+    "nextMonth": "Próximo mês",
+    "day": "Dia {day}",
+    "dayWithTasks": "Dia {day}, {count} tarefa(s)",
+    "monthYearFormat": "{month} de {year}",
+    "locale": "pt-br",
+    "daysOfWeek": {
+      "sunday": "Domingo",
+      "monday": "Segunda-feira",
+      "tuesday": "Terça-feira",
+      "wednesday": "Quarta-feira",
+      "thursday": "Quinta-feira",
+      "friday": "Sexta-feira",
+      "saturday": "Sábado"
+    }
+  },
+  "pagination": {
+    "previous": "Anterior",
+    "next": "Próxima",
+    "previousPage": "Página anterior",
+    "nextPage": "Próxima página",
+    "goToPage": "Ir para página {page}"
+  },
+  "authQuery": {
+    "passwordCheckError": "Erro ao validar senha",
+    "unexpectedRegistrationError": "Ocorreu um erro inesperado durante o registro"
+  },
+  "notificationsQuery": {
+    "failedToForceRefresh": "Falha ao forçar atualização das notificações:",
+    "failedToRefresh": "Falha ao atualizar notificações:",
+    "errorCreatingNotifications": "Erro ao criar notificações:",
+    "notificationReadStatusUpdated": "Status de leitura da notificação atualizado",
+    "errorUpdatingNotificationStatus": "Erro ao atualizar status de leitura da notificação:",
+    "failedToUpdateNotificationStatus": "Falha ao atualizar status de leitura da notificação",
+    "errorDismissingNotification": "Erro ao dispensar notificação:",
+    "failedToDismissNotification": "Falha ao dispensar notificação",
+    "errorDeletingNotifications": "Erro ao excluir notificações para tarefa:",
+    "failedToDeleteNotifications": "Falha ao excluir notificações"
+  },
+  "profileQuery": {
+    "failedToLoadProfile": "Falha ao carregar perfil",
+    "failedToLoadStatistics": "Falha ao carregar estatísticas",
+    "failedToUpdateProfile": "Falha ao atualizar perfil: {message}",
+    "errorUpdatingProfile": "Erro ao atualizar perfil:",
+    "failedToUploadImage": "Falha ao enviar imagem: {message}",
+    "errorUploadingImage": "Erro ao enviar imagem:",
+    "failedToRemoveProfileImage": "Falha ao remover imagem de perfil: {message}",
+    "errorDeletingProfileImage": "Erro ao excluir imagem de perfil:",
+    "accountSuccessfullyDeleted": "Sua conta foi excluída com sucesso",
+    "failedToDeleteAccount": "Falha ao excluir conta: {message}",
+    "errorDeletingAccount": "Erro ao excluir conta:"
+  },
+  "useTodoFilters": {
+    "errorFilteringByDate": "Erro ao filtrar por data:"
+  },
+  "useTodosQuery": {
+    "failedToLoadTasks": "Falha ao carregar tarefas",
+    "errorCreatingTask": "Erro ao criar tarefa",
+    "unexpectedApiResponseFormat": "Formato de resposta da API inesperado:",
+    "missingDataInApiResponse": "Dados ausentes na resposta da API:",
+    "errorUpdatingTodo": "Erro ao atualizar tarefa:",
+    "errorUpdatingTask": "Erro ao atualizar tarefa",
+    "invalidServerResponse": "Resposta inválida do servidor:",
+    "invalidResponseFromServer": "Resposta inválida do servidor:",
+    "taskMarkedAsCompleted": "Tarefa marcada como concluída",
+    "taskMarkedAsActive": "Tarefa marcada como ativa",
+    "taskMovedToReview": "Tarefa movida para revisão",
+    "taskApprovedAndActive": "Tarefa aprovada e movida para ativa",
+    "taskUpdatedSuccessfully": "Tarefa atualizada com sucesso",
+    "errorDeletingTask": "Erro ao excluir tarefa",
+    "taskDeletedSuccessfully": "Tarefa excluída com sucesso"
+  },
+  "api": {
+    "unknownErrorDuringRegistration": "Erro desconhecido durante o registro",
+    "errorCheckingPasswordSecurity": "Erro ao verificar a segurança da senha",
+    "errorProcessingPasswordReset": "Erro ao processar a redefinição de senha",
+    "invalidOrExpiredToken": "Token inválido ou expirado",
+    "errorCheckingCurrentPassword": "Erro ao verificar a senha atual",
+    "errorResettingPassword": "Erro ao redefinir a senha",
+    "errorLoadingProfile": "Erro ao carregar perfil",
+    "errorUpdatingProfile": "Erro ao atualizar perfil",
+    "errorUploadingProfileImage": "Erro ao enviar imagem de perfil",
+    "errorDeletingProfileImage": "Erro ao excluir imagem de perfil",
+    "errorDeletingAccount": "Erro ao excluir conta",
+    "errorLoadingStatistics": "Erro ao carregar estatísticas",
+    "errorLoadingTasks": "Erro ao carregar tarefas",
+    "errorLoadingTask": "Erro ao carregar tarefa",
+    "errorCreatingTask": "Erro ao criar tarefa",
+    "errorUpdatingTask": "Erro ao atualizar tarefa",
+    "errorDeletingTask": "Erro ao excluir tarefa"
+  },
+  "authLib": {
+    "passwordMinLength": "A senha deve ter pelo menos 8 caracteres",
+    "passwordRequiresUppercase": "A senha deve conter letras maiúsculas",
+    "passwordRequiresLowercase": "A senha deve conter letras minúsculas",
+    "passwordRequiresDigit": "A senha deve conter dígitos numéricos",
+    "passwordRequiresSpecial": "A senha deve conter caracteres especiais",
+    "passwordNoRepeatingChars": "A senha não deve conter caracteres repetidos (ex: 'aaa')",
+    "passwordNoSequentialChars": "A senha não deve conter caracteres sequenciais (ex: 'abc', '123')",
+    "emailAlreadyRegistered": "E-mail já registrado",
+    "errorCheckingEmailExists": "Erro ao verificar se o e-mail existe:"
+  },
+  "PasswordReset": {
+    "title": "Tarevity - Redefinição de Senha",
+    "greeting": "Olá,",
+    "requestText": "Recebemos uma solicitação para redefinir sua senha. Se você não fez esta solicitação, por favor, ignore este e-mail.",
+    "resetInstructions": "Para redefinir sua senha, clique no botão abaixo:",
+    "resetButtonText": "Redefinir Senha",
+    "linkInstructions": "Ou copie e cole este link no seu navegador:",
+    "linkExpiry": "Este link expirará em 1 hora por razões de segurança.",
+    "regards": "Atenciosamente,",
+    "teamSignature": "Equipe Tarevity"
+  },
+  "ErrorMessages": {
+    "400": "A solicitação é inválida ou não pode ser processada",
+    "401": "Autenticação é necessária para acessar este recurso",
+    "403": "Você não tem permissão para acessar este recurso",
+    "404": "O recurso solicitado não foi encontrado",
+    "408": "A solicitação expirou. Por favor, tente novamente",
+    "409": "Ocorreu um conflito com sua solicitação",
+    "413": "O arquivo enviado é muito grande",
+    "422": "Falha na validação dos dados enviados",
+    "429": "Muitas solicitações. Por favor, tente novamente mais tarde",
+    "500": "Ocorreu um erro interno no servidor",
+    "502": "Erro de gateway. Por favor, tente novamente mais tarde",
+    "503": "O serviço está temporariamente indisponível",
+    "504": "Tempo limite de gateway. Por favor, tente novamente mais tarde"
+  },
+  "ImageValidation": {
+    "fileSizeError": "A imagem é muito grande. O tamanho máximo é de {maxSize}MB.",
+    "fileTypeError": "Tipo de arquivo inválido. Por favor, selecione uma imagem JPG, PNG, GIF ou WebP."
+  },
+  "NotificationTitles": {
+    "overdueTask": "Tarefa Atrasada",
+    "expirestoday": "Expira hoje",
+    "expiresTomorrow": "Expira amanhã",
+    "deadlineApproaching": "Prazo se Aproximando",
+    "futureTask": "Tarefa Futura"
+  },
+  "NotificationPhrases": {
+    "expiredSuffix": "{title} expirou {timeAgo}",
+    "expiresTodaySuffix": "{title} expira hoje!",
+    "expiresTomorrowSuffix": "{title} expira amanhã",
+    "expiresInSuffix": "{title} expira {timeAgo}"
+  },
+  "NotificationErrors": {
+    "missingFields": "Campos de notificação obrigatórios ausentes",
+    "invalidType": "Tipo de notificação inválido",
+    "skippedDismissed": "Usuário dispensou este tipo de notificação",
+    "missingDueDate": "Data de vencimento ausente",
+    "invalidDateFormat": "Formato de data inválido",
+    "errorParsingDate": "Erro ao analisar data de vencimento",
+    "errorFetchingNotification": "Erro desconhecido ao buscar notificação"
+  },
+  "RateLimiter": {
+    "missingRedisConfig": "Limitação de taxa indisponível - Cliente Redis não inicializado",
+    "serviceUnavailable": {
+      "error": "Serviço temporariamente indisponível",
+      "message": "Por favor, tente novamente mais tarde."
+    },
+    "tooManyRequests": {
+      "error": "Muitas solicitações",
+      "message": "Limite de solicitações excedido. Por favor, tente novamente em {minutes} minuto(s)."
+    }
+  },
+  "Toast": {
+    "defaultError": "Ocorreu um erro inesperado",
+    "loading": "Carregando...",
+    "defaultFallbackMessage": "Ocorreu um erro inesperado"
+  },
+  "TodoNotifications": {
+    "overdueTitle": "Tarefa Atrasada",
+    "overdueMessage": "\"{title}\" está atrasada {timeAgo}",
+    "dueSoonTitle": "Prazo Próximo",
+    "dueSoonMessage": "\"{title}\" vence {timeAgo}",
+    "upcomingTitle": "Tarefa Agendada",
+    "upcomingMessage": "\"{title}\" está agendada {timeAgo}"
+  },
+  "RequestValidation": {
+    "invalidRequestData": "Dados de solicitação inválidos",
+    "failedParseBody": "Falha ao analisar o corpo da solicitação"
+  },
+  "Manifest": {
+    "name": "Tarevity - Gerenciamento de Tarefas",
+    "shortName": "Tarevity",
+    "description": "Eleve sua produtividade com a plataforma segura e intuitiva de gerenciamento de tarefas da Tarevity",
+    "categories": "produtividade, utilitários, gerenciamento de tarefas",
+    "screenshotLabel": "Visão do Painel",
+    "shortcuts": {
+      "newTask": {
+        "name": "Nova Tarefa",
+        "description": "Criar uma nova tarefa"
+      },
+      "dashboard": {
+        "name": "Painel",
+        "description": "Visualizar seu painel de tarefas"
+      }
+    }
+  },
+  "NewTodoPAGE": {
+    "metadata": {
+      "title": "Criar Nova Tarefa | Tarevity",
+      "description": "Crie uma nova tarefa, adicione detalhes, defina o nível de prioridade e agende datas de conclusão."
+    },
+    "loadingMessage": "Carregando..."
+  },
+  "TodoDetailPage": {
+    "metadata": {
+      "title": "Detalhes da Tarefa | Tarevity",
+      "description": "Visualize detalhes da tarefa, atualize o status, edite informações ou compartilhe com membros da equipe."
+    }
+  },
+  "TodoEditPage": {
+    "metadata": {
+      "title": "Editar Tarefa | Tarevity",
+      "description": "Modifique detalhes da tarefa, atualize datas de vencimento, altere níveis de prioridade ou edite descrições."
+    }
+  },
+  "TermsPage": {
+    "metadata": {
+      "title": "Termos de Serviço e Acordo de Usuário | Tarevity",
+      "description": "Revise nossos detalhados termos de serviço que abrangem responsabilidades do usuário, propriedade de dados, políticas de uso aceitável e limitações de serviço.",
+      "keywords": [
+        "termos de serviço",
+        "acordo de usuário",
+        "termos legais",
+        "propriedade de dados"
+      ]
+    }
+  },
+  "SettingsPage": {
+    "metadata": {
+      "title": "Personalize Sua Experiência | Configurações Tarevity",
+      "description": "Personalize seu ambiente de gerenciamento de tarefas com preferências de tema, configurações de notificação e opções de segurança da conta."
+    },
+    "pageTitle": "Configurações"
+  },
+  "ProfilePage": {
+    "metadata": {
+      "title": "Seu Perfil e Estatísticas de Produtividade | Tarevity",
+      "description": "Revise suas análises personalizadas de tarefas, métricas de conclusão e configurações de conta. Obtenha insights sobre seus padrões de produtividade."
+    },
+    "pageTitle": "Meu Perfil"
+  },
+  "PrivacyPage": {
+    "metadata": {
+      "title": "Compromisso de Proteção de Dados & Privacidade | Tarevity",
+      "description": "Entenda como a Tarevity protege seus dados com criptografia de ponta a ponta, práticas seguras de armazenamento e políticas de uso transparentes.",
+      "keywords": [
+        "privacidade de dados",
+        "segurança da informação",
+        "proteção de dados do usuário",
+        "política de privacidade"
+      ]
+    }
+  },
+  "DashboardPage": {
+    "metadata": {
+      "title": "Seu Painel de Produtividade | Tarevity",
+      "description": "Acesse o centro de comando personalizado da Tarevity. Filtre tarefas por prioridade e status, acompanhe métricas de conclusão e mantenha o momentum de produtividade."
+    },
+    "loading": "Carregando painel..."
+  },
+  "CalendarPage": {
+    "metadata": {
+      "title": "Calendário de Tarefas | Tarevity",
+      "description": "Mantenha-se organizado e produtivo com a Tarevity. Use o calendário de tarefas para gerenciar seu cronograma, priorizar tarefas e acompanhar seu progresso de forma eficaz.",
+      "keywords": "Tarevity, calendário de tarefas, produtividade, gerenciamento de tarefas, rastreamento de agenda"
+    }
+  },
+  "ResetPasswordPage": {
+    "metadata": {
+      "title": "Criar Nova Senha | Central de Segurança Tarevity",
+      "description": "Defina uma nova senha segura com avaliação em tempo real de força e verificação de violações. Sua segurança é nossa prioridade na Tarevity."
+    },
+    "loading": "Carregando..."
+  },
+  "RegisterPage": {
+    "metadata": {
+      "title": "Crie Sua Conta Tarevity | Registro Simples",
+      "description": "Junte-se a milhares de profissionais produtivos. Crie sua conta com segurança de nível empresarial, verificação de força de senha e proteção contra violação de dados."
+    },
+    "loading": "Carregando..."
+  },
+  "LoginPage": {
+    "metadata": {
+      "title": "Login Seguro | Tarevity",
+      "description": "Acesse seu painel de gerenciamento de tarefas com segurança. Várias opções de autenticação, incluindo login sem senha via Google e GitHub."
+    },
+    "loading": "Carregando..."
+  },
+  "ForgotPasswordPage": {
+    "metadata": {
+      "title": "Recuperar Acesso à Conta | Redefinição de Senha Tarevity",
+      "description": "Redefina sua senha com segurança através do nosso sistema de recuperação criptografado. Receba links de recuperação com limite de tempo via verificação de e-mail."
+    },
+    "loading": "Carregando..."
+  },
+  "NotFoundPage": {
+    "metadata": {
+      "title": "Página Não Encontrada | Tarevity",
+      "description": "Ops! A página que você está procurando não existe. Retorne ao painel principal ou explore outros recursos do Tarevity."
+    }
+  },
+  "notificationsUpdater": {
+    "overdueTask": "Tarefa Atrasada",
+    "dueToday": "Vence Hoje",
+    "dueTomorrow": "Vence Amanhã",
+    "deadlineApproaching": "Prazo se Aproximando",
+    "futureTask": "Tarefa Futura",
+    "expiredTaskMessage": "\"{title}\" expirou {timeAgo}",
+    "dueTodayMessage": "\"{title}\" vence hoje!",
+    "dueTomorrowMessage": "\"{title}\" vence amanhã",
+    "upcomingDeadlineMessage": "\"{title}\" vence {timeUntil}",
+    "futureTaskMessage": "\"{title}\" vence {timeUntil}"
   }
 }

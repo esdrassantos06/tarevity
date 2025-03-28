@@ -18,6 +18,7 @@ import ConfirmationDialog, {
 import axios from 'axios'
 import { showError } from '@/lib/toast'
 import { refreshNotifications } from '@/hooks/useNotificationsQuery'
+import { useTranslations } from 'next-intl'
 
 interface Todo {
   id: string
@@ -49,6 +50,7 @@ const formatDateForInput = (dateString: string | null): string => {
 }
 
 const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
+  const t = useTranslations('todoEdit')
   const router = useRouter()
   const queryClient = useQueryClient()
   const { data: todos = [] as Todo[], isLoading } = useTodosQuery()
@@ -90,7 +92,7 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
       if (hasUnsavedChanges) {
         e.preventDefault()
-        return 'You have unsaved changes. Are you sure you want to leave?'
+        return t('unsavedChangesWarning')
       }
     }
 
@@ -99,7 +101,7 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
     return () => {
       window.removeEventListener('beforeunload', handleBeforeUnload)
     }
-  }, [hasUnsavedChanges])
+  }, [hasUnsavedChanges, t])
 
   const handleChange = (
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
@@ -162,7 +164,6 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
               // If the due date was removed, we will delete the notifications
               await axios.delete(`/api/notifications/delete-for-todo/${todoId}`)
             } else {
-              // Otherwise, we just update the notifications through the API
               await refreshNotifications()
             }
 
@@ -178,7 +179,7 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
         },
         onError: (error) => {
           showError(
-            error instanceof Error ? error.message : 'Error updating task',
+            error instanceof Error ? error.message : t('errorUpdatingTask'),
           )
           console.error('Error updating task:', error)
         },
@@ -192,12 +193,11 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
   const handleCancel = () => {
     if (hasUnsavedChanges) {
       openConfirmDialog({
-        title: 'Discard Changes',
-        description:
-          'You have unsaved changes. Are you sure you want to leave?',
+        title: t('discardChanges'),
+        description: t('discardChangesDescription'),
         variant: 'warning',
-        confirmText: 'Discard',
-        cancelText: 'Stay',
+        confirmText: t('discard'),
+        cancelText: t('stay'),
         onConfirm: () => {
           router.push(`/todo/${todoId}`)
           closeConfirmDialog()
@@ -211,12 +211,11 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
   const handleConfirmClearDueDate = () => {
     if (formData.due_date) {
       openConfirmDialog({
-        title: 'Clear Due Date',
-        description:
-          'Clearing the due date will also remove all notifications for this task. Continue?',
+        title: t('clearDueDate'),
+        description: t('clearDueDateDescription'),
         variant: 'warning',
-        confirmText: 'Clear',
-        cancelText: 'Cancel',
+        confirmText: t('clear'),
+        cancelText: t('cancel'),
         onConfirm: () => {
           handleClearDueDate()
           closeConfirmDialog()
@@ -238,15 +237,15 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
       {/* Header */}
       <div className="mb-6 flex items-center justify-between">
         <button
-          aria-label="Go back"
+          aria-label={t('goBack')}
           onClick={handleCancel}
           className="flex items-center text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white"
         >
           <FaArrowLeft className="mr-2" />
-          <span>Back to Details</span>
+          <span>{t('backToDetails')}</span>
         </button>
         <div className="text-xl font-bold text-gray-900 dark:text-white">
-          Edit Task
+          {t('editTask')}
         </div>
       </div>
 
@@ -259,7 +258,7 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
               htmlFor="title"
               className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
             >
-              Title*
+              {t('titleWithAsterisk')}
             </label>
             <input
               type="text"
@@ -269,7 +268,7 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
               onChange={handleChange}
               required
               className="w-full rounded-md border border-gray-300 px-4 py-2 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-              placeholder="task title"
+              placeholder={t('taskTitle')}
             />
           </div>
 
@@ -279,7 +278,7 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
               htmlFor="description"
               className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
             >
-              Description
+              {t('description')}
             </label>
             <textarea
               id="description"
@@ -288,7 +287,7 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
               onChange={handleChange}
               rows={5}
               className="w-full rounded-md border border-gray-300 px-4 py-2 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-              placeholder="task description"
+              placeholder={t('taskDescription')}
             ></textarea>
           </div>
 
@@ -300,7 +299,7 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
                 className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
               >
                 <FaFlag className="mr-1 inline text-blue-500" />
-                Priority
+                {t('priority')}
               </label>
               <select
                 id="priority"
@@ -309,9 +308,9 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
                 onChange={handleChange}
                 className="w-full rounded-md border border-gray-300 px-4 py-2 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
               >
-                <option value="1">Low Priority</option>
-                <option value="2">Medium Priority</option>
-                <option value="3">High Priority</option>
+                <option value="1">{t('lowPriority')}</option>
+                <option value="2">{t('mediumPriority')}</option>
+                <option value="3">{t('highPriority')}</option>
               </select>
             </div>
 
@@ -321,7 +320,7 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
                 className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
               >
                 <FaExclamationCircle className="mr-1 inline text-blue-500" />
-                Status
+                {t('status')}
               </label>
               <select
                 id="status"
@@ -333,13 +332,12 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
                 disabled={formData.is_completed}
                 className="w-full rounded-md border border-gray-300 px-4 py-2 focus:border-blue-500 focus:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-70 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
               >
-                <option value="active">Active</option>
-                <option value="review">In Review</option>
+                <option value="active">{t('statusActive')}</option>
+                <option value="review">{t('statusInReview')}</option>
               </select>
               {formData.is_completed && (
                 <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                  Status is set to completed because the task is marked as
-                  complete
+                  {t('statusCompletedInfo')}
                 </p>
               )}
             </div>
@@ -350,7 +348,7 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
                 className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
               >
                 <FaClock className="mr-1 inline text-blue-500" />
-                Due Date
+                {t('dueDate')}
               </label>
               <div className="flex">
                 <input
@@ -363,20 +361,18 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
                 />
                 {formData.due_date && (
                   <button
-                    aria-label="clear due date"
+                    aria-label={t('clearDueDate')}
                     type="button"
                     onClick={handleConfirmClearDueDate}
                     className="rounded-r-md border border-l-0 border-gray-300 bg-red-100 px-3 hover:bg-red-200 dark:border-gray-600 dark:bg-red-900 dark:text-white dark:hover:bg-red-800"
-                    title="Clear due date"
+                    title={t('clearDueDate')}
                   >
                     <FaCalendarTimes className="text-red-500 dark:text-red-300" />
                   </button>
                 )}
               </div>
               <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                {formData.due_date
-                  ? 'Clear the due date to remove deadline notifications'
-                  : 'No due date set (no notifications will be created)'}
+                {formData.due_date ? t('clearDueDateHelp') : t('noDueDateHelp')}
               </p>
             </div>
           </div>
@@ -396,7 +392,7 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
                 htmlFor="is_completed"
                 className="ml-2 block text-sm text-gray-700 dark:text-gray-300"
               >
-                Mark as completed
+                {t('markAsCompleted')}
               </label>
             </div>
           </div>
@@ -404,15 +400,15 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
           {/* Form buttons */}
           <div className="flex justify-end space-x-3">
             <button
-              aria-label="cancel edit"
+              aria-label={t('cancelEdit')}
               type="button"
               onClick={handleCancel}
               className="rounded-md border border-gray-300 px-4 py-2 text-gray-700 hover:bg-gray-50 focus:ring-2 focus:ring-gray-500 focus:outline-none dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
             >
-              <FaTimes className="mr-1 inline" /> Cancel
+              <FaTimes className="mr-1 inline" /> {t('cancel')}
             </button>
             <button
-              aria-label="save edit"
+              aria-label={t('saveEdit')}
               type="submit"
               className="rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
               disabled={updateTodoMutation.isPending}
@@ -439,11 +435,11 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
                       d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                     ></path>
                   </svg>
-                  Saving...
+                  {t('saving')}
                 </>
               ) : (
                 <>
-                  <FaSave className="mr-1 inline" /> Save Changes
+                  <FaSave className="mr-1 inline" /> {t('saveChanges')}
                 </>
               )}
             </button>

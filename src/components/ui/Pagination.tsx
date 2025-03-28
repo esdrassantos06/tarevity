@@ -2,6 +2,7 @@
 
 import React from 'react'
 import { FaChevronLeft, FaChevronRight } from 'react-icons/fa'
+import { useTranslations } from 'next-intl'
 
 interface PaginationProps {
   currentPage: number
@@ -14,6 +15,8 @@ const Pagination: React.FC<PaginationProps> = ({
   totalPages,
   onPageChange,
 }) => {
+  const t = useTranslations('pagination')
+
   if (totalPages <= 1) return null
 
   const goToPreviousPage = () => onPageChange(currentPage - 1)
@@ -29,10 +32,10 @@ const Pagination: React.FC<PaginationProps> = ({
             ? 'cursor-not-allowed text-gray-600/50 dark:text-gray-400/50'
             : 'group hover:text-primary dark:hover:bg-bgDark/80 hover:bg-gray-300'
         }`}
-        aria-label="Previous page"
+        aria-label={t('previousPage')}
       >
         <FaChevronLeft className="group-hover:text-primary size-4 text-gray-600 dark:text-gray-400" />{' '}
-        Prev
+        {t('previous')}
       </button>
 
       {/* Pagination numbers */}
@@ -47,6 +50,8 @@ const Pagination: React.FC<PaginationProps> = ({
                   ? 'bg-primary text-white'
                   : 'text-gray-700 hover:bg-gray-300 dark:text-gray-300 dark:hover:bg-gray-700'
               }`}
+              aria-label={t('goToPage', { page: i + 1 })}
+              aria-current={currentPage === i + 1 ? 'page' : undefined}
             >
               {i + 1}
             </button>
@@ -61,13 +66,20 @@ const Pagination: React.FC<PaginationProps> = ({
                   ? 'bg-blue-600 text-white'
                   : 'text-gray-700 hover:bg-gray-300 dark:text-gray-300 dark:hover:bg-gray-700'
               }`}
+              aria-label={t('goToPage', { page: 1 })}
+              aria-current={currentPage === 1 ? 'page' : undefined}
             >
               1
             </button>
 
             {/* Show ellipsis if not on pages 1-3 */}
             {currentPage > 3 && (
-              <span className="px-2 text-gray-500 dark:text-gray-400">...</span>
+              <span
+                className="px-2 text-gray-500 dark:text-gray-400"
+                aria-hidden="true"
+              >
+                ...
+              </span>
             )}
 
             {/* Show pages around current page */}
@@ -89,6 +101,8 @@ const Pagination: React.FC<PaginationProps> = ({
                         ? 'bg-blue-600 text-white'
                         : 'text-gray-700 hover:bg-gray-300 dark:text-gray-300 dark:hover:bg-gray-700'
                     }`}
+                    aria-label={t('goToPage', { page: pageNum })}
+                    aria-current={currentPage === pageNum ? 'page' : undefined}
                   >
                     {pageNum}
                   </button>
@@ -99,7 +113,12 @@ const Pagination: React.FC<PaginationProps> = ({
 
             {/* Show ellipsis if not on last 3 pages */}
             {currentPage < totalPages - 2 && (
-              <span className="px-2 text-gray-500 dark:text-gray-400">...</span>
+              <span
+                className="px-2 text-gray-500 dark:text-gray-400"
+                aria-hidden="true"
+              >
+                ...
+              </span>
             )}
 
             {/* Always show last page */}
@@ -110,6 +129,8 @@ const Pagination: React.FC<PaginationProps> = ({
                   ? 'bg-blue-600 text-white'
                   : 'text-gray-700 hover:bg-gray-300 dark:text-gray-300 dark:hover:bg-gray-700'
               }`}
+              aria-label={t('goToPage', { page: totalPages })}
+              aria-current={currentPage === totalPages ? 'page' : undefined}
             >
               {totalPages}
             </button>
@@ -125,9 +146,9 @@ const Pagination: React.FC<PaginationProps> = ({
             ? 'cursor-not-allowed text-gray-600/50 dark:text-gray-400/50'
             : 'hover:text-primary group dark:hover:bg-bgDark/80 hover:bg-gray-300'
         }`}
-        aria-label="Next page"
+        aria-label={t('nextPage')}
       >
-        Next{' '}
+        {t('next')}{' '}
         <FaChevronRight className="group-hover:text-primary size-4 text-gray-600 dark:text-gray-400" />
       </button>
     </div>

@@ -1,39 +1,50 @@
 import { MetadataRoute } from 'next'
+import { getTranslations } from 'next-intl/server'
 
-export default function manifest(): MetadataRoute.Manifest {
+export default async function manifest({
+  params,
+}: {
+  params: { locale: string }
+}): Promise<MetadataRoute.Manifest> {
+  const t = await getTranslations({
+    locale: params.locale,
+    namespace: 'Manifest',
+  })
+
   return {
-    name: 'Tarevity - Task Management',
-    short_name: 'Tarevity',
-    description:
-      "Elevate your productivity with Tarevity's secure, intuitive task management platform",
+    name: t('name'),
+    short_name: t('shortName'),
+    description: t('description'),
     start_url: '/',
     display: 'standalone',
     background_color: '#ffffff',
     theme_color: '#003cff',
     orientation: 'portrait',
-    lang: 'en-US',
-    dir: 'ltr',
-    categories: ['productivity', 'utilities', 'task management'],
+    lang: params.locale === 'pt-br' ? 'pt-BR' : 'en-US',
+    dir: params.locale === 'pt-br' ? 'ltr' : 'ltr',
+    categories: t('categories')
+      .split(',')
+      .map((category) => category.trim()),
     screenshots: [
       {
         src: '/screenshots/dashboard.png',
         sizes: '1280x720',
         type: 'image/png',
-        label: 'Dashboard View',
+        label: t('screenshotLabel'),
       },
     ],
     related_applications: [],
     prefer_related_applications: false,
     shortcuts: [
       {
-        name: 'New Task',
+        name: t('shortcuts.newTask.name'),
         url: '/todo/new',
-        description: 'Create a new task',
+        description: t('shortcuts.newTask.description'),
       },
       {
-        name: 'Dashboard',
+        name: t('shortcuts.dashboard.name'),
         url: '/dashboard',
-        description: 'View your task dashboard',
+        description: t('shortcuts.dashboard.description'),
       },
     ],
   }

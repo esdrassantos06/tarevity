@@ -47,22 +47,10 @@ export default function EnhancedResetPasswordForm() {
         .string()
         .min(8, t('validation.minLength'))
         .max(100, t('validation.maxLength'))
-        .regex(
-          passwordPattern.uppercase,
-          t('validation.uppercase'),
-        )
-        .regex(
-          passwordPattern.lowercase,
-          t('validation.lowercase'),
-        )
-        .regex(
-          passwordPattern.number,
-          t('validation.number'),
-        )
-        .regex(
-          passwordPattern.special,
-          t('validation.special'),
-        ),
+        .regex(passwordPattern.uppercase, t('validation.uppercase'))
+        .regex(passwordPattern.lowercase, t('validation.lowercase'))
+        .regex(passwordPattern.number, t('validation.number'))
+        .regex(passwordPattern.special, t('validation.special')),
       confirmPassword: z.string().min(1, t('validation.confirmRequired')),
     })
     .refine((data) => data.password === data.confirmPassword, {
@@ -110,9 +98,7 @@ export default function EnhancedResetPasswordForm() {
       } catch (error) {
         setIsValidToken(false)
         setTokenError(
-          error instanceof Error
-            ? error.message
-            : t('errors.validationError')
+          error instanceof Error ? error.message : t('errors.validationError'),
         )
       }
     }
@@ -176,7 +162,7 @@ export default function EnhancedResetPasswordForm() {
     setFormError,
     clearErrors,
     errors.password?.type,
-    t
+    t,
   ])
 
   useEffect(() => {
@@ -197,7 +183,7 @@ export default function EnhancedResetPasswordForm() {
     setFormError,
     clearErrors,
     errors.confirmPassword?.type,
-    t
+    t,
   ])
 
   const onSubmit = async (data: ResetPasswordFormValues) => {
@@ -229,13 +215,10 @@ export default function EnhancedResetPasswordForm() {
 
       if (result.error) {
         console.error('Error in reset password:', result.error)
-        toast.error(
-          result.error.message || t('errors.resetError'),
-          {
-            position: 'top-center',
-            icon: <FaExclamationTriangle />,
-          },
-        )
+        toast.error(result.error.message || t('errors.resetError'), {
+          position: 'top-center',
+          icon: <FaExclamationTriangle />,
+        })
       } else {
         setIsSubmitted(true)
         toast.success(t('success.resetComplete'), {
@@ -310,9 +293,7 @@ export default function EnhancedResetPasswordForm() {
           {t('title')}
         </h1>
         <p className="mt-2 text-gray-600 dark:text-gray-400">
-          {isSubmitted
-            ? t('success.passwordReset')
-            : t('createNewPassword')}
+          {isSubmitted ? t('success.passwordReset') : t('createNewPassword')}
         </p>
       </div>
 

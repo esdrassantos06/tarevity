@@ -1,27 +1,45 @@
-import { Metadata } from 'next'
+import { Metadata, ResolvingMetadata } from 'next'
+import { Suspense } from 'react'
+import { getTranslations } from 'next-intl/server'
+import { useTranslations } from 'next-intl'
 import Layout from '@/components/layout/Layout'
 import RedesignedTodoList from '@/components/todos/TodoList'
-import { Suspense } from 'react'
 
-export const metadata: Metadata = {
-  title: 'Your Productivity Dashboard | Tarevity',
-  description:
-    'Access your personalized Tarevity command center. Filter tasks by priority and status, track completion metrics, and maintain productivity momentum.',
-  robots: 'index, follow',
+type Params = Promise<{ locale: string }>
+
+export async function generateMetadata(
+  { params }: { params: Params },
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  parent: ResolvingMetadata,
+): Promise<Metadata> {
+  const resolvedParams = await params
+
+  const t = await getTranslations({
+    locale: resolvedParams.locale,
+    namespace: 'DashboardPage.metadata',
+  })
+
+  return {
+    title: t('title'),
+    description: t('description'),
+    robots: 'index, follow',
+  }
 }
 
-const DashboardLoading = () => (
-  <div className="flex h-64 items-center justify-center">
-    <div
-      className="size-12 animate-spin rounded-full border-4 border-blue-500 border-t-transparent"
-      role="status"
-    >
-      <span className="sr-only">Loading dashboard...</span>
-    </div>
-  </div>
-)
-
 export default function DashboardPage() {
+  const t = useTranslations('DashboardPage')
+
+  const DashboardLoading = () => (
+    <div className="flex h-64 items-center justify-center">
+      <div
+        className="size-12 animate-spin rounded-full border-4 border-blue-500 border-t-transparent"
+        role="status"
+      >
+        <span className="sr-only">{t('loading')}</span>
+      </div>
+    </div>
+  )
+
   return (
     <Layout>
       <div className="mx-auto max-w-7xl">

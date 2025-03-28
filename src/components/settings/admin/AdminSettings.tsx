@@ -11,6 +11,10 @@ import {
 } from 'react-icons/fa'
 import { showSuccess, showError } from '@/lib/toast'
 import axiosClient from '@/lib/axios'
+import { useTranslations } from 'next-intl'
+import ConfirmationDialog, {
+  useConfirmationDialog,
+} from '@/components/common/ConfirmationDialog'
 
 interface User {
   id: string
@@ -22,8 +26,13 @@ interface User {
 }
 
 const AdminSettings: React.FC = () => {
+  const t = useTranslations('admin')
   const [activeAdminTab, setActiveAdminTab] = useState<string>('users')
   const queryClient = useQueryClient()
+
+  // Add confirmation dialog state
+  const { dialogState, openConfirmDialog, closeConfirmDialog, setLoading } =
+    useConfirmationDialog()
 
   const {
     data: users = [],
@@ -65,12 +74,12 @@ const AdminSettings: React.FC = () => {
       return response.data
     },
     onSuccess: () => {
-      showSuccess('User admin status updated successfully')
+      showSuccess(t('userAdminStatusUpdated'))
       queryClient.invalidateQueries({ queryKey: ['admin', 'users'] })
     },
     onError: (error) => {
       console.error('Error updating user admin status:', error)
-      showError('Failed to update user admin status')
+      showError(t('failedToUpdateUserAdminStatus'))
     },
   })
 
@@ -80,37 +89,62 @@ const AdminSettings: React.FC = () => {
       return response.data
     },
     onSuccess: () => {
-      showSuccess('User deleted successfully')
+      showSuccess(t('userDeletedSuccessfully'))
       queryClient.invalidateQueries({ queryKey: ['admin', 'users'] })
       queryClient.invalidateQueries({ queryKey: ['admin', 'stats'] })
     },
     onError: (error) => {
       console.error('Error deleting user:', error)
-      showError('Failed to delete user')
+      showError(t('failedToDeleteUser'))
     },
   })
 
   const handleToggleAdminStatus = (user: User) => {
-    if (
-      confirm(
-        `Are you sure you want to ${user.is_admin ? 'remove' : 'grant'} admin privileges ${user.is_admin ? 'from' : 'to'} ${user.name}?`,
-      )
-    ) {
-      updateUserAdminStatusMutation.mutate({
-        userId: user.id,
-        isAdmin: !user.is_admin,
-      })
-    }
+    openConfirmDialog({
+      title: user.is_admin
+        ? t('removeAdminPrivileges')
+        : t('grantAdminPrivileges'),
+      description: user.is_admin
+        ? t('confirmRemoveAdminPrivileges', { name: user.name })
+        : t('confirmGrantAdminPrivileges', { name: user.name }),
+      variant: 'warning',
+      confirmText: t('confirm'),
+      cancelText: t('cancel'),
+      onConfirm: () => {
+        setLoading(true)
+        updateUserAdminStatusMutation.mutate(
+          {
+            userId: user.id,
+            isAdmin: !user.is_admin,
+          },
+          {
+            onSettled: () => {
+              setLoading(false)
+              closeConfirmDialog()
+            },
+          },
+        )
+      },
+    })
   }
 
   const handleDeleteUser = (user: User) => {
-    if (
-      confirm(
-        `Are you sure you want to delete user ${user.name}? This action cannot be undone.`,
-      )
-    ) {
-      deleteUserMutation.mutate(user.id)
-    }
+    openConfirmDialog({
+      title: t('deleteUser'),
+      description: t('confirmDeleteUser', { name: user.name }),
+      variant: 'danger',
+      confirmText: t('deleteUser'),
+      cancelText: t('cancel'),
+      onConfirm: () => {
+        setLoading(true)
+        deleteUserMutation.mutate(user.id, {
+          onSettled: () => {
+            setLoading(false)
+            closeConfirmDialog()
+          },
+        })
+      },
+    })
   }
 
   if (usersError || statsError) {
@@ -118,12 +152,9 @@ const AdminSettings: React.FC = () => {
       <div className="rounded-lg bg-red-100 p-4 text-red-700 dark:bg-red-900/30 dark:text-red-400">
         <div className="flex items-center">
           <FaExclamationTriangle className="mr-2" />
-          <h3 className="text-lg font-medium">Error Loading Admin Data</h3>
+          <h3 className="text-lg font-medium">{t('errorLoadingAdminData')}</h3>
         </div>
-        <p className="mt-2">
-          There was an error loading the admin data. Please try again later or
-          contact support.
-        </p>
+        <p className="mt-2">{t('errorLoadingAdminDataMessage')}</p>
       </div>
     )
   }
@@ -131,7 +162,7 @@ const AdminSettings: React.FC = () => {
   return (
     <div className="w-full">
       <h2 className="mb-4 text-xl font-semibold text-gray-900 dark:text-white">
-        Admin Panel
+        {t('adminPanel')}
       </h2>
 
       {/* Admin Tabs */}
@@ -139,7 +170,7 @@ const AdminSettings: React.FC = () => {
         <ul className="-mb-px flex flex-wrap">
           <li className="mr-2">
             <button
-              aria-label="Users"
+              aria-label={t('users')}
               onClick={() => setActiveAdminTab('users')}
               className={`inline-flex items-center px-4 py-2 text-sm font-medium ${
                 activeAdminTab === 'users'
@@ -148,12 +179,12 @@ const AdminSettings: React.FC = () => {
               }`}
             >
               <FaUsers className="mr-2" />
-              User Management
+              {t('userManagement')}
             </button>
           </li>
           <li className="mr-2">
             <button
-              aria-label="Stats"
+              aria-label={t('stats')}
               onClick={() => setActiveAdminTab('stats')}
               className={`inline-flex items-center px-4 py-2 text-sm font-medium ${
                 activeAdminTab === 'stats'
@@ -162,7 +193,7 @@ const AdminSettings: React.FC = () => {
               }`}
             >
               <FaChartBar className="mr-2" />
-              System Stats
+              {t('systemStats')}
             </button>
           </li>
         </ul>
@@ -174,7 +205,7 @@ const AdminSettings: React.FC = () => {
         {activeAdminTab === 'users' && (
           <div className="w-full">
             <h3 className="mb-4 text-lg font-medium text-gray-900 dark:text-white">
-              User Management
+              {t('userManagement')}
             </h3>
 
             {isLoadingUsers ? (
@@ -187,11 +218,15 @@ const AdminSettings: React.FC = () => {
                   <table className="w-full border-collapse text-left">
                     <thead>
                       <tr className="border-b border-gray-200 dark:border-gray-700">
-                        <th className="px-4 py-3 font-medium">Name</th>
-                        <th className="px-4 py-3 font-medium">Email</th>
-                        <th className="px-4 py-3 font-medium">Provider</th>
-                        <th className="px-4 py-3 font-medium">Status</th>
-                        <th className="px-4 py-3 font-medium">Actions</th>
+                        <th className="px-4 py-3 font-medium">{t('name')}</th>
+                        <th className="px-4 py-3 font-medium">{t('email')}</th>
+                        <th className="px-4 py-3 font-medium">
+                          {t('provider')}
+                        </th>
+                        <th className="px-4 py-3 font-medium">{t('status')}</th>
+                        <th className="px-4 py-3 font-medium">
+                          {t('actions')}
+                        </th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
@@ -203,38 +238,38 @@ const AdminSettings: React.FC = () => {
                           <td className="px-4 py-3 font-medium">{user.name}</td>
                           <td className="px-4 py-3">{user.email}</td>
                           <td className="px-4 py-3 capitalize">
-                            {user.provider || 'Email'}
+                            {user.provider || t('email')}
                           </td>
                           <td className="px-4 py-3">
                             {user.is_admin ? (
                               <span className="rounded-full bg-purple-100 px-2 py-1 text-xs font-medium text-purple-800 dark:bg-purple-900/30 dark:text-purple-300">
-                                Admin
+                                {t('admin')}
                               </span>
                             ) : (
                               <span className="rounded-full bg-gray-100 px-2 py-1 text-xs font-medium text-gray-800 dark:bg-gray-700 dark:text-gray-300">
-                                User
+                                {t('user')}
                               </span>
                             )}
                           </td>
                           <td className="px-4 py-3">
                             <div className="flex space-x-2">
                               <button
-                                aria-label="Edit User"
+                                aria-label={t('editUser')}
                                 onClick={() => handleToggleAdminStatus(user)}
                                 className="rounded p-1 text-blue-600 hover:bg-blue-100 dark:text-blue-400 dark:hover:bg-blue-900/30"
                                 title={
                                   user.is_admin
-                                    ? 'Remove admin privileges'
-                                    : 'Grant admin privileges'
+                                    ? t('removeAdminPrivileges')
+                                    : t('grantAdminPrivileges')
                                 }
                               >
                                 <FaUserShield />
                               </button>
                               <button
-                                aria-label="Delete User"
+                                aria-label={t('deleteUser')}
                                 onClick={() => handleDeleteUser(user)}
                                 className="rounded p-1 text-red-600 hover:bg-red-100 dark:text-red-400 dark:hover:bg-red-900/30"
-                                title="Delete user"
+                                title={t('deleteUser')}
                               >
                                 <FaUserSlash />
                               </button>
@@ -247,7 +282,7 @@ const AdminSettings: React.FC = () => {
 
                   {users.length === 0 && (
                     <div className="py-8 text-center text-gray-500 dark:text-gray-400">
-                      No users found
+                      {t('noUsersFound')}
                     </div>
                   )}
                 </div>
@@ -260,7 +295,7 @@ const AdminSettings: React.FC = () => {
         {activeAdminTab === 'stats' && (
           <div className="w-full">
             <h3 className="mb-4 text-lg font-medium text-gray-900 dark:text-white">
-              System Statistics
+              {t('systemStatistics')}
             </h3>
 
             {isLoadingStats ? (
@@ -276,7 +311,7 @@ const AdminSettings: React.FC = () => {
                     </div>
                     <div className="ml-4">
                       <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                        Total Users
+                        {t('totalUsers')}
                       </h4>
                       <p className="text-2xl font-bold text-gray-900 dark:text-white">
                         {systemStats?.totalUsers || 0}
@@ -292,7 +327,7 @@ const AdminSettings: React.FC = () => {
                     </div>
                     <div className="ml-4">
                       <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                        Total Tasks
+                        {t('totalTasks')}
                       </h4>
                       <p className="text-2xl font-bold text-gray-900 dark:text-white">
                         {systemStats?.totalTasks || 0}
@@ -308,7 +343,7 @@ const AdminSettings: React.FC = () => {
                     </div>
                     <div className="ml-4">
                       <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                        Admin Users
+                        {t('adminUsers')}
                       </h4>
                       <p className="text-2xl font-bold text-gray-900 dark:text-white">
                         {users.filter((user: User) => user.is_admin).length ||
@@ -322,6 +357,19 @@ const AdminSettings: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* Confirmation Dialog */}
+      <ConfirmationDialog
+        isOpen={dialogState.isOpen}
+        onClose={closeConfirmDialog}
+        onConfirm={dialogState.onConfirm}
+        title={dialogState.title}
+        description={dialogState.description}
+        confirmText={dialogState.confirmText}
+        cancelText={dialogState.cancelText}
+        variant={dialogState.variant}
+        isLoading={dialogState.isLoading}
+      />
     </div>
   )
 }

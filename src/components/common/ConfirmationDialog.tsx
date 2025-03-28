@@ -9,6 +9,7 @@ import {
   DialogDescription,
   DialogFooter,
 } from '@/components/common/Dialog'
+import { useTranslations } from 'next-intl'
 
 type DialogVariant = 'danger' | 'warning' | 'info' | 'primary'
 
@@ -25,6 +26,8 @@ interface ConfirmationDialogProps {
 }
 
 export function useConfirmationDialog() {
+  const t = useTranslations('Common.dialog')
+
   const [dialogState, setDialogState] = useState<{
     isOpen: boolean
     title: string
@@ -40,8 +43,8 @@ export function useConfirmationDialog() {
     description: '',
     onConfirm: () => {},
     variant: 'info',
-    confirmText: 'Confirm',
-    cancelText: 'Cancel',
+    confirmText: t('buttons.confirm'),
+    cancelText: t('buttons.cancel'),
     isLoading: false,
   })
 
@@ -50,8 +53,8 @@ export function useConfirmationDialog() {
     description,
     onConfirm,
     variant = 'info',
-    confirmText = 'Confirm',
-    cancelText = 'Cancel',
+    confirmText = t('buttons.confirm'),
+    cancelText = t('buttons.cancel'),
     isLoading = false,
   }: Omit<ConfirmationDialogProps, 'isOpen' | 'onClose'>) => {
     setDialogState({
@@ -88,14 +91,19 @@ export default function ConfirmationDialog({
   onConfirm,
   title,
   description,
-  confirmText = 'Confirm',
-  cancelText = 'Cancel',
+  confirmText,
+  cancelText,
   variant = 'info',
   isLoading = false,
 }: ConfirmationDialogProps) {
+  const t = useTranslations('Common.dialog')
+
+  const defaultConfirmText = t('buttons.confirm')
+  const defaultCancelText = t('buttons.cancel')
+  const processingText = t('buttons.processing')
+
   const getConfirmButtonClasses = () => {
     const baseClasses = 'py-2 px-4 rounded-md font-medium text-white'
-
     switch (variant) {
       case 'danger':
         return `${baseClasses} bg-red-600 hover:bg-red-700`
@@ -130,20 +138,20 @@ export default function ConfirmationDialog({
         </DialogHeader>
         <DialogFooter>
           <button
-            aria-label="Cancel"
+            aria-label={cancelText || defaultCancelText}
             onClick={handleCancel}
             className="mt-3 inline-flex w-full justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-base font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none sm:mt-0 sm:w-auto dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600"
             disabled={isLoading}
           >
-            {cancelText}
+            {cancelText || defaultCancelText}
           </button>
           <button
-            aria-label="Confirm"
+            aria-label={confirmText || defaultConfirmText}
             onClick={handleConfirm}
             className={getConfirmButtonClasses()}
             disabled={isLoading}
           >
-            {isLoading ? 'Processing...' : confirmText}
+            {isLoading ? processingText : confirmText || defaultConfirmText}
           </button>
         </DialogFooter>
       </DialogContent>

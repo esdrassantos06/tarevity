@@ -1,13 +1,28 @@
-import { Metadata } from 'next'
 import NotFoundComponent from '@/components/not-found/NotFoundComponent'
+import { Metadata, ResolvingMetadata } from 'next'
+import { getTranslations } from 'next-intl/server'
 
-export const metadata: Metadata = {
-  title: 'Page Not Found | Tarevity',
-  description:
-    "The page you are looking for could not be found. Navigate back to Tarevity's main sections.",
-  robots: 'noindex, nofollow',
+type Params = Promise<{ locale: string }>
+
+export async function generateMetadata(
+  { params }: { params: Params },
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  parent: ResolvingMetadata,
+): Promise<Metadata> {
+  const resolvedParams = await params
+
+  const t = await getTranslations({
+    locale: resolvedParams.locale,
+    namespace: 'NotFoundPage.metadata',
+  })
+
+  return {
+    title: t('title'),
+    description: t('description'),
+    robots: 'noindex, nofollow',
+  }
 }
 
-export default function NotFound() {
+export default async function NotFound() {
   return <NotFoundComponent />
 }

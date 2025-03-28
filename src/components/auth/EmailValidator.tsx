@@ -88,9 +88,7 @@ export default function EmailValidator({
     const domain = email.split('@')[1]?.toLowerCase()
     if (domain && commonTypos[domain as keyof typeof commonTypos]) {
       const suggestion = commonTypos[domain as keyof typeof commonTypos]
-      newErrors.push(
-        t('errors.typo').replace('{{suggestion}}', suggestion)
-      )
+      newErrors.push(t('errors.typo').replace('{{suggestion}}', suggestion))
     }
 
     const isValidEmail = newErrors.length === 0

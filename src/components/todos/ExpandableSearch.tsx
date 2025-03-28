@@ -2,6 +2,7 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { FaSearch } from 'react-icons/fa'
 import { FaXmark } from 'react-icons/fa6'
+import { useTranslations } from 'next-intl'
 
 interface ExpandableSearchProps {
   value: string
@@ -12,6 +13,7 @@ const ExpandableSearch: React.FC<ExpandableSearchProps> = ({
   value,
   onChange,
 }) => {
+  const t = useTranslations('search')
   const [isExpanded, setIsExpanded] = useState(false)
   const searchRef = useRef<HTMLDivElement>(null)
   const [isMobile, setIsMobile] = useState(false)
@@ -20,7 +22,6 @@ const ExpandableSearch: React.FC<ExpandableSearchProps> = ({
     const handleResize = () => {
       setIsMobile(window.innerWidth < 640)
     }
-
     handleResize()
     window.addEventListener('resize', handleResize)
     return () => window.removeEventListener('resize', handleResize)
@@ -35,7 +36,6 @@ const ExpandableSearch: React.FC<ExpandableSearchProps> = ({
         setIsExpanded(false)
       }
     }
-
     document.addEventListener('mousedown', handleClickOutside)
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [value])
@@ -48,7 +48,6 @@ const ExpandableSearch: React.FC<ExpandableSearchProps> = ({
     const emptyEvent = {
       target: { value: '' },
     } as React.ChangeEvent<HTMLInputElement>
-
     onChange(emptyEvent)
     setIsExpanded(false)
   }
@@ -61,17 +60,16 @@ const ExpandableSearch: React.FC<ExpandableSearchProps> = ({
         <div className="relative grid size-9 place-items-center">
           <button
             onClick={toggleSearch}
-            aria-label={isExpanded ? 'Close search' : 'Expand search'}
+            aria-label={isExpanded ? t('closeSearch') : t('expandSearch')}
             type="button"
           >
             <FaSearch className="text-gray-400" />
           </button>
         </div>
-
         <div className="overflow-hidden transition-all duration-300">
           <input
             type="text"
-            placeholder="Search..."
+            placeholder={t('searchPlaceholder')}
             className="h-10 w-full bg-transparent py-2 outline-none dark:text-white"
             value={value}
             onChange={onChange}
@@ -79,7 +77,6 @@ const ExpandableSearch: React.FC<ExpandableSearchProps> = ({
             autoFocus={isExpanded || isMobile}
           />
         </div>
-
         {!isMobile && (
           <div
             className={`transition-all duration-300 ${isExpanded ? 'w-8 opacity-100' : 'w-0 opacity-0'} `}
@@ -87,7 +84,7 @@ const ExpandableSearch: React.FC<ExpandableSearchProps> = ({
             <button
               onClick={clearSearch}
               className="flex h-10 w-8 items-center justify-center text-gray-400 hover:text-gray-600"
-              aria-label="Close search"
+              aria-label={t('closeSearch')}
               type="button"
               tabIndex={isExpanded ? 0 : -1}
             >

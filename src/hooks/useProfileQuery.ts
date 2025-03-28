@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { profileAPI } from '@/lib/api'
 import { showSuccess, showError } from '@/lib/toast'
 import { useSession } from 'next-auth/react'
+import { useTranslations } from 'next-intl'
 
 interface QueryOptions {
   enabled?: boolean
@@ -9,6 +10,7 @@ interface QueryOptions {
 }
 
 export function useProfileQuery(options: QueryOptions = {}) {
+  const t = useTranslations('profileQuery')
   const { status } = useSession()
   const isAuthenticated = status === 'authenticated'
 
@@ -28,7 +30,7 @@ export function useProfileQuery(options: QueryOptions = {}) {
 
         if (isProtectedRoute) {
           showError(
-            error instanceof Error ? error.message : 'Failed to load profile',
+            error instanceof Error ? error.message : t('failedToLoadProfile'),
           )
         }
         throw error
@@ -43,6 +45,7 @@ export function useProfileQuery(options: QueryOptions = {}) {
 }
 
 export function useStatsQuery(options: QueryOptions = {}) {
+  const t = useTranslations('profileQuery')
   const { status } = useSession()
   const isAuthenticated = status === 'authenticated'
 
@@ -64,7 +67,7 @@ export function useStatsQuery(options: QueryOptions = {}) {
           showError(
             error instanceof Error
               ? error.message
-              : 'Failed to load statistics',
+              : t('failedToLoadStatistics'),
           )
         }
         throw error
@@ -79,6 +82,7 @@ export function useStatsQuery(options: QueryOptions = {}) {
 }
 
 export function useUpdateProfileMutation() {
+  const t = useTranslations('profileQuery')
   const queryClient = useQueryClient()
 
   return useMutation({
@@ -89,23 +93,26 @@ export function useUpdateProfileMutation() {
       queryClient.invalidateQueries({ queryKey: ['profile'] })
     },
     onError: (error: Error) => {
-      showError('Failed to update profile: ' + error.message)
-      console.error('Error updating profile:', error)
+      showError(t('failedToUpdateProfile', { message: error.message }))
+      console.error(t('errorUpdatingProfile'), error)
     },
   })
 }
 
 export function useUploadImageMutation() {
+  const t = useTranslations('profileQuery')
+
   return useMutation({
     mutationFn: (file: File) => profileAPI.uploadProfileImage(file),
     onError: (error: Error) => {
-      showError('Failed to upload image: ' + error.message)
-      console.error('Error uploading image:', error)
+      showError(t('failedToUploadImage', { message: error.message }))
+      console.error(t('errorUploadingImage'), error)
     },
   })
 }
 
 export function useDeleteProfileImageMutation() {
+  const t = useTranslations('profileQuery')
   const queryClient = useQueryClient()
 
   return useMutation({
@@ -114,24 +121,25 @@ export function useDeleteProfileImageMutation() {
       queryClient.invalidateQueries({ queryKey: ['profile'] })
     },
     onError: (error: Error) => {
-      showError('Failed to remove profile image: ' + error.message)
-      console.error('Error deleting profile image:', error)
+      showError(t('failedToRemoveProfileImage', { message: error.message }))
+      console.error(t('errorDeletingProfileImage'), error)
     },
   })
 }
 
 export function useDeleteAccountMutation() {
+  const t = useTranslations('profileQuery')
   const queryClient = useQueryClient()
 
   return useMutation({
     mutationFn: () => profileAPI.deleteAccount(),
     onSuccess: () => {
       queryClient.clear()
-      showSuccess('Your account has been successfully deleted')
+      showSuccess(t('accountSuccessfullyDeleted'))
     },
     onError: (error: Error) => {
-      showError('Failed to delete account: ' + error.message)
-      console.error('Error deleting account:', error)
+      showError(t('failedToDeleteAccount', { message: error.message }))
+      console.error(t('errorDeletingAccount'), error)
     },
   })
 }

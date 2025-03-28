@@ -1,11 +1,15 @@
 import { compare, hash } from 'bcryptjs'
 import { supabase } from './supabase'
+import { useTranslations } from 'next-intl'
 
 export async function hashPassword(password: string): Promise<string> {
   return await hash(password, 12)
 }
 
-export function validatePasswordStrength(password: string): {
+export function validatePasswordStrength(
+  password: string,
+  getTranslation: (key: string) => string,
+): {
   isValid: boolean
   errors: string[]
   score: number
@@ -15,7 +19,7 @@ export function validatePasswordStrength(password: string): {
 
   if (password.length >= 8) score += 10
   if (password.length >= 12) score += 10
-  if (password.length < 8) errors.push('Password must be at least 8 characters')
+  if (password.length < 8) errors.push(getTranslation('passwordMinLength'))
 
   const hasUppercase = /[A-Z]/.test(password)
   const hasLowercase = /[a-z]/.test(password)
@@ -27,10 +31,10 @@ export function validatePasswordStrength(password: string): {
   if (hasDigit) score += 10
   if (hasSpecial) score += 20
 
-  if (!hasUppercase) errors.push('Password must contain uppercase letters')
-  if (!hasLowercase) errors.push('Password must contain lowercase letters')
-  if (!hasDigit) errors.push('Password must contain numeric digits')
-  if (!hasSpecial) errors.push('Password must contain special characters')
+  if (!hasUppercase) errors.push(getTranslation('passwordRequiresUppercase'))
+  if (!hasLowercase) errors.push(getTranslation('passwordRequiresLowercase'))
+  if (!hasDigit) errors.push(getTranslation('passwordRequiresDigit'))
+  if (!hasSpecial) errors.push(getTranslation('passwordRequiresSpecial'))
 
   const hasRepeatingChars = /(.)\1{2,}/.test(password)
   const hasSequentialChars =
@@ -40,19 +44,16 @@ export function validatePasswordStrength(password: string): {
 
   if (hasRepeatingChars) {
     score -= 10
-    errors.push("Password shouldn't contain repeating characters (e.g., 'aaa')")
+    errors.push(getTranslation('passwordNoRepeatingChars'))
   }
 
   if (hasSequentialChars) {
     score -= 10
-    errors.push(
-      "Password shouldn't contain sequential characters (e.g., 'abc', '123')",
-    )
+    errors.push(getTranslation('passwordNoSequentialChars'))
   }
 
   const uniqueChars = new Set(password).size
   score += Math.min(20, uniqueChars * 2)
-
   score = Math.max(0, Math.min(100, score))
 
   return {
@@ -71,7 +72,6 @@ export async function verifyPassword(
 
 export async function emailExists(email: string): Promise<boolean> {
   const normalizedEmail = email.toLowerCase().trim()
-
   const { data, error } = await supabase
     .from('users')
     .select('id')
@@ -79,7 +79,7 @@ export async function emailExists(email: string): Promise<boolean> {
     .single()
 
   if (error && error.code !== 'PGRST116') {
-    console.error('Error checking if email exists:', error)
+    console.error('auth.errorCheckingEmailExists', error)
     return false
   }
 
@@ -104,9 +104,9 @@ export async function createUser(
   name: string,
   email: string,
   password: string,
+  getTranslation: (key: string) => string,
 ) {
   const normalizedEmail = email.toLowerCase().trim()
-
   const hashedPassword = await hashPassword(password)
 
   const { data, error } = await supabase
@@ -124,10 +124,28 @@ export async function createUser(
 
   if (error) {
     if (error.code === '23505') {
-      throw new Error('Email already registered')
+      throw new Error(getTranslation('emailAlreadyRegistered'))
     }
     throw new Error(error.message)
   }
 
   return data
+}
+
+// Componente helper para usar em arquivos React
+export function usePasswordValidator() {
+  const t = useTranslations('authLib')
+
+  return (password: string) => {
+    return validatePasswordStrength(password, (key) => t(key))
+  }
+}
+
+// Componente helper para criar usuário em arquivos React
+export function useCreateUserWithTranslations() {
+  const t = useTranslations('authLib')
+
+  return (name: string, email: string, password: string) => {
+    return createUser(name, email, password, (key) => t(key))
+  }
 }

@@ -1,13 +1,28 @@
 import { Suspense } from 'react'
-import { Metadata } from 'next'
+import { Metadata, ResolvingMetadata } from 'next'
+import { getTranslations } from 'next-intl/server'
 import Layout from '@/components/layout/Layout'
 import NewTodoPage from '@/components/todos/NewTodoPage'
 
-export const metadata: Metadata = {
-  title: 'Create New Task | Tarevity',
-  description:
-    'Create a new task, add details, set priority level, and schedule due dates.',
-  robots: 'noindex, nofollow',
+type Params = Promise<{ locale: string }>
+
+export async function generateMetadata(
+  { params }: { params: Params },
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  parent: ResolvingMetadata,
+): Promise<Metadata> {
+  const resolvedParams = await params
+
+  const t = await getTranslations({
+    locale: resolvedParams.locale,
+    namespace: 'NewTodoPAGE.metadata',
+  })
+
+  return {
+    title: t('title'),
+    description: t('description'),
+    robots: 'noindex, nofollow',
+  }
 }
 
 export default function NewTodoPageRoute() {

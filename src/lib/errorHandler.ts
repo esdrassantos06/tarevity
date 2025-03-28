@@ -1,3 +1,6 @@
+import { NextRequest, NextResponse } from 'next/server'
+import { getTranslations } from 'next-intl/server'
+
 export interface SafeError {
   message: string
   code: string
@@ -9,9 +12,11 @@ export interface SafeError {
  * @param error The raw error that occurred
  * @returns A safe error object with sanitized message
  */
-export function sanitizeError(error: unknown): SafeError {
+export async function sanitizeError(error: unknown): Promise<SafeError> {
+  const t = await getTranslations('ErrorMessages')
+
   if (error instanceof Error) {
-    const sanitizedMessage = getSafeErrorMessage(error.message)
+    const sanitizedMessage = await getSafeErrorMessage(error.message)
 
     return {
       message: sanitizedMessage,
@@ -32,8 +37,14 @@ export function sanitizeError(error: unknown): SafeError {
       const code =
         typeof errorObj.code === 'string' ? errorObj.code : 'UNKNOWN_ERROR'
 
+      // Use translated message if status is known, fallback to original
+      const translatedMessage =
+        status && t(status.toString())
+          ? t(status.toString())
+          : await getSafeErrorMessage(message)
+
       return {
-        message: getSafeErrorMessage(message),
+        message: translatedMessage,
         code,
         status,
       }
@@ -52,7 +63,7 @@ export function sanitizeError(error: unknown): SafeError {
  * @param message The original error message
  * @returns A sanitized version of the message
  */
-function getSafeErrorMessage(message: string): string {
+async function getSafeErrorMessage(message: string): Promise<string> {
   const sensitiveTerms = [
     'password',
     'token',
@@ -71,32 +82,16 @@ function getSafeErrorMessage(message: string): string {
   ]
 
   if (sensitiveTerms.some((term) => message.toLowerCase().includes(term))) {
-    return 'An error occurred while processing your request'
+    const t = await getTranslations('ErrorMessages')
+    return t('500') // Default to generic internal error message
   }
 
   return message
-}
-export const safeErrorMessages: Record<number, string> = {
-  400: 'The request was invalid or cannot be fulfilled',
-  401: 'Authentication is required to access this resource',
-  403: 'You do not have permission to access this resource',
-  404: 'The requested resource was not found',
-  408: 'The request timed out. Please try again',
-  409: 'A conflict occurred with your request',
-  413: 'The uploaded file is too large',
-  422: 'Validation failed for the submitted data',
-  429: 'Too many requests. Please try again later',
-  500: 'An internal server error occurred',
-  502: 'Bad gateway error. Please try again later',
-  503: 'The service is temporarily unavailable',
-  504: 'Gateway timeout. Please try again later',
 }
 
 /**
  * Middleware to handle errors in API routes
  */
-import { NextRequest, NextResponse } from 'next/server'
-
 export async function errorHandlerMiddleware(
   req: NextRequest,
   next: () => Promise<NextResponse>,
@@ -110,7 +105,7 @@ export async function errorHandlerMiddleware(
       error,
     })
 
-    const safeError = sanitizeError(error)
+    const safeError = await sanitizeError(error)
 
     const response = NextResponse.json(
       {
@@ -150,7 +145,7 @@ export function withErrorHandling(
         error,
       })
 
-      const safeError = sanitizeError(error)
+      const safeError = await sanitizeError(error)
 
       return NextResponse.json(
         {
@@ -178,13 +173,13 @@ export function withErrorHandling(
  * @param code Error code identifier
  * @returns Standardized error object
  */
-export function createError(
+export async function createError(
   message: string,
   status = 500,
   code = 'INTERNAL_ERROR',
-): SafeError {
+): Promise<SafeError> {
   return {
-    message: getSafeErrorMessage(message),
+    message: await getSafeErrorMessage(message),
     code,
     status,
   }

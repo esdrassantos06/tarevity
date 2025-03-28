@@ -1,20 +1,34 @@
 import { Suspense, use } from 'react'
-import { Metadata } from 'next'
+import { Metadata, ResolvingMetadata } from 'next'
+import { getTranslations } from 'next-intl/server'
 import Layout from '@/components/layout/Layout'
 import TodoDetailPage from '@/components/todos/TodoDetailPage'
-
-export const metadata: Metadata = {
-  title: 'Task Details | Tarevity',
-  description:
-    'View task details, update status, edit information, or share with team members.',
-  robots: 'noindex, nofollow',
-}
 
 interface PageParams {
   params: Promise<{
     id: string
+    locale: string
   }>
   searchParams?: Promise<Record<string, string | string[]>>
+}
+
+export async function generateMetadata(
+  { params }: { params: Promise<{ locale: string; id: string }> },
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  parent: ResolvingMetadata,
+): Promise<Metadata> {
+  const resolvedParams = await params
+
+  const t = await getTranslations({
+    locale: resolvedParams.locale,
+    namespace: 'TodoDetailPage.metadata',
+  })
+
+  return {
+    title: t('title'),
+    description: t('description'),
+    robots: 'noindex, nofollow',
+  }
 }
 
 export default function TodoDetailPageRoute(props: PageParams) {

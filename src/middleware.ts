@@ -13,22 +13,23 @@ export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname
   const method = request.method
 
-  // Skip middleware for specific paths that should be handled by next-intl only
   if (
     pathname.startsWith('/_next') ||
     pathname.startsWith('/_vercel') ||
     pathname.startsWith('/trpc') ||
-    pathname.match(/\.(.*)$/) // Files with extensions
+    pathname.match(/\.(.*)$/)
   ) {
     return intlMiddleware(request)
   }
 
-  // CSRF protection for non-GET methods on API routes
   if (
     !['GET', 'HEAD', 'OPTIONS'].includes(method) &&
     pathname.startsWith('/api/')
   ) {
-    if (!pathname.startsWith('/api/auth/callback')) {
+    if (
+      !pathname.startsWith('/api/auth/callback') &&
+      !pathname.startsWith('/api/notifications')
+    ) {
       const csrfResult = await csrfProtection(request)
       if (csrfResult instanceof NextResponse) {
         return csrfResult
@@ -36,8 +37,7 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // Public paths that bypass authentication
-  const publicPaths = ['/', '/privacy', '/terms', '/auth/error']
+  const publicPaths = ['/', '/privacy', '/terms']
   if (
     publicPaths.includes(pathname) ||
     pathname.match(/\.(ico|png|jpg|jpeg|svg|css|js)$/)
@@ -45,7 +45,6 @@ export async function middleware(request: NextRequest) {
     const response = NextResponse.next()
     addSecurityHeaders(response, request)
 
-    // Apply security headers first, then handle with intl middleware
     const securedResponse = response
     addSecurityHeaders(securedResponse, request)
     return intlMiddleware(request)
@@ -100,7 +99,6 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // Special handling for auth callback routes
   if (
     pathname.startsWith('/api/auth/callback') ||
     pathname.includes('/api/auth/callback/')
@@ -108,7 +106,6 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
-  // Redirect loop prevention
   const redirectCount = parseInt(
     request.headers.get('x-redirect-count') || '0',
     10,
@@ -122,7 +119,6 @@ export async function middleware(request: NextRequest) {
   const response = NextResponse.next()
   addSecurityHeaders(response, request)
 
-  // Handle API routes
   if (pathname.startsWith('/api/')) {
     const token = await getToken({
       req: request,
@@ -159,7 +155,6 @@ export async function middleware(request: NextRequest) {
     return response
   }
 
-  // Authentication check
   const token = await getToken({
     req: request,
     secureCookie: process.env.NODE_ENV === 'production',
@@ -200,8 +195,6 @@ export async function middleware(request: NextRequest) {
     redirectResponse.headers.set('Cache-Control', 'no-store, max-age=0')
     addSecurityHeaders(redirectResponse, request)
 
-    // We need to return the redirect response after security headers
-    // For redirects, we don't run the intl middleware as it would change the response type
     return redirectResponse
   }
 
@@ -220,15 +213,11 @@ export async function middleware(request: NextRequest) {
     redirectResponse.headers.set('Cache-Control', 'no-store, max-age=0')
     addSecurityHeaders(redirectResponse, request)
 
-    // We need to return the redirect response after security headers
-    // For redirects, we don't run the intl middleware as it would change the response type
     return redirectResponse
   }
 
-  // For all other cases, apply security headers first
   addSecurityHeaders(response, request)
 
-  // Then run the internationalization middleware
   return intlMiddleware(request)
 }
 
@@ -293,10 +282,8 @@ function addSecurityHeaders(response: NextResponse, request: NextRequest) {
   }
 }
 
-// Combine both matchers: your original matchers and the next-intl matchers
 export const config = {
   matcher: [
-    // Original security middleware paths
     '/dashboard/:path*',
     '/settings/:path*',
     '/profile/:path*',
@@ -306,6 +293,7 @@ export const config = {
     '/',
     '/privacy',
     '/terms',
+    '/404',
     // next-intl matcher (excluding some paths)
     '/((?!api|trpc|_next|_vercel|.*\\..*).*)',
   ],

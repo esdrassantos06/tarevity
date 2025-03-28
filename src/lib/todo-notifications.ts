@@ -1,5 +1,6 @@
 import { notificationsService } from './notifications'
 import { formatDistanceToNow } from 'date-fns'
+import { getTranslations } from 'next-intl/server'
 
 export interface Todo {
   id: string
@@ -19,6 +20,8 @@ export async function handleTodoNotifications(
   todo: Todo,
   previousTodo?: Todo,
 ) {
+  const t = await getTranslations('TodoNotifications')
+
   if (todo.is_completed) {
     await notificationsService.dismissTodoNotifications(userId, todo.id)
     return
@@ -42,29 +45,30 @@ export async function handleTodoNotifications(
     })
 
     const dueDate = new Date(todo.due_date)
+    const timeAgo = formatDistanceToNow(dueDate, { addSuffix: true })
 
     const notifications = [
       {
         todo_id: todo.id,
         notification_type: 'danger' as const,
-        title: 'Overdue Task',
-        message: `"${todo.title}" is due ${formatDistanceToNow(dueDate, { addSuffix: true })}`,
+        title: t('overdueTitle'),
+        message: t('overdueMessage', { title: todo.title, timeAgo }),
         due_date: todo.due_date,
         origin_id: `danger-${todo.id}`,
       },
       {
         todo_id: todo.id,
         notification_type: 'warning' as const,
-        title: 'Due Soon',
-        message: `"${todo.title}" is due ${formatDistanceToNow(dueDate, { addSuffix: true })}`,
+        title: t('dueSoonTitle'),
+        message: t('dueSoonMessage', { title: todo.title, timeAgo }),
         due_date: todo.due_date,
         origin_id: `warning-${todo.id}`,
       },
       {
         todo_id: todo.id,
         notification_type: 'info' as const,
-        title: 'Upcoming Deadline',
-        message: `"${todo.title}" is due ${formatDistanceToNow(dueDate, { addSuffix: true })}`,
+        title: t('upcomingTitle'),
+        message: t('upcomingMessage', { title: todo.title, timeAgo }),
         due_date: todo.due_date,
         origin_id: `info-${todo.id}`,
       },

@@ -1,4 +1,5 @@
 import React, { memo } from 'react'
+import { useTranslations } from 'next-intl'
 
 interface TodoStatsProps {
   stats: {
@@ -18,12 +19,14 @@ interface TodoStatsProps {
 
 const TodoStats = memo(
   function TodoStats({ stats, pieSegments }: TodoStatsProps) {
+    const t = useTranslations('todoStats')
+
     return (
       <div className="mb-6 grid grid-cols-1 gap-6 md:grid-cols-3">
         <div className="rounded-lg p-4">
           <div className="mb-4 flex items-center justify-between">
             <h2 className="text-lg font-semibold" id="stats-heading">
-              {stats.total} Tasks
+              {t('tasksCount', { count: stats.total })}
             </h2>
           </div>
 
@@ -92,7 +95,7 @@ const TodoStats = memo(
                     className="mr-2 size-3 rounded-full bg-blue-600"
                     aria-hidden="true"
                   ></div>
-                  <span className="text-sm">Active</span>
+                  <span className="text-sm">{t('active')}</span>
                   <span className="ml-2 text-sm font-medium">
                     {stats.active}
                   </span>
@@ -102,7 +105,7 @@ const TodoStats = memo(
                     className="mr-2 size-3 rounded-full bg-green-500"
                     aria-hidden="true"
                   ></div>
-                  <span className="text-sm">Completed</span>
+                  <span className="text-sm">{t('completed')}</span>
                   <span className="ml-2 text-sm font-medium">
                     {stats.completed}
                   </span>
@@ -112,7 +115,7 @@ const TodoStats = memo(
                     className="mr-2 size-3 rounded-full bg-amber-500"
                     aria-hidden="true"
                   ></div>
-                  <span className="text-sm">Review</span>
+                  <span className="text-sm">{t('review')}</span>
                   <span className="ml-2 text-sm font-medium">
                     {stats.review}
                   </span>
@@ -122,7 +125,7 @@ const TodoStats = memo(
                     className="mr-2 size-3 rounded-full bg-gray-400"
                     aria-hidden="true"
                   ></div>
-                  <span className="text-sm">Total</span>
+                  <span className="text-sm">{t('total')}</span>
                   <span className="ml-2 text-sm font-medium">
                     {stats.total}
                   </span>

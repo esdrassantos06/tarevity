@@ -5,6 +5,7 @@ import Image from 'next/image'
 import { FaUser } from 'react-icons/fa'
 import { useProfileQuery } from '@/hooks/useProfileQuery'
 import { useSession } from 'next-auth/react'
+import { useTranslations } from 'next-intl'
 
 interface UserImageProps {
   className?: string
@@ -17,6 +18,8 @@ const UserImage: React.FC<UserImageProps> = ({
   size = 40,
   onClick,
 }) => {
+  const t = useTranslations('Common.profileImage')
+
   const { status } = useSession()
   const [imageKey] = useState(Date.now())
   const [imageError, setImageError] = useState(false)
@@ -79,7 +82,7 @@ const UserImage: React.FC<UserImageProps> = ({
     <Image
       title={profileData?.name}
       src={finalImageUrl}
-      alt={profileData?.name || 'Profile Picture'}
+      alt={profileData?.name || t('defaultAlt')}
       width={size}
       height={size}
       className={className}

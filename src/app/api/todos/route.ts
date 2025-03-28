@@ -102,8 +102,11 @@ export async function POST(req: NextRequest) {
         const notifications =
           notificationsService.generateTodoNotifications(data)
 
-        if (notifications.length > 0) {
-          await notificationsService.processNotifications(userId, notifications)
+        if ((await notifications).length > 0) {
+          await notificationsService.processNotifications(
+            userId,
+            await notifications,
+          )
         }
       } catch (notificationError) {
         console.error(

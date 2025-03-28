@@ -10,18 +10,17 @@ interface CalendarEventProps {
 }
 
 export default function CalendarEvent({ event }: CalendarEventProps) {
-
   const getDisplayTitle = (title: string): string => {
     if (title.length > 20) {
-      return title.substring(0, 20) + '...';
+      return title.substring(0, 20) + '...'
     }
-    return title;
-  };
+    return title
+  }
 
   return (
     <div
       className={cn(
-        'rounded truncate px-1 max-w-full py-0.5 text-xs text-white',
+        'max-w-full truncate rounded px-1 py-0.5 text-xs text-white',
         event.color,
       )}
       title={event.title}

@@ -1,6 +1,7 @@
 import { useMemo, useState, useEffect, useCallback } from 'react'
 import { parseISO } from 'date-fns'
 import { Todo } from '@/lib/api'
+import { useTranslations } from 'next-intl'
 
 export interface TodoFilters {
   activeTab: string
@@ -16,6 +17,7 @@ export function useTodoFilters(
   todos: Todo[],
   initialDueDate: string | null = null,
 ) {
+  const t = useTranslations('useTodoFilters')
   const [activeTab, setActiveTab] = useState('all')
   const [searchQuery, setSearchQuery] = useState('')
   const [prioritySortDirection, setPrioritySortDirection] = useState<
@@ -92,10 +94,10 @@ export function useTodoFilters(
         )
       })
     } catch (error) {
-      console.error('Error filtering by date:', error)
+      console.error(t('errorFilteringByDate'), error)
       return tabFilteredTodos
     }
-  }, [tabFilteredTodos, dueDateFilter])
+  }, [tabFilteredTodos, dueDateFilter, t])
 
   const searchFilteredTodos = useMemo(() => {
     if (!searchQuery) return dateFilteredTodos

@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useRef, useState } from 'react'
+import { useTranslations } from 'next-intl'
 import Image from 'next/image'
 import { FaUser, FaCamera, FaTrash } from 'react-icons/fa'
 import { useDeleteProfileImageMutation } from '@/hooks/useProfileQuery'
@@ -56,17 +57,18 @@ export default function ProfileImageManager({
 }: ProfileImageManagerProps) {
   void !!selectedImage
 
+  const t = useTranslations('profile.imageManager')
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [imageError, setImageError] = useState(false)
   const deleteProfileImageMutation = useDeleteProfileImageMutation()
 
-  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
 
     const validation = validateImageFile(file)
-    if (!validation.valid) {
-      toast.error(validation.error)
+    if (!(await validation).valid) {
+      toast.error((await validation).error)
       return
     }
 
@@ -105,7 +107,7 @@ export default function ProfileImageManager({
         }
         setImageError(false)
         refetchProfile()
-        toast.success('Profile image removed successfully')
+        toast.success(t('removeImageSuccessToast'))
       },
     })
 
@@ -123,13 +125,13 @@ export default function ProfileImageManager({
       {/* Delete button positioned outside of the avatar container */}
       {isEditing && profileImageUrl && !imageError && (
         <button
-          aria-label="Remove profile image"
+          aria-label={t('removeImageAriaLabel')}
           className="absolute right-3 bottom-3 z-50 flex translate-x-1/2 translate-y-1/2 items-center justify-center rounded-full border-2 border-white bg-red-500 p-1.5 text-white shadow-md hover:bg-red-600 dark:border-gray-800"
           onClick={(e) => {
             e.stopPropagation()
             openDeleteDialog(e)
           }}
-          title="Remove profile image"
+          title={t('removeImageTitle')}
           type="button"
         >
           <FaTrash className="size-4" />
@@ -147,7 +149,7 @@ export default function ProfileImageManager({
               >
                 <Image
                   src={previewUrl}
-                  alt="Preview"
+                  alt={t('previewAlt')}
                   width={96}
                   height={96}
                   className="size-full object-cover"
@@ -161,7 +163,7 @@ export default function ProfileImageManager({
               >
                 <Image
                   src={profileImageUrl}
-                  alt={profileData.name || 'Profile Picture'}
+                  alt={profileData.name || t('profilePictureAlt')}
                   width={96}
                   height={96}
                   className="size-full object-cover"
@@ -197,7 +199,7 @@ export default function ProfileImageManager({
         ) : profileImageUrl && !imageError ? (
           <Image
             src={profileImageUrl}
-            alt={profileData.name || 'Profile Picture'}
+            alt={profileData.name || t('profilePictureAlt')}
             width={96}
             height={96}
             className="size-full object-cover"

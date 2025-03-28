@@ -7,6 +7,7 @@ import {
   isTomorrow,
 } from 'date-fns'
 import { permanentlyDismissTodoNotifications } from './notification-updater'
+import { getTranslations } from 'next-intl/server'
 
 export interface Notification {
   id: string
@@ -195,15 +196,26 @@ export const notificationsService = {
   /**
    * Formats a more human-friendly message based on due date
    */
-  formatNotificationMessage(title: string, dueDate: Date): string {
+  async formatNotificationMessage(
+    title: string,
+    dueDate: Date,
+  ): Promise<string> {
+    const t = await getTranslations('NotificationPhrases')
+
     if (isPast(dueDate) && !isToday(dueDate)) {
-      return `"${title}" expired ${formatDistanceToNow(dueDate, { addSuffix: true })}`
+      return t('expiredSuffix', {
+        title: `"${title}"`,
+        timeAgo: formatDistanceToNow(dueDate, { addSuffix: true }),
+      })
     } else if (isToday(dueDate)) {
-      return `"${title}" expires today!`
+      return t('expiresTodaySuffix', { title: `"${title}"` })
     } else if (isTomorrow(dueDate)) {
-      return `"${title}" expires tomorrow`
+      return t('expiresTomorrowSuffix', { title: `"${title}"` })
     } else {
-      return `"${title}" expires ${formatDistanceToNow(dueDate, { addSuffix: true })}`
+      return t('expiresInSuffix', {
+        title: `"${title}"`,
+        timeAgo: formatDistanceToNow(dueDate, { addSuffix: true }),
+      })
     }
   },
 
@@ -235,18 +247,20 @@ export const notificationsService = {
   /**
    * Creates appropriate notification title based on due date
    */
-  getNotificationTitle(dueDate: Date): string {
+  async getNotificationTitle(dueDate: Date): Promise<string> {
+    const t = await getTranslations('NotificationTitles')
+
     if (isPast(dueDate) && !isToday(dueDate)) {
-      return 'Overdue Task'
+      return t('overdueTask')
     } else if (isToday(dueDate)) {
-      return 'Expires today'
+      return t('expirestoday')
     } else if (isTomorrow(dueDate)) {
-      return 'Expires tomorrow'
+      return t('expiresTomorrow')
     } else {
       const daysDiff = Math.ceil(
         (dueDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24),
       )
-      return daysDiff <= 2 ? 'Deadline Approaching' : 'Future Task'
+      return daysDiff <= 2 ? t('deadlineApproaching') : t('futureTask')
     }
   },
 
@@ -257,6 +271,7 @@ export const notificationsService = {
     userId: string,
     notifications: NotificationRequest[],
   ) {
+    const t = await getTranslations('NotificationErrors')
     const results = []
 
     for (const notification of notifications) {
@@ -268,7 +283,7 @@ export const notificationsService = {
       ) {
         results.push({
           status: 'error',
-          error: 'Missing required notification fields',
+          error: t('missingFields'),
         })
         continue
       }
@@ -278,14 +293,14 @@ export const notificationsService = {
       ) {
         results.push({
           status: 'error',
-          error: 'Invalid notification type',
+          error: t('invalidType'),
         })
         continue
       }
 
       try {
         // Check for do-not-recreate flags before creating new notifications
-        const { data: recentlyDismissed } = await supabaseAdmin
+        const recentlyDismissed = await supabaseAdmin
           .from('notifications')
           .select('origin_id')
           .eq('user_id', userId)
@@ -296,13 +311,13 @@ export const notificationsService = {
           .limit(1)
 
         // Skip if the user has explicitly dismissed this notification type
-        if (recentlyDismissed && recentlyDismissed.length > 0) {
-          // Check if this notification type was dismissed
-          const doNotRecreateType = recentlyDismissed[0].origin_id.split('-')[0]
+        if (recentlyDismissed.data && recentlyDismissed.data.length > 0) {
+          const doNotRecreateType =
+            recentlyDismissed.data[0].origin_id.split('-')[0]
           if (doNotRecreateType === notification.notification_type) {
             results.push({
               status: 'skipped',
-              message: 'User dismissed this notification type',
+              message: t('skippedDismissed'),
             })
             continue
           }
@@ -317,9 +332,7 @@ export const notificationsService = {
           .eq('notification_type', notification.notification_type)
           .eq('dismissed', false)
 
-        // Skip creation if already exists to prevent duplicates
         if (existing && existing.length > 0) {
-          // Update the existing notification instead of creating a new one
           const { data, error } = await supabaseAdmin
             .from('notifications')
             .update({
@@ -341,7 +354,7 @@ export const notificationsService = {
         if (!notification.due_date) {
           results.push({
             status: 'skipped',
-            message: 'Missing due date',
+            message: t('missingDueDate'),
           })
           continue
         }
@@ -353,7 +366,7 @@ export const notificationsService = {
           if (isNaN(dueDate.getTime())) {
             results.push({
               status: 'error',
-              error: 'Invalid due date format',
+              error: t('invalidDateFormat'),
             })
             continue
           }
@@ -361,14 +374,14 @@ export const notificationsService = {
           console.error('Error parsing due date:', error)
           results.push({
             status: 'error',
-            error: 'Error parsing due date',
+            error: t('errorParsingDate'),
           })
           continue
         }
 
         // Always update notification type based on current date
         const currentType = this.getNotificationTypeFromDueDate(dueDate)
-        const currentTitle = this.getNotificationTitle(dueDate)
+        const currentTitle = await this.getNotificationTitle(dueDate)
 
         // Format a fresh message with the latest date information
         let message = notification.message
@@ -380,7 +393,10 @@ export const notificationsService = {
           // Extract the task title from the message
           const titleMatch = notification.message.match(/"([^"]+)"/)
           if (titleMatch && titleMatch[1]) {
-            message = this.formatNotificationMessage(titleMatch[1], dueDate)
+            message = await this.formatNotificationMessage(
+              titleMatch[1],
+              dueDate,
+            )
           }
         }
 
@@ -428,7 +444,7 @@ export const notificationsService = {
   /**
    * Generate notifications for a todo
    */
-  generateTodoNotifications(todo: {
+  async generateTodoNotifications(todo: {
     id: string
     title: string
     due_date: string | null
@@ -447,8 +463,8 @@ export const notificationsService = {
       }
 
       const type = this.getNotificationTypeFromDueDate(dueDate)
-      const title = this.getNotificationTitle(dueDate)
-      const message = this.formatNotificationMessage(todo.title, dueDate)
+      const title = await this.getNotificationTitle(dueDate)
+      const message = await this.formatNotificationMessage(todo.title, dueDate)
 
       // Generate a single notification based on due date
       return [
@@ -481,13 +497,14 @@ export const notificationsService = {
 
       return { data, error }
     } catch (error) {
+      const t = await getTranslations('NotificationErrors')
       console.error('Error fetching notification:', error)
       return {
         data: null,
         error:
           error instanceof Error
             ? error
-            : new Error('Unknown error fetching notification'),
+            : new Error(t('errorFetchingNotification')),
       }
     }
   },

@@ -6,16 +6,14 @@ import { useTranslations } from 'next-intl'
 
 export default function PrivacyPolicyComponent() {
   const t = useTranslations('privacy')
-  
+
   return (
     <div className="mx-auto max-w-4xl px-6 py-8">
       <div className="mb-8 text-center">
         <h1 className="mb-4 text-3xl font-bold text-gray-900 md:text-4xl dark:text-white">
           {t('title')}
         </h1>
-        <p className="text-gray-600 dark:text-gray-400">
-          {t('lastUpdated')}
-        </p>
+        <p className="text-gray-600 dark:text-gray-400">{t('lastUpdated')}</p>
       </div>
 
       <div className="dark:bg-BlackLight mb-8 overflow-hidden rounded-lg bg-white shadow-md">
@@ -48,10 +46,16 @@ export default function PrivacyPolicyComponent() {
             {t('information.personalData.description')}
           </p>
           <ul className="mb-4 list-disc pl-6 text-gray-700 dark:text-gray-300">
-            <li className="mb-2">{t('information.personalData.items.email')}</li>
+            <li className="mb-2">
+              {t('information.personalData.items.email')}
+            </li>
             <li className="mb-2">{t('information.personalData.items.name')}</li>
-            <li className="mb-2">{t('information.personalData.items.picture')}</li>
-            <li className="mb-2">{t('information.personalData.items.usage')}</li>
+            <li className="mb-2">
+              {t('information.personalData.items.picture')}
+            </li>
+            <li className="mb-2">
+              {t('information.personalData.items.usage')}
+            </li>
           </ul>
 
           <h3 className="mt-6 mb-3 text-xl font-medium text-gray-800 dark:text-gray-200">
@@ -106,13 +110,16 @@ export default function PrivacyPolicyComponent() {
           </p>
           <ul className="mb-4 list-disc pl-6 text-gray-700 dark:text-gray-300">
             <li className="mb-2">
-              <strong>{t('cookies.items.session.title')}</strong> {t('cookies.items.session.description')}
+              <strong>{t('cookies.items.session.title')}</strong>{' '}
+              {t('cookies.items.session.description')}
             </li>
             <li className="mb-2">
-              <strong>{t('cookies.items.preference.title')}</strong> {t('cookies.items.preference.description')}
+              <strong>{t('cookies.items.preference.title')}</strong>{' '}
+              {t('cookies.items.preference.description')}
             </li>
             <li className="mb-2">
-              <strong>{t('cookies.items.security.title')}</strong> {t('cookies.items.security.description')}
+              <strong>{t('cookies.items.security.title')}</strong>{' '}
+              {t('cookies.items.security.description')}
             </li>
           </ul>
         </div>

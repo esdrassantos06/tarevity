@@ -15,7 +15,10 @@ export async function POST(req: Request) {
 
     const isCompromised = await checkPasswordWithHIBP(password)
 
-    const { score, isValid, errors } = validatePasswordStrength(password)
+    const { score, isValid, errors } = validatePasswordStrength(
+      password,
+      (key) => key,
+    )
 
     return NextResponse.json({
       isCompromised,

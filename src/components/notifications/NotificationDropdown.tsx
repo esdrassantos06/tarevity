@@ -25,8 +25,10 @@ import ConfirmationDialog, {
 } from '@/components/common/ConfirmationDialog'
 import { useSession } from 'next-auth/react'
 import { Notification } from '@/lib/notifications'
+import { useTranslations } from 'next-intl'
 
 export default function NotificationDropdown() {
+  const t = useTranslations('notifications')
   const { status } = useSession()
   const [isOpen, setIsOpen] = useState(false)
   const [unreadCount, setUnreadCount] = useState(0)
@@ -58,7 +60,7 @@ export default function NotificationDropdown() {
     setIsRefreshing(true)
     try {
       await forceRefreshNotifications()
-      showSuccess('Notifications updated')
+      showSuccess(t('success.updated'))
     } catch (error) {
       console.error('Error updating notifications:', error)
     } finally {
@@ -113,7 +115,7 @@ export default function NotificationDropdown() {
           queryClient.invalidateQueries({ queryKey: ['notifications'] })
         },
         onError: (error) => {
-          showError('Failed to update notification')
+          showError(t('error.updateFailed'))
           console.error('Error updating notification:', error)
         },
       },
@@ -125,11 +127,11 @@ export default function NotificationDropdown() {
       { id: notificationId },
       {
         onSuccess: () => {
-          showSuccess('Notification removed')
+          showSuccess(t('success.removed'))
           queryClient.invalidateQueries({ queryKey: ['notifications'] })
         },
         onError: (error) => {
-          showError('Failed to remove notification')
+          showError(t('error.removeFailed'))
           console.error('Error removing notification:', error)
         },
       },
@@ -146,7 +148,7 @@ export default function NotificationDropdown() {
           },
           onError: (error) => {
             console.error('Error marking notifications as unread:', error)
-            showError('Failed to mark notifications as unread')
+            showError(t('error.markUnreadFailed'))
           },
         },
       )
@@ -159,7 +161,7 @@ export default function NotificationDropdown() {
           },
           onError: (error) => {
             console.error('Error marking notifications as read:', error)
-            showError('Failed to mark notifications as read')
+            showError(t('error.markReadFailed'))
           },
         },
       )
@@ -168,12 +170,11 @@ export default function NotificationDropdown() {
 
   const deleteAllNotifications = () => {
     openConfirmDialog({
-      title: 'Remove All Notifications',
-      description:
-        'This will remove all your current notifications. This action cannot be undone. Continue?',
+      title: t('dialog.removeAll.title'),
+      description: t('dialog.removeAll.description'),
       variant: 'danger',
-      confirmText: 'Remove All',
-      cancelText: 'Cancel',
+      confirmText: t('dialog.removeAll.confirm'),
+      cancelText: t('dialog.removeAll.cancel'),
       onConfirm: () => {
         setLoading(true)
 
@@ -181,14 +182,14 @@ export default function NotificationDropdown() {
           { all: true },
           {
             onSuccess: () => {
-              showSuccess('All notifications have been removed')
+              showSuccess(t('success.allRemoved'))
               setIsOpen(false)
               closeConfirmDialog()
               queryClient.invalidateQueries({ queryKey: ['notifications'] })
             },
             onError: (error) => {
               console.error('Error removing all notifications:', error)
-              showError('Failed to remove notifications')
+              showError(t('error.removeAllFailed'))
               closeConfirmDialog()
             },
             onSettled: () => {
@@ -237,7 +238,7 @@ export default function NotificationDropdown() {
       <button
         onClick={toggleDropdown}
         className="border-BorderLight hover:bg-BorderLight dark:border-BorderDark dark:hover:bg-BorderDark relative mr-2 size-10 cursor-pointer rounded-lg border-2 p-2 transition-all duration-300"
-        aria-label="Notifications"
+        aria-label={t('aria.notifications')}
       >
         <IoNotificationsOutline className="size-5" />
         {unreadCount > 0 && (
@@ -257,11 +258,11 @@ export default function NotificationDropdown() {
           <div className="border-b border-gray-200 px-4 py-3 dark:border-gray-700">
             <div className="flex items-center justify-between">
               <h3 className="font-medium text-gray-900 dark:text-white">
-                Notifications
+                {t('title')}
               </h3>
               <div className="flex space-x-4">
                 <button
-                  aria-label="Refresh notifications"
+                  aria-label={t('aria.refresh')}
                   onClick={handleRefresh}
                   className="flex items-center text-xs text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
                   disabled={isRefreshing}
@@ -269,13 +270,15 @@ export default function NotificationDropdown() {
                   <FaSyncAlt
                     className={`mr-1 ${isRefreshing ? 'animate-spin' : ''}`}
                   />
-                  Refresh
+                  {t('actions.refresh')}
                 </button>
                 {notifications.length > 0 && (
                   <>
                     <button
                       aria-label={
-                        allRead ? 'Mark all as unread' : 'Mark all as read'
+                        allRead
+                          ? t('aria.markAllUnread')
+                          : t('aria.markAllRead')
                       }
                       onClick={toggleReadStatus}
                       className="flex items-center text-xs text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
@@ -283,22 +286,22 @@ export default function NotificationDropdown() {
                       {allRead ? (
                         <>
                           <FaEnvelope className="mr-1" />
-                          Mark unread
+                          {t('actions.markUnread')}
                         </>
                       ) : (
                         <>
                           <FaEnvelopeOpen className="mr-1" />
-                          Mark read
+                          {t('actions.markRead')}
                         </>
                       )}
                     </button>
                     <button
-                      aria-label="Remove all notifications"
+                      aria-label={t('aria.removeAll')}
                       onClick={deleteAllNotifications}
                       className="flex items-center text-xs text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
                     >
                       <FaTrash className="mr-1" />
-                      Remove all
+                      {t('actions.removeAll')}
                     </button>
                   </>
                 )}
@@ -316,9 +319,7 @@ export default function NotificationDropdown() {
                 <div className="mb-2 rounded-full bg-gray-100 p-3 dark:bg-gray-800">
                   <FaBell className="size-6 text-gray-400" />
                 </div>
-                <p className="text-gray-500 dark:text-gray-400">
-                  No notifications
-                </p>
+                <p className="text-gray-500 dark:text-gray-400">{t('empty')}</p>
               </div>
             ) : (
               notifications.map((notification: Notification) => (
@@ -347,7 +348,7 @@ export default function NotificationDropdown() {
                         {notification.title}
                         {notification.read && (
                           <span className="ml-2 text-xs text-gray-500">
-                            (Read)
+                            {t('status.read')}
                           </span>
                         )}
                       </h4>
@@ -371,8 +372,8 @@ export default function NotificationDropdown() {
                         <button
                           aria-label={
                             notification.read
-                              ? 'Mark as unread'
-                              : 'Mark as read'
+                              ? t('aria.markAsUnread')
+                              : t('aria.markAsRead')
                           }
                           onClick={(e) => {
                             e.stopPropagation()
@@ -385,34 +386,34 @@ export default function NotificationDropdown() {
                           }`}
                           title={
                             notification.read
-                              ? 'Mark as unread'
-                              : 'Mark as read'
+                              ? t('tooltip.markAsUnread')
+                              : t('tooltip.markAsRead')
                           }
                         >
                           {notification.read ? (
                             <>
                               <FaEnvelope className="mr-1 size-3" />
-                              <span>Unread</span>
+                              <span>{t('actions.unread')}</span>
                             </>
                           ) : (
                             <>
                               <FaCheckCircle className="mr-1 size-3" />
-                              <span>Read</span>
+                              <span>{t('actions.read')}</span>
                             </>
                           )}
                         </button>
 
                         <button
-                          aria-label="Remove notification"
+                          aria-label={t('aria.removeNotification')}
                           onClick={(e) => {
                             e.stopPropagation()
                             handleDeleteNotification(notification.id)
                           }}
                           className="flex items-center rounded-md bg-red-100 px-2 py-1 text-xs text-red-700 hover:bg-red-200 dark:bg-red-900/30 dark:text-red-300 dark:hover:bg-red-800/50"
-                          title="Remove notification"
+                          title={t('tooltip.removeNotification')}
                         >
                           <FaTrash className="mr-1 size-3" />
-                          <span>Remove</span>
+                          <span>{t('actions.remove')}</span>
                         </button>
                       </div>
                     </div>

@@ -8,20 +8,22 @@ import CalendarEvent from './calendar-event'
 import { useRouter } from 'next/navigation'
 import { useTodosQuery } from '@/hooks/useTodosQuery'
 import { Todo } from '@/lib/api'
+import { useTranslations } from 'next-intl'
 
 export default function Calendar() {
+  const t = useTranslations('calendar')
   const router = useRouter()
   const [currentDate, setCurrentDate] = useState(new Date())
   const { data: todos = [] } = useTodosQuery()
 
   const daysOfWeek = [
-    'Sunday',
-    'Monday',
-    'Tuesday',
-    'Wednesday',
-    'Thursday',
-    'Friday',
-    'Saturday',
+    t('daysOfWeek.sunday'),
+    t('daysOfWeek.monday'),
+    t('daysOfWeek.tuesday'),
+    t('daysOfWeek.wednesday'),
+    t('daysOfWeek.thursday'),
+    t('daysOfWeek.friday'),
+    t('daysOfWeek.saturday'),
   ]
 
   // Get the first day of the month
@@ -144,10 +146,18 @@ export default function Calendar() {
     }
   }
 
-  const monthYearFormat = new Intl.DateTimeFormat('en-US', {
+  // Using custom formatted date string with translations
+  const formattedMonth = new Intl.DateTimeFormat(t('locale'), {
     month: 'long',
-    year: 'numeric',
   }).format(currentDate)
+
+  const capitalizedMonth =
+    formattedMonth.charAt(0).toUpperCase() + formattedMonth.slice(1)
+
+  const monthYearFormat = t('monthYearFormat', {
+    month: capitalizedMonth,
+    year: currentDate.getFullYear(),
+  })
 
   return (
     <div className="dark:bg-BlackLight flex size-full flex-col rounded-lg bg-white p-2">
@@ -156,12 +166,22 @@ export default function Calendar() {
         <h1 className="text-2xl font-bold">{monthYearFormat}</h1>
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" onClick={goToToday}>
-            Today
+            {t('today')}
           </Button>
-          <Button variant="outline" size="icon" onClick={prevMonth}>
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={prevMonth}
+            aria-label={t('previousMonth')}
+          >
             <ChevronLeft className="size-4" />
           </Button>
-          <Button variant="outline" size="icon" onClick={nextMonth}>
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={nextMonth}
+            aria-label={t('nextMonth')}
+          >
             <ChevronRight className="size-4" />
           </Button>
         </div>
@@ -201,6 +221,14 @@ export default function Calendar() {
                 !day.isCurrentMonth && 'bg-muted/50 text-muted-foreground',
                 dayEvents.length > 0 && 'bg-blue-50 dark:bg-blue-900/30',
               )}
+              aria-label={
+                dayEvents.length > 0
+                  ? t('dayWithTasks', {
+                      day: day.day,
+                      count: dayEvents.length,
+                    })
+                  : t('day', { day: day.day })
+              }
             >
               <div className="flex justify-between">
                 <span

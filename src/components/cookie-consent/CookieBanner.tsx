@@ -5,15 +5,17 @@ import CookieConsent from 'react-cookie-consent'
 import { useTheme } from 'next-themes'
 import TarevityIcon from '@/components/logo/TarevityIcon'
 import { Link } from '@/i18n/navigation'
+import { useTranslations } from 'next-intl'
 
 export default function CookieBanner() {
+  const t = useTranslations('cookies')
   const { resolvedTheme } = useTheme()
   const isDark = resolvedTheme === 'dark'
 
   return (
     <CookieConsent
       location="bottom"
-      buttonText="Accept Cookies"
+      buttonText={t('acceptButton')}
       cookieName="tarevity-cookie-consent"
       style={{
         background: isDark ? '#1d1929' : '#fff',
@@ -28,7 +30,7 @@ export default function CookieBanner() {
         padding: '8px 16px',
         borderRadius: '6px',
       }}
-      declineButtonText="Decline"
+      declineButtonText={t('declineButton')}
       enableDeclineButton
       declineButtonStyle={{
         background: 'transparent',
@@ -42,8 +44,7 @@ export default function CookieBanner() {
       expires={150}
     >
       <TarevityIcon className="mr-4 inline w-10 dark:fill-white" />
-      We use cookies to improve your experience on our site. By continuing to
-      browse, you agree to our{' '}
+      {t('messageStart')}{' '}
       <Link
         href="/privacy"
         style={{
@@ -51,9 +52,9 @@ export default function CookieBanner() {
           textDecoration: 'underline',
         }}
       >
-        Privacy Policy
+        {t('privacyPolicy')}
       </Link>
-      .
+      {t('messageEnd')}
     </CookieConsent>
   )
 }
