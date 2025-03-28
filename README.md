@@ -4,7 +4,7 @@
 
 Tarevity is a sophisticated task management application built with Next.js 15, React 19, TypeScript, and Supabase. It provides an intuitive and secure interface to help users organize their tasks with efficiency and style.
 
-**Current Version: 1.0.8** (March 27, 2025)
+**Current Version: 1.0.9** (March 28, 2025)
 
 ## ✨ Key Features
 
@@ -17,6 +17,13 @@ Tarevity is a sophisticated task management application built with Next.js 15, R
 - **Sorting & Filtering** capabilities for better organization
 - **Visual Indicators** showing task priority and status at a glance
 - **Calendar Integration** for date-based task visualization and management
+
+### 🌐 Internationalization
+
+- **Multi-language Support** with Next Intl integration
+- **Locale Detection** to automatically switch to user's preferred language
+- **Dynamic Content Translation** across the entire application
+- **Date & Time Formatting** according to locale preferences
 
 ### 🛡️ Enterprise-Grade Security
 
@@ -59,6 +66,7 @@ Tarevity is a sophisticated task management application built with Next.js 15, R
 - **State Management**: React Query v5
 - **Form Validation**: Zod with React Hook Form
 - **UI Components**: shadcn/ui and Radix UI
+- **Internationalization**: Next Intl with locale routing
 
 ### Backend & Database
 
@@ -87,6 +95,15 @@ Security is a core focus of Tarevity with:
 - **HttpOnly Cookies** for secure session management
 - **Input Validation** using Zod schema validation
 - **API Protection** with request validation middleware
+
+## 🌍 Internationalization
+
+Tarevity provides extensive internationalization support:
+
+- **Supported Languages**: English & Portuguese
+- **Integration**: Deep integration with Next.js App Router through Next Intl
+- **Translation Management**: Structured JSON files for easy translation updates
+- **Locale-specific Routes**: URL paths adapt to the selected language
 
 ## 🚀 Getting Started
 
@@ -129,6 +146,7 @@ Security is a core focus of Tarevity with:
    - Email configuration (Brevo)
    - Redis settings for rate limiting
    - Cron (For notifications)
+   - Default and supported locales
 
 4. Start the development server
 
@@ -143,22 +161,25 @@ Security is a core focus of Tarevity with:
 ```
 /src
   /app                   # Next.js App Router routes
-    /api                 # API endpoints
-    /auth                # Authentication pages
-    /dashboard           # Main task dashboard
-    /profile             # User profile page
-    /settings            # User settings page
-    /todo                # Task detail and edit pages
+    /[locale]            # Locale-specific routes
+      /api               # API endpoints
+      /auth              # Authentication pages
+      /dashboard         # Main task dashboard
+      /profile           # User profile page
+      /settings          # User settings page
+      /todo              # Task detail and edit pages
   /components            # React components
   /hooks                 # Custom React hooks
   /lib                   # Utility functions
   /middleware           # Global middleware
+  /messages             # Translation files
   /types                 # TypeScript type definitions
 ```
 
 ## 🔮 Future Enhancements
 
 - [x] Calendar view integration
+- [x] Multi-language support
 - [ ] Categories/Tags for tasks
 - [ ] Subtasks and task dependencies
 - [ ] Mobile application (Future...)
