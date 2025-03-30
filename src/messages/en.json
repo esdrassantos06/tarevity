@@ -935,7 +935,7 @@
     "day": "Day {day}",
     "dayWithTasks": "Day {day}, {count} task(s)",
     "monthYearFormat": "{month} {year}",
-    "locale": "en-US",
+    "locale": "en",
     "daysOfWeek": {
       "sunday": "Sunday",
       "monday": "Monday",
