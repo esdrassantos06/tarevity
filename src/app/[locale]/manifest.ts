@@ -20,8 +20,7 @@ export default async function manifest({
     background_color: '#ffffff',
     theme_color: '#003cff',
     orientation: 'portrait',
-    lang: params.locale === 'pt-br' ? 'pt-BR' : 'en-US',
-    dir: params.locale === 'pt-br' ? 'ltr' : 'ltr',
+    lang: params.locale === 'en' ? 'en' : 'pt-br',
     categories: t('categories')
       .split(',')
       .map((category) => category.trim()),
