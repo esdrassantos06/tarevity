@@ -4,12 +4,10 @@ import {
   createMissingNotifications,
 } from '@/lib/notification-updater'
 
-// Secret token to authenticate cron requests
 const CRON_SECRET = process.env.CRON_SECRET
 
 export async function GET(req: NextRequest) {
   try {
-    // Security check - verify the request has the correct secret
     const authHeader = req.headers.get('authorization')
     const token = authHeader?.split(' ')[1]
 
@@ -20,7 +18,6 @@ export async function GET(req: NextRequest) {
       )
     }
 
-    // Process notifications
     const updatedCount = await processDynamicNotificationUpdates()
     const createdCount = await createMissingNotifications()
 

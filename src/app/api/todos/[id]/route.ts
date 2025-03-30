@@ -5,18 +5,21 @@ import { supabaseAdmin } from '@/lib/supabaseAdmin'
 import { NextRequest } from 'next/server'
 import { notificationsService } from '@/lib/notifications'
 import { updateNotificationMessages } from '@/lib/notification-updater'
+import { getTranslations } from 'next-intl/server'
 
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
+  const t = await getTranslations('TodoRoute.TodoId')
+  
   try {
     const { id } = await params
 
     const session = await getServerSession(authOptions)
 
     if (!session?.user?.id) {
-      return NextResponse.json({ message: 'Unauthorized' }, { status: 401 })
+      return NextResponse.json({ message: t('unauthorized') }, { status: 401 })
     }
 
     const userId = session.user.id
@@ -29,11 +32,11 @@ export async function GET(
       .single()
 
     if (error || !data) {
-      return NextResponse.json({ message: 'Task not found' }, { status: 404 })
+      return NextResponse.json({ message: t('taskNotFound') }, { status: 404 })
     }
 
     if (data.user_id !== userId) {
-      return NextResponse.json({ message: 'Forbidden' }, { status: 403 })
+      return NextResponse.json({ message: t('forbidden') }, { status: 403 })
     }
 
     return NextResponse.json(data, { status: 200 })
@@ -41,13 +44,13 @@ export async function GET(
     if (error instanceof Error) {
       console.error('Error fetching task:', error)
       return NextResponse.json(
-        { message: error.message || 'Error fetching task' },
+        { message: error.message || t('errorFetchingTask') },
         { status: 500 },
       )
     } else {
       console.error('Unknown error fetching task:', error)
       return NextResponse.json(
-        { message: 'Unknown error fetching task' },
+        { message: t('unknownErrorFetchingTask') },
         { status: 500 },
       )
     }
@@ -58,13 +61,15 @@ export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
+  const t = await getTranslations('api.tasks')
+  
   try {
     const { id } = await params
 
     const session = await getServerSession(authOptions)
 
     if (!session?.user?.id) {
-      return NextResponse.json({ message: 'Unauthorized' }, { status: 401 })
+      return NextResponse.json({ message: t('unauthorized') }, { status: 401 })
     }
 
     const userId = session.user.id
@@ -81,10 +86,9 @@ export async function PUT(
 
     if (checkError || !existingTask) {
       console.error('Error checking task:', checkError)
-      return NextResponse.json({ message: 'Task not found' }, { status: 404 })
+      return NextResponse.json({ message: t('taskNotFound') }, { status: 404 })
     }
 
-    // Determine if there are changes that would affect notifications
     const notificationChanges = {
       titleChanged: updateData.title && updateData.title !== existingTask.title,
       dueDateChanged:
@@ -107,32 +111,24 @@ export async function PUT(
       throw error
     }
 
-    // Handle notifications based on changes
     try {
-      // If task is completed, dismiss all notifications
       if (notificationChanges.completionChanged && data.is_completed) {
         await notificationsService.dismissTodoNotifications(userId, taskId)
-      }
-      // If due date was removed, delete all notifications
-      else if (notificationChanges.dueDateChanged && !data.due_date) {
+      } else if (notificationChanges.dueDateChanged && !data.due_date) {
         await notificationsService.deleteNotifications({
           userId,
           todoId: taskId,
         })
-      }
-      // If title or due date changed, update notifications
-      else if (
+      } else if (
         (notificationChanges.titleChanged ||
           notificationChanges.dueDateChanged) &&
         data.due_date
       ) {
-        // First, remove existing notifications
         await notificationsService.deleteNotifications({
           userId,
           todoId: taskId,
         })
 
-        // Then create appropriate new ones based on current status
         const notifications =
           notificationsService.generateTodoNotifications(data)
         if ((await notifications).length > 0) {
@@ -141,9 +137,7 @@ export async function PUT(
             await notifications,
           )
         }
-      }
-      // In case task was marked as not completed, but had a due date, ensure notifications exist
-      else if (
+      } else if (
         notificationChanges.completionChanged &&
         !data.is_completed &&
         data.due_date
@@ -164,7 +158,6 @@ export async function PUT(
       }
     } catch (error) {
       console.error('Error handling task notifications:', error)
-      // Don't fail the response if notification handling fails
     }
 
     return NextResponse.json(data, { status: 200 })
@@ -172,13 +165,13 @@ export async function PUT(
     if (error instanceof Error) {
       console.error('Error updating task:', error)
       return NextResponse.json(
-        { message: error.message || 'Error updating task' },
+        { message: error.message || t('errorUpdatingTask') },
         { status: 500 },
       )
     } else {
       console.error('Unknown error updating task:', error)
       return NextResponse.json(
-        { message: 'Unknown error updating task' },
+        { message: t('unknownErrorUpdatingTask') },
         { status: 500 },
       )
     }
@@ -189,13 +182,15 @@ export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
+  const t = await getTranslations('api.tasks')
+  
   try {
     const { id } = await params
 
     const session = await getServerSession(authOptions)
 
     if (!session?.user?.id) {
-      return NextResponse.json({ message: 'Unauthorized' }, { status: 401 })
+      return NextResponse.json({ message: t('unauthorized') }, { status: 401 })
     }
 
     const userId = session.user.id
@@ -209,7 +204,7 @@ export async function DELETE(
       .single()
 
     if (checkError || !existingTask) {
-      return NextResponse.json({ message: 'Task not found' }, { status: 404 })
+      return NextResponse.json({ message: t('taskNotFound') }, { status: 404 })
     }
 
     // Delete all notifications for this task
@@ -234,20 +229,20 @@ export async function DELETE(
     }
 
     return NextResponse.json(
-      { message: 'Task deleted successfully' },
+      { message: t('taskDeletedSuccessfully') },
       { status: 200 },
     )
   } catch (error) {
     if (error instanceof Error) {
       console.error('Error deleting task:', error)
       return NextResponse.json(
-        { message: error.message || 'Error deleting task' },
+        { message: error.message || t('errorDeletingTask') },
         { status: 500 },
       )
     } else {
       console.error('Unknown error deleting task:', error)
       return NextResponse.json(
-        { message: 'Unknown error deleting task' },
+        { message: t('unknownErrorDeletingTask') },
         { status: 500 },
       )
     }

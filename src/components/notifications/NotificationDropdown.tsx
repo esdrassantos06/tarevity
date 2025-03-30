@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { IoNotificationsOutline } from 'react-icons/io5'
 import {
   FaCalendar,
@@ -27,14 +27,24 @@ import { useSession } from 'next-auth/react'
 import { Notification } from '@/lib/notifications'
 import { useTranslations } from 'next-intl'
 
+// Import componentes do shadcn/ui
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuLabel,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator
+} from '@/components/ui/dropdown-menu'
+import { Button } from '@/components/ui/button'
+
 export default function NotificationDropdown() {
   const t = useTranslations('notifications')
   const { status } = useSession()
-  const [isOpen, setIsOpen] = useState(false)
   const [unreadCount, setUnreadCount] = useState(0)
   const [isRefreshing, setIsRefreshing] = useState(false)
-  const dropdownRef = useRef<HTMLDivElement>(null)
   const queryClient = useQueryClient()
+  const [open, setOpen] = useState(false)
 
   const {
     data: notifications = [],
@@ -70,12 +80,12 @@ export default function NotificationDropdown() {
 
   // Update notifications when dropdown is opened
   useEffect(() => {
-    if (isOpen) {
+    if (open) {
       refreshNotifications().catch((error: unknown) => {
         console.error('Error updating notifications when opening:', error)
       })
     }
-  }, [isOpen, refreshNotifications])
+  }, [open, refreshNotifications])
 
   useEffect(() => {
     const unread = notifications.filter((n: Notification) => !n.read).length
@@ -83,26 +93,6 @@ export default function NotificationDropdown() {
 
     setAllRead(unread === 0 && notifications.length > 0)
   }, [notifications])
-
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node)
-      ) {
-        setIsOpen(false)
-      }
-    }
-
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside)
-    }
-  }, [])
-
-  const toggleDropdown = () => {
-    setIsOpen(!isOpen)
-  }
 
   const handleToggleRead = (notification: Notification) => {
     markReadMutation.mutate(
@@ -183,7 +173,7 @@ export default function NotificationDropdown() {
           {
             onSuccess: () => {
               showSuccess(t('success.allRemoved'))
-              setIsOpen(false)
+              setOpen(false)
               closeConfirmDialog()
               queryClient.invalidateQueries({ queryKey: ['notifications'] })
             },
@@ -234,82 +224,86 @@ export default function NotificationDropdown() {
   }
 
   return (
-    <div className="relative" ref={dropdownRef}>
-      <button
-        onClick={toggleDropdown}
-        className="border-BorderLight hover:bg-BorderLight dark:border-BorderDark dark:hover:bg-BorderDark relative mr-2 size-10 cursor-pointer rounded-lg border-2 p-2 transition-all duration-300"
-        aria-label={t('aria.notifications')}
-      >
-        <IoNotificationsOutline className="size-5" />
-        {unreadCount > 0 && (
-          <span className="absolute -top-1 -right-1 flex size-4 items-center justify-center rounded-full bg-red-500 text-xs text-white">
-            {unreadCount > 9 ? '9+' : unreadCount}
-          </span>
-        )}
-      </button>
+    <div className="relative">
+      <DropdownMenu open={open} onOpenChange={setOpen}>
+        <DropdownMenuTrigger asChild>
+          <Button
+            variant="outline"
+            size="icon"
+            className="border-BorderLight hover:bg-BorderLight dark:border-BorderDark dark:hover:bg-BorderDark relative mr-2 size-10 p-2"
+            aria-label={t('aria.notifications')}
+          >
+            <IoNotificationsOutline className="size-5" />
+            {unreadCount > 0 && (
+              <span className="absolute -top-1 -right-1 flex size-4 items-center justify-center rounded-full bg-red-500 text-xs text-white">
+                {unreadCount > 9 ? '9+' : unreadCount}
+              </span>
+            )}
+          </Button>
+        </DropdownMenuTrigger>
 
-      {isOpen && (
-        <div
-          className="dark:bg-BlackLight fixed inset-x-0 top-[60px] z-50 mx-auto w-[90%] max-w-md rounded-lg border border-gray-200 bg-white shadow-lg sm:absolute sm:inset-auto sm:top-auto sm:right-0 sm:mx-0 sm:w-100 dark:border-gray-700"
-          style={{
-            maxHeight: 'calc(100vh - 80px)',
-          }}
+        <DropdownMenuContent
+          className="w-[calc(100vw-2rem)] dark:bg-BlackLight sm:w-100 md:w-120"
+          sideOffset={8}
+          align="end"
         >
-          <div className="border-b border-gray-200 px-4 py-3 dark:border-gray-700">
-            <div className="flex items-center justify-between">
-              <h3 className="font-medium text-gray-900 dark:text-white">
-                {t('title')}
-              </h3>
-              <div className="flex space-x-4">
-                <button
-                  aria-label={t('aria.refresh')}
-                  onClick={handleRefresh}
-                  className="flex items-center text-xs text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
-                  disabled={isRefreshing}
-                >
-                  <FaSyncAlt
-                    className={`mr-1 ${isRefreshing ? 'animate-spin' : ''}`}
-                  />
-                  {t('actions.refresh')}
-                </button>
-                {notifications.length > 0 && (
-                  <>
-                    <button
-                      aria-label={
-                        allRead
-                          ? t('aria.markAllUnread')
-                          : t('aria.markAllRead')
-                      }
-                      onClick={toggleReadStatus}
-                      className="flex items-center text-xs text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
-                    >
-                      {allRead ? (
-                        <>
-                          <FaEnvelope className="mr-1" />
-                          {t('actions.markUnread')}
-                        </>
-                      ) : (
-                        <>
-                          <FaEnvelopeOpen className="mr-1" />
-                          {t('actions.markRead')}
-                        </>
-                      )}
-                    </button>
-                    <button
-                      aria-label={t('aria.removeAll')}
-                      onClick={deleteAllNotifications}
-                      className="flex items-center text-xs text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
-                    >
-                      <FaTrash className="mr-1" />
-                      {t('actions.removeAll')}
-                    </button>
-                  </>
-                )}
-              </div>
+          <div className="flex items-center justify-between px-4 py-2">
+            <DropdownMenuLabel className="mb-2 font-medium text-gray-900 sm:mb-0 dark:text-white">
+              {t('title')}
+            </DropdownMenuLabel>
+
+            <div className="flex flex-wrap gap-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="p-1 text-xs"
+                onClick={handleRefresh}
+                disabled={isRefreshing}
+              >
+                <FaSyncAlt
+                  className={`mr-1 size-3 ${isRefreshing ? 'animate-spin' : ''}`}
+                />
+                {t('actions.refresh')}
+              </Button>
+
+              {notifications.length > 0 && (
+                <>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-8 px-2 text-xs"
+                    onClick={toggleReadStatus}
+                  >
+                    {allRead ? (
+                      <>
+                        <FaEnvelope className="mr-1 size-3" />
+                        {t('actions.markUnread')}
+                      </>
+                    ) : (
+                      <>
+                        <FaEnvelopeOpen className="mr-1 size-3" />
+                        {t('actions.markRead')}
+                      </>
+                    )}
+                  </Button>
+
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-8 px-2 text-xs text-red-500 hover:bg-red-100 hover:text-red-700 dark:text-red-400 dark:hover:bg-red-900/20 dark:hover:text-red-300"
+                    onClick={deleteAllNotifications}
+                  >
+                    <FaTrash className="mr-1 size-3" />
+                    {t('actions.removeAll')}
+                  </Button>
+                </>
+              )}
             </div>
           </div>
 
-          <div className="max-h-80 overflow-y-auto p-2">
+          <DropdownMenuSeparator />
+
+          <div className="max-h-[50vh] overflow-y-auto py-2 sm:max-h-80">
             {isLoading ? (
               <div className="flex items-center justify-center py-10">
                 <div className="size-6 animate-spin rounded-full border-2 border-blue-500 border-t-transparent"></div>
@@ -322,108 +316,109 @@ export default function NotificationDropdown() {
                 <p className="text-gray-500 dark:text-gray-400">{t('empty')}</p>
               </div>
             ) : (
-              notifications.map((notification: Notification) => (
-                <div
-                  key={notification.id}
-                  className={`mb-2 rounded-lg ${getNotificationBgColor(
-                    notification.notification_type,
-                    notification.read,
-                  )} p-3`}
-                >
-                  <div className="flex items-start">
-                    <div className="mt-1 mr-3">
-                      {getNotificationIcon(
-                        notification.notification_type,
-                        notification.read,
-                      )}
-                    </div>
-                    <div className="flex-1">
-                      <h4
-                        className={`text-sm font-medium ${
-                          notification.read
-                            ? 'text-gray-600 dark:text-gray-400'
-                            : 'text-gray-900 dark:text-white'
-                        }`}
-                      >
-                        {notification.title}
-                        {notification.read && (
-                          <span className="ml-2 text-xs text-gray-500">
-                            {t('status.read')}
-                          </span>
+              <DropdownMenuGroup>
+                {notifications.map((notification: Notification) => (
+                  <div
+                    key={notification.id}
+                    className={`mx-2 mb-2 rounded-lg ${getNotificationBgColor(
+                      notification.notification_type,
+                      notification.read,
+                    )} p-3`}
+                  >
+                    <div className="flex items-start">
+                      <div className="mt-1 mr-3">
+                        {getNotificationIcon(
+                          notification.notification_type,
+                          notification.read,
                         )}
-                      </h4>
-                      <p
-                        className={`text-xs ${
-                          notification.read
-                            ? 'text-gray-500 dark:text-gray-500'
-                            : 'text-gray-600 dark:text-gray-300'
-                        }`}
-                      >
-                        {notification.message}
-                      </p>
-                      <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                        {formatDistanceToNow(new Date(notification.due_date), {
-                          addSuffix: true,
-                        })}
-                      </p>
-
-                      {/* Action buttons */}
-                      <div className="mt-2 flex justify-end space-x-2">
-                        <button
-                          aria-label={
+                      </div>
+                      <div className="flex-1">
+                        <h4
+                          className={`text-sm font-medium ${
                             notification.read
-                              ? t('aria.markAsUnread')
-                              : t('aria.markAsRead')
-                          }
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            handleToggleRead(notification)
-                          }}
-                          className={`flex items-center rounded-md px-2 py-1 text-xs ${
-                            notification.read
-                              ? 'bg-gray-200 text-gray-600 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-400 dark:hover:bg-gray-600'
-                              : 'bg-blue-100 text-blue-700 hover:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:hover:bg-blue-800/50'
+                              ? 'text-gray-600 dark:text-gray-400'
+                              : 'text-gray-900 dark:text-white'
                           }`}
-                          title={
-                            notification.read
-                              ? t('tooltip.markAsUnread')
-                              : t('tooltip.markAsRead')
-                          }
                         >
-                          {notification.read ? (
-                            <>
-                              <FaEnvelope className="mr-1 size-3" />
-                              <span>{t('actions.unread')}</span>
-                            </>
-                          ) : (
-                            <>
-                              <FaCheckCircle className="mr-1 size-3" />
-                              <span>{t('actions.read')}</span>
-                            </>
+                          {notification.title}
+                          {notification.read && (
+                            <span className="ml-2 text-xs text-gray-500">
+                              {t('status.read')}
+                            </span>
                           )}
-                        </button>
-
-                        <button
-                          aria-label={t('aria.removeNotification')}
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            handleDeleteNotification(notification.id)
-                          }}
-                          className="flex items-center rounded-md bg-red-100 px-2 py-1 text-xs text-red-700 hover:bg-red-200 dark:bg-red-900/30 dark:text-red-300 dark:hover:bg-red-800/50"
-                          title={t('tooltip.removeNotification')}
+                        </h4>
+                        <p
+                          className={`text-xs ${
+                            notification.read
+                              ? 'text-gray-500 dark:text-gray-500'
+                              : 'text-gray-600 dark:text-gray-300'
+                          }`}
                         >
-                          <FaTrash className="mr-1 size-3" />
-                          <span>{t('actions.remove')}</span>
-                        </button>
+                          {notification.message}
+                        </p>
+                        <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                          {formatDistanceToNow(
+                            new Date(notification.due_date),
+                            {
+                              addSuffix: true,
+                            },
+                          )}
+                        </p>
+
+                        {/* Action buttons */}
+                        <div className="mt-2 flex justify-end space-x-2">
+                          <Button
+                            variant={
+                              notification.read ? 'outline' : 'secondary'
+                            }
+                            size="sm"
+                            className="h-7 px-2 text-xs"
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              handleToggleRead(notification)
+                            }}
+                            title={
+                              notification.read
+                                ? t('tooltip.markAsUnread')
+                                : t('tooltip.markAsRead')
+                            }
+                          >
+                            {notification.read ? (
+                              <>
+                                <FaEnvelope className="mr-1 size-3" />
+                                <span className='truncate'>{t('actions.unread')}</span>
+                              </>
+                            ) : (
+                              <>
+                                <FaCheckCircle className="mr-1 size-3" />
+                                <span className='truncate'>{t('actions.read')}</span>
+                              </>
+                            )}
+                          </Button>
+
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            className="h-7 px-2 text-xs"
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              handleDeleteNotification(notification.id)
+                            }}
+                            title={t('tooltip.removeNotification')}
+                          >
+                            <FaTrash className="mr-1 size-3" />
+                            <span className='truncate'>{t('actions.remove')}</span>
+                          </Button>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              ))
+                ))}
+              </DropdownMenuGroup>
             )}
           </div>
-        </div>
-      )}
+        </DropdownMenuContent>
+      </DropdownMenu>
 
       {/* Confirmation dialog */}
       <ConfirmationDialog

@@ -3,7 +3,7 @@ import { Suspense } from 'react'
 import { getTranslations } from 'next-intl/server'
 import { useTranslations } from 'next-intl'
 import Layout from '@/components/layout/Layout'
-import RedesignedTodoList from '@/components/todos/TodoList'
+import TodoList from '@/components/todos/TodoList'
 
 type Params = Promise<{ locale: string }>
 
@@ -44,7 +44,7 @@ export default function DashboardPage() {
     <Layout>
       <div className="mx-auto max-w-7xl">
         <Suspense fallback={<DashboardLoading />}>
-          <RedesignedTodoList />
+          <TodoList />
         </Suspense>
       </div>
     </Layout>

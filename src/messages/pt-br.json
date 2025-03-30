@@ -1246,5 +1246,32 @@
     "dueTomorrowMessage": "\"{title}\" vence amanhã",
     "upcomingDeadlineMessage": "\"{title}\" vence {timeUntil}",
     "futureTaskMessage": "\"{title}\" vence {timeUntil}"
+  },
+  "TodoRoute": {
+    "TodoId": {
+      "unauthorized": "Não autorizado",
+      "taskNotFound": "Tarefa não encontrada",
+      "forbidden": "Proibido",
+      "errorFetchingTask": "Erro ao buscar tarefa",
+      "unknownErrorFetchingTask": "Erro desconhecido ao buscar tarefa",
+      "errorUpdatingTask": "Erro ao atualizar tarefa",
+      "unknownErrorUpdatingTask": "Erro desconhecido ao atualizar tarefa",
+      "taskDeletedSuccessfully": "Tarefa excluída com sucesso",
+      "errorDeletingTask": "Erro ao excluir tarefa",
+      "unknownErrorDeletingTask": "Erro desconhecido ao excluir tarefa"
+    },
+    "TodosRoute": {
+      "unauthorized": "Não autorizado",
+      "unknownErrorFetchingTasks": "Erro desconhecido ao buscar tarefa",
+      "invalidTodoData": "Dados da tarefa inválidos",
+      "databaseError": "Erro de banco de dados: {error}",
+      "unknownErrorCreatingTask": "Erro desconhecido ao criar tarefa"
+
+    },
+    "validation": {
+      "titleRequired": "Título é obrigatório",
+      "titleTooLong": "Título muito longo",
+      "descriptionTooLong": "Descrição muito longa"
+    }
   }
 }

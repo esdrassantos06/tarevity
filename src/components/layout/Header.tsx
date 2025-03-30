@@ -1,11 +1,11 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { useSession, signOut } from 'next-auth/react'
 import { Link } from '@/i18n/navigation'
 import { FaUser, FaCog, FaSignOutAlt, FaBars, FaTimes } from 'react-icons/fa'
 import { MdSpaceDashboard } from 'react-icons/md'
-import { IoCalendarClearOutline } from 'react-icons/io5'
+import { IoCalendarClear, IoCalendarClearOutline } from 'react-icons/io5'
 import TarevityLogo from '../logo/TarevityLogo'
 import TarevityIcon from '../logo/TarevityIcon'
 import UserImage from '../common/UserImage'
@@ -13,13 +13,20 @@ import NotificationDropdown from '../notifications/NotificationDropdown'
 import { useProfileQuery } from '@/hooks/useProfileQuery'
 import LanguageSwitcher from '../common/LanguageSwitcher'
 import { useTranslations } from 'next-intl'
+import { Button } from '../ui/button'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 
 export default function Header() {
   const t = useTranslations('header')
   const { data: session, status } = useSession()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false)
-  const dropdownRef = useRef<HTMLDivElement>(null)
 
   const { data: profileData, refetch: refetchProfile } = useProfileQuery({
     enabled: status === 'authenticated',
@@ -34,26 +41,6 @@ export default function Header() {
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen)
   }
-
-  const toggleDropdown = () => {
-    setIsDropdownOpen(!isDropdownOpen)
-  }
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node)
-      ) {
-        setIsDropdownOpen(false)
-      }
-    }
-
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside)
-    }
-  }, [])
 
   const isAuthenticated = status === 'authenticated' && !!session?.user
 
@@ -80,69 +67,60 @@ export default function Header() {
                 {/* Notification Dropdown Component */}
                 <NotificationDropdown />
 
-                <Link
-                  href="/calendar"
-                  className="border-BorderLight hover:bg-BorderLight dark:hover:bg-BorderDark dark:border-BorderDark mr-3 size-10 cursor-pointer rounded-lg border-2 p-2 transition-all duration-300"
-                  aria-label={t('calendar')}
-                >
-                  <IoCalendarClearOutline className="size-5" />
+                <Link href="/calendar" aria-label={t('calendar')}>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    className="border-BorderLight hover:bg-BorderLight dark:border-BorderDark dark:hover:bg-BorderDark p-2 relative mr-2 size-10"
+                  >
+                    <IoCalendarClearOutline className="size-5" />
+                  </Button>
                 </Link>
                 <div className="hidden items-center gap-2 sm:flex">
-                  {/* Profile Dropdown */}
-                  <div className="relative" ref={dropdownRef}>
-                    <button
-                      aria-label={t('openUserMenu')}
-                      onClick={toggleDropdown}
-                      className="border-BorderLight dark:border-BorderDark flex items-center rounded-full border-2 transition-colors duration-300 focus:outline-none"
-                      aria-expanded={isDropdownOpen}
-                    >
-                      <span className="sr-only">{t('openUserMenu')}</span>
-                      <UserImage onClick={toggleDropdown} />
-                    </button>
-
-                    {/* Dropdown menu */}
-                    {isDropdownOpen && (
-                      <div
-                        className={`dark:bg-BlackLight absolute right-0 z-50 mt-2 w-60 origin-top-right rounded-md border-none bg-white p-1 shadow-lg transition-all duration-300`}
+                  {/* Shadcn Dropdown Menu for Profile */}
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <button
+                        aria-label={t('openUserMenu')}
+                        className="border-BorderLight dark:border-BorderDark flex items-center rounded-full border-2 transition-colors duration-300 focus:outline-none"
                       >
-                        <div className="border-b border-gray-200 px-4 py-2 dark:border-gray-700">
-                          <p className="text-sm font-bold text-gray-900 dark:text-white">
-                            {profileData?.name}
-                          </p>
-                          <p className="truncate text-sm text-gray-500 dark:text-gray-400">
-                            {profileData?.email}
-                          </p>
-                        </div>
-                        <Link
-                          href="/profile"
-                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
-                          onClick={() => setIsDropdownOpen(false)}
-                        >
-                          <FaUser className="mr-2 inline" />
-                          {t('profile')}
-                        </Link>
-                        <Link
-                          href="/settings"
-                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
-                          onClick={() => setIsDropdownOpen(false)}
-                        >
-                          <FaCog className="mr-2 inline" />
-                          {t('settings')}
-                        </Link>
-                        <button
-                          aria-label={t('logout')}
-                          onClick={() => {
-                            setIsDropdownOpen(false)
-                            signOut({ callbackUrl: '/' })
-                          }}
-                          className="flex w-full items-center justify-start px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
-                        >
-                          <FaSignOutAlt className="mr-2 inline" />
-                          {t('logout')}
-                        </button>
+                        <span className="sr-only">{t('openUserMenu')}</span>
+                        <UserImage />
+                      </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent className="w-60 dark:bg-BlackLight" align="end">
+                      <div className="border-b border-gray-200 px-4 py-2 dark:border-gray-700">
+                        <p className="text-sm font-bold text-gray-900 dark:text-white">
+                          {profileData?.name}
+                        </p>
+                        <p className="truncate text-sm text-gray-500 dark:text-gray-400">
+                          {profileData?.email}
+                        </p>
                       </div>
-                    )}
-                  </div>
+                      <DropdownMenuGroup>
+                        <DropdownMenuItem asChild>
+                          <Link href="/profile" className="cursor-pointer">
+                            <FaUser className="mr-2" />
+                            {t('profile')}
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                          <Link href="/settings" className="cursor-pointer">
+                            <FaCog className="mr-2" />
+                            {t('settings')}
+                          </Link>
+                        </DropdownMenuItem>
+                      </DropdownMenuGroup>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem
+                        onClick={() => signOut({ callbackUrl: '/' })}
+                        className="cursor-pointer"
+                      >
+                        <FaSignOutAlt className="mr-2" />
+                        {t('logout')}
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
               </div>
             ) : (
@@ -168,7 +146,7 @@ export default function Header() {
                 onClick={toggleMenu}
                 type="button"
                 className="inline-flex items-center justify-center rounded-md p-2"
-                aria-expanded="false"
+                aria-expanded={isMenuOpen}
               >
                 <span className="sr-only">{t('openMainMenu')}</span>
                 {isMenuOpen ? (
@@ -187,8 +165,9 @@ export default function Header() {
           </div>
         </div>
 
+        {/* Mobile Menu */}
         <div
-          className={`dark:bg-HeaderBgDark absolute right-0 left-0 z-10 w-full transform bg-white transition-all duration-300 ease-in-out ${isMenuOpen ? 'visible translate-x-0 opacity-100' : 'invisible -translate-x-10 opacity-0'} `}
+          className={`dark:bg-HeaderBgDark absolute right-0 left-0 z-10 w-full transform bg-white shadow-md transition-all duration-300 ease-in-out ${isMenuOpen ? 'visible translate-x-0 opacity-100' : 'invisible -translate-x-10 opacity-0'} `}
         >
           <div className="space-y-1 pt-2 pb-3">
             {isAuthenticated ? (
@@ -209,38 +188,43 @@ export default function Header() {
                 </div>
                 <Link
                   href="/dashboard"
-                  className="text-BlackLight block px-3 py-2 dark:text-white"
+                  className="text-BlackLight flex items-center gap-1 px-3 py-2 dark:text-white"
                 >
-                  <MdSpaceDashboard className="mr-1 inline" />
+                  <MdSpaceDashboard className=" inline" />
                   {t('dashboard')}
                 </Link>
                 <Link
                   href="/profile"
-                  className="text-BlackLight block px-3 py-2 dark:text-white"
+                  className="text-BlackLight flex items-center gap-1 px-3 py-2 dark:text-white"
                 >
-                  <FaUser className="mr-1 inline" />
+                  <FaUser className=" inline" />
                   {t('profile')}
                 </Link>
                 <Link
                   href="/settings"
-                  className="text-BlackLight block px-3 py-2 dark:text-white"
+                  className="text-BlackLight flex items-center gap-1 px-3 py-2 dark:text-white"
                 >
-                  <FaCog className="mr-1 inline" />
+                  <FaCog className=" inline" />
                   {t('settings')}
+                </Link>
+                <Link 
+                  href="/calendar" 
+                  className="text-BlackLight flex items-center gap-1 px-3 py-2 dark:text-white"
+                >
+                  <IoCalendarClear className=" inline" />
+                  {t('calendar')}
                 </Link>
                 <button
                   aria-label={t('logout')}
                   onClick={() => signOut({ callbackUrl: '/' })}
-                  className="text-BlackLight block w-full px-3 py-2 text-left dark:text-white"
+                  className="text-BlackLight flex items-center gap-1 w-full px-3 py-2 text-left dark:text-white"
                 >
-                  <FaSignOutAlt className="mr-1 inline" />
+                  <FaSignOutAlt className=" inline" />
                   {t('logout')}
                 </button>
               </>
             ) : (
-              <div
-                className={`${isMenuOpen ? 'visible translate-x-0 opacity-100' : 'invisible -translate-x-10 opacity-0'} transition-all duration-300 ease-in-out`}
-              >
+              <div className="transition-all duration-300 ease-in-out">
                 <Link
                   href="/auth/login"
                   className="text-BlackLight block px-3 py-2 font-medium dark:text-white"

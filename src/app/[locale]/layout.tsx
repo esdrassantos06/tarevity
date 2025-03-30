@@ -91,13 +91,15 @@ export const viewport: Viewport = {
   ],
 }
 
-export default async function LocaleLayout({
+export default async function Layout({
   children,
   params,
 }: {
   children: React.ReactNode
   params: Promise<{ locale: string }> | { locale: string }
 }) {
+  const t = await getTranslations('Layout')
+
   const { locale } = params instanceof Promise ? await params : params
 
   if (!hasLocale(routing.locales, locale)) {
@@ -122,11 +124,11 @@ export default async function LocaleLayout({
                 enableSystem
               >
                 <a
-                  aria-label="Skip to main content"
+                  aria-label={t('skipToMainContent')}
                   href="#main-content"
                   className="focus:text-primary sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:rounded focus:bg-white focus:px-4 focus:py-2 focus:outline focus:outline-offset-2"
                 >
-                  Skip to main content
+                  {t('skipToMainContent')}
                 </a>
                 <main id="main-content">{children}</main>
                 <CookieBanner />

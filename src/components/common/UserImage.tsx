@@ -1,12 +1,16 @@
 'use client'
-
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import Image from 'next/image'
 import { FaUser } from 'react-icons/fa'
 import { useProfileQuery } from '@/hooks/useProfileQuery'
 import { useSession } from 'next-auth/react'
 import { useTranslations } from 'next-intl'
+import { useQueryClient } from '@tanstack/react-query'
 
+interface UserData {
+  name?: string
+  image?: string
+}
 interface UserImageProps {
   className?: string
   size?: number
@@ -19,24 +23,39 @@ const UserImage: React.FC<UserImageProps> = ({
   onClick,
 }) => {
   const t = useTranslations('Common.profileImage')
+  const { status, data: sessionData } = useSession()
+  const queryClient = useQueryClient()
+  const userId = sessionData?.user?.id
 
-  const { status } = useSession()
-  const [imageKey] = useState(Date.now())
+  const imageLoadedRef = useRef(false)
+  
   const [imageError, setImageError] = useState(false)
+  
+  const lastValidUrlRef = useRef<string | null>(null)
 
-  const { data: profileData } = useProfileQuery({
-    enabled: status === 'authenticated',
+  const cachedData = queryClient.getQueryData(['profile', userId])
+  
+  const { data: profileData, isLoading } = useProfileQuery({
+    enabled: status === 'authenticated' && !cachedData && !imageLoadedRef.current,
   })
 
+
+  
+  const userData: UserData = (profileData || cachedData) as UserData
+
   useEffect(() => {
-    if (profileData) {
-      setImageError(false)
+    if (userData?.image && !imageError) {
+      imageLoadedRef.current = true
+      
+      const url = ensureAbsoluteUrl(userData.image)
+      if (url) {
+        lastValidUrlRef.current = url
+      }
     }
-  }, [profileData])
+  }, [userData, imageError])
 
   const ensureAbsoluteUrl = (url: string | null | undefined): string | null => {
     if (!url) return null
-
     if (!url.startsWith('http')) {
       if (url.includes('/storage/v1/object/')) {
         const baseUrl =
@@ -46,28 +65,19 @@ const UserImage: React.FC<UserImageProps> = ({
       }
       return `https:${url.startsWith('//') ? '' : '//'}${url}`
     }
-
     return url
   }
 
-  const profileImageUrl = profileData?.image
-    ? ensureAbsoluteUrl(profileData.image)
-    : null
-
-  const getImageWithCacheBusting = (url: string | null) => {
-    if (!url) return null
-    const separator = url.includes('?') ? '&' : '?'
-    return `${url}${separator}v=${imageKey}`
-  }
-
-  const finalImageUrl = getImageWithCacheBusting(profileImageUrl)
+  const profileImageUrl = userData?.image
+    ? ensureAbsoluteUrl(userData.image)
+    : lastValidUrlRef.current
 
   const handleImageError = () => {
     console.error('Image failed to load')
     setImageError(true)
   }
 
-  if (!finalImageUrl || imageError) {
+  if (isLoading || !profileImageUrl || imageError) {
     return (
       <div
         className={`flex items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900 ${className}`}
@@ -80,16 +90,15 @@ const UserImage: React.FC<UserImageProps> = ({
 
   return (
     <Image
-      title={profileData?.name}
-      src={finalImageUrl}
-      alt={profileData?.name || t('defaultAlt')}
+      title={userData?.name}
+      src={profileImageUrl}
+      alt={userData?.name || t('defaultAlt')}
       width={size}
       height={size}
       className={className}
       unoptimized
       priority
       onClick={onClick}
-      key={`user-img-${imageKey}`}
       onError={handleImageError}
     />
   )

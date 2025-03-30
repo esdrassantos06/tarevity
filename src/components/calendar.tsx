@@ -9,6 +9,7 @@ import { useRouter } from 'next/navigation'
 import { useTodosQuery } from '@/hooks/useTodosQuery'
 import { Todo } from '@/lib/api'
 import { useTranslations } from 'next-intl'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip'
 
 export default function Calendar() {
   const t = useTranslations('calendar')
@@ -115,7 +116,6 @@ export default function Calendar() {
         return false
       }
 
-      // Format both dates to YYYY-MM-DD for comparison to avoid timezone issues
       const todoDate = new Date(todo.due_date)
       return (
         todoDate.getFullYear() === date.getFullYear() &&
@@ -125,7 +125,6 @@ export default function Calendar() {
     })
   }
 
-  // Format a date to YYYY-MM-DD without timezone issues
   const formatDateForURL = (date: Date) => {
     const year = date.getFullYear()
     const month = String(date.getMonth() + 1).padStart(2, '0')
@@ -146,7 +145,6 @@ export default function Calendar() {
     }
   }
 
-  // Using custom formatted date string with translations
   const formattedMonth = new Intl.DateTimeFormat(t('locale'), {
     month: 'long',
   }).format(currentDate)
@@ -162,10 +160,15 @@ export default function Calendar() {
   return (
     <div className="dark:bg-BlackLight flex size-full flex-col rounded-lg bg-white p-2">
       {/* Calendar Header */}
-      <div className="flex items-center justify-between border-b p-4">
-        <h1 className="text-2xl font-bold">{monthYearFormat}</h1>
+      <div className="flex flex-col items-center justify-between gap-2 border-b p-2 sm:flex-row sm:p-4">
+        <h1 className="text-xl font-bold sm:text-2xl">{monthYearFormat}</h1>
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={goToToday}>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={goToToday}
+            className="text-xs sm:text-sm"
+          >
             {t('today')}
           </Button>
           <Button
@@ -193,16 +196,16 @@ export default function Calendar() {
         {daysOfWeek.map((day, index) => (
           <div
             key={index}
-            className="border-r border-b p-2 text-center font-medium last:border-r-0"
+            className="border-r border-b p-1 text-center text-xs font-medium last:border-r-0 sm:p-2 sm:text-sm"
           >
             <span className="hidden md:inline">{day}</span>
-            <span className="md:hidden">{day.slice(0, 3)}</span>
+            <span className="md:hidden">{day.slice(0, 1)}</span>
           </div>
         ))}
 
         {/* Calendar Days */}
         {calendarDays.map((day, index) => {
-          const dayEvents = getEventsForDate(day.date)
+          const dayEvents = day.isCurrentMonth ? getEventsForDate(day.date) : []
           const isToday =
             day.isCurrentMonth &&
             day.day === new Date().getDate() &&
@@ -214,12 +217,14 @@ export default function Calendar() {
               key={index}
               onClick={() => dayEvents.length > 0 && handleDayClick(day.date)}
               className={cn(
-                'relative table border-r border-b p-1 last:border-r-0 md:p-2',
-                dayEvents.length > 0
+                'relative table border-r border-b p-1 last:border-r-0 sm:p-2',
+                dayEvents.length > 0 && day.isCurrentMonth
                   ? 'cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800'
                   : '',
                 !day.isCurrentMonth && 'bg-muted/50 text-muted-foreground',
-                dayEvents.length > 0 && 'bg-blue-50 dark:bg-blue-900/30',
+                dayEvents.length > 0 &&
+                  day.isCurrentMonth &&
+                  'bg-blue-50 dark:bg-blue-900/30',
               )}
               aria-label={
                 dayEvents.length > 0
@@ -233,35 +238,73 @@ export default function Calendar() {
               <div className="flex justify-between">
                 <span
                   className={cn(
-                    'flex size-6 items-center justify-center rounded-full text-sm',
-                    isToday && 'bg-primary text-white',
+                    'flex size-5 items-center justify-center rounded-full text-xs sm:size-6 sm:text-sm',
+                    isToday && 'bg-primary !text-white',
                     dayEvents.length > 0 &&
                       'font-bold text-blue-600 dark:text-blue-400',
                   )}
                 >
                   {day.day}
                 </span>
+                {day.isCurrentMonth && dayEvents.length > 0 && (
+                  <span className="text-xs font-medium text-blue-600 sm:hidden dark:text-blue-400">
+                    {dayEvents.length}
+                  </span>
+                )}
               </div>
 
-              {/* Events */}
-              <div className="mt-1 max-h-20 space-y-1 overflow-y-auto">
-                {dayEvents.map((event) => (
-                  <CalendarEvent
-                    key={event.id}
-                    event={{
-                      id: Number(event.id),
-                      title: event.title,
-                      date: new Date(event.due_date!),
-                      color:
-                        event.priority === 3
-                          ? 'bg-red-500'
-                          : event.priority === 2
-                            ? 'bg-yellow-500'
-                            : 'bg-green-500',
-                    }}
-                  />
-                ))}
-              </div>
+              {/* Events - Only show for current month days */}
+              {day.isCurrentMonth && (
+                <div className="mt-1 max-h-14 space-y-1 overflow-hidden sm:max-h-20">
+                  {dayEvents
+                    .slice(0, window.innerWidth < 640 ? 1 : 3)
+                    .map((event) => (
+                      <CalendarEvent
+                        key={event.id}
+                        event={{
+                          id: Number(event.id),
+                          title: event.title,
+                          date: new Date(event.due_date!),
+                          color:
+                            event.priority === 3
+                              ? 'bg-red-500'
+                              : event.priority === 2
+                                ? 'bg-yellow-500'
+                                : 'bg-green-500',
+                        }}
+                      />
+                    ))}
+                  {dayEvents.length > (window.innerWidth < 640 ? 1 : 3) && (
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <div className="cursor-pointer text-center text-xs text-gray-500">
+                            +
+                            {dayEvents.length -
+                              (window.innerWidth < 640 ? 1 : 3)}
+                          </div>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p className="font-medium">
+                            {dayEvents.length -
+                              (window.innerWidth < 640 ? 1 : 3)}{' '}
+                            mais eventos
+                          </p>
+                          <div className="mt-1 space-y-1">
+                            {dayEvents
+                              .slice(window.innerWidth < 640 ? 1 : 3)
+                              .map((event) => (
+                                <p key={event.id} className="text-xs">
+                                  {event.title}
+                                </p>
+                              ))}
+                          </div>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  )}
+                </div>
+              )}
             </div>
           )
         })}

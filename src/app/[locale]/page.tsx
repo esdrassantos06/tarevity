@@ -78,7 +78,7 @@ export default function HomePage() {
             <div className="mt-10 flex justify-center">
               <div className="rounded-md shadow">
                 <Link
-                  href="/auth/login"
+                  href="/dashboard"
                   className="dark:bg-BlackLight flex w-full items-center justify-center rounded-md border border-transparent bg-white px-5 py-1.5 text-base font-medium transition-all duration-300 md:text-lg"
                 >
                   {t('hero.getStarted')}{' '}
