@@ -1,6 +1,26 @@
 # Changelog
 
 All notable changes to the Tarevity project will be documented in this file.
+## [1.1.1] - 2025-03-30
+
+### Added
+- 
+
+### Changed
+- Optimized parts of the code to improve performance 
+- Replaced country icons with SVG for better Windows compatibility
+
+### Fixed
+- Fixed an error in OAuth authentication with Google and GitHub using next-auth 
+- Fixed a bug where users weren't redirected to the login page when attempting to access the dashboard without being logged in
+- Resolved a bug where opening the dropdown showed an unwanted margin-right
+
+### Security
+- Added caching to significant portions of the authentication and notifications code
+
+### Removed
+- 
+
 
 ## [1.1.0] - 2025-03-30
 
