@@ -1,30 +1,35 @@
 # Changelog
 
 All notable changes to the Tarevity project will be documented in this file.
+
 ## [1.1.0] - 2025-03-30
 
 ### Added
+
 - Integrated shadcn/ui dropdown in header and NotificationsDropdown component
 - Added caching system for profile images using refs and React Query
 - Implemented tooltips instead of title in calendar
 
 ### Changed
+
 - Replaced custom dropdown with shadcn/ui component for better consistency and accessibility
 - Optimized UserImage component to prevent unnecessary requests between page changes
 - Improved React Query cache management for profile data
 
 ### Fixed
+
 - Fixed issue with multiple profile image requests on each navigation
 - Resolved profile image flickering during route changes
 - Improved image data persistence between UserImage component renders
 
 ### Security
+
 - Enhanced validation and error handling for unavailable profile images
 
 ### Removed
+
 - Removed custom dropdown in favor of shadcn/ui component
 - Eliminated use of Date.now() as cache key which forced unnecessary reloads
-
 
 ## [1.0.9] - 2025-03-28
 
