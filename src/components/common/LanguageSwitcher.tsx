@@ -85,14 +85,18 @@ export default function LanguageSwitcher() {
             <span className="sr-only">{t('selectLanguage')}</span>
           </Button>
         </DropdownMenuTrigger>
-        
-        <DropdownMenuContent align="end" className="w-52 dark:bg-BlackLight" sideOffset={8}>
+
+        <DropdownMenuContent
+          align="end"
+          className="dark:bg-BlackLight w-52"
+          sideOffset={8}
+        >
           <div className="px-1 py-2">
             <DropdownMenuLabel>{t('selectLanguage')}</DropdownMenuLabel>
           </div>
-          
+
           <DropdownMenuSeparator />
-          <div className="max-h-[50vh] sm:max-h-80 overflow-y-auto py-2">
+          <div className="max-h-[50vh] overflow-y-auto py-2 sm:max-h-80">
             {languages.map((language) => (
               <DropdownMenuItem
                 key={language.code}

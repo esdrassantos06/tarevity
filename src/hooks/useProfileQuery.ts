@@ -51,7 +51,7 @@ export function useProfileQuery(options: QueryOptions = {}) {
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
     placeholderData: (oldData) => oldData,
-    retryDelay: attemptIndex => Math.min(1000 * 2 ** attemptIndex, 30000),
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
   })
 }
 

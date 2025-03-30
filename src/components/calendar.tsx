@@ -9,7 +9,12 @@ import { useRouter } from 'next/navigation'
 import { useTodosQuery } from '@/hooks/useTodosQuery'
 import { Todo } from '@/lib/api'
 import { useTranslations } from 'next-intl'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from './ui/tooltip'
 
 export default function Calendar() {
   const t = useTranslations('calendar')

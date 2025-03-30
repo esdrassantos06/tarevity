@@ -28,25 +28,24 @@ const UserImage: React.FC<UserImageProps> = ({
   const userId = sessionData?.user?.id
 
   const imageLoadedRef = useRef(false)
-  
+
   const [imageError, setImageError] = useState(false)
-  
+
   const lastValidUrlRef = useRef<string | null>(null)
 
   const cachedData = queryClient.getQueryData(['profile', userId])
-  
+
   const { data: profileData, isLoading } = useProfileQuery({
-    enabled: status === 'authenticated' && !cachedData && !imageLoadedRef.current,
+    enabled:
+      status === 'authenticated' && !cachedData && !imageLoadedRef.current,
   })
 
-
-  
   const userData: UserData = (profileData || cachedData) as UserData
 
   useEffect(() => {
     if (userData?.image && !imageError) {
       imageLoadedRef.current = true
-      
+
       const url = ensureAbsoluteUrl(userData.image)
       if (url) {
         lastValidUrlRef.current = url

@@ -1266,7 +1266,6 @@
       "invalidTodoData": "Dados da tarefa inválidos",
       "databaseError": "Erro de banco de dados: {error}",
       "unknownErrorCreatingTask": "Erro desconhecido ao criar tarefa"
-
     },
     "validation": {
       "titleRequired": "Título é obrigatório",

@@ -9,12 +9,12 @@ import { getTranslations } from 'next-intl/server'
 
 export async function GET() {
   const t = await getTranslations('TodoRoute.TodosRoute')
-  
+
   const session = await getServerSession(authOptions)
   if (!session?.user?.id) {
     return NextResponse.json({ message: t('unauthorized') }, { status: 401 })
   }
-  
+
   const userId = session.user.id
   try {
     const { data, error } = await supabaseAdmin
@@ -22,9 +22,9 @@ export async function GET() {
       .select('*')
       .eq('user_id', userId)
       .order('created_at', { ascending: false })
-      
+
     if (error) throw error
-    
+
     return NextResponse.json(data || [], {
       status: 200,
       headers: {
@@ -48,10 +48,14 @@ export async function GET() {
 // Create a localized Zod schema creator function
 const createTodoSchema = async () => {
   const t = await getTranslations('TodoRoute.validation')
-  
+
   return z.object({
     title: z.string().min(1, t('titleRequired')).max(100, t('titleTooLong')),
-    description: z.string().max(500, t('descriptionTooLong')).nullable().optional(),
+    description: z
+      .string()
+      .max(500, t('descriptionTooLong'))
+      .nullable()
+      .optional(),
     priority: z.number().int().min(1).max(3),
     due_date: z.string().nullable().optional(),
     is_completed: z.boolean().optional(),
@@ -62,23 +66,23 @@ const createTodoSchema = async () => {
 export async function POST(req: NextRequest) {
   const t = await getTranslations('api.todos')
   const todoSchema = await createTodoSchema()
-  
+
   try {
     const session = await getServerSession(authOptions)
     if (!session?.user?.id) {
       return NextResponse.json({ message: t('unauthorized') }, { status: 401 })
     }
-    
+
     const validation = await validateRequest(
       req,
       todoSchema,
       t('invalidTodoData'),
     )
     if (validation instanceof NextResponse) return validation
-    
+
     const validatedData = validation.data
     const userId = session.user.id
-    
+
     const todoData = {
       user_id: userId,
       title: validatedData.title.trim(),
@@ -89,13 +93,13 @@ export async function POST(req: NextRequest) {
       is_completed: !!validatedData.is_completed,
       status: validatedData.status || 'active',
     }
-    
+
     const { data, error } = await supabaseAdmin
       .from('todos')
       .insert([todoData])
       .select()
       .single()
-      
+
     if (error) {
       console.error('Database error:', error)
       return NextResponse.json(
@@ -103,7 +107,7 @@ export async function POST(req: NextRequest) {
         { status: 500 },
       )
     }
-    
+
     if (data && data.due_date && !data.is_completed) {
       try {
         const notifications =
@@ -121,7 +125,7 @@ export async function POST(req: NextRequest) {
         )
       }
     }
-    
+
     return NextResponse.json(data, { status: 201 })
   } catch (error: unknown) {
     console.error('Error creating task:', error)

@@ -34,7 +34,7 @@ import {
   DropdownMenuGroup,
   DropdownMenuLabel,
   DropdownMenuTrigger,
-  DropdownMenuSeparator
+  DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu'
 import { Button } from '@/components/ui/button'
 
@@ -243,7 +243,7 @@ export default function NotificationDropdown() {
         </DropdownMenuTrigger>
 
         <DropdownMenuContent
-          className="w-[calc(100vw-2rem)] dark:bg-BlackLight sm:w-100 md:w-120"
+          className="dark:bg-BlackLight w-[calc(100vw-2rem)] sm:w-100 md:w-120"
           sideOffset={8}
           align="end"
         >
@@ -386,12 +386,16 @@ export default function NotificationDropdown() {
                             {notification.read ? (
                               <>
                                 <FaEnvelope className="mr-1 size-3" />
-                                <span className='truncate'>{t('actions.unread')}</span>
+                                <span className="truncate">
+                                  {t('actions.unread')}
+                                </span>
                               </>
                             ) : (
                               <>
                                 <FaCheckCircle className="mr-1 size-3" />
-                                <span className='truncate'>{t('actions.read')}</span>
+                                <span className="truncate">
+                                  {t('actions.read')}
+                                </span>
                               </>
                             )}
                           </Button>
@@ -407,7 +411,9 @@ export default function NotificationDropdown() {
                             title={t('tooltip.removeNotification')}
                           >
                             <FaTrash className="mr-1 size-3" />
-                            <span className='truncate'>{t('actions.remove')}</span>
+                            <span className="truncate">
+                              {t('actions.remove')}
+                            </span>
                           </Button>
                         </div>
                       </div>

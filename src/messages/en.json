@@ -68,7 +68,6 @@
       "invalidTodoData": "Invalid todo data",
       "databaseError": "Database error: {error}",
       "unknownErrorCreatingTask": "Unknown error creating task"
-
     },
     "validation": {
       "titleRequired": "Title is required",

@@ -71,7 +71,7 @@ export default function Header() {
                   <Button
                     variant="outline"
                     size="icon"
-                    className="border-BorderLight hover:bg-BorderLight dark:border-BorderDark dark:hover:bg-BorderDark p-2 relative mr-2 size-10"
+                    className="border-BorderLight hover:bg-BorderLight dark:border-BorderDark dark:hover:bg-BorderDark relative mr-2 size-10 p-2"
                   >
                     <IoCalendarClearOutline className="size-5" />
                   </Button>
@@ -88,7 +88,10 @@ export default function Header() {
                         <UserImage />
                       </button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent className="w-60 dark:bg-BlackLight" align="end">
+                    <DropdownMenuContent
+                      className="dark:bg-BlackLight w-60"
+                      align="end"
+                    >
                       <div className="border-b border-gray-200 px-4 py-2 dark:border-gray-700">
                         <p className="text-sm font-bold text-gray-900 dark:text-white">
                           {profileData?.name}
@@ -190,36 +193,36 @@ export default function Header() {
                   href="/dashboard"
                   className="text-BlackLight flex items-center gap-1 px-3 py-2 dark:text-white"
                 >
-                  <MdSpaceDashboard className=" inline" />
+                  <MdSpaceDashboard className="inline" />
                   {t('dashboard')}
                 </Link>
                 <Link
                   href="/profile"
                   className="text-BlackLight flex items-center gap-1 px-3 py-2 dark:text-white"
                 >
-                  <FaUser className=" inline" />
+                  <FaUser className="inline" />
                   {t('profile')}
                 </Link>
                 <Link
                   href="/settings"
                   className="text-BlackLight flex items-center gap-1 px-3 py-2 dark:text-white"
                 >
-                  <FaCog className=" inline" />
+                  <FaCog className="inline" />
                   {t('settings')}
                 </Link>
-                <Link 
-                  href="/calendar" 
+                <Link
+                  href="/calendar"
                   className="text-BlackLight flex items-center gap-1 px-3 py-2 dark:text-white"
                 >
-                  <IoCalendarClear className=" inline" />
+                  <IoCalendarClear className="inline" />
                   {t('calendar')}
                 </Link>
                 <button
                   aria-label={t('logout')}
                   onClick={() => signOut({ callbackUrl: '/' })}
-                  className="text-BlackLight flex items-center gap-1 w-full px-3 py-2 text-left dark:text-white"
+                  className="text-BlackLight flex w-full items-center gap-1 px-3 py-2 text-left dark:text-white"
                 >
-                  <FaSignOutAlt className=" inline" />
+                  <FaSignOutAlt className="inline" />
                   {t('logout')}
                 </button>
               </>

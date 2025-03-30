@@ -38,9 +38,9 @@ export default function CalendarEvent({ event }: CalendarEventProps) {
             <span className="inline sm:hidden">...</span>
           </div>
         </TooltipTrigger>
-        <TooltipContent className="max-w-xs text-black dark:text-white dark:bg-BlackLight bg-white">
-          <p className=''>{event.title}</p>
-          <p className="text-xs mt-1 text-muted-foreground">
+        <TooltipContent className="dark:bg-BlackLight max-w-xs bg-white text-black dark:text-white">
+          <p className="">{event.title}</p>
+          <p className="text-muted-foreground mt-1 text-xs">
             {event.date.toLocaleDateString()}
           </p>
         </TooltipContent>
