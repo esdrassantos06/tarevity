@@ -48,34 +48,6 @@
       "button": "Create Free Account"
     }
   },
-
-  "TodoRoute": {
-    "TodoId": {
-      "unauthorized": "Unauthorized",
-      "taskNotFound": "Task not found",
-      "forbidden": "Forbidden",
-      "errorFetchingTask": "Error fetching task",
-      "unknownErrorFetchingTask": "Unknown error fetching task",
-      "errorUpdatingTask": "Error updating task",
-      "unknownErrorUpdatingTask": "Unknown error updating task",
-      "taskDeletedSuccessfully": "Task deleted successfully",
-      "errorDeletingTask": "Error deleting task",
-      "unknownErrorDeletingTask": "Unknown error deleting task"
-    },
-    "TodosRoute": {
-      "unauthorized": "Unauthorized",
-      "unknownErrorFetchingTasks": "Unknown error fetching tasks",
-      "invalidTodoData": "Invalid todo data",
-      "databaseError": "Database error: {error}",
-      "unknownErrorCreatingTask": "Unknown error creating task"
-    },
-    "validation": {
-      "titleRequired": "Title is required",
-      "titleTooLong": "Title too long",
-      "descriptionTooLong": "Description too long"
-    }
-  },
-
   "Layout": {
     "skipToMainContent": "Skip to main content",
     "metadata": {
@@ -1030,25 +1002,6 @@
     "errorDeletingTask": "Error deleting task",
     "taskDeletedSuccessfully": "Task deleted successfully"
   },
-  "api": {
-    "unknownErrorDuringRegistration": "Unknown error during registration",
-    "errorCheckingPasswordSecurity": "Error checking password security",
-    "errorProcessingPasswordReset": "Error processing password reset",
-    "invalidOrExpiredToken": "Invalid or expired token",
-    "errorCheckingCurrentPassword": "Error checking current password",
-    "errorResettingPassword": "Error resetting password",
-    "errorLoadingProfile": "Error loading profile",
-    "errorUpdatingProfile": "Error updating profile",
-    "errorUploadingProfileImage": "Error uploading profile image",
-    "errorDeletingProfileImage": "Error deleting profile image",
-    "errorDeletingAccount": "Error deleting account",
-    "errorLoadingStatistics": "Error loading statistics",
-    "errorLoadingTasks": "Error loading tasks",
-    "errorLoadingTask": "Error loading task",
-    "errorCreatingTask": "Error creating task",
-    "errorUpdatingTask": "Error updating task",
-    "errorDeletingTask": "Error deleting task"
-  },
   "authLib": {
     "passwordMinLength": "Password must be at least 8 characters",
     "passwordRequiresUppercase": "Password must contain uppercase letters",
@@ -1085,10 +1038,6 @@
     "502": "Bad gateway error. Please try again later",
     "503": "The service is temporarily unavailable",
     "504": "Gateway timeout. Please try again later"
-  },
-  "ImageValidation": {
-    "fileSizeError": "Image is too large. Maximum size is {maxSize}MB.",
-    "fileTypeError": "Invalid file type. Please select a JPG, PNG, GIF, or WebP image."
   },
   "NotificationTitles": {
     "overdueTask": "Overdue Task",
@@ -1180,12 +1129,7 @@
     "metadata": {
       "title": "Terms of Service & User Agreement | Tarevity",
       "description": "Review our detailed terms of service covering user responsibilities, data ownership, acceptable use policies, and service limitations.",
-      "keywords": [
-        "terms of service",
-        "user agreement",
-        "legal terms",
-        "data ownership"
-      ]
+      "keywords": "terms of service, user agreement, legal terms, data ownership"
     }
   },
   "SettingsPage": {
@@ -1206,12 +1150,7 @@
     "metadata": {
       "title": "Data Protection & Privacy Commitment | Tarevity",
       "description": "Understand how Tarevity safeguards your data with end-to-end encryption, secure storage practices, and transparent usage policies.",
-      "keywords": [
-        "data privacy",
-        "information security",
-        "user data protection",
-        "privacy policy"
-      ]
+      "keywords": "data privacy, information security, user data protection, privacy policy"
     }
   },
   "DashboardPage": {

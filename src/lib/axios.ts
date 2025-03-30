@@ -1,12 +1,14 @@
 import axios, { AxiosError } from 'axios'
 import { getSession, getCsrfToken } from 'next-auth/react'
-import { showError, showWarning } from '@/lib/toast'
+import { showError } from '@/lib/toast'
 
 export interface APIErrorResponse {
   message: string
   code?: string
   details?: Record<string, unknown>
   silentError?: boolean
+  redirectTo?: string
+  callbackUrl?: string
 }
 
 export interface APIError {
@@ -52,61 +54,76 @@ axiosClient.interceptors.response.use(
   (response) => response,
   (error: AxiosError<APIErrorResponse>) => {
     if (process.env.NODE_ENV !== 'production') {
-      console.error('Axios error:', error)
+      console.error(
+        'Axios error:',
+        error.response?.status,
+        error.response?.data,
+      )
     }
 
     if (error.response) {
       const status = error.response.status
       const errorData = error.response.data
 
-      const publicPaths = ['/', '/privacy', '/terms']
-      const pathname =
-        typeof window !== 'undefined' ? window.location.pathname : ''
-      const isPublicPath = publicPaths.some(
-        (path) => pathname === path || pathname.startsWith(`${path}/`),
-      )
+      if (status === 401) {
+        if (typeof window !== 'undefined') {
+          const redirectTo = errorData?.redirectTo || '/auth/login'
+          const callbackUrl =
+            errorData?.callbackUrl ||
+            encodeURIComponent(window.location.pathname)
 
-      const isProtectedRoute =
-        typeof window !== 'undefined' &&
-        ['/dashboard', '/profile', '/settings', '/todo'].some((path) =>
-          window.location.pathname.startsWith(path),
-        )
+          const justLoggedInValue =
+            window.sessionStorage.getItem('just_logged_in')
+          const justLoggedIn =
+            justLoggedInValue &&
+            Date.now() - parseInt(justLoggedInValue, 10) < 5000
 
-      if (status === 401 && isPublicPath) {
-        return Promise.reject({
-          message: 'Unauthenticated on public page',
-          status,
-          silentError: true,
-        })
-      }
+          if (justLoggedIn) {
+            window.location.reload()
+          } else {
+            window.sessionStorage.removeItem('just_logged_in')
+            const redirectCount = parseInt(
+              window.sessionStorage.getItem('redirect_count') || '0',
+              10,
+            )
 
-      switch (status) {
-        case 401:
-          if (isProtectedRoute) {
-            const justLoggedInValue =
-              window.sessionStorage.getItem('just_logged_in')
-            const justLoggedIn =
-              justLoggedInValue &&
-              Date.now() - parseInt(justLoggedInValue, 10) < 5000
-
-            if (justLoggedIn) {
-              if (!window.location.pathname.includes('/auth/login')) {
-                window.location.reload()
-              }
+            if (redirectCount > 3) {
+              console.error('Redirect loop detected, going to homepage')
+              window.location.href = '/'
               return Promise.reject({
-                message: 'Session initializing...',
+                message: 'Redirect loop detected',
                 status,
                 silentError: true,
               })
             }
-            window.sessionStorage.removeItem('just_logged_in')
+            window.sessionStorage.setItem(
+              'redirect_count',
+              (redirectCount + 1).toString(),
+            )
 
-            showError('Your session has expired. Please log in again.')
-            if (typeof window !== 'undefined') {
-              const currentPath = window.location.pathname
-              window.location.href = `/auth/login?callbackUrl=${encodeURIComponent(currentPath)}`
-            }
+            showError('Your session has expired. Redirecting to login page...')
+
+            setTimeout(() => {
+              // Build redirect URL
+              const loginUrl = `${redirectTo}?callbackUrl=${callbackUrl}`
+              window.location.href = loginUrl
+            }, 500)
           }
+
+          // Reject promise with a silent message
+          return Promise.reject({
+            message: 'Session expired, redirecting to login...',
+            status,
+            code: errorData?.code || 'SESSION_EXPIRED',
+            silentError: true,
+          })
+        }
+      }
+
+      // Handle other error codes
+      switch (status) {
+        case 403:
+          showError('You do not have permission to access this resource.')
           break
 
         case 409:
@@ -126,23 +143,12 @@ axiosClient.interceptors.response.use(
           }
           break
 
-        case 429:
-          const retryAfter = error.response.headers['retry-after']
-          const waitTime = retryAfter ? parseInt(retryAfter, 10) : 60
-
-          showWarning(
-            `Too many requests. Please try again in ${Math.ceil(waitTime / 60)} minute${
-              Math.ceil(waitTime / 60) > 1 ? 's' : ''
-            }.`,
-          )
-          break
-
         case 500:
           showError('A server error occurred. Please try again later.')
           break
 
         default:
-          if (errorData?.message) {
+          if (errorData?.message && !errorData?.silentError) {
             showError(errorData.message)
           }
           break
@@ -158,17 +164,17 @@ axiosClient.interceptors.response.use(
 
     if (error.request) {
       showError(
-        'Unable to connect to server. Please check your internet connection.',
+        'Could not connect to the server. Please check your internet connection.',
       )
       return Promise.reject({
         message:
-          'Unable to connect to server. Please check your internet connection.',
+          'Could not connect to the server. Please check your internet connection.',
         status: undefined,
       } satisfies APIError)
     }
 
     return Promise.reject({
-      message: error.message || 'Unknown error occurred',
+      message: error.message || 'An unknown error occurred',
       status: undefined,
     } satisfies APIError)
   },

@@ -1,5 +1,3 @@
-import { getTranslations } from 'next-intl/server'
-
 /**
  * Ensures that a URL is absolute by adding appropriate prefixes if needed
  *
@@ -33,21 +31,20 @@ export async function validateImageFile(
   file: File,
   maxSizeBytes: number = 2 * 1024 * 1024, // 2MB
 ): Promise<{ valid: boolean; error?: string }> {
-  const t = await getTranslations('ImageValidation')
   const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp']
   const maxSizeMB = Math.round(maxSizeBytes / (1024 * 1024))
 
   if (file.size > maxSizeBytes) {
     return {
       valid: false,
-      error: t('fileSizeError', { maxSize: maxSizeMB }),
+      error: `File size error: maximum size is ${maxSizeMB}MB`,
     }
   }
 
   if (!allowedTypes.includes(file.type)) {
     return {
       valid: false,
-      error: t('fileTypeError'),
+      error: 'File type error',
     }
   }
 

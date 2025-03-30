@@ -51,8 +51,6 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
-    "@types/bcryptjs": "^3.0.0",
-    "@types/cookie": "^1.0.0",
     "@types/node": "^22.13.14",
     "@types/react": "^19",
     "@types/react-dom": "^19",

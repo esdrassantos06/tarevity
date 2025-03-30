@@ -199,7 +199,7 @@ export const authOptions: NextAuthOptions = {
         try {
           const { data: existingUser, error: findError } = await supabase
             .from('users')
-            .select('*')
+            .select('id, email, is_admin')
             .eq('email', user.email)
             .single()
 

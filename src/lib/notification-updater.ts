@@ -46,7 +46,7 @@ export async function processDynamicNotificationUpdates(): Promise<number> {
     // Fetch all non-dismissed notifications with due dates
     const { data: notifications, error } = await supabaseAdmin
       .from('notifications')
-      .select('*')
+      .select('todo_id, id, notification_type, title, message')
       .eq('dismissed', false)
 
     if (error) {
@@ -287,7 +287,7 @@ export async function createMissingNotifications(): Promise<number> {
     const { data: allNotifications, error: notificationError } =
       await supabaseAdmin
         .from('notifications')
-        .select('*')
+        .select('todo_id, dismissed, notification_type')
         .in('todo_id', todoIds)
 
     if (notificationError) {
@@ -443,7 +443,7 @@ export async function updateNotificationMessages(todo: Todo): Promise<void> {
 
     const { data: notifications, error } = await supabaseAdmin
       .from('notifications')
-      .select('*')
+      .select('notification_type, id')
       .eq('todo_id', todo.id)
       .eq('dismissed', false)
 
@@ -619,7 +619,7 @@ export async function cleanupDuplicateNotifications(): Promise<number> {
     // Get all active notifications
     const { data: notifications, error } = await supabaseAdmin
       .from('notifications')
-      .select('*')
+      .select('notification_type, user_id, todo_id')
       .eq('dismissed', false)
 
     if (error || !notifications || notifications.length === 0) {
@@ -642,7 +642,7 @@ export async function cleanupDuplicateNotifications(): Promise<number> {
     let removedCount = 0
 
     // For each group, keep only the most recently updated notification
-    for (const [key, group] of notificationGroups.entries()) {
+    for (const [, group] of notificationGroups.entries()) {
       if (group.length <= 1) continue
 
       // Sort by updated_at descending (newest first)
@@ -665,7 +665,6 @@ export async function cleanupDuplicateNotifications(): Promise<number> {
 
         if (!error && count) {
           removedCount += count
-          console.log(`Deleted ${count} duplicate notifications for key ${key}`)
         }
       }
     }

@@ -112,7 +112,7 @@ export default async function Layout({
         <link rel="manifest" href="/manifest.json" />
       </head>
       <body
-        className={`${inter.className} overflow-x-hidden`}
+        className={`${inter.className}!mr-0 overflow-x-hidden`}
         suppressHydrationWarning
       >
         <Providers>

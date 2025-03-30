@@ -1003,25 +1003,6 @@
     "errorDeletingTask": "Erro ao excluir tarefa",
     "taskDeletedSuccessfully": "Tarefa excluída com sucesso"
   },
-  "api": {
-    "unknownErrorDuringRegistration": "Erro desconhecido durante o registro",
-    "errorCheckingPasswordSecurity": "Erro ao verificar a segurança da senha",
-    "errorProcessingPasswordReset": "Erro ao processar a redefinição de senha",
-    "invalidOrExpiredToken": "Token inválido ou expirado",
-    "errorCheckingCurrentPassword": "Erro ao verificar a senha atual",
-    "errorResettingPassword": "Erro ao redefinir a senha",
-    "errorLoadingProfile": "Erro ao carregar perfil",
-    "errorUpdatingProfile": "Erro ao atualizar perfil",
-    "errorUploadingProfileImage": "Erro ao enviar imagem de perfil",
-    "errorDeletingProfileImage": "Erro ao excluir imagem de perfil",
-    "errorDeletingAccount": "Erro ao excluir conta",
-    "errorLoadingStatistics": "Erro ao carregar estatísticas",
-    "errorLoadingTasks": "Erro ao carregar tarefas",
-    "errorLoadingTask": "Erro ao carregar tarefa",
-    "errorCreatingTask": "Erro ao criar tarefa",
-    "errorUpdatingTask": "Erro ao atualizar tarefa",
-    "errorDeletingTask": "Erro ao excluir tarefa"
-  },
   "authLib": {
     "passwordMinLength": "A senha deve ter pelo menos 8 caracteres",
     "passwordRequiresUppercase": "A senha deve conter letras maiúsculas",
@@ -1058,10 +1039,6 @@
     "502": "Erro de gateway. Por favor, tente novamente mais tarde",
     "503": "O serviço está temporariamente indisponível",
     "504": "Tempo limite de gateway. Por favor, tente novamente mais tarde"
-  },
-  "ImageValidation": {
-    "fileSizeError": "A imagem é muito grande. O tamanho máximo é de {maxSize}MB.",
-    "fileTypeError": "Tipo de arquivo inválido. Por favor, selecione uma imagem JPG, PNG, GIF ou WebP."
   },
   "NotificationTitles": {
     "overdueTask": "Tarefa Atrasada",
@@ -1153,12 +1130,7 @@
     "metadata": {
       "title": "Termos de Serviço e Acordo de Usuário | Tarevity",
       "description": "Revise nossos detalhados termos de serviço que abrangem responsabilidades do usuário, propriedade de dados, políticas de uso aceitável e limitações de serviço.",
-      "keywords": [
-        "termos de serviço",
-        "acordo de usuário",
-        "termos legais",
-        "propriedade de dados"
-      ]
+      "keywords": "termos de serviço, acordo de usuário ,termos legais, propriedade de dados"
     }
   },
   "SettingsPage": {
@@ -1179,12 +1151,7 @@
     "metadata": {
       "title": "Compromisso de Proteção de Dados & Privacidade | Tarevity",
       "description": "Entenda como a Tarevity protege seus dados com criptografia de ponta a ponta, práticas seguras de armazenamento e políticas de uso transparentes.",
-      "keywords": [
-        "privacidade de dados",
-        "segurança da informação",
-        "proteção de dados do usuário",
-        "política de privacidade"
-      ]
+      "keywords": "privacidade de dados, segurança da informação, proteção de dados do usário, política de privacidade"
     }
   },
   "DashboardPage": {
@@ -1246,31 +1213,5 @@
     "dueTomorrowMessage": "\"{title}\" vence amanhã",
     "upcomingDeadlineMessage": "\"{title}\" vence {timeUntil}",
     "futureTaskMessage": "\"{title}\" vence {timeUntil}"
-  },
-  "TodoRoute": {
-    "TodoId": {
-      "unauthorized": "Não autorizado",
-      "taskNotFound": "Tarefa não encontrada",
-      "forbidden": "Proibido",
-      "errorFetchingTask": "Erro ao buscar tarefa",
-      "unknownErrorFetchingTask": "Erro desconhecido ao buscar tarefa",
-      "errorUpdatingTask": "Erro ao atualizar tarefa",
-      "unknownErrorUpdatingTask": "Erro desconhecido ao atualizar tarefa",
-      "taskDeletedSuccessfully": "Tarefa excluída com sucesso",
-      "errorDeletingTask": "Erro ao excluir tarefa",
-      "unknownErrorDeletingTask": "Erro desconhecido ao excluir tarefa"
-    },
-    "TodosRoute": {
-      "unauthorized": "Não autorizado",
-      "unknownErrorFetchingTasks": "Erro desconhecido ao buscar tarefa",
-      "invalidTodoData": "Dados da tarefa inválidos",
-      "databaseError": "Erro de banco de dados: {error}",
-      "unknownErrorCreatingTask": "Erro desconhecido ao criar tarefa"
-    },
-    "validation": {
-      "titleRequired": "Título é obrigatório",
-      "titleTooLong": "Título muito longo",
-      "descriptionTooLong": "Descrição muito longa"
-    }
   }
 }

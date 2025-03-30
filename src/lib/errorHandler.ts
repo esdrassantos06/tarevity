@@ -83,7 +83,7 @@ async function getSafeErrorMessage(message: string): Promise<string> {
 
   if (sensitiveTerms.some((term) => message.toLowerCase().includes(term))) {
     const t = await getTranslations('ErrorMessages')
-    return t('500') // Default to generic internal error message
+    return t('500')
   }
 
   return message

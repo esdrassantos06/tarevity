@@ -15,7 +15,7 @@ export async function GET(req: Request) {
 
     const { data, error } = await supabaseAdmin
       .from('password_reset_tokens')
-      .select('*')
+      .select('expires_at, user_id, id')
       .eq('token', token)
       .eq('used', false)
       .single()

@@ -5,21 +5,18 @@ import { supabaseAdmin } from '@/lib/supabaseAdmin'
 import { NextRequest } from 'next/server'
 import { notificationsService } from '@/lib/notifications'
 import { updateNotificationMessages } from '@/lib/notification-updater'
-import { getTranslations } from 'next-intl/server'
 
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const t = await getTranslations('TodoRoute.TodoId')
-
   try {
     const { id } = await params
 
     const session = await getServerSession(authOptions)
 
     if (!session?.user?.id) {
-      return NextResponse.json({ message: t('unauthorized') }, { status: 401 })
+      return NextResponse.json({ message: 'Unauthorized' }, { status: 401 })
     }
 
     const userId = session.user.id
@@ -27,16 +24,16 @@ export async function GET(
 
     const { data, error } = await supabaseAdmin
       .from('todos')
-      .select('*')
+      .select('user_id')
       .eq('id', taskId)
       .single()
 
     if (error || !data) {
-      return NextResponse.json({ message: t('taskNotFound') }, { status: 404 })
+      return NextResponse.json({ message: 'Task Not Found' }, { status: 404 })
     }
 
     if (data.user_id !== userId) {
-      return NextResponse.json({ message: t('forbidden') }, { status: 403 })
+      return NextResponse.json({ message: 'forbidden' }, { status: 403 })
     }
 
     return NextResponse.json(data, { status: 200 })
@@ -44,13 +41,13 @@ export async function GET(
     if (error instanceof Error) {
       console.error('Error fetching task:', error)
       return NextResponse.json(
-        { message: error.message || t('errorFetchingTask') },
+        { message: error.message || 'Error Fetching Task' },
         { status: 500 },
       )
     } else {
       console.error('Unknown error fetching task:', error)
       return NextResponse.json(
-        { message: t('unknownErrorFetchingTask') },
+        { message: 'Unknown Error Fetching Task' },
         { status: 500 },
       )
     }
@@ -61,15 +58,13 @@ export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const t = await getTranslations('api.tasks')
-
   try {
     const { id } = await params
 
     const session = await getServerSession(authOptions)
 
     if (!session?.user?.id) {
-      return NextResponse.json({ message: t('unauthorized') }, { status: 401 })
+      return NextResponse.json({ message: 'unauthorized' }, { status: 401 })
     }
 
     const userId = session.user.id
@@ -79,14 +74,14 @@ export async function PUT(
 
     const { data: existingTask, error: checkError } = await supabaseAdmin
       .from('todos')
-      .select('*')
+      .select('title, due_date, is_completed')
       .eq('id', taskId)
       .eq('user_id', userId)
       .single()
 
     if (checkError || !existingTask) {
       console.error('Error checking task:', checkError)
-      return NextResponse.json({ message: t('taskNotFound') }, { status: 404 })
+      return NextResponse.json({ message: 'taskNotFound' }, { status: 404 })
     }
 
     const notificationChanges = {
@@ -165,13 +160,13 @@ export async function PUT(
     if (error instanceof Error) {
       console.error('Error updating task:', error)
       return NextResponse.json(
-        { message: error.message || t('errorUpdatingTask') },
+        { message: error.message || 'Error updating task' },
         { status: 500 },
       )
     } else {
       console.error('Unknown error updating task:', error)
       return NextResponse.json(
-        { message: t('unknownErrorUpdatingTask') },
+        { message: 'Unknown error updating task' },
         { status: 500 },
       )
     }
@@ -182,15 +177,13 @@ export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const t = await getTranslations('api.tasks')
-
   try {
     const { id } = await params
 
     const session = await getServerSession(authOptions)
 
     if (!session?.user?.id) {
-      return NextResponse.json({ message: t('unauthorized') }, { status: 401 })
+      return NextResponse.json({ message: 'Unauthorized' }, { status: 401 })
     }
 
     const userId = session.user.id
@@ -204,7 +197,7 @@ export async function DELETE(
       .single()
 
     if (checkError || !existingTask) {
-      return NextResponse.json({ message: t('taskNotFound') }, { status: 404 })
+      return NextResponse.json({ message: 'Task not found' }, { status: 404 })
     }
 
     // Delete all notifications for this task
@@ -229,20 +222,20 @@ export async function DELETE(
     }
 
     return NextResponse.json(
-      { message: t('taskDeletedSuccessfully') },
+      { message: 'Task deleted successfully' },
       { status: 200 },
     )
   } catch (error) {
     if (error instanceof Error) {
       console.error('Error deleting task:', error)
       return NextResponse.json(
-        { message: error.message || t('errorDeletingTask') },
+        { message: error.message || 'Error deleting task' },
         { status: 500 },
       )
     } else {
       console.error('Unknown error deleting task:', error)
       return NextResponse.json(
-        { message: t('unknownErrorDeletingTask') },
+        { message: 'Unknown error deleting task' },
         { status: 500 },
       )
     }

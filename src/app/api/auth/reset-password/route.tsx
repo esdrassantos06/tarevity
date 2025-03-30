@@ -22,7 +22,7 @@ export async function POST(req: Request) {
 
     const { data: tokenData, error: tokenError } = await supabaseAdmin
       .from('password_reset_tokens')
-      .select('*')
+      .select('expires_at, user_id, id')
       .eq('token', token)
       .eq('used', false)
       .single()

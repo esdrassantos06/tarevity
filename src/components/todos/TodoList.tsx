@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useMemo, useCallback } from 'react'
+import React, { useMemo, useCallback, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useQueryClient } from '@tanstack/react-query'
 import { FiPlus } from 'react-icons/fi'
@@ -22,6 +22,7 @@ import TodoFilters from './TodoFilters'
 import TodoStats from './TodoStats'
 import { formatDistanceToNow, format, isValid, parseISO } from 'date-fns'
 import { useTranslations } from 'next-intl'
+import { useSession } from 'next-auth/react'
 
 const TodoList: React.FC = () => {
   const t = useTranslations('todoList')
@@ -29,10 +30,42 @@ const TodoList: React.FC = () => {
   const searchParams = useSearchParams()
   const queryClient = useQueryClient()
 
+  const { status: sessionStatus } = useSession()
+
+  useEffect(() => {
+    if (sessionStatus === 'unauthenticated') {
+      const callbackUrl = encodeURIComponent(window.location.pathname)
+      router.push(`/auth/login?callbackUrl=${callbackUrl}`)
+    }
+
+    // Limpar o contador de redirecionamentos ao carregar este componente
+    if (typeof window !== 'undefined') {
+      window.sessionStorage.removeItem('redirect_count')
+    }
+  }, [sessionStatus, router])
+
   const { dialogState, openConfirmDialog, closeConfirmDialog, setLoading } =
     useConfirmationDialog()
 
-  const { data: todos = [], isLoading } = useTodosQuery()
+  const { data: todos = [], isLoading, isError, error } = useTodosQuery()
+
+  useEffect(() => {
+    if (isError && error instanceof Error) {
+      console.error('Error in todos query:', error.message)
+
+      // Verificar se é um erro de autenticação
+      if (
+        error.message.includes('unauthorized') ||
+        error.message.includes('Unauthorized') ||
+        error.message.toLowerCase().includes('session') ||
+        error.message.includes('401')
+      ) {
+        const callbackUrl = encodeURIComponent(window.location.pathname)
+        router.push(`/auth/login?callbackUrl=${callbackUrl}`)
+      }
+    }
+  }, [isError, error, router])
+
   const updateTodoMutation = useUpdateTodoMutation()
   const deleteTodoMutation = useDeleteTodoMutation()
 
@@ -343,6 +376,57 @@ const TodoList: React.FC = () => {
           role="status"
         >
           <span className="sr-only">{t('loading')}</span>
+        </div>
+      </div>
+    )
+  }
+
+  if (sessionStatus === 'loading' || isLoading) {
+    return (
+      <div
+        className="flex h-64 items-center justify-center"
+        aria-label={t('loadingTasks')}
+      >
+        <div
+          className="size-12 animate-spin rounded-full border-4 border-blue-500 border-t-transparent"
+          role="status"
+        >
+          <span className="sr-only">{t('loading')}</span>
+        </div>
+      </div>
+    )
+  }
+
+  if (sessionStatus === 'unauthenticated') {
+    return (
+      <div className="flex h-64 items-center justify-center">
+        <div className="text-center">
+          <p className="text-lg">{t('redirectingToLogin')}</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (
+    isError &&
+    error instanceof Error &&
+    !error.message.includes('session') &&
+    !error.message.includes('unauthorized') &&
+    !error.message.includes('Unauthorized')
+  ) {
+    return (
+      <div className="flex h-64 items-center justify-center">
+        <div className="text-center text-red-500">
+          <p className="text-lg">{t('errorLoadingTasks')}</p>
+          <p className="text-sm">{error.message}</p>
+          <button
+            onClick={() =>
+              queryClient.invalidateQueries({ queryKey: ['todos'] })
+            }
+            className="mt-4 rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
+          >
+            {t('tryAgain')}
+          </button>
         </div>
       </div>
     )

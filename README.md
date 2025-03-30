@@ -132,47 +132,56 @@ Tarevity provides extensive internationalization support:
 3. Set up environment variables
    The project includes an .env.local.example file with all the environment variables required for the application to function properly.
 
-   1. Copy the example file to create your own configuration file:
+4. Copy the example file to create your own configuration file:
 
    ```bash
    cp .env.local.example .env.local
    ```
 
-   2. Open the .env.local file and replace the example values with your own credentials:
+5. Open the .env.local file and replace the example values with your own credentials:
 
-   - NextAuth configuration
-   - Supabase settings
-   - Email configuration (Brevo)
-   - Redis settings for rate limiting
-   - Cron (For notifications)
-   - Default and supported locales
+   ```bash
+    NextAuth configuration
+    oAuth configuration
+    Supabase settings
+    Email configuration (Brevo)
+    Redis settings for rate limiting
+    Cron (For notifications)
+    Default and supported locales
+   ```
 
-4. Start the development server
+6. Start the development server
 
    ```bash
    npm run dev
    ```
 
-5. Access the app at [http://localhost:3000](http://localhost:3000)
+- Access the app at [http://localhost:3000](http://localhost:3000)
 
 ## 📁 Project Structure
 
-```
+```bash
+.github
+/public
 /src
-  /app                   # Next.js App Router routes
-    /[locale]            # Locale-specific routes
+   /app                   # Next.js App Router routes
       /api               # API endpoints
-      /auth              # Authentication pages
-      /dashboard         # Main task dashboard
-      /profile           # User profile page
-      /settings          # User settings page
-      /todo              # Task detail and edit pages
-  /components            # React components
-  /hooks                 # Custom React hooks
-  /lib                   # Utility functions
-  /middleware           # Global middleware
-  /messages             # Translation files
-  /types                 # TypeScript type definitions
+      /[locale]            # Locale-specific routes
+        /auth              # Authentication pages
+        /dashboard         # Main task dashboard
+        /profile           # User profile page
+        /settings          # User settings page
+        /todo              # Task detail and edit pages
+   /components            # React components
+   /hooks                 # Custom React hooks
+   /i18n                   #i18n Configuration
+   /lib                   # Utility functions
+   /middleware           # Global middleware
+   /messages             # Translation files
+   /types
+   middleware.ts            # TypeScript type definitions
+.env.example
+
 ```
 
 ## 🔮 Future Enhancements

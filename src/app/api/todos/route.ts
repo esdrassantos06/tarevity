@@ -5,14 +5,12 @@ import { supabaseAdmin } from '@/lib/supabaseAdmin'
 import { validateRequest } from '@/lib/validateRequest'
 import { z } from 'zod'
 import { notificationsService } from '@/lib/notifications'
-import { getTranslations } from 'next-intl/server'
 
 export async function GET() {
-  const t = await getTranslations('TodoRoute.TodosRoute')
-
   const session = await getServerSession(authOptions)
+
   if (!session?.user?.id) {
-    return NextResponse.json({ message: t('unauthorized') }, { status: 401 })
+    return NextResponse.json({ message: 'Unauthorized' }, { status: 401 })
   }
 
   const userId = session.user.id
@@ -38,7 +36,7 @@ export async function GET() {
         message:
           error instanceof Error
             ? error.message
-            : t('unknownErrorFetchingTasks'),
+            : 'Unknown error fetching tasks',
       },
       { status: 500 },
     )
@@ -47,13 +45,11 @@ export async function GET() {
 
 // Create a localized Zod schema creator function
 const createTodoSchema = async () => {
-  const t = await getTranslations('TodoRoute.validation')
-
   return z.object({
-    title: z.string().min(1, t('titleRequired')).max(100, t('titleTooLong')),
+    title: z.string().min(1, 'Title required').max(100, 'Title too long'),
     description: z
       .string()
-      .max(500, t('descriptionTooLong'))
+      .max(500, 'Description too long')
       .nullable()
       .optional(),
     priority: z.number().int().min(1).max(3),
@@ -64,19 +60,18 @@ const createTodoSchema = async () => {
 }
 
 export async function POST(req: NextRequest) {
-  const t = await getTranslations('api.todos')
   const todoSchema = await createTodoSchema()
 
   try {
     const session = await getServerSession(authOptions)
     if (!session?.user?.id) {
-      return NextResponse.json({ message: t('unauthorized') }, { status: 401 })
+      return NextResponse.json({ message: 'Unauthorized' }, { status: 401 })
     }
 
     const validation = await validateRequest(
       req,
       todoSchema,
-      t('invalidTodoData'),
+      'Invalid Todo data',
     )
     if (validation instanceof NextResponse) return validation
 
@@ -103,7 +98,7 @@ export async function POST(req: NextRequest) {
     if (error) {
       console.error('Database error:', error)
       return NextResponse.json(
-        { message: t('databaseError', { error: error.message }) },
+        { message: 'Database error', error: error.message },
         { status: 500 },
       )
     }
@@ -134,7 +129,7 @@ export async function POST(req: NextRequest) {
         message:
           error instanceof Error
             ? error.message
-            : t('unknownErrorCreatingTask'),
+            : 'Unknown error creating task',
       },
       { status: 500 },
     )

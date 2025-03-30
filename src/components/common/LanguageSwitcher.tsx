@@ -4,6 +4,7 @@ import { useLocale, useTranslations } from 'next-intl'
 import { usePathname, useRouter } from 'next/navigation'
 import { useTransition, useState } from 'react'
 import { Check } from 'lucide-react'
+import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -16,8 +17,8 @@ import {
 import { cn } from '@/lib/utils'
 
 const languages = [
-  { code: 'en', name: 'English', flag: '🇬🇧' },
-  { code: 'pt-br', name: 'Português', flag: '🇧🇷' },
+  { code: 'en', name: 'English', flagSrc: '/images/flags/gb.svg' },
+  { code: 'pt-br', name: 'Português', flagSrc: '/images/flags/br.svg' },
 ]
 
 export default function LanguageSwitcher() {
@@ -79,9 +80,14 @@ export default function LanguageSwitcher() {
             )}
             disabled={isPending || isLoading}
           >
-            <span className="text-lg" aria-hidden="true">
-              {currentLanguage.flag}
-            </span>
+            <Image
+              src={currentLanguage.flagSrc}
+              alt={currentLanguage.name}
+              width={20}
+              height={20}
+              className="object-cover"
+              priority
+            />
             <span className="sr-only">{t('selectLanguage')}</span>
           </Button>
         </DropdownMenuTrigger>
@@ -108,9 +114,13 @@ export default function LanguageSwitcher() {
                 disabled={isPending || isLoading || language.code === locale}
               >
                 <div className="flex items-center gap-2">
-                  <span className="text-lg" aria-hidden="true">
-                    {language.flag}
-                  </span>
+                  <Image
+                    src={language.flagSrc}
+                    alt={language.name}
+                    width={20}
+                    height={20}
+                    className="object-cover"
+                  />
                   <span>{language.name}</span>
                 </div>
                 {language.code === locale && (
