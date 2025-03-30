@@ -3,7 +3,30 @@ import createNextIntlPlugin from 'next-intl/plugin'
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
+  webpack: (config, { dev, isServer }) => {
+    config.cache = {
+      ...config.cache,
+      type: 'filesystem',
+      allowCollectingMemory: true,
+      memoryCacheUnaffected: true,
+      idleTimeout: 60000,
+      idleTimeoutForInitialStore: 0,
+      compression: 'gzip',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    }
+
+    if (!dev && !isServer) {
+      config.optimization.splitChunks = {
+        ...config.optimization.splitChunks,
+        chunks: 'all',
+        maxInitialRequests: 25,
+        minSize: 20000,
+      }
+    }
+    return config
+  },
   images: {
+    minimumCacheTTL: 60 * 60 * 24,
     remotePatterns: [
       {
         protocol: 'https',
