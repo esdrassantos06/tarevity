@@ -274,29 +274,27 @@ const TodoList: React.FC = () => {
       const todoToUpdate = todos.find((todo) => todo.id === id)
       if (!todoToUpdate) return
 
+      queryClient.setQueryData<Todo[]>(['todos'], (old) => {
+        if (!old) return []
+        return old.map((todo) =>
+          todo.id === id ? { ...todo, status: 'review' as const } : todo,
+        )
+      })
+
       updateTodoMutation.mutate(
         {
           id,
           data: { status: 'review' as const },
         },
         {
-          onSuccess: () => {
-            console.log('✅ handleSetReview - Success, updating state')
+          onError: (error) => {
+            console.error('❌ handleSetReview - Error:', error)
             queryClient.setQueryData<Todo[]>(['todos'], (old) => {
               if (!old) return []
               return old.map((todo) =>
-                todo.id === id ? { ...todo, status: 'review' as const } : todo,
+                todo.id === id ? { ...todo, status: 'active' as const } : todo,
               )
             })
-
-            queryClient.invalidateQueries({
-              queryKey: ['todos'],
-              refetchType: 'none',
-            })
-          },
-          onError: (error) => {
-            console.error('❌ handleSetReview - Error:', error)
-            queryClient.invalidateQueries({ queryKey: ['todos'] })
           },
         },
       )
@@ -306,11 +304,19 @@ const TodoList: React.FC = () => {
 
   const handleApproveReview = useCallback(
     (e: React.MouseEvent, id: string) => {
+      e.preventDefault()
       e.stopPropagation()
       console.log('🔄 handleApproveReview - Starting update for todo:', id)
 
       const todoToUpdate = todos.find((todo) => todo.id === id)
       if (!todoToUpdate) return
+
+      queryClient.setQueryData<Todo[]>(['todos'], (old) => {
+        if (!old) return []
+        return old.map((todo) =>
+          todo.id === id ? { ...todo, status: 'active' as const } : todo,
+        )
+      })
 
       updateTodoMutation.mutate(
         {
@@ -318,32 +324,19 @@ const TodoList: React.FC = () => {
           data: { status: 'active' as const },
         },
         {
-          onSuccess: () => {
-            console.log('✅ handleApproveReview - Updating local state')
-            queryClient.setQueryData<Todo[]>(['todos'], (old) => {
-              if (!old) return []
-
-              const updated = old.map((todo) => {
-                if (todo.id === id) {
-                  const updatedTodo = { ...todo, status: 'active' as const }
-                  console.log(
-                    '✅ handleApproveReview - Updated todo:',
-                    updatedTodo,
-                  )
-                  return updatedTodo
-                }
-                return todo
-              })
-              return updated
-            })
-          },
           onError: (error) => {
             console.error('❌ handleApproveReview - Error:', error)
+            queryClient.setQueryData<Todo[]>(['todos'], (old) => {
+              if (!old) return []
+              return old.map((todo) =>
+                todo.id === id ? { ...todo, status: 'review' as const } : todo,
+              )
+            })
           },
         },
       )
     },
-    [todos, updateTodoMutation, queryClient],
+    [queryClient, todos, updateTodoMutation],
   )
 
   useEffect(() => {

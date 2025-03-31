@@ -6,13 +6,12 @@ import { useTranslations } from 'next-intl'
 export function useTodosQuery() {
   const t = useTranslations('useTodosQuery')
 
-  return useQuery({
+  return useQuery<Todo[], Error>({
     queryKey: ['todos'],
     queryFn: async () => {
       try {
         const result = await todoAPI.getAllTodos()
         if (result.error) throw new Error(result.error.message)
-
         return result.data || []
       } catch (error) {
         showError(
@@ -21,8 +20,11 @@ export function useTodosQuery() {
         throw error
       }
     },
-    staleTime: 0,
-    gcTime: 1 * 60 * 1000,
+    staleTime: 10000, // 10 segundos
+    gcTime: 1000 * 60 * 5, // 5 minutos
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
   })
 }
 
@@ -103,6 +105,7 @@ export function useUpdateTodoMutation() {
   const queryClient = useQueryClient()
 
   return useMutation({
+    mutationKey: ['updateTodo'],
     mutationFn: ({ id, data }: { id: string; data: Partial<Todo> }) => {
       console.log('🔄 Mutation Function - Sending request:', { id, data })
       return todoAPI.updateTodo(id, data)
@@ -110,10 +113,14 @@ export function useUpdateTodoMutation() {
 
     onMutate: async ({ id, data }) => {
       console.log('🔄 onMutate - Starting optimistic update:', { id, data })
+
+      // Cancel any outgoing refetches so they don't overwrite our optimistic update
       await queryClient.cancelQueries({ queryKey: ['todos'] })
 
+      // Snapshot the previous value
       const previousTodos = queryClient.getQueryData<Todo[]>(['todos'])
 
+      // Optimistically update to the new value
       queryClient.setQueryData<Todo[]>(['todos'], (old) => {
         if (!old) return []
 
@@ -182,7 +189,12 @@ export function useUpdateTodoMutation() {
           return updatedTodos
         })
 
-        queryClient.setQueryData(['todos'], (old) => old)
+        // Desativa temporariamente o refetch automático
+        queryClient.setDefaultOptions({
+          queries: {
+            staleTime: 10000, // 10 segundos
+          },
+        })
 
         if ('is_completed' in variables.data) {
           const isCompleted = variables.data.is_completed
