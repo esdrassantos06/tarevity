@@ -137,7 +137,7 @@ export default function ConfirmationDialog({
     title,
     description,
   })
-  
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent onClick={(e) => e.stopPropagation()}>

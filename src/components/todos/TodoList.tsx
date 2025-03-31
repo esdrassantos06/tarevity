@@ -30,7 +30,6 @@ const TodoList: React.FC = () => {
   const searchParams = useSearchParams()
   const queryClient = useQueryClient()
 
-
   const { status: sessionStatus } = useSession()
 
   useEffect(() => {
