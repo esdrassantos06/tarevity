@@ -142,51 +142,77 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
       due_date: formData.due_date || null,
     }
 
+    console.log('🔄 TodoEditPage - Starting update with data:', updateData)
+
+    // Cancela queries pendentes antes da atualização
+    queryClient.cancelQueries({ queryKey: ['todos'], exact: true })
+
     updateTodoMutation.mutate(
       { id: todoId, data: updateData },
       {
         onSuccess: async (response) => {
+          console.log('✅ TodoEditPage - Update successful:', response)
           setHasUnsavedChanges(false)
 
-          queryClient.invalidateQueries({ queryKey: ['todos'] })
-          queryClient.refetchQueries({ queryKey: ['todos'] })
-
-          if (!response.data) {
-            console.error('No data returned by the update mutation')
-            setTimeout(() => {
-              router.push(`/todo/${todoId}`)
-            }, 500)
-            return
+          // Atualiza o cache com os dados do servidor
+          if (response?.data) {
+            queryClient.setQueryData<Todo[]>(['todos'], (old) => {
+              if (!old) return []
+              const updatedTodos = old.map((todo) =>
+                todo.id === todoId ? { ...todo, ...response.data } : todo,
+              )
+              console.log('💾 TodoEditPage - Updated cache:', updatedTodos)
+              return updatedTodos
+            })
           }
 
           try {
             if (updateData.is_completed) {
-              queryClient.invalidateQueries({ queryKey: ['notifications'] })
-              queryClient.refetchQueries({ queryKey: ['notifications'] })
-
+              console.log(
+                '🔔 TodoEditPage - Handling completed todo notifications',
+              )
               await axios.post('/api/notifications/dismiss-for-todo', {
                 todoId,
               })
+              queryClient.invalidateQueries({ queryKey: ['notifications'] })
             } else if (originalDueDate && !updateData.due_date) {
+              console.log('🔔 TodoEditPage - Removing due date notifications')
               await axios.delete(`/api/notifications/delete-for-todo/${todoId}`)
             } else {
+              console.log('🔔 TodoEditPage - Refreshing notifications')
               await refreshNotifications()
             }
           } catch (error) {
-            console.error('Error managing notifications:', error)
+            console.error(
+              '❌ TodoEditPage - Error managing notifications:',
+              error,
+            )
           }
 
+          // Desativa temporariamente o refetch automático
+          queryClient.setQueryDefaults(['todos'], {
+            staleTime: 5000, // 5 segundos
+          })
+
           setTimeout(() => {
+            console.log('🔄 TodoEditPage - Redirecting to todo details')
             router.push(`/todo/${todoId}`)
           }, 500)
         },
         onError: (error) => {
-          queryClient.invalidateQueries({ queryKey: ['todos'] })
-          queryClient.refetchQueries({ queryKey: ['todos'] })
+          console.error('❌ TodoEditPage - Error updating todo:', error)
           showError(
             error instanceof Error ? error.message : t('errorUpdatingTask'),
           )
-          console.error('Error updating task:', error)
+        },
+        onSettled: () => {
+          console.log('🔄 TodoEditPage - Update settled')
+          // Restaura as configurações padrão do cache após 5 segundos
+          setTimeout(() => {
+            queryClient.setQueryDefaults(['todos'], {
+              staleTime: 0,
+            })
+          }, 5000)
         },
       },
     )
