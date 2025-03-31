@@ -187,21 +187,19 @@ const TodoList: React.FC = () => {
       if (!todoToUpdate) return
 
       // Atualiza o estado local imediatamente
-      queryClient.setQueryData<Todo[]>(['todos'], (old) => {
-        if (!old) return []
-        return old.map((todo) => {
-          if (todo.id === id) {
-            return {
-              ...todo,
-              is_completed: !isCompleted,
-              status: !isCompleted
-                ? ('completed' as const)
-                : ('active' as const),
-            }
+      const newTodos = todos.map((todo) => {
+        if (todo.id === id) {
+          return {
+            ...todo,
+            is_completed: !isCompleted,
+            status: !isCompleted ? ('completed' as const) : ('active' as const),
           }
-          return todo
-        })
+        }
+        return todo
       })
+
+      // Atualiza o cache com os novos todos
+      queryClient.setQueryData(['todos'], newTodos)
 
       updateTodoMutation.mutate(
         {
@@ -212,6 +210,11 @@ const TodoList: React.FC = () => {
           },
         },
         {
+          onError: (error) => {
+            console.error('❌ handleCheckboxChange - Error:', error)
+            // Em caso de erro, reverte para o estado anterior
+            queryClient.setQueryData(['todos'], todos)
+          },
           onSuccess: async () => {
             try {
               if (!isCompleted) {
@@ -287,25 +290,6 @@ const TodoList: React.FC = () => {
             } catch (error) {
               console.error('Error managing notifications:', error)
             }
-          },
-          onError: (error) => {
-            console.error('❌ handleCheckboxChange - Error:', error)
-            // Em caso de erro, reverte para o estado anterior
-            queryClient.setQueryData<Todo[]>(['todos'], (old) => {
-              if (!old) return []
-              return old.map((todo) => {
-                if (todo.id === id) {
-                  return {
-                    ...todo,
-                    is_completed: isCompleted,
-                    status: isCompleted
-                      ? ('completed' as const)
-                      : ('active' as const),
-                  }
-                }
-                return todo
-              })
-            })
           },
         },
       )
