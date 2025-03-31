@@ -267,6 +267,7 @@ const TodoList: React.FC = () => {
 
   const handleSetReview = useCallback(
     (e: React.MouseEvent, id: string) => {
+      e.preventDefault()
       e.stopPropagation()
       console.log('🔄 handleSetReview - Starting update for todo:', id)
 
@@ -276,18 +277,26 @@ const TodoList: React.FC = () => {
       updateTodoMutation.mutate(
         {
           id,
-          data: { status: 'review' },
+          data: { status: 'review' as const },
         },
         {
           onSuccess: () => {
-            console.log('✅ handleSetReview - Success, invalidating queries')
-            queryClient.invalidateQueries({ queryKey: ['todos'] })
-            queryClient.refetchQueries({ queryKey: ['todos'] })
+            console.log('✅ handleSetReview - Success, updating state')
+            queryClient.setQueryData<Todo[]>(['todos'], (old) => {
+              if (!old) return []
+              return old.map((todo) =>
+                todo.id === id ? { ...todo, status: 'review' as const } : todo,
+              )
+            })
+
+            queryClient.invalidateQueries({
+              queryKey: ['todos'],
+              refetchType: 'none',
+            })
           },
           onError: (error) => {
             console.error('❌ handleSetReview - Error:', error)
             queryClient.invalidateQueries({ queryKey: ['todos'] })
-            queryClient.refetchQueries({ queryKey: ['todos'] })
           },
         },
       )

@@ -203,7 +203,12 @@ const TodoItem = memo(
           {!isReview && !todo.is_completed && (
             <button
               className="rounded p-1 text-amber-500 hover:text-amber-700 focus:ring-2 focus:ring-amber-500 focus:outline-none dark:text-amber-400"
-              onClick={(e) => onSetReview(e, todo.id)}
+              onClick={(e) => {
+                e.preventDefault()
+                e.stopPropagation()
+                onSetReview(e, todo.id)
+              }}
+              onMouseDown={(e) => e.preventDefault()}
               aria-label={t('setToReview', { title: todo.title })}
               title={t('setToReviewTitle')}
             >
@@ -213,7 +218,12 @@ const TodoItem = memo(
           {isReview && (
             <button
               className="rounded p-1 text-green-500 hover:text-green-700 focus:ring-2 focus:ring-green-500 focus:outline-none dark:text-green-400"
-              onClick={(e) => onApproveReview(e, todo.id)}
+              onClick={(e) => {
+                e.preventDefault()
+                e.stopPropagation()
+                onApproveReview(e, todo.id)
+              }}
+              onMouseDown={(e) => e.preventDefault()}
               aria-label={t('approve', { title: todo.title })}
               title={t('approveTitle')}
             >
