@@ -170,34 +170,47 @@ const TodoDetailPage: React.FC<TodoDetailPageProps> = ({ todoId }) => {
     : t('noDueDate')
   const createdDate = formatDateLocalized(todo.created_at)
 
-  const handleToggleComplete = () => {
+  const handleToggleComplete = async () => {
+    const newIsCompleted = !todo.is_completed
+    const newStatus = newIsCompleted ? 'completed' : 'active'
+
     updateTodoMutation.mutate(
       {
         id: todo.id,
         data: {
-          is_completed: !todo.is_completed,
-          status: !todo.is_completed ? 'completed' : 'active',
+          is_completed: newIsCompleted,
+          status: newStatus,
         },
       },
       {
-        onSuccess: () => {
-          queryClient.invalidateQueries({ queryKey: ['todos'] })
-          queryClient.refetchQueries({ queryKey: ['todos'] })
-        },
-        onError: (error) => {
-          console.error('Error toggling completion status:', error)
-          queryClient.invalidateQueries({ queryKey: ['todos'] })
-          queryClient.refetchQueries({ queryKey: ['todos'] })
+        onSuccess: async () => {
+          try {
+            if (newIsCompleted) {
+              await axiosClient.post('/api/notifications/dismiss-for-todo', {
+                todoId: todo.id,
+              })
+            } else if (todo.due_date) {
+              await queryClient.refetchQueries({ queryKey: ['notifications'] })
+            }
+          } catch (error) {
+            console.error('Error managing notifications:', error)
+          }
         },
       },
     )
   }
 
   const handleDelete = () => {
+    setIsDeleteDialogOpen(false)
     deleteTodoMutation.mutate(todo.id, {
-      onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ['todos'] })
-        queryClient.refetchQueries({ queryKey: ['todos'] })
+      onSuccess: async () => {
+        try {
+          await axiosClient.delete(
+            `/api/notifications/delete-for-todo/${todo.id}`,
+          )
+        } catch (error) {
+          console.error('Error deleting notifications:', error)
+        }
         router.push('/dashboard')
       },
     })
@@ -221,30 +234,45 @@ const TodoDetailPage: React.FC<TodoDetailPageProps> = ({ todoId }) => {
             data: { due_date: null },
           },
           {
-            onSuccess: () => {
-              queryClient.invalidateQueries({ queryKey: ['notifications'] })
-              queryClient.refetchQueries({ queryKey: ['notifications'] })
-
-              axiosClient
-                .delete(`/api/notifications/delete-for-todo/${todo.id}`)
-                .then(() => {
-                  closeConfirmDialog()
-                })
-                .catch((error) => {
-                  console.error('Error deleting notifications:', error)
-                  closeConfirmDialog()
-                })
+            onSuccess: async () => {
+              try {
+                await axiosClient.delete(
+                  `/api/notifications/delete-for-todo/${todo.id}`,
+                )
+              } catch (error) {
+                console.error('Error deleting notifications:', error)
+              } finally {
+                closeConfirmDialog()
+              }
             },
             onError: (error) => {
               console.error('Error clearing due date:', error)
               closeConfirmDialog()
-              queryClient.invalidateQueries({ queryKey: ['todos'] })
-              queryClient.refetchQueries({ queryKey: ['todos'] })
             },
           },
         )
       },
     })
+  }
+
+  const handleStatusChange = async (newStatus: 'active' | 'review') => {
+    updateTodoMutation.mutate(
+      {
+        id: todo.id,
+        data: { status: newStatus },
+      },
+      {
+        onSuccess: async () => {
+          try {
+            if (newStatus === 'active' && todo.due_date) {
+              await queryClient.refetchQueries({ queryKey: ['notifications'] })
+            }
+          } catch (error) {
+            console.error('Error managing notifications:', error)
+          }
+        },
+      },
+    )
   }
 
   const isInReview = todo.status === 'review'
@@ -455,12 +483,7 @@ const TodoDetailPage: React.FC<TodoDetailPageProps> = ({ todoId }) => {
             {!isInReview && !todo.is_completed && (
               <button
                 aria-label={t('submitForReview')}
-                onClick={() =>
-                  updateTodoMutation.mutate({
-                    id: todo.id,
-                    data: { status: 'review' },
-                  })
-                }
+                onClick={() => handleStatusChange('review')}
                 className="flex items-center rounded-md bg-amber-100 px-3 py-1.5 text-xs text-amber-800 hover:bg-amber-200 sm:px-4 sm:py-2 sm:text-sm dark:bg-amber-900 dark:text-amber-100 dark:hover:bg-amber-800"
               >
                 <FaExclamationCircle className="mr-1 sm:mr-2" />
@@ -471,12 +494,7 @@ const TodoDetailPage: React.FC<TodoDetailPageProps> = ({ todoId }) => {
             {isInReview && (
               <button
                 aria-label={t('approve')}
-                onClick={() =>
-                  updateTodoMutation.mutate({
-                    id: todo.id,
-                    data: { status: 'active' },
-                  })
-                }
+                onClick={() => handleStatusChange('active')}
                 className="flex items-center rounded-md bg-green-800 px-3 py-1.5 text-xs text-green-100 hover:bg-green-700 sm:px-4 sm:py-2 sm:text-sm"
               >
                 <FaCheck className="mr-1 sm:mr-2" />

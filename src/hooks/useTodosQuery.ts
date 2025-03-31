@@ -9,22 +9,25 @@ export function useTodosQuery() {
   return useQuery<Todo[], Error>({
     queryKey: ['todos'],
     queryFn: async () => {
+      console.log('🔄 TodosQuery - Fetching todos from server')
       try {
         const result = await todoAPI.getAllTodos()
         if (result.error) throw new Error(result.error.message)
+        console.log('✅ TodosQuery - Server response:', result.data)
         return result.data || []
       } catch (error) {
+        console.error('❌ TodosQuery - Error fetching todos:', error)
         showError(
           error instanceof Error ? error.message : t('Failed to load tasks'),
         )
         throw error
       }
     },
-    staleTime: 10000, // 10 segundos
+    staleTime: 10000, // Aumentado para 10 segundos
     gcTime: 1000 * 60 * 5, // 5 minutos
     refetchOnWindowFocus: false,
-    refetchOnMount: false,
-    refetchOnReconnect: false,
+    refetchOnMount: true,
+    refetchOnReconnect: true,
   })
 }
 
@@ -114,29 +117,27 @@ export function useUpdateTodoMutation() {
     onMutate: async ({ id, data }) => {
       console.log('🔄 onMutate - Starting optimistic update:', { id, data })
 
-      // Cancel any outgoing refetches so they don't overwrite our optimistic update
+      // Cancela todas as queries relacionadas durante a atualização
       await queryClient.cancelQueries({ queryKey: ['todos'] })
 
-      // Snapshot the previous value
+      // Snapshot do estado anterior
       const previousTodos = queryClient.getQueryData<Todo[]>(['todos'])
+      console.log('📸 onMutate - Previous todos snapshot:', previousTodos)
 
-      // Optimistically update to the new value
-      queryClient.setQueryData<Todo[]>(['todos'], (old) => {
-        if (!old) return []
-
-        return old.map((todo) => {
+      // Atualização otimista com tipagem correta
+      if (previousTodos) {
+        const updatedTodos = previousTodos.map((todo) => {
           if (todo.id === id) {
             const updatedTodo = { ...todo, ...data }
             updatedTodo.updated_at = new Date().toISOString()
 
-            if ('is_completed' in data && data.is_completed === true) {
-              updatedTodo.status = 'completed' as const
-            } else if (
-              'is_completed' in data &&
-              data.is_completed === false &&
-              updatedTodo.status === 'completed'
-            ) {
-              updatedTodo.status = 'active' as const
+            // Garante consistência entre is_completed e status
+            if ('is_completed' in data) {
+              if (data.is_completed) {
+                updatedTodo.status = 'completed'
+              } else if (updatedTodo.status === 'completed') {
+                updatedTodo.status = 'active'
+              }
             }
 
             console.log('🔄 onMutate - Updated todo:', updatedTodo)
@@ -144,58 +145,42 @@ export function useUpdateTodoMutation() {
           }
           return todo
         })
-      })
+
+        console.log('💾 onMutate - Setting new cache state')
+        queryClient.setQueryData(['todos'], updatedTodos)
+      }
 
       return { previousTodos }
     },
 
     onError: (err, variables, context) => {
-      console.error('❌ onError - Error updating todo:', err)
-
+      console.error('❌ onError - Rolling back optimistic update:', err)
       if (context?.previousTodos) {
-        console.log('🔄 onError - Reverting to previous state')
         queryClient.setQueryData(['todos'], context.previousTodos)
       }
-
-      showError(err instanceof Error ? err.message : t('Error Updating Task'))
+      showError(err instanceof Error ? err.message : t('Error updating task'))
     },
 
     onSuccess: (result, variables) => {
       console.log('✅ onSuccess - Server response:', result)
 
-      if (result.data) {
-        const todoData = result.data
-        console.log('✅ onSuccess - Updating cache with server data:', todoData)
-
+      if (result?.data) {
+        // Atualiza o cache com os dados do servidor
         queryClient.setQueryData<Todo[]>(['todos'], (old = []) => {
-          if (!old) return []
-
           const updatedTodos = old.map((todo) => {
-            if (todo.id === variables.id) {
-              if (!todoData.id) {
-                console.error(
-                  '❌ onSuccess - Invalid server response:',
-                  todoData,
-                )
-                return todo
+            if (todo.id === variables.id && result.data) {
+              return {
+                ...todo,
+                ...result.data,
+                status: result.data.status || todo.status,
               }
-              const updatedTodo = { ...todo, ...todoData }
-              console.log('✅ onSuccess - Final todo state:', updatedTodo)
-              return updatedTodo
             }
             return todo
           })
-
           return updatedTodos
         })
 
-        // Desativa temporariamente o refetch automático
-        queryClient.setDefaultOptions({
-          queries: {
-            staleTime: 10000, // 10 segundos
-          },
-        })
-
+        // Notifica sucesso baseado no tipo de atualização
         if ('is_completed' in variables.data) {
           const isCompleted = variables.data.is_completed
           showSuccess(
@@ -211,9 +196,11 @@ export function useUpdateTodoMutation() {
         } else {
           showSuccess(t('taskUpdatedSuccessfully'))
         }
-      } else {
-        console.error('❌ onSuccess - Invalid response from server:', result)
-        queryClient.invalidateQueries({ queryKey: ['todos'] })
+
+        // Marca a query como stale para forçar um refetch após um delay
+        setTimeout(() => {
+          queryClient.invalidateQueries({ queryKey: ['todos'] })
+        }, 100)
       }
     },
 

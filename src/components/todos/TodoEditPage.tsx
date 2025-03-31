@@ -1,7 +1,6 @@
 'use client'
 import React, { useState, useEffect, ChangeEvent, FormEvent } from 'react'
 import { useRouter } from 'next/navigation'
-import { useQueryClient } from '@tanstack/react-query'
 import {
   FaArrowLeft,
   FaSave,
@@ -27,7 +26,10 @@ interface Todo {
   priority: number
   due_date: string | null
   is_completed: boolean
-  status?: 'active' | 'review' | 'completed'
+  status: 'active' | 'review' | 'completed'
+  created_at: string
+  updated_at: string
+  user_id: string
 }
 
 interface TodoFormData {
@@ -52,7 +54,6 @@ const formatDateForInput = (dateString: string | null): string => {
 const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
   const t = useTranslations('todoEdit')
   const router = useRouter()
-  const queryClient = useQueryClient()
   const { data: todos = [] as Todo[], isLoading } = useTodosQuery()
   const updateTodoMutation = useUpdateTodoMutation()
 
@@ -110,16 +111,32 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
     const checked = (e.target as HTMLInputElement).checked
 
     if (name === 'is_completed' && type === 'checkbox') {
-      setFormData({
-        ...formData,
-        [name]: checked,
-        status: checked ? 'completed' : 'active',
+      setFormData((prev) => {
+        const newStatus = checked
+          ? ('completed' as const)
+          : prev.status === 'completed'
+            ? ('active' as const)
+            : prev.status
+        return {
+          ...prev,
+          is_completed: checked,
+          status: newStatus,
+        }
+      })
+    } else if (name === 'status') {
+      setFormData((prev) => {
+        const newStatus = value as 'active' | 'review' | 'completed'
+        return {
+          ...prev,
+          status: newStatus,
+          is_completed: newStatus === 'completed' ? true : prev.is_completed,
+        }
       })
     } else {
-      setFormData({
-        ...formData,
+      setFormData((prev) => ({
+        ...prev,
         [name]: type === 'checkbox' ? checked : value,
-      })
+      }))
     }
 
     setHasUnsavedChanges(true)
@@ -140,53 +157,52 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
       ...formData,
       priority: Number(formData.priority),
       due_date: formData.due_date || null,
+      status: formData.is_completed ? 'completed' : formData.status,
     }
+
+    console.log('🔄 TodoEditPage - Starting update with data:', updateData)
 
     updateTodoMutation.mutate(
       { id: todoId, data: updateData },
       {
         onSuccess: async (response) => {
+          console.log('✅ TodoEditPage - Update successful:', response)
           setHasUnsavedChanges(false)
-
-          queryClient.invalidateQueries({ queryKey: ['todos'] })
-          queryClient.refetchQueries({ queryKey: ['todos'] })
-
-          if (!response.data) {
-            console.error('No data returned by the update mutation')
-            setTimeout(() => {
-              router.push(`/todo/${todoId}`)
-            }, 500)
-            return
-          }
 
           try {
             if (updateData.is_completed) {
-              queryClient.invalidateQueries({ queryKey: ['notifications'] })
-              queryClient.refetchQueries({ queryKey: ['notifications'] })
-
+              console.log(
+                '🔔 TodoEditPage - Handling completed todo notifications',
+              )
               await axios.post('/api/notifications/dismiss-for-todo', {
                 todoId,
               })
             } else if (originalDueDate && !updateData.due_date) {
+              console.log('🔔 TodoEditPage - Removing due date notifications')
               await axios.delete(`/api/notifications/delete-for-todo/${todoId}`)
             } else {
+              console.log('🔔 TodoEditPage - Refreshing notifications')
               await refreshNotifications()
             }
           } catch (error) {
-            console.error('Error managing notifications:', error)
+            console.error(
+              '❌ TodoEditPage - Error managing notifications:',
+              error,
+            )
           }
 
-          setTimeout(() => {
-            router.push(`/todo/${todoId}`)
-          }, 500)
+          // Aguarda um pequeno delay para garantir que o cache foi atualizado
+          await new Promise((resolve) => setTimeout(resolve, 200))
+
+          // Redireciona para a página de detalhes
+          console.log('🔄 TodoEditPage - Redirecting to todo details')
+          router.push(`/todo/${todoId}`)
         },
         onError: (error) => {
-          queryClient.invalidateQueries({ queryKey: ['todos'] })
-          queryClient.refetchQueries({ queryKey: ['todos'] })
+          console.error('❌ TodoEditPage - Error updating todo:', error)
           showError(
             error instanceof Error ? error.message : t('errorUpdatingTask'),
           )
-          console.error('Error updating task:', error)
         },
       },
     )
