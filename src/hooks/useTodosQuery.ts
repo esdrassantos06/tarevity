@@ -228,37 +228,63 @@ export function useDeleteTodoMutation() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: (id: string) => todoAPI.deleteTodo(id),
+    mutationKey: ['deleteTodo'],
+    mutationFn: async (id: string) => {
+      console.log('🔄 Delete Mutation - Sending request:', id)
+      const result = await todoAPI.deleteTodo(id)
+      return result
+    },
 
     onMutate: async (id) => {
+      console.log('🔄 Delete Mutation - Starting optimistic update:', id)
+
+      // Cancel any outgoing refetches so they don't overwrite our optimistic update
       await queryClient.cancelQueries({ queryKey: ['todos'] })
 
+      // Snapshot the previous value
       const previousTodos = queryClient.getQueryData<Todo[]>(['todos'])
 
-      queryClient.setQueryData<Todo[]>(['todos'], (old) =>
-        old?.filter((todo) => todo.id !== id),
-      )
+      // Optimistically update to the new value
+      queryClient.setQueryData<Todo[]>(['todos'], (old) => {
+        if (!old) return []
+        return old.filter((todo) => todo.id !== id)
+      })
 
       return { previousTodos }
     },
 
     onError: (err, id, context) => {
+      console.error('❌ Delete Mutation - Error:', err)
+
       if (context?.previousTodos) {
+        console.log('🔄 Delete Mutation - Reverting to previous state')
         queryClient.setQueryData(['todos'], context.previousTodos)
       }
 
       showError(err instanceof Error ? err.message : t('Error Deleting Task'))
     },
 
-    onSuccess: () => {
-      showSuccess(t('taskDeletedSuccessfully'))
+    onSuccess: (result, id) => {
+      console.log('✅ Delete Mutation - Success:', { result, id })
 
-      queryClient.invalidateQueries({ queryKey: ['notifications'] })
-      queryClient.refetchQueries({ queryKey: ['notifications'] })
+      // Força a atualização do cache após sucesso
+      queryClient.setQueryData<Todo[]>(['todos'], (old) => {
+        if (!old) return []
+        return old.filter((todo) => todo.id !== id)
+      })
+
+      // Desativa temporariamente o refetch automático
+      queryClient.setDefaultOptions({
+        queries: {
+          staleTime: 10000, // 10 segundos
+        },
+      })
+
+      showSuccess(t('taskDeletedSuccessfully'))
     },
+
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['todos'] })
-      queryClient.refetchQueries({ queryKey: ['todos'] })
+      console.log('🔄 Delete Mutation - Settled')
     },
   })
 }

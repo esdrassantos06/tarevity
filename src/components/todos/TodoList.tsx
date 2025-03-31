@@ -104,23 +104,53 @@ const TodoList: React.FC = () => {
 
           // Guarda o estado atual para possível rollback
           const previousTodos = queryClient.getQueryData<Todo[]>(['todos'])
+          const todoToDelete = previousTodos?.find((todo) => todo.id === id)
 
-          // Atualiza o estado local imediatamente
-          queryClient.setQueryData<Todo[]>(['todos'], (old) =>
-            old?.filter((todo) => todo.id !== id),
-          )
+          if (!todoToDelete) {
+            setLoading(false)
+            closeConfirmDialog()
+            return
+          }
 
           try {
+            // Atualiza o estado local imediatamente
+            queryClient.setQueryData<Todo[]>(['todos'], (old) => {
+              if (!old) return []
+              return old.filter((todo) => todo.id !== id)
+            })
+
+            // Cancela qualquer query pendente
+            await queryClient.cancelQueries({ queryKey: ['todos'] })
+
             // Remove as notificações primeiro
             await axios.delete(`/api/notifications/delete-for-todo/${id}`)
 
             // Deleta o todo
-            await deleteTodoMutation.mutateAsync(id)
+            await deleteTodoMutation.mutateAsync(id, {
+              onSuccess: () => {
+                // Força a atualização do cache após sucesso
+                queryClient.setQueryData<Todo[]>(['todos'], (old) => {
+                  if (!old) return []
+                  return old.filter((todo) => todo.id !== id)
+                })
 
-            // Atualiza as notificações sem forçar refetch dos todos
-            queryClient.invalidateQueries({
-              queryKey: ['notifications'],
-              refetchType: 'all',
+                // Atualiza as notificações
+                queryClient.invalidateQueries({
+                  queryKey: ['notifications'],
+                  refetchType: 'all',
+                })
+              },
+              onError: (error) => {
+                console.error(
+                  '❌ handleDeleteTodo - Delete mutation error:',
+                  error,
+                )
+                // Em caso de erro, reverte para o estado anterior
+                if (previousTodos) {
+                  queryClient.setQueryData(['todos'], previousTodos)
+                }
+                throw error // Propaga o erro para ser capturado pelo try/catch
+              },
             })
           } catch (error) {
             console.error('❌ handleDeleteTodo - Error:', error)
