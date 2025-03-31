@@ -14,7 +14,7 @@ const DialogPortal = ({
   ...props
 }: DialogPrimitive.DialogPortalProps & { className?: string }) => (
   <DialogPrimitive.Portal {...props}>
-    <div className="fixed inset-0 z-100 flex items-center justify-center">
+    <div className="fixed inset-0 z-9999 flex items-center justify-center">
       {children}
     </div>
   </DialogPrimitive.Portal>
@@ -59,7 +59,7 @@ const DialogContent = React.forwardRef<
       <DialogOverlay />
       <DialogPrimitive.Content
         ref={setRefs}
-        className="animate-in data-[state=open]:fade-in-90 data-[state=open]:slide-in-from-right dark:bg-BlackLight fixed z-101 flex w-full max-w-lg flex-col gap-10 rounded-lg bg-white p-6 break-words shadow-lg transition-all duration-200 ease-out sm:max-w-lg sm:rounded-lg md:w-full"
+        className="animate-in data-[state=open]:fade-in-90 data-[state=open]:slide-in-from-right dark:bg-BlackLight fixed z-200 flex w-full max-w-lg flex-col gap-10 rounded-lg bg-white p-6 break-words shadow-lg transition-all duration-200 ease-out sm:max-w-lg sm:rounded-lg md:w-full"
         role="dialog"
         aria-modal="true"
         {...props}

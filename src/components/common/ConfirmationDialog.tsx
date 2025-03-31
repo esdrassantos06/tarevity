@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import {
   Dialog,
   DialogContent,
@@ -48,26 +48,29 @@ export function useConfirmationDialog() {
     isLoading: false,
   })
 
-  const openConfirmDialog = ({
-    title,
-    description,
-    onConfirm,
-    variant = 'info',
-    confirmText = t('buttons.confirm'),
-    cancelText = t('buttons.cancel'),
-    isLoading = false,
-  }: Omit<ConfirmationDialogProps, 'isOpen' | 'onClose'>) => {
-    setDialogState({
-      isOpen: true,
+  const openConfirmDialog = useCallback(
+    ({
       title,
       description,
       onConfirm,
-      variant,
-      confirmText,
-      cancelText,
-      isLoading,
-    })
-  }
+      variant = 'info',
+      confirmText = t('buttons.confirm'),
+      cancelText = t('buttons.cancel'),
+      isLoading = false,
+    }: Omit<ConfirmationDialogProps, 'isOpen' | 'onClose'>) => {
+      setDialogState({
+        isOpen: true,
+        title,
+        description,
+        onConfirm,
+        variant,
+        confirmText,
+        cancelText,
+        isLoading,
+      })
+    },
+    [t],
+  )
 
   const closeConfirmDialog = () => {
     setDialogState((prev) => ({ ...prev, isOpen: false }))
@@ -129,6 +132,12 @@ export default function ConfirmationDialog({
     onClose()
   }
 
+  console.log('ConfirmationDialog renderizado com props:', {
+    isOpen,
+    title,
+    description,
+  })
+  
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent onClick={(e) => e.stopPropagation()}>

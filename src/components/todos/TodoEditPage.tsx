@@ -168,6 +168,7 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
             }
 
             queryClient.invalidateQueries({ queryKey: ['notifications'] })
+            queryClient.refetchQueries({ queryKey: ['notifications'] })
           } catch (error) {
             console.error('Error managing notifications:', error)
           }

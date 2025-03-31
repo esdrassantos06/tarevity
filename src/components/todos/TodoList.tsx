@@ -30,6 +30,7 @@ const TodoList: React.FC = () => {
   const searchParams = useSearchParams()
   const queryClient = useQueryClient()
 
+
   const { status: sessionStatus } = useSession()
 
   useEffect(() => {
@@ -74,12 +75,6 @@ const TodoList: React.FC = () => {
       : null
     : null
 
-  useEffect(() => {
-    if (deleteTodoMutation.isPending === false && dialogState.isOpen) {
-      closeConfirmDialog()
-    }
-  }, [deleteTodoMutation.isPending, dialogState.isOpen, closeConfirmDialog])
-
   const {
     activeTab,
     setActiveTab,
@@ -106,40 +101,40 @@ const TodoList: React.FC = () => {
         cancelText: t('cancel'),
         onConfirm: () => {
           setLoading(true)
-
           axios
             .delete(`/api/notifications/delete-for-todo/${id}`)
             .then(() => {
               deleteTodoMutation.mutate(id, {
                 onSuccess: () => {
-                  closeConfirmDialog()
-                  queryClient.invalidateQueries({ queryKey: ['notifications'] })
-                  queryClient.invalidateQueries({ queryKey: ['todos'] })
-                },
-                onError: (error) => {
-                  console.error('Error deleting task:', error)
-                  closeConfirmDialog()
-                },
-                onSettled: () => {
-                  setLoading(false)
-                },
-              })
-            })
-            .catch((error) => {
-              console.error('Error deleting notifications:', error)
-              setLoading(false)
-              deleteTodoMutation.mutate(id, {
-                onSuccess: () => {
-                  closeConfirmDialog()
+                  queryClient.invalidateQueries({
+                    queryKey: ['notifications'],
+                  })
                   queryClient.invalidateQueries({ queryKey: ['todos'] })
                   queryClient.refetchQueries({ queryKey: ['todos'] })
                 },
                 onError: (error) => {
                   console.error('Error deleting task:', error)
-                  closeConfirmDialog()
                 },
                 onSettled: () => {
                   setLoading(false)
+                  closeConfirmDialog()
+                },
+              })
+            })
+            .catch((error) => {
+              console.error('Error deleting notifications:', error)
+
+              deleteTodoMutation.mutate(id, {
+                onSuccess: () => {
+                  queryClient.invalidateQueries({ queryKey: ['todos'] })
+                  queryClient.refetchQueries({ queryKey: ['todos'] })
+                },
+                onError: (error) => {
+                  console.error('Error deleting task:', error)
+                },
+                onSettled: () => {
+                  setLoading(false)
+                  closeConfirmDialog()
                 },
               })
             })
@@ -147,12 +142,12 @@ const TodoList: React.FC = () => {
       })
     },
     [
-      openConfirmDialog,
-      setLoading,
       deleteTodoMutation,
-      closeConfirmDialog,
       queryClient,
       t,
+      openConfirmDialog,
+      setLoading,
+      closeConfirmDialog,
     ],
   )
 
@@ -249,6 +244,7 @@ const TodoList: React.FC = () => {
                         queryClient.invalidateQueries({
                           queryKey: ['notifications'],
                         })
+                        queryClient.refetchQueries({ queryKey: ['todos'] })
                       })
                       .catch((error) => {
                         console.error('Error creating notifications:', error)
@@ -608,6 +604,7 @@ const TodoList: React.FC = () => {
         cancelText={dialogState.cancelText}
         variant={dialogState.variant}
         isLoading={dialogState.isLoading}
+        data-testid="confirmation-dialog"
       />
     </div>
   )

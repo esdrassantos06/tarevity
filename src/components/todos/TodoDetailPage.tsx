@@ -183,6 +183,8 @@ const TodoDetailPage: React.FC<TodoDetailPageProps> = ({ todoId }) => {
   const handleDelete = () => {
     deleteTodoMutation.mutate(todo.id, {
       onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ['todos'] })
+        queryClient.refetchQueries({ queryKey: ['todos'] })
         router.push('/dashboard')
       },
     })
@@ -211,6 +213,7 @@ const TodoDetailPage: React.FC<TodoDetailPageProps> = ({ todoId }) => {
                 .delete(`/api/notifications/delete-for-todo/${todo.id}`)
                 .then(() => {
                   queryClient.invalidateQueries({ queryKey: ['notifications'] })
+                  queryClient.refetchQueries({ queryKey: ['notifications'] })
                   closeConfirmDialog()
                 })
                 .catch((error) => {
