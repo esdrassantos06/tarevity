@@ -1,7 +1,6 @@
 'use client'
 import React, { useState, useEffect, ChangeEvent, FormEvent } from 'react'
 import { useRouter } from 'next/navigation'
-import { useQueryClient } from '@tanstack/react-query'
 import {
   FaArrowLeft,
   FaSave,
@@ -55,7 +54,6 @@ const formatDateForInput = (dateString: string | null): string => {
 const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
   const t = useTranslations('todoEdit')
   const router = useRouter()
-  const queryClient = useQueryClient()
   const { data: todos = [] as Todo[], isLoading } = useTodosQuery()
   const updateTodoMutation = useUpdateTodoMutation()
 
@@ -171,32 +169,6 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
           console.log('✅ TodoEditPage - Update successful:', response)
           setHasUnsavedChanges(false)
 
-          if (response?.data) {
-            // Atualiza o cache com os dados do servidor
-            queryClient.setQueryData<Todo[]>(['todos'], (old = []) => {
-              const updatedTodos = old.map((todo) => {
-                if (todo.id === todoId && response.data) {
-                  // Garante que todos os campos obrigatórios estejam presentes
-                  const updatedTodo: Todo = {
-                    id: response.data.id,
-                    title: response.data.title,
-                    description: response.data.description,
-                    is_completed: response.data.is_completed,
-                    priority: response.data.priority,
-                    due_date: response.data.due_date,
-                    created_at: response.data.created_at,
-                    updated_at: response.data.updated_at,
-                    status: response.data.status || 'active',
-                    user_id: response.data.user_id,
-                  }
-                  return updatedTodo
-                }
-                return todo
-              })
-              return updatedTodos
-            })
-          }
-
           try {
             if (updateData.is_completed) {
               console.log(
@@ -205,7 +177,6 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
               await axios.post('/api/notifications/dismiss-for-todo', {
                 todoId,
               })
-              queryClient.invalidateQueries({ queryKey: ['notifications'] })
             } else if (originalDueDate && !updateData.due_date) {
               console.log('🔔 TodoEditPage - Removing due date notifications')
               await axios.delete(`/api/notifications/delete-for-todo/${todoId}`)
@@ -220,9 +191,8 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
             )
           }
 
-          // Agenda um refetch após um pequeno delay antes de redirecionar
-          setTimeout(async () => {
-            await queryClient.invalidateQueries({ queryKey: ['todos'] })
+          // Aguarda um pequeno delay antes de redirecionar
+          setTimeout(() => {
             console.log('🔄 TodoEditPage - Redirecting to todo details')
             router.push(`/todo/${todoId}`)
           }, 300)
