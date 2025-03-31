@@ -9,22 +9,25 @@ export function useTodosQuery() {
   return useQuery<Todo[], Error>({
     queryKey: ['todos'],
     queryFn: async () => {
+      console.log('🔄 TodosQuery - Fetching todos from server')
       try {
         const result = await todoAPI.getAllTodos()
         if (result.error) throw new Error(result.error.message)
+        console.log('✅ TodosQuery - Server response:', result.data)
         return result.data || []
       } catch (error) {
+        console.error('❌ TodosQuery - Error fetching todos:', error)
         showError(
           error instanceof Error ? error.message : t('Failed to load tasks'),
         )
         throw error
       }
     },
-    staleTime: 10000, // 10 segundos
+    staleTime: 0, // Sempre considerar os dados stale
     gcTime: 1000 * 60 * 5, // 5 minutos
-    refetchOnWindowFocus: false,
-    refetchOnMount: false,
-    refetchOnReconnect: false,
+    refetchOnWindowFocus: true, // Habilita refetch no foco
+    refetchOnMount: true, // Habilita refetch no mount
+    refetchOnReconnect: true, // Habilita refetch na reconexão
   })
 }
 
@@ -114,8 +117,8 @@ export function useUpdateTodoMutation() {
     onMutate: async ({ id, data }) => {
       console.log('🔄 onMutate - Starting optimistic update:', { id, data })
 
-      // Cancel any outgoing refetches so they don't overwrite our optimistic update
-      await queryClient.cancelQueries({ queryKey: ['todos'], exact: true })
+      // Cancela TODAS as queries relacionadas
+      await queryClient.cancelQueries()
 
       // Snapshot the previous value
       const previousTodos = queryClient.getQueryData<Todo[]>(['todos'])
@@ -165,26 +168,16 @@ export function useUpdateTodoMutation() {
       console.log('✅ onSuccess - Server response:', result)
 
       if (result?.data) {
-        // Atualiza o cache com os dados do servidor
-        queryClient.setQueryData<Todo[]>(['todos'], (old) => {
-          if (!old) return []
-          const updatedTodos = old.map((todo) =>
-            todo.id === variables.id ? { ...todo, ...result.data } : todo,
+        // Força uma atualização completa do cache
+        queryClient.setQueryData(['todos'], (old: Todo[] | undefined) => {
+          if (!old) return [result.data]
+          return old.map((todo) =>
+            todo.id === variables.id ? result.data : todo,
           )
-          console.log(
-            '💾 onSuccess - Updated cache with server data:',
-            updatedTodos,
-          )
-          return updatedTodos
         })
 
-        // Desativa temporariamente o refetch automático
-        queryClient.setQueryDefaults(['todos'], {
-          staleTime: 5000, // 5 segundos
-        })
-
-        // Cancela queries pendentes para evitar race conditions
-        queryClient.cancelQueries({ queryKey: ['todos'], exact: true })
+        // Marca a query como stale para forçar um refetch
+        queryClient.invalidateQueries({ queryKey: ['todos'] })
 
         if ('is_completed' in variables.data) {
           const isCompleted = variables.data.is_completed
@@ -209,12 +202,9 @@ export function useUpdateTodoMutation() {
 
     onSettled: () => {
       console.log('🔄 onSettled - Mutation completed')
-      // Restaura as configurações padrão do cache após 5 segundos
-      setTimeout(() => {
-        queryClient.setQueryDefaults(['todos'], {
-          staleTime: 0,
-        })
-      }, 5000)
+      // Força um refetch após a conclusão
+      queryClient.invalidateQueries({ queryKey: ['todos'] })
+      queryClient.refetchQueries({ queryKey: ['todos'] })
     },
   })
 }

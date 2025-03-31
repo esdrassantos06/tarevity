@@ -144,8 +144,8 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
 
     console.log('🔄 TodoEditPage - Starting update with data:', updateData)
 
-    // Cancela queries pendentes antes da atualização
-    queryClient.cancelQueries({ queryKey: ['todos'], exact: true })
+    // Força uma limpeza do cache antes da atualização
+    queryClient.removeQueries({ queryKey: ['todos'] })
 
     updateTodoMutation.mutate(
       { id: todoId, data: updateData },
@@ -154,16 +154,18 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
           console.log('✅ TodoEditPage - Update successful:', response)
           setHasUnsavedChanges(false)
 
-          // Atualiza o cache com os dados do servidor
           if (response?.data) {
-            queryClient.setQueryData<Todo[]>(['todos'], (old) => {
-              if (!old) return []
-              const updatedTodos = old.map((todo) =>
-                todo.id === todoId ? { ...todo, ...response.data } : todo,
+            // Força uma atualização completa do cache
+            queryClient.setQueryData(['todos'], (old: Todo[] | undefined) => {
+              if (!old) return [response.data]
+              return old.map((todo) =>
+                todo.id === todoId ? response.data : todo,
               )
-              console.log('💾 TodoEditPage - Updated cache:', updatedTodos)
-              return updatedTodos
             })
+
+            // Força um refetch imediato
+            queryClient.invalidateQueries({ queryKey: ['todos'] })
+            await queryClient.refetchQueries({ queryKey: ['todos'] })
           }
 
           try {
@@ -189,30 +191,23 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
             )
           }
 
-          // Desativa temporariamente o refetch automático
-          queryClient.setQueryDefaults(['todos'], {
-            staleTime: 5000, // 5 segundos
-          })
+          // Aguarda um pouco para garantir que o cache foi atualizado
+          await new Promise((resolve) => setTimeout(resolve, 100))
 
-          setTimeout(() => {
-            console.log('🔄 TodoEditPage - Redirecting to todo details')
-            router.push(`/todo/${todoId}`)
-          }, 500)
+          // Força um último refetch antes de redirecionar
+          await queryClient.refetchQueries({ queryKey: ['todos'] })
+
+          console.log('🔄 TodoEditPage - Redirecting to todo details')
+          router.push(`/todo/${todoId}`)
         },
         onError: (error) => {
           console.error('❌ TodoEditPage - Error updating todo:', error)
           showError(
             error instanceof Error ? error.message : t('errorUpdatingTask'),
           )
-        },
-        onSettled: () => {
-          console.log('🔄 TodoEditPage - Update settled')
-          // Restaura as configurações padrão do cache após 5 segundos
-          setTimeout(() => {
-            queryClient.setQueryDefaults(['todos'], {
-              staleTime: 0,
-            })
-          }, 5000)
+          // Força um refetch em caso de erro
+          queryClient.invalidateQueries({ queryKey: ['todos'] })
+          queryClient.refetchQueries({ queryKey: ['todos'] })
         },
       },
     )
