@@ -98,44 +98,40 @@ const TodoList: React.FC = () => {
         variant: 'danger',
         confirmText: t('delete'),
         cancelText: t('cancel'),
-        onConfirm: () => {
+        onConfirm: async () => {
           setLoading(true)
-          axios
-            .delete(`/api/notifications/delete-for-todo/${id}`)
-            .then(() => {
-              deleteTodoMutation.mutate(id, {
-                onSuccess: () => {
-                  queryClient.invalidateQueries({ queryKey: ['notifications'] })
-                  queryClient.refetchQueries({ queryKey: ['notifications'] })
-                  queryClient.invalidateQueries({ queryKey: ['todos'] })
-                  queryClient.refetchQueries({ queryKey: ['todos'] })
-                },
-                onError: (error) => {
-                  console.error('Error deleting task:', error)
-                },
-                onSettled: () => {
-                  setLoading(false)
-                  closeConfirmDialog()
-                },
-              })
-            })
-            .catch((error) => {
-              console.error('Error deleting notifications:', error)
+          console.log('🔄 handleDeleteTodo - Starting delete for todo:', id)
 
-              deleteTodoMutation.mutate(id, {
-                onSuccess: () => {
-                  queryClient.invalidateQueries({ queryKey: ['todos'] })
-                  queryClient.refetchQueries({ queryKey: ['todos'] })
-                },
-                onError: (error) => {
-                  console.error('Error deleting task:', error)
-                },
-                onSettled: () => {
-                  setLoading(false)
-                  closeConfirmDialog()
-                },
-              })
+          // Guarda o estado atual para possível rollback
+          const previousTodos = queryClient.getQueryData<Todo[]>(['todos'])
+
+          // Atualiza o estado local imediatamente
+          queryClient.setQueryData<Todo[]>(['todos'], (old) =>
+            old?.filter((todo) => todo.id !== id),
+          )
+
+          try {
+            // Remove as notificações primeiro
+            await axios.delete(`/api/notifications/delete-for-todo/${id}`)
+
+            // Deleta o todo
+            await deleteTodoMutation.mutateAsync(id)
+
+            // Atualiza as notificações sem forçar refetch dos todos
+            queryClient.invalidateQueries({
+              queryKey: ['notifications'],
+              refetchType: 'all',
             })
+          } catch (error) {
+            console.error('❌ handleDeleteTodo - Error:', error)
+            // Em caso de erro, reverte para o estado anterior
+            if (previousTodos) {
+              queryClient.setQueryData(['todos'], previousTodos)
+            }
+          } finally {
+            setLoading(false)
+            closeConfirmDialog()
+          }
         },
       })
     },
@@ -156,113 +152,136 @@ const TodoList: React.FC = () => {
       e: React.ChangeEvent<HTMLInputElement>,
     ) => {
       e.stopPropagation()
+      console.log('🔄 handleCheckboxChange - Starting update for todo:', id)
+
       const todoToUpdate = todos.find((todo) => todo.id === id)
       if (!todoToUpdate) return
+
+      // Atualiza o estado local imediatamente
+      queryClient.setQueryData<Todo[]>(['todos'], (old) => {
+        if (!old) return []
+        return old.map((todo) => {
+          if (todo.id === id) {
+            return {
+              ...todo,
+              is_completed: !isCompleted,
+              status: !isCompleted
+                ? ('completed' as const)
+                : ('active' as const),
+            }
+          }
+          return todo
+        })
+      })
 
       updateTodoMutation.mutate(
         {
           id,
           data: {
             is_completed: !isCompleted,
-            status: !isCompleted ? 'completed' : 'active',
+            status: !isCompleted ? ('completed' as const) : ('active' as const),
           },
         },
         {
-          onSuccess: () => {
-            if (!isCompleted) {
-              axios
-                .post('/api/notifications/dismiss-for-todo', { todoId: id })
-                .then(() => {
-                  queryClient.invalidateQueries({ queryKey: ['notifications'] })
-                  queryClient.refetchQueries({ queryKey: ['notifications'] })
+          onSuccess: async () => {
+            try {
+              if (!isCompleted) {
+                await axios.post('/api/notifications/dismiss-for-todo', {
+                  todoId: id,
                 })
-                .catch((error) => {
-                  console.error('Error dismissing notifications:', error)
-                })
-            } else if (todoToUpdate.due_date) {
-              axios
-                .delete(`/api/notifications/delete-for-todo/${id}`)
-                .then(() => {
-                  const dueDate = new Date(todoToUpdate.due_date!)
-                  const now = new Date()
-                  const timeDiff = dueDate.getTime() - now.getTime()
-                  const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24))
+              } else if (todoToUpdate.due_date) {
+                await axios.delete(`/api/notifications/delete-for-todo/${id}`)
 
-                  let notification = null
+                const dueDate = new Date(todoToUpdate.due_date)
+                const now = new Date()
+                const timeDiff = dueDate.getTime() - now.getTime()
+                const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24))
 
-                  if (daysDiff < 0) {
-                    notification = {
-                      todo_id: id,
-                      notification_type: 'danger',
-                      title: t('overdueTask'),
-                      message: t('overdueTaskMessage', {
-                        title: todoToUpdate.title,
-                        dueDate: formatDistanceToNow(dueDate, {
-                          addSuffix: true,
-                        }),
+                let notification = null
+
+                if (daysDiff < 0) {
+                  notification = {
+                    todo_id: id,
+                    notification_type: 'danger',
+                    title: t('overdueTask'),
+                    message: t('overdueTaskMessage', {
+                      title: todoToUpdate.title,
+                      dueDate: formatDistanceToNow(dueDate, {
+                        addSuffix: true,
                       }),
-                      due_date: todoToUpdate.due_date,
-                      origin_id: `danger-${id}`,
-                    }
-                  } else if (daysDiff <= 3) {
-                    notification = {
-                      todo_id: id,
-                      notification_type: 'warning',
-                      title: t('dueSoon'),
-                      message: t('dueSoonMessage', {
-                        title: todoToUpdate.title,
-                        dueDate: formatDistanceToNow(dueDate, {
-                          addSuffix: true,
-                        }),
-                      }),
-                      due_date: todoToUpdate.due_date,
-                      origin_id: `warning-${id}`,
-                    }
-                  } else {
-                    notification = {
-                      todo_id: id,
-                      notification_type: 'info',
-                      title: t('upcomingDeadline'),
-                      message: t('upcomingDeadlineMessage', {
-                        title: todoToUpdate.title,
-                        dueDate: formatDistanceToNow(dueDate, {
-                          addSuffix: true,
-                        }),
-                      }),
-                      due_date: todoToUpdate.due_date,
-                      origin_id: `info-${id}`,
-                    }
+                    }),
+                    due_date: todoToUpdate.due_date,
+                    origin_id: `danger-${id}`,
                   }
-
-                  if (notification) {
-                    axios
-                      .post('/api/notifications', {
-                        notifications: [notification],
-                      })
-                      .then(() => {
-                        queryClient.invalidateQueries({
-                          queryKey: ['notifications'],
-                        })
-                        queryClient.refetchQueries({
-                          queryKey: ['notifications'],
-                        })
-                      })
-                      .catch((error) => {
-                        console.error('Error creating notifications:', error)
-                      })
+                } else if (daysDiff <= 3) {
+                  notification = {
+                    todo_id: id,
+                    notification_type: 'warning',
+                    title: t('dueSoon'),
+                    message: t('dueSoonMessage', {
+                      title: todoToUpdate.title,
+                      dueDate: formatDistanceToNow(dueDate, {
+                        addSuffix: true,
+                      }),
+                    }),
+                    due_date: todoToUpdate.due_date,
+                    origin_id: `warning-${id}`,
                   }
-                })
-                .catch((error) => {
-                  console.error('Error managing notifications:', error)
-                })
+                } else {
+                  notification = {
+                    todo_id: id,
+                    notification_type: 'info',
+                    title: t('upcomingDeadline'),
+                    message: t('upcomingDeadlineMessage', {
+                      title: todoToUpdate.title,
+                      dueDate: formatDistanceToNow(dueDate, {
+                        addSuffix: true,
+                      }),
+                    }),
+                    due_date: todoToUpdate.due_date,
+                    origin_id: `info-${id}`,
+                  }
+                }
+
+                if (notification) {
+                  await axios.post('/api/notifications', {
+                    notifications: [notification],
+                  })
+                }
+              }
+
+              // Atualiza as notificações sem forçar refetch dos todos
+              queryClient.invalidateQueries({
+                queryKey: ['notifications'],
+                refetchType: 'all',
+              })
+            } catch (error) {
+              console.error('Error managing notifications:', error)
             }
-            queryClient.invalidateQueries({ queryKey: ['todos'] })
-            queryClient.refetchQueries({ queryKey: ['todos'] })
+          },
+          onError: (error) => {
+            console.error('❌ handleCheckboxChange - Error:', error)
+            // Em caso de erro, reverte para o estado anterior
+            queryClient.setQueryData<Todo[]>(['todos'], (old) => {
+              if (!old) return []
+              return old.map((todo) => {
+                if (todo.id === id) {
+                  return {
+                    ...todo,
+                    is_completed: isCompleted,
+                    status: isCompleted
+                      ? ('completed' as const)
+                      : ('active' as const),
+                  }
+                }
+                return todo
+              })
+            })
           },
         },
       )
     },
-    [todos, updateTodoMutation, queryClient, t],
+    [queryClient, todos, updateTodoMutation, t],
   )
 
   const handleSetReview = useCallback(
