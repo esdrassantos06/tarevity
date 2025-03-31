@@ -113,16 +113,32 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
     const checked = (e.target as HTMLInputElement).checked
 
     if (name === 'is_completed' && type === 'checkbox') {
-      setFormData({
-        ...formData,
-        [name]: checked,
-        status: checked ? 'completed' : 'active',
+      setFormData((prev) => {
+        const newStatus = checked
+          ? ('completed' as const)
+          : prev.status === 'completed'
+            ? ('active' as const)
+            : prev.status
+        return {
+          ...prev,
+          is_completed: checked,
+          status: newStatus,
+        }
+      })
+    } else if (name === 'status') {
+      setFormData((prev) => {
+        const newStatus = value as 'active' | 'review' | 'completed'
+        return {
+          ...prev,
+          status: newStatus,
+          is_completed: newStatus === 'completed' ? true : prev.is_completed,
+        }
       })
     } else {
-      setFormData({
-        ...formData,
+      setFormData((prev) => ({
+        ...prev,
         [name]: type === 'checkbox' ? checked : value,
-      })
+      }))
     }
 
     setHasUnsavedChanges(true)
@@ -143,6 +159,7 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
       ...formData,
       priority: Number(formData.priority),
       due_date: formData.due_date || null,
+      status: formData.is_completed ? 'completed' : formData.status,
     }
 
     console.log('🔄 TodoEditPage - Starting update with data:', updateData)
