@@ -1,16 +1,15 @@
-import { Metadata, ResolvingMetadata } from 'next'
+import { Metadata } from 'next'
 import dynamic from 'next/dynamic'
 import { getTranslations } from 'next-intl/server'
 import { useTranslations } from 'next-intl'
 
 type Params = Promise<{ locale: string }>
 
-export async function generateMetadata(
-  { params }: { params: Params },
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  parent: ResolvingMetadata,
-): Promise<Metadata> {
-  // Extraindo o valor do Promise
+export async function generateMetadata({
+  params,
+}: {
+  params: Params
+}): Promise<Metadata> {
   const resolvedParams = await params
 
   const t = await getTranslations({

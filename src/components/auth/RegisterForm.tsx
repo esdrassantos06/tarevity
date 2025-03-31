@@ -29,7 +29,6 @@ export default function EnhancedRegisterForm() {
   const [emailValid, setEmailValid] = useState(false)
   const router = useRouter()
 
-  // Password validation patterns
   const passwordPattern = {
     uppercase: /[A-Z]/,
     lowercase: /[a-z]/,
@@ -37,7 +36,6 @@ export default function EnhancedRegisterForm() {
     special: /[^A-Za-z0-9]/,
   }
 
-  // Create schema with translations
   const registerSchema = z
     .object({
       name: z

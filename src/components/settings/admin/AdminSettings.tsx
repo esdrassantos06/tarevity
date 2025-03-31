@@ -30,7 +30,6 @@ const AdminSettings: React.FC = () => {
   const [activeAdminTab, setActiveAdminTab] = useState<string>('users')
   const queryClient = useQueryClient()
 
-  // Add confirmation dialog state
   const { dialogState, openConfirmDialog, closeConfirmDialog, setLoading } =
     useConfirmationDialog()
 

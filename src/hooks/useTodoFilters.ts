@@ -33,7 +33,6 @@ export function useTodoFilters(
     setCurrentPage(1)
   }, [activeTab, searchQuery, prioritySortDirection, dueDateFilter])
 
-  // Update dueDateFilter when initialDueDate changes (from URL)
   useEffect(() => {
     setDueDateFilter(initialDueDate)
   }, [initialDueDate])
@@ -76,7 +75,6 @@ export function useTodoFilters(
     try {
       const targetDate = parseISO(dueDateFilter)
 
-      // Use local date parts for comparison to avoid timezone issues
       const filterYear = targetDate.getFullYear()
       const filterMonth = targetDate.getMonth()
       const filterDay = targetDate.getDate()
@@ -86,7 +84,6 @@ export function useTodoFilters(
 
         const todoDate = parseISO(todo.due_date)
 
-        // Compare year, month, day directly to avoid timezone issues
         return (
           todoDate.getFullYear() === filterYear &&
           todoDate.getMonth() === filterMonth &&

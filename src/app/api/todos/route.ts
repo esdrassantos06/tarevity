@@ -40,7 +40,6 @@ export async function GET() {
   }
 }
 
-// Create a localized Zod schema creator function
 const createTodoSchema = async () => {
   return z.object({
     title: z.string().min(1, 'Title required').max(100, 'Title too long'),

@@ -113,13 +113,11 @@ export const notificationsService = {
     todoId?: string
   }) {
     try {
-      // Import notification preference function
       const { muteNotificationsForTodo } = await import(
         './notification-preferences'
       )
 
       if (id) {
-        // Get the task associated with the notification before deleting it
         const { data: notification } = await supabaseAdmin
           .from('notifications')
           .select('todo_id')
@@ -128,11 +126,9 @@ export const notificationsService = {
           .single()
 
         if (notification) {
-          // Mute notifications for this task (store permanent preference)
           await muteNotificationsForTodo(userId, notification.todo_id)
         }
 
-        // Now delete the notification
         const { error } = await supabaseAdmin
           .from('notifications')
           .delete()
@@ -142,10 +138,8 @@ export const notificationsService = {
         if (error) throw error
         return { success: true, count: 1 }
       } else if (todoId) {
-        // Mute notifications for this specific task
         await muteNotificationsForTodo(userId, todoId)
 
-        // Delete all notifications for this task
         const { error, count } = await supabaseAdmin
           .from('notifications')
           .delete()
@@ -155,7 +149,6 @@ export const notificationsService = {
         if (error) throw error
         return { success: true, count: count || 0 }
       } else if (all) {
-        // For general cleanup, just delete without muting
         const { error, count } = await supabaseAdmin
           .from('notifications')
           .delete()
@@ -175,10 +168,8 @@ export const notificationsService = {
    */
   async dismissTodoNotifications(userId: string, todoId: string) {
     try {
-      // Mark with permanent dismissal flag
       await permanentlyDismissTodoNotifications(userId, todoId)
 
-      // Then actually update them to dismissed
       const { error, count } = await supabaseAdmin
         .from('notifications')
         .update({ dismissed: true, updated_at: new Date().toISOString() })
@@ -299,7 +290,6 @@ export const notificationsService = {
       }
 
       try {
-        // Check for do-not-recreate flags before creating new notifications
         const recentlyDismissed = await supabaseAdmin
           .from('notifications')
           .select('origin_id')
@@ -310,7 +300,6 @@ export const notificationsService = {
           .order('updated_at', { ascending: false })
           .limit(1)
 
-        // Skip if the user has explicitly dismissed this notification type
         if (recentlyDismissed.data && recentlyDismissed.data.length > 0) {
           const doNotRecreateType =
             recentlyDismissed.data[0].origin_id.split('-')[0]
@@ -323,7 +312,6 @@ export const notificationsService = {
           }
         }
 
-        // Check for existing active notifications of same type
         const { data: existing } = await supabaseAdmin
           .from('notifications')
           .select('id')
@@ -359,7 +347,6 @@ export const notificationsService = {
           continue
         }
 
-        // Parse the due date
         let dueDate: Date
         try {
           dueDate = parseISO(notification.due_date)
@@ -379,18 +366,14 @@ export const notificationsService = {
           continue
         }
 
-        // Always update notification type based on current date
         const currentType = this.getNotificationTypeFromDueDate(dueDate)
         const currentTitle = await this.getNotificationTitle(dueDate)
 
-        // Format a fresh message with the latest date information
         let message = notification.message
         if (
           notification.message.includes('"') &&
           notification.message.includes('due')
         ) {
-          // Likely already a formatted message, let's just update it
-          // Extract the task title from the message
           const titleMatch = notification.message.match(/"([^"]+)"/)
           if (titleMatch && titleMatch[1]) {
             message = await this.formatNotificationMessage(
@@ -400,7 +383,6 @@ export const notificationsService = {
           }
         }
 
-        // Create a new notification
         const newNotification = {
           ...notification,
           title: currentTitle,
@@ -428,7 +410,6 @@ export const notificationsService = {
       }
     }
 
-    // After processing all notifications, clean up any duplicates
     try {
       const { cleanupDuplicateNotifications } = await import(
         './notification-updater'
@@ -466,7 +447,6 @@ export const notificationsService = {
       const title = await this.getNotificationTitle(dueDate)
       const message = await this.formatNotificationMessage(todo.title, dueDate)
 
-      // Generate a single notification based on due date
       return [
         {
           todo_id: todo.id,

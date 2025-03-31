@@ -9,8 +9,6 @@ export interface NotificationUpdate {
   updated_at: string
 }
 
-// This line checks if the code is running on the server
-// If it is not the server, the functions below will export versions that throw errors
 const isServer = typeof window === 'undefined'
 
 const notificationCache = new Map<
@@ -30,7 +28,6 @@ export async function processDynamicNotificationUpdates(): Promise<number> {
     return cachedResult.count
   }
 
-  // Return 0 or throw error if not on the server
   if (!isServer) {
     console.error(
       'processDynamicNotificationUpdates can only be called on the server',
@@ -43,7 +40,6 @@ export async function processDynamicNotificationUpdates(): Promise<number> {
     const { getTranslations } = await import('next-intl/server')
     const t = await getTranslations('notificationsUpdater')
 
-    // Fetch all non-dismissed notifications with due dates
     const { data: notifications, error } = await supabaseAdmin
       .from('notifications')
       .select('todo_id, id, notification_type, title, message')
@@ -58,7 +54,6 @@ export async function processDynamicNotificationUpdates(): Promise<number> {
       return 0
     }
 
-    // Fetch corresponding todo data to ensure accurate information
     const todoIds = [...new Set(notifications.map((n) => n.todo_id))]
     const { data: todos, error: todosError } = await supabaseAdmin
       .from('todos')
@@ -81,9 +76,7 @@ export async function processDynamicNotificationUpdates(): Promise<number> {
     for (const notification of notifications) {
       const todo = todosMap.get(notification.todo_id)
 
-      // Skip if todo doesn't exist anymore or is completed
       if (!todo || todo.is_completed) {
-        // Mark notification as dismissed if todo is completed
         if (todo?.is_completed) {
           await supabaseAdmin
             .from('notifications')
@@ -93,7 +86,6 @@ export async function processDynamicNotificationUpdates(): Promise<number> {
         continue
       }
 
-      // Skip if due date doesn't exist
       if (!todo.due_date) continue
 
       const dueDate = new Date(todo.due_date)
@@ -105,9 +97,7 @@ export async function processDynamicNotificationUpdates(): Promise<number> {
       let newMessage = notification.message
       let shouldUpdate = false
 
-      // Determine the correct notification type and message based on the due date
       if (isPast(dueDate) && !isToday(dueDate)) {
-        // Due date has passed
         if (notification.notification_type !== 'danger') {
           newType = 'danger'
           newTitle = t('overdueTask')
@@ -127,7 +117,6 @@ export async function processDynamicNotificationUpdates(): Promise<number> {
           shouldUpdate = true
         }
       } else if (isToday(dueDate)) {
-        // Due today
         if (notification.notification_type !== 'danger') {
           newType = 'danger'
           newTitle = t('dueToday')
@@ -141,7 +130,6 @@ export async function processDynamicNotificationUpdates(): Promise<number> {
           shouldUpdate = true
         }
       } else if (isTomorrow(dueDate)) {
-        // Due tomorrow
         if (notification.notification_type !== 'warning') {
           newType = 'warning'
           newTitle = t('dueTomorrow')
@@ -155,13 +143,11 @@ export async function processDynamicNotificationUpdates(): Promise<number> {
           shouldUpdate = true
         }
       } else {
-        // Due in the future
         const daysDiff = Math.ceil(
           (dueDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24),
         )
 
         if (daysDiff <= 2) {
-          // Due in 2 days or less
           if (notification.notification_type !== 'warning') {
             newType = 'warning'
             newTitle = t('deadlineApproaching')
@@ -181,7 +167,6 @@ export async function processDynamicNotificationUpdates(): Promise<number> {
             shouldUpdate = true
           }
         } else if (daysDiff <= 7) {
-          // Due in a week or less
           if (notification.notification_type !== 'info') {
             newType = 'info'
             newTitle = t('futureTask')
@@ -214,7 +199,6 @@ export async function processDynamicNotificationUpdates(): Promise<number> {
       }
     }
 
-    // Batch update notifications
     if (updates.length > 0) {
       for (const update of updates) {
         await supabaseAdmin
@@ -229,7 +213,6 @@ export async function processDynamicNotificationUpdates(): Promise<number> {
       }
     }
 
-    // Clear duplicate notifications
     await cleanupDuplicateNotifications()
 
     notificationCache.set(cacheKey, {
@@ -255,18 +238,14 @@ export async function createMissingNotifications(): Promise<number> {
   }
 
   try {
-    // Import preference check function
     const { areNotificationsMutedForTodo } = await import(
       './notification-preferences'
     )
 
-    // Import supabaseAdmin dynamically to avoid client errors
     const { supabaseAdmin } = await import('./supabaseAdmin')
-    // Import getTranslations from next-intl
     const { getTranslations } = await import('next-intl/server')
     const t = await getTranslations('notificationsUpdater')
 
-    // Get all incomplete todos with due dates
     const { data: todos, error } = await supabaseAdmin
       .from('todos')
       .select('id, user_id, title, due_date')
@@ -282,7 +261,6 @@ export async function createMissingNotifications(): Promise<number> {
       return 0
     }
 
-    // Get ALL notifications (active and dismissed) to avoid recreating recently dismissed ones
     const todoIds = todos.map((todo) => todo.id)
     const { data: allNotifications, error: notificationError } =
       await supabaseAdmin
@@ -295,14 +273,12 @@ export async function createMissingNotifications(): Promise<number> {
       return 0
     }
 
-    // Create map for active notifications
     const notificationMap = new Map() // Map<todoId, notificationTypes[]>
 
     allNotifications?.forEach((notification) => {
       const todoId = notification.todo_id
 
       if (!notification.dismissed) {
-        // Active notification
         if (!notificationMap.has(todoId)) {
           notificationMap.set(todoId, [])
         }
@@ -319,25 +295,20 @@ export async function createMissingNotifications(): Promise<number> {
       const existingTypes = notificationMap.get(todo.id) || []
       const userId = todo.user_id
 
-      // IMPORTANT: Check if notifications are muted for this task
       const isMuted = await areNotificationsMutedForTodo(userId, todo.id)
       if (isMuted) {
-        // Skip this task if it's muted
         continue
       }
 
-      // Skip if this todo already has notifications
       if (existingTypes.length > 0) {
         continue
       }
 
-      // Skip if the due date is more than 7 days away
       const daysDiff = Math.ceil(
         (dueDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24),
       )
       if (daysDiff > 7) continue
 
-      // Create just ONE notification for the todo based on its due date status
       let notificationType: 'danger' | 'warning' | 'info'
       let notificationTitle: string
       let notificationMessage: string
@@ -377,11 +348,9 @@ export async function createMissingNotifications(): Promise<number> {
           timeUntil: formatDistanceToNow(dueDate, { addSuffix: true }),
         })
       } else {
-        // More than 7 days, skip
         continue
       }
 
-      // Add notification to creation list
       newNotifications.push({
         user_id: userId,
         todo_id: todo.id,
@@ -397,9 +366,7 @@ export async function createMissingNotifications(): Promise<number> {
       })
     }
 
-    // Insert new notifications in batches
     if (newNotifications.length > 0) {
-      // Process in batches of 10 to avoid potential size limitations
       const batchSize = 10
       for (let i = 0; i < newNotifications.length; i += batchSize) {
         const batch = newNotifications.slice(i, i + batchSize)
@@ -438,7 +405,6 @@ export async function updateNotificationMessages(todo: Todo): Promise<void> {
       return
     }
 
-    // If there's no due date, nothing to do
     if (!todo.due_date) return
 
     const { data: notifications, error } = await supabaseAdmin
@@ -453,7 +419,6 @@ export async function updateNotificationMessages(todo: Todo): Promise<void> {
     }
 
     if (!notifications || notifications.length === 0) {
-      // Only try to create a notification if due_date exists
       if (todo.due_date) {
         const newNotification = await generateNewNotification(todo)
         if (newNotification) {
@@ -537,7 +502,6 @@ export async function updateNotificationMessages(todo: Todo): Promise<void> {
 async function generateNewNotification(todo: Todo) {
   if (!todo.due_date) return null
 
-  // Import getTranslations from next-intl
   const { getTranslations } = await import('next-intl/server')
   const t = await getTranslations('notificationsUpdater')
 
@@ -613,10 +577,8 @@ export async function cleanupDuplicateNotifications(): Promise<number> {
   }
 
   try {
-    // Dynamically import supabaseAdmin to avoid client-side errors
     const { supabaseAdmin } = await import('./supabaseAdmin')
 
-    // Get all active notifications
     const { data: notifications, error } = await supabaseAdmin
       .from('notifications')
       .select('notification_type, user_id, todo_id')
@@ -625,8 +587,6 @@ export async function cleanupDuplicateNotifications(): Promise<number> {
     if (error || !notifications || notifications.length === 0) {
       return 0
     }
-
-    // Group by user_id, todo_id, and notification_type to find duplicates
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const notificationGroups = new Map<string, any[]>()
@@ -641,23 +601,19 @@ export async function cleanupDuplicateNotifications(): Promise<number> {
 
     let removedCount = 0
 
-    // For each group, keep only the most recently updated notification
     for (const [, group] of notificationGroups.entries()) {
       if (group.length <= 1) continue
 
-      // Sort by updated_at descending (newest first)
       const sortedGroup = [...group].sort(
         (a, b) =>
           new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime(),
       )
 
-      // Keep the first one (most recent), delete the rest
       const toDelete = sortedGroup.slice(1)
 
       if (toDelete.length > 0) {
         const idsToDelete = toDelete.map((n) => n.id)
 
-        // DELETE the duplicates (not just mark as dismissed)
         const { error, count } = await supabaseAdmin
           .from('notifications')
           .delete()
@@ -693,10 +649,8 @@ export async function permanentlyDismissTodoNotifications(
   }
 
   try {
-    // Import supabaseAdmin dynamically to avoid errors on client
     const { supabaseAdmin } = await import('./supabaseAdmin')
 
-    // Mark all notifications as dismissed
     const { data: activeNotifications, error: fetchError } = await supabaseAdmin
       .from('notifications')
       .select('id, origin_id, notification_type')
@@ -709,16 +663,12 @@ export async function permanentlyDismissTodoNotifications(
       return false
     }
 
-    // For every notification, we update individually with a flag on origin_id
     let success = true
 
     for (const notification of activeNotifications || []) {
-      // Create a "do not recreate" flag in the origin_id
-      // Extract the type from the origin_id or use the notification_type
       const type =
         notification.notification_type || notification.origin_id.split('-')[0]
 
-      // Make sure the type is valid
       const validType = ['danger', 'warning', 'info'].includes(type)
         ? type
         : 'info'

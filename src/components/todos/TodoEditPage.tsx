@@ -160,28 +160,20 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
       status: formData.is_completed ? 'completed' : formData.status,
     }
 
-    console.log('🔄 TodoEditPage - Starting update with data:', updateData)
-
     updateTodoMutation.mutate(
       { id: todoId, data: updateData },
       {
-        onSuccess: async (response) => {
-          console.log('✅ TodoEditPage - Update successful:', response)
+        onSuccess: async () => {
           setHasUnsavedChanges(false)
 
           try {
             if (updateData.is_completed) {
-              console.log(
-                '🔔 TodoEditPage - Handling completed todo notifications',
-              )
               await axios.post('/api/notifications/dismiss-for-todo', {
                 todoId,
               })
             } else if (originalDueDate && !updateData.due_date) {
-              console.log('🔔 TodoEditPage - Removing due date notifications')
               await axios.delete(`/api/notifications/delete-for-todo/${todoId}`)
             } else {
-              console.log('🔔 TodoEditPage - Refreshing notifications')
               await refreshNotifications()
             }
           } catch (error) {
@@ -191,11 +183,8 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
             )
           }
 
-          // Aguarda um pequeno delay para garantir que o cache foi atualizado
           await new Promise((resolve) => setTimeout(resolve, 200))
 
-          // Redireciona para a página de detalhes
-          console.log('🔄 TodoEditPage - Redirecting to todo details')
           router.push(`/todo/${todoId}`)
         },
         onError: (error) => {

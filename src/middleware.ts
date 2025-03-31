@@ -9,7 +9,6 @@ import {
   PROTECTION_CONFIGS,
 } from '@/lib/protection'
 
-// Create the internationalization middleware
 const intlMiddleware = createIntlMiddleware(routing)
 
 export async function middleware(request: NextRequest) {
@@ -89,7 +88,6 @@ export async function middleware(request: NextRequest) {
       }
     }
 
-    // Aplicar proteção contra abusos
     const ipHeader = request.headers.get('x-forwarded-for')
     const ipAddresses = ipHeader ? ipHeader.split(',') : []
     const clientIp =

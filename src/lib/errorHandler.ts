@@ -37,7 +37,6 @@ export async function sanitizeError(error: unknown): Promise<SafeError> {
       const code =
         typeof errorObj.code === 'string' ? errorObj.code : 'UNKNOWN_ERROR'
 
-      // Use translated message if status is known, fallback to original
       const translatedMessage =
         status && t(status.toString())
           ? t(status.toString())

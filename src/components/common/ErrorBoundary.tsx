@@ -23,7 +23,6 @@ class ErrorBoundary extends Component<Props, State> {
     hasError: false,
   }
 
-  // Default translations (can be overridden via props)
   private defaultT = {
     errorHeading: 'Something went wrong',
     errorMessage:

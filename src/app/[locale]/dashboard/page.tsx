@@ -1,4 +1,4 @@
-import { Metadata, ResolvingMetadata } from 'next'
+import { Metadata } from 'next'
 import { Suspense } from 'react'
 import { getTranslations } from 'next-intl/server'
 import { useTranslations } from 'next-intl'
@@ -7,11 +7,11 @@ import TodoList from '@/components/todos/TodoList'
 
 type Params = Promise<{ locale: string }>
 
-export async function generateMetadata(
-  { params }: { params: Params },
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  parent: ResolvingMetadata,
-): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: {
+  params: Params
+}): Promise<Metadata> {
   const resolvedParams = await params
 
   const t = await getTranslations({

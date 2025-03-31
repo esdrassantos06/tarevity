@@ -15,9 +15,7 @@ export async function POST(req: Request) {
     const userId = session.user.id
     const { id, all, todoId } = await req.json()
 
-    // Process based on the provided parameters
     if (id) {
-      // Handle single notification dismissal
       const { data: notification, error: fetchError } =
         await notificationsService.fetchNotification(id, userId)
 
@@ -35,10 +33,8 @@ export async function POST(req: Request) {
         )
       }
 
-      // First mute notifications for this task
       await muteNotificationsForTodo(userId, notification.todo_id)
 
-      // Then delete the notification
       await notificationsService.deleteNotifications({
         id,
         userId,
@@ -52,7 +48,6 @@ export async function POST(req: Request) {
         { status: 200 },
       )
     } else if (todoId) {
-      // Handle dismissal of all notifications for a specific todo
       await muteNotificationsForTodo(userId, todoId)
 
       const result = await notificationsService.deleteNotifications({
@@ -68,7 +63,6 @@ export async function POST(req: Request) {
         { status: 200 },
       )
     } else if (all) {
-      // Handle dismissal of all notifications
       const result = await notificationsService.deleteNotifications({
         userId,
         all: true,

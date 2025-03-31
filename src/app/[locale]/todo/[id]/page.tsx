@@ -1,5 +1,5 @@
 import { Suspense, use } from 'react'
-import { Metadata, ResolvingMetadata } from 'next'
+import { Metadata } from 'next'
 import { getTranslations } from 'next-intl/server'
 import Layout from '@/components/layout/Layout'
 import TodoDetailPage from '@/components/todos/TodoDetailPage'
@@ -12,11 +12,11 @@ interface PageParams {
   searchParams?: Promise<Record<string, string | string[]>>
 }
 
-export async function generateMetadata(
-  { params }: { params: Promise<{ locale: string; id: string }> },
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  parent: ResolvingMetadata,
-): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string; id: string }>
+}): Promise<Metadata> {
   const resolvedParams = await params
 
   const t = await getTranslations({

@@ -7,7 +7,6 @@ const fromEmail = process.env.EMAIL_FROM || 'noreply@tarevity.com'
 export async function sendPasswordResetEmail(email: string, token: string) {
   const resetUrl = `${process.env.NEXT_PUBLIC_APP_URL}/auth/reset-password?token=${token}`
 
-  // Fetch translations server-side
   const t = await getTranslations('PasswordReset')
 
   if (process.env.NODE_ENV === 'development') {

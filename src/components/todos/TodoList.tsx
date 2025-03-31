@@ -101,7 +101,6 @@ const TodoList: React.FC = () => {
         onConfirm: async () => {
           setLoading(true)
 
-          // Guarda o estado atual para possível rollback
           const previousTodos = queryClient.getQueryData<Todo[]>(['todos'])
           const todoToDelete = previousTodos?.find((todo) => todo.id === id)
 
@@ -112,28 +111,22 @@ const TodoList: React.FC = () => {
           }
 
           try {
-            // Atualiza o estado local imediatamente
             queryClient.setQueryData<Todo[]>(['todos'], (old) => {
               if (!old) return []
               return old.filter((todo) => todo.id !== id)
             })
 
-            // Cancela qualquer query pendente
             await queryClient.cancelQueries({ queryKey: ['todos'] })
 
-            // Remove as notificações primeiro
             await axios.delete(`/api/notifications/delete-for-todo/${id}`)
 
-            // Deleta o todo
             await deleteTodoMutation.mutateAsync(id, {
               onSuccess: () => {
-                // Força a atualização do cache após sucesso
                 queryClient.setQueryData<Todo[]>(['todos'], (old) => {
                   if (!old) return []
                   return old.filter((todo) => todo.id !== id)
                 })
 
-                // Atualiza as notificações
                 queryClient.invalidateQueries({
                   queryKey: ['notifications'],
                   refetchType: 'all',
@@ -144,16 +137,15 @@ const TodoList: React.FC = () => {
                   '❌ handleDeleteTodo - Delete mutation error:',
                   error,
                 )
-                // Em caso de erro, reverte para o estado anterior
+
                 if (previousTodos) {
                   queryClient.setQueryData(['todos'], previousTodos)
                 }
-                throw error // Propaga o erro para ser capturado pelo try/catch
+                throw error
               },
             })
           } catch (error) {
             console.error('❌ handleDeleteTodo - Error:', error)
-            // Em caso de erro, reverte para o estado anterior
             if (previousTodos) {
               queryClient.setQueryData(['todos'], previousTodos)
             }
@@ -185,9 +177,6 @@ const TodoList: React.FC = () => {
 
       const todoToUpdate = todos.find((todo) => todo.id === id)
       if (!todoToUpdate) return
-
-      // Não precisamos mais fazer a atualização manual do cache aqui
-      // O React Query vai cuidar disso através da mutação
 
       updateTodoMutation.mutate(
         {
@@ -265,7 +254,6 @@ const TodoList: React.FC = () => {
                 }
               }
 
-              // Atualiza as notificações sem forçar refetch dos todos
               queryClient.invalidateQueries({
                 queryKey: ['notifications'],
                 refetchType: 'all',
@@ -357,14 +345,12 @@ const TodoList: React.FC = () => {
   useEffect(() => {
     let isMutating = false
 
-    // Update all todos every 30 seconds
     const refreshInterval = setInterval(() => {
       if (document.visibilityState === 'visible' && !isMutating) {
         queryClient.invalidateQueries({ queryKey: ['todos'] })
       }
-    }, 60000) // Aumentado para 1 minuto
+    }, 60000)
 
-    // Listener para mutações
     const unsubscribe = queryClient.getMutationCache().subscribe((event) => {
       if (event.type === 'added') {
         const mutation = event.mutation

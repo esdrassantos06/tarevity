@@ -145,10 +145,7 @@ export async function PUT(
             await notifications,
           )
         }
-      }
-      // If nothing changed that would affect notifications but we have a due date,
-      // update the message to ensure it reflects current time relative to due date
-      else if (data.due_date && !data.is_completed) {
+      } else if (data.due_date && !data.is_completed) {
         await updateNotificationMessages(data)
       }
     } catch (error) {
@@ -200,7 +197,6 @@ export async function DELETE(
       return NextResponse.json({ message: 'Task not found' }, { status: 404 })
     }
 
-    // Delete all notifications for this task
     try {
       await notificationsService.deleteNotifications({
         userId,
@@ -208,7 +204,6 @@ export async function DELETE(
       })
     } catch (error) {
       console.error('Error deleting task notifications:', error)
-      // Don't fail the response if notification deletion fails
     }
 
     const { error } = await supabaseAdmin

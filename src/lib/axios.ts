@@ -104,13 +104,11 @@ axiosClient.interceptors.response.use(
             showError('Your session has expired. Redirecting to login page...')
 
             setTimeout(() => {
-              // Build redirect URL
               const loginUrl = `${redirectTo}?callbackUrl=${callbackUrl}`
               window.location.href = loginUrl
             }, 500)
           }
 
-          // Reject promise with a silent message
           return Promise.reject({
             message: 'Session expired, redirecting to login...',
             status,
@@ -120,7 +118,6 @@ axiosClient.interceptors.response.use(
         }
       }
 
-      // Handle other error codes
       switch (status) {
         case 403:
           showError('You do not have permission to access this resource.')

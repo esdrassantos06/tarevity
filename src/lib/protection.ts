@@ -44,7 +44,6 @@ export async function protectRoute(
   const key = `${type}:${identifier}`
   const blockKey = `${type}:block:${identifier}`
 
-  // Verificar se está bloqueado
   const isBlocked = await redis.get(blockKey)
   if (isBlocked) {
     const remainingTime = Math.ceil(
@@ -99,14 +98,12 @@ export async function protectRoute(
     )
   }
 
-  // Atualizar lista de tentativas
   await redis.set(key, JSON.stringify(recentAttempts))
   await redis.expire(key, Math.ceil(windowMs / 1000))
 
   return null
 }
 
-// Helpers para criar identificadores consistentes
 export function createIdentifier(params: {
   userId?: string
   ip?: string
@@ -124,7 +121,6 @@ export function createIdentifier(params: {
   return parts.join(':')
 }
 
-// Configurações pré-definidas para rotas comuns
 export const PROTECTION_CONFIGS = {
   auth: {
     login: {

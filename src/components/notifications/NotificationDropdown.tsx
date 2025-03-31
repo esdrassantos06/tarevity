@@ -26,8 +26,6 @@ import ConfirmationDialog, {
 import { useSession } from 'next-auth/react'
 import { Notification } from '@/lib/notifications'
 import { useTranslations } from 'next-intl'
-
-// Import componentes do shadcn/ui
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -63,7 +61,6 @@ export default function NotificationDropdown() {
 
   const [allRead, setAllRead] = useState(false)
 
-  // Manually update notifications via API
   const handleRefresh = async () => {
     if (isRefreshing) return
 
@@ -78,7 +75,6 @@ export default function NotificationDropdown() {
     }
   }
 
-  // Update notifications when dropdown is opened
   useEffect(() => {
     if (open) {
       refreshNotifications().catch((error: unknown) => {

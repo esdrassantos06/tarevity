@@ -38,7 +38,6 @@ export function useNotificationsQuery(options: QueryOptions = {}) {
     }
   }, [queryClient, t])
 
-  // Function to refresh notifications from the server
   const refreshNotificationsWithThrottling = useCallback(async () => {
     const now = Date.now()
 
@@ -61,7 +60,6 @@ export function useNotificationsQuery(options: QueryOptions = {}) {
       initialLoadDone.current = true
     }
 
-    // Set up periodic refresh (every 10 minutes)
     const refreshInterval = setInterval(
       () => {
         if (document.visibilityState === 'visible') {
@@ -98,9 +96,9 @@ export function useNotificationsQuery(options: QueryOptions = {}) {
       const response = await axios.get<Notification[]>('/api/notifications')
       return response.data
     },
-    staleTime: 1 * 60 * 1000, // 1 minutes
+    staleTime: 1 * 60 * 1000,
     refetchOnWindowFocus: false,
-    refetchInterval: 5 * 60 * 1000, // 5 minutes
+    refetchInterval: 5 * 60 * 1000,
     refetchIntervalInBackground: false,
     retry: 1,
     ...options,

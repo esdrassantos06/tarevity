@@ -50,7 +50,6 @@ export async function areNotificationsMutedForTodo(
       .single()
 
     if (error) {
-      // If the error is that no record exists, it's not muted
       if (error.code === 'PGRST116') {
         return false
       }
