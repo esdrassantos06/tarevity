@@ -191,11 +191,12 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
             )
           }
 
-          // Aguarda um pequeno delay antes de redirecionar
-          setTimeout(() => {
-            console.log('🔄 TodoEditPage - Redirecting to todo details')
-            router.push(`/todo/${todoId}`)
-          }, 300)
+          // Aguarda um pequeno delay para garantir que o cache foi atualizado
+          await new Promise((resolve) => setTimeout(resolve, 200))
+
+          // Redireciona para a página de detalhes
+          console.log('🔄 TodoEditPage - Redirecting to todo details')
+          router.push(`/todo/${todoId}`)
         },
         onError: (error) => {
           console.error('❌ TodoEditPage - Error updating todo:', error)

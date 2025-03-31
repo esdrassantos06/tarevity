@@ -117,7 +117,7 @@ export function useUpdateTodoMutation() {
     onMutate: async ({ id, data }) => {
       console.log('🔄 onMutate - Starting optimistic update:', { id, data })
 
-      // Cancela a query de todos durante a atualização
+      // Cancela todas as queries relacionadas durante a atualização
       await queryClient.cancelQueries({ queryKey: ['todos'] })
 
       // Snapshot do estado anterior
@@ -170,8 +170,9 @@ export function useUpdateTodoMutation() {
           const updatedTodos = old.map((todo) => {
             if (todo.id === variables.id && result.data) {
               return {
+                ...todo,
                 ...result.data,
-                status: result.data.status || 'active',
+                status: result.data.status || todo.status,
               }
             }
             return todo
@@ -195,15 +196,16 @@ export function useUpdateTodoMutation() {
         } else {
           showSuccess(t('taskUpdatedSuccessfully'))
         }
+
+        // Marca a query como stale para forçar um refetch após um delay
+        setTimeout(() => {
+          queryClient.invalidateQueries({ queryKey: ['todos'] })
+        }, 100)
       }
     },
 
     onSettled: () => {
       console.log('🔄 onSettled - Mutation completed')
-      // Agenda um refetch após um pequeno delay para garantir que o servidor processou a atualização
-      setTimeout(() => {
-        queryClient.invalidateQueries({ queryKey: ['todos'] })
-      }, 300)
     },
   })
 }
