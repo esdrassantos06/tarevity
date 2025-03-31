@@ -22,7 +22,7 @@ export function useTodosQuery() {
       }
     },
     staleTime: 0,
-    gcTime: 5 * 60 * 1000,
+    gcTime: 1 * 60 * 1000,
   })
 }
 
@@ -104,10 +104,12 @@ export function useUpdateTodoMutation() {
 
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: Partial<Todo> }) => {
+      console.log('🔄 Mutation Function - Sending request:', { id, data })
       return todoAPI.updateTodo(id, data)
     },
 
     onMutate: async ({ id, data }) => {
+      console.log('🔄 onMutate - Starting optimistic update:', { id, data })
       await queryClient.cancelQueries({ queryKey: ['todos'] })
 
       const previousTodos = queryClient.getQueryData<Todo[]>(['todos'])
@@ -118,19 +120,19 @@ export function useUpdateTodoMutation() {
         return old.map((todo) => {
           if (todo.id === id) {
             const updatedTodo = { ...todo, ...data }
-
             updatedTodo.updated_at = new Date().toISOString()
 
             if ('is_completed' in data && data.is_completed === true) {
-              updatedTodo.status = 'completed'
+              updatedTodo.status = 'completed' as const
             } else if (
               'is_completed' in data &&
               data.is_completed === false &&
               updatedTodo.status === 'completed'
             ) {
-              updatedTodo.status = 'active'
+              updatedTodo.status = 'active' as const
             }
 
+            console.log('🔄 onMutate - Updated todo:', updatedTodo)
             return updatedTodo
           }
           return todo
@@ -141,9 +143,10 @@ export function useUpdateTodoMutation() {
     },
 
     onError: (err, variables, context) => {
-      console.error(t('errorUpdatingTodo'), err)
+      console.error('❌ onError - Error updating todo:', err)
 
       if (context?.previousTodos) {
+        console.log('🔄 onError - Reverting to previous state')
         queryClient.setQueryData(['todos'], context.previousTodos)
       }
 
@@ -151,21 +154,35 @@ export function useUpdateTodoMutation() {
     },
 
     onSuccess: (result, variables) => {
+      console.log('✅ onSuccess - Server response:', result)
+
       if (result.data) {
         const todoData = result.data
+        console.log('✅ onSuccess - Updating cache with server data:', todoData)
 
         queryClient.setQueryData<Todo[]>(['todos'], (old = []) => {
-          return old.map((todo) => {
+          if (!old) return []
+
+          const updatedTodos = old.map((todo) => {
             if (todo.id === variables.id) {
               if (!todoData.id) {
-                console.error(t('invalidServerResponse'), todoData)
+                console.error(
+                  '❌ onSuccess - Invalid server response:',
+                  todoData,
+                )
                 return todo
               }
-              return { ...todo, ...todoData }
+              const updatedTodo = { ...todo, ...todoData }
+              console.log('✅ onSuccess - Final todo state:', updatedTodo)
+              return updatedTodo
             }
             return todo
           })
+
+          return updatedTodos
         })
+
+        queryClient.setQueryData(['todos'], (old) => old)
 
         if ('is_completed' in variables.data) {
           const isCompleted = variables.data.is_completed
@@ -183,15 +200,13 @@ export function useUpdateTodoMutation() {
           showSuccess(t('taskUpdatedSuccessfully'))
         }
       } else {
-        console.error(t('invalidResponseFromServer'), result)
+        console.error('❌ onSuccess - Invalid response from server:', result)
         queryClient.invalidateQueries({ queryKey: ['todos'] })
-        queryClient.refetchQueries({ queryKey: ['todos'] })
       }
     },
 
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['todos'] })
-      queryClient.refetchQueries({ queryKey: ['todos'] })
+      console.log('🔄 onSettled - Mutation completed')
     },
   })
 }

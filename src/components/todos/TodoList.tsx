@@ -268,6 +268,7 @@ const TodoList: React.FC = () => {
   const handleSetReview = useCallback(
     (e: React.MouseEvent, id: string) => {
       e.stopPropagation()
+      console.log('🔄 handleSetReview - Starting update for todo:', id)
 
       const todoToUpdate = todos.find((todo) => todo.id === id)
       if (!todoToUpdate) return
@@ -279,11 +280,12 @@ const TodoList: React.FC = () => {
         },
         {
           onSuccess: () => {
+            console.log('✅ handleSetReview - Success, invalidating queries')
             queryClient.invalidateQueries({ queryKey: ['todos'] })
             queryClient.refetchQueries({ queryKey: ['todos'] })
           },
           onError: (error) => {
-            console.error('Error setting review status:', error)
+            console.error('❌ handleSetReview - Error:', error)
             queryClient.invalidateQueries({ queryKey: ['todos'] })
             queryClient.refetchQueries({ queryKey: ['todos'] })
           },
@@ -293,21 +295,10 @@ const TodoList: React.FC = () => {
     [queryClient, todos, updateTodoMutation],
   )
 
-  useEffect(() => {
-    // Update all todos every 30 seconds
-    const refreshInterval = setInterval(() => {
-      if (document.visibilityState === 'visible') {
-        queryClient.invalidateQueries({ queryKey: ['todos'] })
-        queryClient.refetchQueries({ queryKey: ['todos'] })
-      }
-    }, 30000)
-
-    return () => clearInterval(refreshInterval)
-  }, [queryClient])
-
   const handleApproveReview = useCallback(
     (e: React.MouseEvent, id: string) => {
       e.stopPropagation()
+      console.log('🔄 handleApproveReview - Starting update for todo:', id)
 
       const todoToUpdate = todos.find((todo) => todo.id === id)
       if (!todoToUpdate) return
@@ -315,29 +306,72 @@ const TodoList: React.FC = () => {
       updateTodoMutation.mutate(
         {
           id,
-          data: { status: 'active' },
+          data: { status: 'active' as const },
         },
         {
           onSuccess: () => {
+            console.log('✅ handleApproveReview - Updating local state')
             queryClient.setQueryData<Todo[]>(['todos'], (old) => {
               if (!old) return []
 
-              return old.map((todo) => {
+              const updated = old.map((todo) => {
                 if (todo.id === id) {
-                  return { ...todo, status: 'active' }
+                  const updatedTodo = { ...todo, status: 'active' as const }
+                  console.log(
+                    '✅ handleApproveReview - Updated todo:',
+                    updatedTodo,
+                  )
+                  return updatedTodo
                 }
                 return todo
               })
+              return updated
             })
           },
           onError: (error) => {
-            console.error('Error approving todo:', error)
+            console.error('❌ handleApproveReview - Error:', error)
           },
         },
       )
     },
     [todos, updateTodoMutation, queryClient],
   )
+
+  useEffect(() => {
+    let isMutating = false
+
+    // Update all todos every 30 seconds
+    const refreshInterval = setInterval(() => {
+      if (document.visibilityState === 'visible' && !isMutating) {
+        console.log('🔄 Auto-refresh - Checking for updates')
+        queryClient.invalidateQueries({ queryKey: ['todos'] })
+      }
+    }, 60000) // Aumentado para 1 minuto
+
+    // Listener para mutações
+    const unsubscribe = queryClient.getMutationCache().subscribe((event) => {
+      if (event.type === 'added') {
+        const mutation = event.mutation
+        const mutationKey = mutation.options?.mutationKey
+        if (Array.isArray(mutationKey) && mutationKey.includes('todos')) {
+          isMutating = true
+          console.log('🔄 Mutation in progress - Pausing auto-refresh')
+        }
+      } else if (event.type === 'removed') {
+        const mutation = event.mutation
+        const mutationKey = mutation.options?.mutationKey
+        if (Array.isArray(mutationKey) && mutationKey.includes('todos')) {
+          isMutating = false
+          console.log('✅ Mutation completed - Resuming auto-refresh')
+        }
+      }
+    })
+
+    return () => {
+      clearInterval(refreshInterval)
+      unsubscribe()
+    }
+  }, [queryClient])
 
   const stats = useMemo(() => {
     const total = todos.length

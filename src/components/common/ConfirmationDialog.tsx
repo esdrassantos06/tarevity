@@ -132,12 +132,6 @@ export default function ConfirmationDialog({
     onClose()
   }
 
-  console.log('ConfirmationDialog renderizado com props:', {
-    isOpen,
-    title,
-    description,
-  })
-
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent onClick={(e) => e.stopPropagation()}>

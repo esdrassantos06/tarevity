@@ -55,8 +55,6 @@ export interface ApiResult<T> {
   loading: boolean
 }
 
-// Usando chaves de tradução diretas
-// Estas chaves serão traduzidas por componentes React quando exibidas
 export const authAPI = {
   async register(
     name: string,
