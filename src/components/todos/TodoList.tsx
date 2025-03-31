@@ -100,7 +100,6 @@ const TodoList: React.FC = () => {
         cancelText: t('cancel'),
         onConfirm: async () => {
           setLoading(true)
-          console.log('🔄 handleDeleteTodo - Starting delete for todo:', id)
 
           // Guarda o estado atual para possível rollback
           const previousTodos = queryClient.getQueryData<Todo[]>(['todos'])
@@ -394,7 +393,6 @@ const TodoList: React.FC = () => {
     // Update all todos every 30 seconds
     const refreshInterval = setInterval(() => {
       if (document.visibilityState === 'visible' && !isMutating) {
-        console.log('🔄 Auto-refresh - Checking for updates')
         queryClient.invalidateQueries({ queryKey: ['todos'] })
       }
     }, 60000) // Aumentado para 1 minuto
@@ -406,14 +404,12 @@ const TodoList: React.FC = () => {
         const mutationKey = mutation.options?.mutationKey
         if (Array.isArray(mutationKey) && mutationKey.includes('todos')) {
           isMutating = true
-          console.log('🔄 Mutation in progress - Pausing auto-refresh')
         }
       } else if (event.type === 'removed') {
         const mutation = event.mutation
         const mutationKey = mutation.options?.mutationKey
         if (Array.isArray(mutationKey) && mutationKey.includes('todos')) {
           isMutating = false
-          console.log('✅ Mutation completed - Resuming auto-refresh')
         }
       }
     })

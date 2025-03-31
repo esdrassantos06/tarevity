@@ -80,14 +80,15 @@ export default function LanguageSwitcher() {
             )}
             disabled={isPending || isLoading}
           >
-            <Image
-              src={currentLanguage.flagSrc}
-              alt={currentLanguage.name}
-              width={20}
-              height={20}
-              className="object-cover"
-              priority
-            />
+            <div className="relative size-5">
+              <Image
+                src={currentLanguage.flagSrc}
+                alt={currentLanguage.name}
+                fill
+                className="object-contain"
+                priority
+              />
+            </div>
             <span className="sr-only">{t('selectLanguage')}</span>
           </Button>
         </DropdownMenuTrigger>
@@ -114,13 +115,14 @@ export default function LanguageSwitcher() {
                 disabled={isPending || isLoading || language.code === locale}
               >
                 <div className="flex items-center gap-2">
-                  <Image
-                    src={language.flagSrc}
-                    alt={language.name}
-                    width={20}
-                    height={20}
-                    className="object-cover"
-                  />
+                  <div className="relative size-5">
+                    <Image
+                      src={language.flagSrc}
+                      alt={language.name}
+                      fill
+                      className="object-contain"
+                    />
+                  </div>
                   <span>{language.name}</span>
                 </div>
                 {language.code === locale && (

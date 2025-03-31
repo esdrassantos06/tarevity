@@ -1,9 +1,8 @@
 import { Inter } from 'next/font/google'
-import { NextIntlClientProvider, hasLocale } from 'next-intl'
+import { hasLocale } from 'next-intl'
 import { notFound } from 'next/navigation'
 import { routing } from '@/i18n/routing'
-import type { Metadata, ResolvingMetadata, Viewport } from 'next'
-import { NextAuthProvider } from '@/components/auth/NextAuthProvider'
+import type { Metadata, Viewport } from 'next'
 import { ThemeProvider } from '@/components/common/ThemeProvider'
 import ToastProvider from '@/components/common/ToastProvider'
 import Providers from '@/components/common/Providers'
@@ -15,11 +14,11 @@ const inter = Inter({ subsets: ['latin'] })
 
 type Params = Promise<{ locale: string }>
 
-export async function generateMetadata(
-  { params }: { params: Params },
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  parent: ResolvingMetadata,
-): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: {
+  params: Params
+}): Promise<Metadata> {
   const resolvedParams = await params
 
   const t = await getTranslations({
@@ -106,6 +105,14 @@ export default async function Layout({
     notFound()
   }
 
+  let messages
+  try {
+    messages = (await import(`@/messages/${locale}.json`)).default
+  } catch (error) {
+    console.error('Error loading messages:', error)
+    notFound()
+  }
+
   return (
     <html lang={locale} suppressHydrationWarning className="overflow-x-hidden">
       <head>
@@ -115,27 +122,19 @@ export default async function Layout({
         className={`${inter.className}!mr-0 overflow-x-hidden`}
         suppressHydrationWarning
       >
-        <Providers>
-          <NextAuthProvider>
-            <NextIntlClientProvider>
-              <ThemeProvider
-                attribute="class"
-                defaultTheme="system"
-                enableSystem
-              >
-                <a
-                  aria-label={t('skipToMainContent')}
-                  href="#main-content"
-                  className="focus:text-primary sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:rounded focus:bg-white focus:px-4 focus:py-2 focus:outline focus:outline-offset-2"
-                >
-                  {t('skipToMainContent')}
-                </a>
-                <main id="main-content">{children}</main>
-                <CookieBanner />
-                <ToastProvider />
-              </ThemeProvider>
-            </NextIntlClientProvider>
-          </NextAuthProvider>
+        <Providers locale={locale} messages={messages}>
+          <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+            <a
+              aria-label={t('skipToMainContent')}
+              href="#main-content"
+              className="focus:text-primary sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:rounded focus:bg-white focus:px-4 focus:py-2 focus:outline focus:outline-offset-2"
+            >
+              {t('skipToMainContent')}
+            </a>
+            <main id="main-content">{children}</main>
+            <CookieBanner />
+            <ToastProvider />
+          </ThemeProvider>
         </Providers>
       </body>
     </html>
