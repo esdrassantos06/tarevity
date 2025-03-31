@@ -2,9 +2,11 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { todoAPI, Todo, TodoFormData } from '@/lib/api'
 import { showSuccess, showError } from '@/lib/toast'
 import { useTranslations } from 'next-intl'
+import { createQueryConfig } from '@/lib/cache'
 
 export function useTodosQuery() {
   const t = useTranslations('useTodosQuery')
+  const config = createQueryConfig('todos')
 
   return useQuery<Todo[], Error>({
     queryKey: ['todos'],
@@ -23,11 +25,13 @@ export function useTodosQuery() {
         throw error
       }
     },
-    staleTime: 10000, // Aumentado para 10 segundos
-    gcTime: 1000 * 60 * 5, // 5 minutos
-    refetchOnWindowFocus: false,
-    refetchOnMount: true,
-    refetchOnReconnect: true,
+    staleTime: config.staleTime,
+    gcTime: config.gcTime,
+    refetchInterval: config.refetchInterval,
+    refetchOnMount: config.refetchOnMount,
+    refetchOnReconnect: config.refetchOnReconnect,
+    refetchOnWindowFocus: config.refetchOnWindowFocus,
+    retry: config.retry,
   })
 }
 
@@ -124,7 +128,6 @@ export function useUpdateTodoMutation() {
       const previousTodos = queryClient.getQueryData<Todo[]>(['todos'])
       console.log('📸 onMutate - Previous todos snapshot:', previousTodos)
 
-      // Atualização otimista com tipagem correta
       if (previousTodos) {
         const updatedTodos = previousTodos.map((todo) => {
           if (todo.id === id) {
@@ -132,12 +135,12 @@ export function useUpdateTodoMutation() {
             updatedTodo.updated_at = new Date().toISOString()
 
             // Garante consistência entre is_completed e status
-            if ('is_completed' in data) {
-              if (data.is_completed) {
-                updatedTodo.status = 'completed'
-              } else if (updatedTodo.status === 'completed') {
-                updatedTodo.status = 'active'
-              }
+            if (
+              'is_completed' in data &&
+              typeof data.is_completed === 'boolean'
+            ) {
+              updatedTodo.is_completed = data.is_completed
+              updatedTodo.status = data.is_completed ? 'completed' : 'active'
             }
 
             console.log('🔄 onMutate - Updated todo:', updatedTodo)
@@ -167,17 +170,25 @@ export function useUpdateTodoMutation() {
       if (result?.data) {
         // Atualiza o cache com os dados do servidor
         queryClient.setQueryData<Todo[]>(['todos'], (old = []) => {
-          const updatedTodos = old.map((todo) => {
+          return old.map((todo) => {
             if (todo.id === variables.id && result.data) {
-              return {
+              const updatedTodo = {
                 ...todo,
                 ...result.data,
                 status: result.data.status || todo.status,
               }
+
+              if (
+                'is_completed' in result.data &&
+                typeof result.data.is_completed === 'boolean'
+              ) {
+                updatedTodo.is_completed = result.data.is_completed
+              }
+
+              return updatedTodo
             }
             return todo
           })
-          return updatedTodos
         })
 
         // Notifica sucesso baseado no tipo de atualização
@@ -196,16 +207,15 @@ export function useUpdateTodoMutation() {
         } else {
           showSuccess(t('taskUpdatedSuccessfully'))
         }
-
-        // Marca a query como stale para forçar um refetch após um delay
-        setTimeout(() => {
-          queryClient.invalidateQueries({ queryKey: ['todos'] })
-        }, 100)
       }
     },
 
     onSettled: () => {
       console.log('🔄 onSettled - Mutation completed')
+
+      setTimeout(() => {
+        queryClient.invalidateQueries({ queryKey: ['todos'] })
+      }, 1000)
     },
   })
 }

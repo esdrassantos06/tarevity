@@ -50,26 +50,31 @@ export const authOptions: NextAuthOptions = {
           return null
         }
 
-        const user = await getUserByEmail(credentials.email)
-        if (!user || !user.password) {
-          return null
-        }
+        try {
+          const user = await getUserByEmail(credentials.email)
+          if (!user || !user.password) {
+            return null
+          }
 
-        const isValid = await verifyPassword(
-          credentials.password,
-          user.password,
-        )
-        if (!isValid) {
-          return null
-        }
+          const isValid = await verifyPassword(
+            credentials.password,
+            user.password,
+          )
+          if (!isValid) {
+            return null
+          }
 
-        return {
-          id: user.id,
-          name: user.name,
-          email: user.email,
-          image: user.image,
-          is_admin: user.is_admin || false,
-          provider: 'credentials',
+          return {
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            image: user.image,
+            is_admin: user.is_admin || false,
+            provider: 'credentials',
+          }
+        } catch (error) {
+          console.error('Auth error:', error)
+          return null
         }
       },
     }),

@@ -186,20 +186,8 @@ const TodoList: React.FC = () => {
       const todoToUpdate = todos.find((todo) => todo.id === id)
       if (!todoToUpdate) return
 
-      // Atualiza o estado local imediatamente
-      const newTodos = todos.map((todo) => {
-        if (todo.id === id) {
-          return {
-            ...todo,
-            is_completed: !isCompleted,
-            status: !isCompleted ? ('completed' as const) : ('active' as const),
-          }
-        }
-        return todo
-      })
-
-      // Atualiza o cache com os novos todos
-      queryClient.setQueryData(['todos'], newTodos)
+      // Não precisamos mais fazer a atualização manual do cache aqui
+      // O React Query vai cuidar disso através da mutação
 
       updateTodoMutation.mutate(
         {
@@ -210,11 +198,6 @@ const TodoList: React.FC = () => {
           },
         },
         {
-          onError: (error) => {
-            console.error('❌ handleCheckboxChange - Error:', error)
-            // Em caso de erro, reverte para o estado anterior
-            queryClient.setQueryData(['todos'], todos)
-          },
           onSuccess: async () => {
             try {
               if (!isCompleted) {

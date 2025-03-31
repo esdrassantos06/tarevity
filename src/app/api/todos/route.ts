@@ -25,9 +25,6 @@ export async function GET() {
 
     return NextResponse.json(data || [], {
       status: 200,
-      headers: {
-        'Cache-Control': 'private, max-age=60, stale-while-revalidate=300',
-      },
     })
   } catch (error: unknown) {
     console.error('Error fetching tasks:', error)

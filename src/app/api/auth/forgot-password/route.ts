@@ -1,7 +1,6 @@
 import { NextResponse, NextRequest } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
 import { sendPasswordResetEmail } from '@/lib/email'
-import { rateLimiter } from '@/lib/rateLimit'
 import { randomBytes } from 'crypto'
 
 function generateSecureToken(byteLength = 32): string {
@@ -12,17 +11,8 @@ export async function POST(req: NextRequest) {
   try {
     const { email } = await req.json()
 
-    const ip = req.headers.get('x-forwarded-for')?.split(',')[0] || 'anonymous'
-    const emailFragment = email ? email.slice(0, 3) : 'unknown'
-    const identifier = `${ip}-${emailFragment}`
 
-    const rateLimit = await rateLimiter(req, {
-      limit: 5,
-      window: 3600,
-      identifier,
-    })
 
-    if (rateLimit) return rateLimit
 
     if (!email || typeof email !== 'string') {
       return NextResponse.json(

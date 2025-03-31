@@ -1,9 +1,13 @@
 import { getToken } from 'next-auth/jwt'
 import { NextRequest, NextResponse } from 'next/server'
-import { rateLimiter } from '@/lib/rateLimit'
 import { csrfProtection } from './middleware/csrf'
 import createIntlMiddleware from 'next-intl/middleware'
 import { routing } from './i18n/routing'
+import {
+  protectRoute,
+  createIdentifier,
+  PROTECTION_CONFIGS,
+} from '@/lib/protection'
 
 // Create the internationalization middleware
 const intlMiddleware = createIntlMiddleware(routing)
@@ -24,8 +28,12 @@ export async function middleware(request: NextRequest) {
   }
 
   // IMPORTANT: The /api/auth/session endpoint needs to be handled before internationalization
-  // to avoid the error "Unexpected token '<', "<!DOCTYPE "... is not valid JSON"
   if (pathname === '/api/auth/session') {
+    return NextResponse.next()
+  }
+
+  // Skip middleware for auth API routes
+  if (pathname.startsWith('/api/auth')) {
     return NextResponse.next()
   }
 
@@ -50,7 +58,6 @@ export async function middleware(request: NextRequest) {
       return NextResponse.next()
     }
 
-    // Verificar autenticação para APIs protegidas
     const token = await getToken({
       req: request,
       secureCookie: process.env.NODE_ENV === 'production',
@@ -58,7 +65,6 @@ export async function middleware(request: NextRequest) {
 
     const isAuthenticated = !!token
 
-    // Definir caminhos protegidos para APIs
     const protectedApiPaths = [
       '/api/profile',
       '/api/todos',
@@ -66,17 +72,14 @@ export async function middleware(request: NextRequest) {
       '/api/stats',
     ]
 
-    // Verificar se é um caminho de API protegido
     const isProtectedApiPath = protectedApiPaths.some((path) =>
       pathname.startsWith(path),
     )
 
-    // Tratamento para APIs protegidas não autenticadas
     if (isProtectedApiPath && !isAuthenticated) {
       return NextResponse.json({ message: 'Unauthorized' }, { status: 401 })
     }
 
-    // Verificação de permissão de admin
     if (pathname.startsWith('/api/admin') && isAuthenticated) {
       if (!token.is_admin) {
         return NextResponse.json(
@@ -86,52 +89,61 @@ export async function middleware(request: NextRequest) {
       }
     }
 
-    // Rate limiting para APIs
-    const rateLimits = {
-      '/api/auth/login': { limit: 5, window: 300 },
-      '/api/auth/register': { limit: 3, window: 3600 },
-      '/api/auth/forgot-password': { limit: 3, window: 3600 },
-      '/api/auth/reset-password': { limit: 5, window: 3600 },
-      '/api/account/delete': { limit: 2, window: 86400 },
-      '/api/profile/upload-image': { limit: 5, window: 3600 },
-      '/api/admin/': { limit: 20, window: 60 },
-      '/api/todos': { limit: 50, window: 60 },
-      'api/notifications': { limit: 50, window: 60 },
-      'api/profile': { limit: 50, window: 60 },
-      'api/stats': { limit: 50, window: 60 },
-    }
+    // Aplicar proteção contra abusos
+    const ipHeader = request.headers.get('x-forwarded-for')
+    const ipAddresses = ipHeader ? ipHeader.split(',') : []
+    const clientIp =
+      ipAddresses.length > 0
+        ? ipAddresses[0].trim()
+        : request.nextUrl.hostname || 'unknown-ip'
 
-    let matchedConfig = null
-    let matchedRoute = ''
+    const userId = token?.id || 'unauthenticated'
 
-    for (const [route, config] of Object.entries(rateLimits)) {
-      if (pathname.startsWith(route) && route.length > matchedRoute.length) {
-        matchedConfig = config
-        matchedRoute = route
-      }
-    }
+    if (
+      pathname.startsWith('/api/auth/') &&
+      !pathname.includes('forgot-password')
+    ) {
+      const authRoute = pathname.replace('/api/auth/', '')
+      const config =
+        PROTECTION_CONFIGS.auth[
+          authRoute as keyof typeof PROTECTION_CONFIGS.auth
+        ]
 
-    if (matchedConfig) {
-      try {
-        const ipHeader = request.headers.get('x-forwarded-for')
-        const ipAddresses = ipHeader ? ipHeader.split(',') : []
-        const clientIp =
-          ipAddresses.length > 0
-            ? ipAddresses[0].trim()
-            : request.nextUrl.hostname || 'unknown-ip'
-
-        const userId = token?.id || 'unauthenticated'
-
-        const rateLimit = await rateLimiter(request, {
-          ...matchedConfig,
-          identifier: `${userId}:${clientIp}:${matchedRoute}`,
+      if (config) {
+        const identifier = createIdentifier({
+          ip: clientIp,
+          path: pathname,
+          userId,
         })
 
-        if (rateLimit) return rateLimit
-      } catch (error) {
-        console.error('Error applying rate limiting:', error)
+        const protection = await protectRoute({
+          ...config,
+          identifier,
+        })
+
+        if (protection) return protection
       }
     }
+
+    let config = PROTECTION_CONFIGS.api.default
+    if (pathname.startsWith('/api/admin/')) {
+      config = PROTECTION_CONFIGS.api.admin
+    } else if (pathname.includes('/upload')) {
+      config = PROTECTION_CONFIGS.api.upload
+    }
+
+    const identifier = createIdentifier({
+      ip: clientIp,
+      path: pathname,
+      userId,
+    })
+
+    const protection = await protectRoute({
+      ...config,
+      identifier,
+    })
+
+    if (protection) return protection
 
     const response = NextResponse.next()
     addSecurityHeaders(response, request)

@@ -48,6 +48,24 @@ const nextConfig: NextConfig = {
         source: '/:path*',
         headers: [
           {
+            key: 'Content-Security-Policy',
+            value: [
+              "default-src 'self'",
+              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://apis.google.com https://www.googletagmanager.com",
+              "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+              "img-src 'self' data: https: blob:",
+              "font-src 'self' https://fonts.gstatic.com",
+              "connect-src 'self' https://api.github.com https://*.supabase.co https://*.vercel.app https://www.google-analytics.com http://localhost:* http://192.168.1.171:*",
+              "frame-src 'self' https://accounts.google.com",
+              "object-src 'none'",
+              "base-uri 'self'",
+              "form-action 'self'",
+              "frame-ancestors 'none'",
+              'block-all-mixed-content',
+              'upgrade-insecure-requests',
+            ].join('; '),
+          },
+          {
             key: 'X-Content-Type-Options',
             value: 'nosniff',
           },

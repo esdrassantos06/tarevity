@@ -4,11 +4,12 @@ import { useState } from 'react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { SessionProvider } from 'next-auth/react'
 import { NextIntlClientProvider } from 'next-intl'
+import { QUERY_CACHE_CONFIG } from '@/lib/cache'
 
 interface ProvidersProps {
   children: React.ReactNode
   locale: string
-  messages?: Record<string, unknown>
+  messages: Record<string, unknown>
 }
 
 export default function Providers({
@@ -21,13 +22,8 @@ export default function Providers({
       new QueryClient({
         defaultOptions: {
           queries: {
-            staleTime: 5 * 60 * 1000,
-            gcTime: 30 * 60 * 1000,
-            refetchOnWindowFocus: false,
-            refetchOnMount: false,
-            refetchOnReconnect: false,
-            retry: 1,
-            refetchInterval: false,
+            ...QUERY_CACHE_CONFIG.default,
+            refetchInterval: false as const,
           },
         },
       }),
