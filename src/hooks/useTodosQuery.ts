@@ -23,11 +23,11 @@ export function useTodosQuery() {
         throw error
       }
     },
-    staleTime: 0, // Sempre considerar os dados stale
+    staleTime: 3000, // 3 segundos de staleTime para evitar refetches muito frequentes
     gcTime: 1000 * 60 * 5, // 5 minutos
-    refetchOnWindowFocus: true, // Habilita refetch no foco
-    refetchOnMount: true, // Habilita refetch no mount
-    refetchOnReconnect: true, // Habilita refetch na reconexão
+    refetchOnWindowFocus: false, // Desabilita refetch no foco
+    refetchOnMount: true, // Mantém refetch no mount
+    refetchOnReconnect: true, // Mantém refetch na reconexão
   })
 }
 
@@ -117,18 +117,16 @@ export function useUpdateTodoMutation() {
     onMutate: async ({ id, data }) => {
       console.log('🔄 onMutate - Starting optimistic update:', { id, data })
 
-      // Cancela TODAS as queries relacionadas
-      await queryClient.cancelQueries()
+      // Cancela apenas a query de todos
+      await queryClient.cancelQueries({ queryKey: ['todos'] })
 
-      // Snapshot the previous value
+      // Snapshot do estado anterior
       const previousTodos = queryClient.getQueryData<Todo[]>(['todos'])
       console.log('📸 onMutate - Previous todos snapshot:', previousTodos)
 
-      // Optimistically update to the new value
-      queryClient.setQueryData<Todo[]>(['todos'], (old) => {
-        if (!old) return []
-
-        const updatedTodos = old.map((todo) => {
+      // Atualização otimista
+      if (previousTodos) {
+        const updatedTodos = previousTodos.map((todo) => {
           if (todo.id === id) {
             const updatedTodo = { ...todo, ...data }
             updatedTodo.updated_at = new Date().toISOString()
@@ -149,9 +147,9 @@ export function useUpdateTodoMutation() {
           return todo
         })
 
-        console.log('💾 onMutate - New cache state:', updatedTodos)
-        return updatedTodos
-      })
+        console.log('💾 onMutate - Setting new cache state')
+        queryClient.setQueryData(['todos'], updatedTodos)
+      }
 
       return { previousTodos }
     },
@@ -168,17 +166,31 @@ export function useUpdateTodoMutation() {
       console.log('✅ onSuccess - Server response:', result)
 
       if (result?.data) {
-        // Força uma atualização completa do cache
-        queryClient.setQueryData(['todos'], (old: Todo[] | undefined) => {
-          if (!old) return [result.data]
-          return old.map((todo) =>
-            todo.id === variables.id ? result.data : todo,
-          )
+        // Atualiza o cache com os dados do servidor
+        queryClient.setQueryData<Todo[]>(['todos'], (old = []) => {
+          const updatedTodos = old.map((todo) => {
+            if (todo.id === variables.id && result.data) {
+              // Garante que todos os campos obrigatórios estejam presentes
+              const updatedTodo: Todo = {
+                id: result.data.id,
+                title: result.data.title,
+                description: result.data.description,
+                is_completed: result.data.is_completed,
+                priority: result.data.priority,
+                due_date: result.data.due_date,
+                created_at: result.data.created_at,
+                updated_at: result.data.updated_at,
+                status: result.data.status || 'active',
+                user_id: result.data.user_id,
+              }
+              return updatedTodo
+            }
+            return todo
+          })
+          return updatedTodos
         })
 
-        // Marca a query como stale para forçar um refetch
-        queryClient.invalidateQueries({ queryKey: ['todos'] })
-
+        // Notifica sucesso baseado no tipo de atualização
         if ('is_completed' in variables.data) {
           const isCompleted = variables.data.is_completed
           showSuccess(
@@ -202,9 +214,10 @@ export function useUpdateTodoMutation() {
 
     onSettled: () => {
       console.log('🔄 onSettled - Mutation completed')
-      // Força um refetch após a conclusão
-      queryClient.invalidateQueries({ queryKey: ['todos'] })
-      queryClient.refetchQueries({ queryKey: ['todos'] })
+      // Agenda um refetch após um pequeno delay
+      setTimeout(() => {
+        queryClient.invalidateQueries({ queryKey: ['todos'] })
+      }, 300)
     },
   })
 }

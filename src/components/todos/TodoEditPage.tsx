@@ -27,7 +27,10 @@ interface Todo {
   priority: number
   due_date: string | null
   is_completed: boolean
-  status?: 'active' | 'review' | 'completed'
+  status: 'active' | 'review' | 'completed'
+  created_at: string
+  updated_at: string
+  user_id: string
 }
 
 interface TodoFormData {
@@ -144,9 +147,6 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
 
     console.log('🔄 TodoEditPage - Starting update with data:', updateData)
 
-    // Força uma limpeza do cache antes da atualização
-    queryClient.removeQueries({ queryKey: ['todos'] })
-
     updateTodoMutation.mutate(
       { id: todoId, data: updateData },
       {
@@ -155,17 +155,29 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
           setHasUnsavedChanges(false)
 
           if (response?.data) {
-            // Força uma atualização completa do cache
-            queryClient.setQueryData(['todos'], (old: Todo[] | undefined) => {
-              if (!old) return [response.data]
-              return old.map((todo) =>
-                todo.id === todoId ? response.data : todo,
-              )
+            // Atualiza o cache com os dados do servidor
+            queryClient.setQueryData<Todo[]>(['todos'], (old = []) => {
+              const updatedTodos = old.map((todo) => {
+                if (todo.id === todoId && response.data) {
+                  // Garante que todos os campos obrigatórios estejam presentes
+                  const updatedTodo: Todo = {
+                    id: response.data.id,
+                    title: response.data.title,
+                    description: response.data.description,
+                    is_completed: response.data.is_completed,
+                    priority: response.data.priority,
+                    due_date: response.data.due_date,
+                    created_at: response.data.created_at,
+                    updated_at: response.data.updated_at,
+                    status: response.data.status || 'active',
+                    user_id: response.data.user_id,
+                  }
+                  return updatedTodo
+                }
+                return todo
+              })
+              return updatedTodos
             })
-
-            // Força um refetch imediato
-            queryClient.invalidateQueries({ queryKey: ['todos'] })
-            await queryClient.refetchQueries({ queryKey: ['todos'] })
           }
 
           try {
@@ -191,23 +203,18 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
             )
           }
 
-          // Aguarda um pouco para garantir que o cache foi atualizado
-          await new Promise((resolve) => setTimeout(resolve, 100))
-
-          // Força um último refetch antes de redirecionar
-          await queryClient.refetchQueries({ queryKey: ['todos'] })
-
-          console.log('🔄 TodoEditPage - Redirecting to todo details')
-          router.push(`/todo/${todoId}`)
+          // Agenda um refetch após um pequeno delay antes de redirecionar
+          setTimeout(async () => {
+            await queryClient.invalidateQueries({ queryKey: ['todos'] })
+            console.log('🔄 TodoEditPage - Redirecting to todo details')
+            router.push(`/todo/${todoId}`)
+          }, 300)
         },
         onError: (error) => {
           console.error('❌ TodoEditPage - Error updating todo:', error)
           showError(
             error instanceof Error ? error.message : t('errorUpdatingTask'),
           )
-          // Força um refetch em caso de erro
-          queryClient.invalidateQueries({ queryKey: ['todos'] })
-          queryClient.refetchQueries({ queryKey: ['todos'] })
         },
       },
     )
