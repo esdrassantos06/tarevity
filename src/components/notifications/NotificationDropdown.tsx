@@ -103,6 +103,7 @@ export default function NotificationDropdown() {
       {
         onSuccess: () => {
           queryClient.invalidateQueries({ queryKey: ['notifications'] })
+          queryClient.refetchQueries({ queryKey: ['notifications'] })
         },
         onError: (error) => {
           showError(t('error.updateFailed'))
@@ -119,6 +120,7 @@ export default function NotificationDropdown() {
         onSuccess: () => {
           showSuccess(t('success.removed'))
           queryClient.invalidateQueries({ queryKey: ['notifications'] })
+          queryClient.refetchQueries({ queryKey: ['notifications'] })
         },
         onError: (error) => {
           showError(t('error.removeFailed'))
@@ -135,6 +137,7 @@ export default function NotificationDropdown() {
         {
           onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['notifications'] })
+            queryClient.refetchQueries({ queryKey: ['notifications'] })
           },
           onError: (error) => {
             console.error('Error marking notifications as unread:', error)
@@ -148,6 +151,7 @@ export default function NotificationDropdown() {
         {
           onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['notifications'] })
+            queryClient.refetchQueries({ queryKey: ['notifications'] })
           },
           onError: (error) => {
             console.error('Error marking notifications as read:', error)
@@ -176,6 +180,7 @@ export default function NotificationDropdown() {
               setOpen(false)
               closeConfirmDialog()
               queryClient.invalidateQueries({ queryKey: ['notifications'] })
+              queryClient.refetchQueries({ queryKey: ['notifications'] })
             },
             onError: (error) => {
               console.error('Error removing all notifications:', error)

@@ -16,7 +16,7 @@ export function useTodosQuery() {
         return result.data || []
       } catch (error) {
         showError(
-          error instanceof Error ? error.message : t('failedToLoadTasks'),
+          error instanceof Error ? error.message : t('Failed to load tasks'),
         )
         throw error
       }
@@ -65,7 +65,7 @@ export function useCreateTodoMutation() {
       if (context?.previousTodos) {
         queryClient.setQueryData(['todos'], context.previousTodos)
       }
-      showError(err instanceof Error ? err.message : t('errorCreatingTask'))
+      showError(err instanceof Error ? err.message : t('Error creating task'))
     },
 
     onSuccess: (result, variables, context) => {
@@ -76,7 +76,7 @@ export function useCreateTodoMutation() {
           if (!old) return [todoData]
 
           if (!todoData.id) {
-            console.error(t('unexpectedApiResponseFormat'), todoData)
+            console.error(t('Unexpected Api Response Format'), todoData)
             return old.filter((todo) => todo.id !== context.tempId)
           }
 
@@ -85,15 +85,15 @@ export function useCreateTodoMutation() {
           )
         })
       } else if (!result.data) {
-        console.error(t('missingDataInApiResponse'), result)
+        console.error(t('Missing Data In Api Response'), result)
         queryClient.invalidateQueries({ queryKey: ['todos'] })
+        queryClient.refetchQueries({ queryKey: ['todos'] })
       }
     },
 
     onSettled: () => {
-      setTimeout(() => {
-        queryClient.invalidateQueries({ queryKey: ['todos'] })
-      }, 300)
+      queryClient.invalidateQueries({ queryKey: ['todos'] })
+      queryClient.refetchQueries({ queryKey: ['todos'] })
     },
   })
 }
@@ -147,7 +147,7 @@ export function useUpdateTodoMutation() {
         queryClient.setQueryData(['todos'], context.previousTodos)
       }
 
-      showError(err instanceof Error ? err.message : t('errorUpdatingTask'))
+      showError(err instanceof Error ? err.message : t('Error Updating Task'))
     },
 
     onSuccess: (result, variables) => {
@@ -189,9 +189,7 @@ export function useUpdateTodoMutation() {
     },
 
     onSettled: () => {
-      setTimeout(() => {
-        queryClient.invalidateQueries({ queryKey: ['todos'] })
-      }, 300)
+      queryClient.invalidateQueries({ queryKey: ['todos'] })
     },
   })
 }
@@ -220,19 +218,17 @@ export function useDeleteTodoMutation() {
         queryClient.setQueryData(['todos'], context.previousTodos)
       }
 
-      showError(err instanceof Error ? err.message : t('errorDeletingTask'))
+      showError(err instanceof Error ? err.message : t('Error Deleting Task'))
     },
 
     onSuccess: () => {
       showSuccess(t('taskDeletedSuccessfully'))
 
       queryClient.invalidateQueries({ queryKey: ['notifications'] })
+      queryClient.refetchQueries({ queryKey: ['notifications'] })
     },
-
     onSettled: () => {
-      setTimeout(() => {
-        queryClient.invalidateQueries({ queryKey: ['todos'] })
-      }, 300)
+      queryClient.invalidateQueries({ queryKey: ['todos'] })
     },
   })
 }

@@ -38,7 +38,6 @@ const TodoList: React.FC = () => {
       router.push(`/auth/login?callbackUrl=${callbackUrl}`)
     }
 
-    // Limpar o contador de redirecionamentos ao carregar este componente
     if (typeof window !== 'undefined') {
       window.sessionStorage.removeItem('redirect_count')
     }
@@ -53,7 +52,6 @@ const TodoList: React.FC = () => {
     if (isError && error instanceof Error) {
       console.error('Error in todos query:', error.message)
 
-      // Verificar se é um erro de autenticação
       if (
         error.message.includes('unauthorized') ||
         error.message.includes('Unauthorized') ||
@@ -75,6 +73,12 @@ const TodoList: React.FC = () => {
       ? format(parseISO(dueDateParam), 'MMM d, yyyy')
       : null
     : null
+
+  useEffect(() => {
+    if (deleteTodoMutation.isPending === false && dialogState.isOpen) {
+      closeConfirmDialog()
+    }
+  }, [deleteTodoMutation.isPending, dialogState.isOpen, closeConfirmDialog])
 
   const {
     activeTab,
@@ -123,10 +127,12 @@ const TodoList: React.FC = () => {
             })
             .catch((error) => {
               console.error('Error deleting notifications:', error)
+              setLoading(false)
               deleteTodoMutation.mutate(id, {
                 onSuccess: () => {
                   closeConfirmDialog()
                   queryClient.invalidateQueries({ queryKey: ['todos'] })
+                  queryClient.refetchQueries({ queryKey: ['todos'] })
                 },
                 onError: (error) => {
                   console.error('Error deleting task:', error)
@@ -184,9 +190,14 @@ const TodoList: React.FC = () => {
                 .delete(`/api/notifications/delete-for-todo/${id}`)
                 .then(() => {
                   const dueDate = new Date(todoToUpdate.due_date!)
+                  const now = new Date()
+                  const timeDiff = dueDate.getTime() - now.getTime()
+                  const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24))
 
-                  const notifications = [
-                    {
+                  let notification = null
+
+                  if (daysDiff < 0) {
+                    notification = {
                       todo_id: id,
                       notification_type: 'danger',
                       title: t('overdueTask'),
@@ -198,8 +209,9 @@ const TodoList: React.FC = () => {
                       }),
                       due_date: todoToUpdate.due_date,
                       origin_id: `danger-${id}`,
-                    },
-                    {
+                    }
+                  } else if (daysDiff <= 3) {
+                    notification = {
                       todo_id: id,
                       notification_type: 'warning',
                       title: t('dueSoon'),
@@ -211,8 +223,9 @@ const TodoList: React.FC = () => {
                       }),
                       due_date: todoToUpdate.due_date,
                       origin_id: `warning-${id}`,
-                    },
-                    {
+                    }
+                  } else {
+                    notification = {
                       todo_id: id,
                       notification_type: 'info',
                       title: t('upcomingDeadline'),
@@ -224,26 +237,30 @@ const TodoList: React.FC = () => {
                       }),
                       due_date: todoToUpdate.due_date,
                       origin_id: `info-${id}`,
-                    },
-                  ]
+                    }
+                  }
 
-                  axios
-                    .post('/api/notifications', { notifications })
-                    .then(() => {
-                      queryClient.invalidateQueries({
-                        queryKey: ['notifications'],
+                  if (notification) {
+                    axios
+                      .post('/api/notifications', {
+                        notifications: [notification],
                       })
-                    })
-                    .catch((error) => {
-                      console.error('Error creating notifications:', error)
-                    })
+                      .then(() => {
+                        queryClient.invalidateQueries({
+                          queryKey: ['notifications'],
+                        })
+                      })
+                      .catch((error) => {
+                        console.error('Error creating notifications:', error)
+                      })
+                  }
                 })
                 .catch((error) => {
                   console.error('Error managing notifications:', error)
                 })
             }
-
             queryClient.invalidateQueries({ queryKey: ['todos'] })
+            queryClient.refetchQueries({ queryKey: ['todos'] })
           },
         },
       )
@@ -420,9 +437,10 @@ const TodoList: React.FC = () => {
           <p className="text-lg">{t('errorLoadingTasks')}</p>
           <p className="text-sm">{error.message}</p>
           <button
-            onClick={() =>
+            onClick={() => {
               queryClient.invalidateQueries({ queryKey: ['todos'] })
-            }
+              queryClient.refetchQueries({ queryKey: ['todos'] })
+            }}
             className="mt-4 rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
           >
             {t('tryAgain')}

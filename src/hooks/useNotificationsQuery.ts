@@ -28,6 +28,8 @@ export function useNotificationsQuery(options: QueryOptions = {}) {
     try {
       await axios.post('/api/notifications/refresh')
       await queryClient.invalidateQueries({ queryKey: ['notifications'] })
+      await queryClient.refetchQueries({ queryKey: ['notifications'] })
+
       lastRefreshRef.current = Date.now()
       return true
     } catch (error) {
@@ -120,6 +122,7 @@ export function useCreateNotificationsMutation() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['notifications'] })
+      queryClient.refetchQueries({ queryKey: ['notifications'] })
     },
     onError: (error) => {
       console.error(t('errorCreatingNotifications'), error)
@@ -151,6 +154,7 @@ export function useMarkNotificationReadMutation() {
       const { message } = response.data
       showSuccess(message || t('notificationReadStatusUpdated'))
       queryClient.invalidateQueries({ queryKey: ['notifications'] })
+      queryClient.refetchQueries({ queryKey: ['notifications'] })
     },
     onError: (error) => {
       console.error(t('errorUpdatingNotificationStatus'), error)
@@ -180,6 +184,7 @@ export function useDismissNotificationMutation() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['notifications'] })
+      queryClient.refetchQueries({ queryKey: ['notifications'] })
     },
     onError: (error) => {
       console.error(t('errorDismissingNotification'), error)
@@ -198,6 +203,7 @@ export function useDeleteNotificationsForTodoMutation() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['notifications'] })
+      queryClient.refetchQueries({ queryKey: ['notifications'] })
     },
     onError: (error) => {
       console.error(t('errorDeletingNotifications'), error)

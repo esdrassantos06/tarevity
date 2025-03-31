@@ -167,7 +167,6 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
               await refreshNotifications()
             }
 
-            // Invalidate the notifications query to refresh the UI
             queryClient.invalidateQueries({ queryKey: ['notifications'] })
           } catch (error) {
             console.error('Error managing notifications:', error)
