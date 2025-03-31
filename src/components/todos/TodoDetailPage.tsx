@@ -171,13 +171,26 @@ const TodoDetailPage: React.FC<TodoDetailPageProps> = ({ todoId }) => {
   const createdDate = formatDateLocalized(todo.created_at)
 
   const handleToggleComplete = () => {
-    updateTodoMutation.mutate({
-      id: todo.id,
-      data: {
-        is_completed: !todo.is_completed,
-        status: !todo.is_completed ? 'completed' : 'active',
+    updateTodoMutation.mutate(
+      {
+        id: todo.id,
+        data: {
+          is_completed: !todo.is_completed,
+          status: !todo.is_completed ? 'completed' : 'active',
+        },
       },
-    })
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries({ queryKey: ['todos'] })
+          queryClient.refetchQueries({ queryKey: ['todos'] })
+        },
+        onError: (error) => {
+          console.error('Error toggling completion status:', error)
+          queryClient.invalidateQueries({ queryKey: ['todos'] })
+          queryClient.refetchQueries({ queryKey: ['todos'] })
+        },
+      },
+    )
   }
 
   const handleDelete = () => {
@@ -209,11 +222,12 @@ const TodoDetailPage: React.FC<TodoDetailPageProps> = ({ todoId }) => {
           },
           {
             onSuccess: () => {
+              queryClient.invalidateQueries({ queryKey: ['notifications'] })
+              queryClient.refetchQueries({ queryKey: ['notifications'] })
+
               axiosClient
                 .delete(`/api/notifications/delete-for-todo/${todo.id}`)
                 .then(() => {
-                  queryClient.invalidateQueries({ queryKey: ['notifications'] })
-                  queryClient.refetchQueries({ queryKey: ['notifications'] })
                   closeConfirmDialog()
                 })
                 .catch((error) => {
@@ -224,6 +238,8 @@ const TodoDetailPage: React.FC<TodoDetailPageProps> = ({ todoId }) => {
             onError: (error) => {
               console.error('Error clearing due date:', error)
               closeConfirmDialog()
+              queryClient.invalidateQueries({ queryKey: ['todos'] })
+              queryClient.refetchQueries({ queryKey: ['todos'] })
             },
           },
         )

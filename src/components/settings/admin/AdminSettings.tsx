@@ -76,6 +76,7 @@ const AdminSettings: React.FC = () => {
     onSuccess: () => {
       showSuccess(t('userAdminStatusUpdated'))
       queryClient.invalidateQueries({ queryKey: ['admin', 'users'] })
+      queryClient.refetchQueries({ queryKey: ['admin', 'users'] })
     },
     onError: (error) => {
       console.error('Error updating user admin status:', error)
@@ -92,6 +93,7 @@ const AdminSettings: React.FC = () => {
       showSuccess(t('userDeletedSuccessfully'))
       queryClient.invalidateQueries({ queryKey: ['admin', 'users'] })
       queryClient.invalidateQueries({ queryKey: ['admin', 'stats'] })
+      queryClient.refetchQueries({ queryKey: ['admin', 'users', 'stats'] })
     },
     onError: (error) => {
       console.error('Error deleting user:', error)

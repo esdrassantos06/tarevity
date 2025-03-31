@@ -248,13 +248,7 @@ const TodoItem = memo(
   },
   (prevProps, nextProps) => {
     return (
-      prevProps.todo.id === nextProps.todo.id &&
-      prevProps.todo.title === nextProps.todo.title &&
-      prevProps.todo.description === nextProps.todo.description &&
-      prevProps.todo.is_completed === nextProps.todo.is_completed &&
-      prevProps.todo.priority === nextProps.todo.priority &&
-      prevProps.todo.due_date === nextProps.todo.due_date &&
-      prevProps.todo.status === nextProps.todo.status &&
+      JSON.stringify(prevProps.todo) === JSON.stringify(nextProps.todo) &&
       prevProps.className === nextProps.className
     )
   },

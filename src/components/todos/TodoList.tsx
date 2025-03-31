@@ -105,9 +105,8 @@ const TodoList: React.FC = () => {
             .then(() => {
               deleteTodoMutation.mutate(id, {
                 onSuccess: () => {
-                  queryClient.invalidateQueries({
-                    queryKey: ['notifications'],
-                  })
+                  queryClient.invalidateQueries({ queryKey: ['notifications'] })
+                  queryClient.refetchQueries({ queryKey: ['notifications'] })
                   queryClient.invalidateQueries({ queryKey: ['todos'] })
                   queryClient.refetchQueries({ queryKey: ['todos'] })
                 },
@@ -175,6 +174,7 @@ const TodoList: React.FC = () => {
                 .post('/api/notifications/dismiss-for-todo', { todoId: id })
                 .then(() => {
                   queryClient.invalidateQueries({ queryKey: ['notifications'] })
+                  queryClient.refetchQueries({ queryKey: ['notifications'] })
                 })
                 .catch((error) => {
                   console.error('Error dismissing notifications:', error)
@@ -243,7 +243,9 @@ const TodoList: React.FC = () => {
                         queryClient.invalidateQueries({
                           queryKey: ['notifications'],
                         })
-                        queryClient.refetchQueries({ queryKey: ['todos'] })
+                        queryClient.refetchQueries({
+                          queryKey: ['notifications'],
+                        })
                       })
                       .catch((error) => {
                         console.error('Error creating notifications:', error)
@@ -276,14 +278,32 @@ const TodoList: React.FC = () => {
           data: { status: 'review' },
         },
         {
+          onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['todos'] })
+            queryClient.refetchQueries({ queryKey: ['todos'] })
+          },
           onError: (error) => {
             console.error('Error setting review status:', error)
+            queryClient.invalidateQueries({ queryKey: ['todos'] })
+            queryClient.refetchQueries({ queryKey: ['todos'] })
           },
         },
       )
     },
-    [todos, updateTodoMutation],
+    [queryClient, todos, updateTodoMutation],
   )
+
+  useEffect(() => {
+    // Update all todos every 30 seconds
+    const refreshInterval = setInterval(() => {
+      if (document.visibilityState === 'visible') {
+        queryClient.invalidateQueries({ queryKey: ['todos'] })
+        queryClient.refetchQueries({ queryKey: ['todos'] })
+      }
+    }, 30000)
+
+    return () => clearInterval(refreshInterval)
+  }, [queryClient])
 
   const handleApproveReview = useCallback(
     (e: React.MouseEvent, id: string) => {

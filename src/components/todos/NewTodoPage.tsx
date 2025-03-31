@@ -91,9 +91,10 @@ const NewTodoPage: React.FC = () => {
 
           if (todoData.due_date && !todoData.is_completed) {
             try {
-              await refreshNotifications()
-
               queryClient.invalidateQueries({ queryKey: ['notifications'] })
+              queryClient.refetchQueries({ queryKey: ['notifications'] })
+
+              await refreshNotifications()
             } catch (error) {
               console.error('⚠️ Error updating notifications:', error)
             }

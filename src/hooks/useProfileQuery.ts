@@ -107,6 +107,7 @@ export function useUpdateProfileMutation() {
     onSuccess: (response) => {
       queryClient.setQueryData(['profile', userId], response.data)
       queryClient.invalidateQueries({ queryKey: ['profile', userId] })
+      queryClient.refetchQueries({ queryKey: ['profile'] })
     },
     onError: (error: Error) => {
       showError(t('failedToUpdateProfile', { message: error.message }))
@@ -137,6 +138,7 @@ export function useDeleteProfileImageMutation() {
     mutationFn: () => profileAPI.deleteProfileImage(),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['profile', userId] })
+      queryClient.refetchQueries({ queryKey: ['profile', userId] })
     },
     onError: (error: Error) => {
       showError(t('failedToRemoveProfileImage', { message: error.message }))

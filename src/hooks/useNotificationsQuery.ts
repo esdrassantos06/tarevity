@@ -49,6 +49,7 @@ export function useNotificationsQuery(options: QueryOptions = {}) {
       lastRefreshRef.current = now
       await axios.post('/api/notifications/refresh')
       await queryClient.invalidateQueries({ queryKey: ['notifications'] })
+      await queryClient.refetchQueries({ queryKey: ['notifications'] })
     } catch (error) {
       console.error(t('failedToRefresh'), error)
     }
@@ -97,9 +98,9 @@ export function useNotificationsQuery(options: QueryOptions = {}) {
       const response = await axios.get<Notification[]>('/api/notifications')
       return response.data
     },
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 1 * 60 * 1000, // 1 minutes
     refetchOnWindowFocus: false,
-    refetchInterval: 10 * 60 * 1000, // 10 minutes
+    refetchInterval: 5 * 60 * 1000, // 5 minutes
     refetchIntervalInBackground: false,
     retry: 1,
     ...options,

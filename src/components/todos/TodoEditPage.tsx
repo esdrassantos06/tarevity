@@ -148,27 +148,30 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
         onSuccess: async (response) => {
           setHasUnsavedChanges(false)
 
+          queryClient.invalidateQueries({ queryKey: ['todos'] })
+          queryClient.refetchQueries({ queryKey: ['todos'] })
+
           if (!response.data) {
             console.error('No data returned by the update mutation')
-            router.push(`/todo/${todoId}`)
+            setTimeout(() => {
+              router.push(`/todo/${todoId}`)
+            }, 500)
             return
           }
 
           try {
             if (updateData.is_completed) {
-              // If the task was marked as complete, we will discard the notifications
+              queryClient.invalidateQueries({ queryKey: ['notifications'] })
+              queryClient.refetchQueries({ queryKey: ['notifications'] })
+
               await axios.post('/api/notifications/dismiss-for-todo', {
                 todoId,
               })
             } else if (originalDueDate && !updateData.due_date) {
-              // If the due date was removed, we will delete the notifications
               await axios.delete(`/api/notifications/delete-for-todo/${todoId}`)
             } else {
               await refreshNotifications()
             }
-
-            queryClient.invalidateQueries({ queryKey: ['notifications'] })
-            queryClient.refetchQueries({ queryKey: ['notifications'] })
           } catch (error) {
             console.error('Error managing notifications:', error)
           }
@@ -178,6 +181,8 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
           }, 500)
         },
         onError: (error) => {
+          queryClient.invalidateQueries({ queryKey: ['todos'] })
+          queryClient.refetchQueries({ queryKey: ['todos'] })
           showError(
             error instanceof Error ? error.message : t('errorUpdatingTask'),
           )

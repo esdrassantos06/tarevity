@@ -21,7 +21,7 @@ export function useTodosQuery() {
         throw error
       }
     },
-    staleTime: 1 * 60 * 1000,
+    staleTime: 0,
     gcTime: 5 * 60 * 1000,
   })
 }
@@ -185,11 +185,13 @@ export function useUpdateTodoMutation() {
       } else {
         console.error(t('invalidResponseFromServer'), result)
         queryClient.invalidateQueries({ queryKey: ['todos'] })
+        queryClient.refetchQueries({ queryKey: ['todos'] })
       }
     },
 
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['todos'] })
+      queryClient.refetchQueries({ queryKey: ['todos'] })
     },
   })
 }
@@ -229,6 +231,7 @@ export function useDeleteTodoMutation() {
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['todos'] })
+      queryClient.refetchQueries({ queryKey: ['todos'] })
     },
   })
 }

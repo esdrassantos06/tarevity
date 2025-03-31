@@ -18,8 +18,8 @@ export function usePasswordCheckQuery(
       return result.data
     },
     enabled: enabled && !!password && password.length >= 8,
-    staleTime: 10 * 60 * 1000,
-    gcTime: 15 * 60 * 1000,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
   })
 }
 
@@ -39,6 +39,7 @@ export function useRegisterMutation() {
     }) => authAPI.register(name, email, password),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['passwordCheck'] })
+      queryClient.refetchQueries({ queryKey: ['passwordCheck'] })
     },
     onError: (error) => {
       console.error('Unexpected registration error:', error)
