@@ -272,7 +272,6 @@ const TodoList: React.FC = () => {
     (e: React.MouseEvent, id: string) => {
       e.preventDefault()
       e.stopPropagation()
-      console.log('🔄 handleSetReview - Starting update for todo:', id)
 
       const todoToUpdate = todos.find((todo) => todo.id === id)
       if (!todoToUpdate) return

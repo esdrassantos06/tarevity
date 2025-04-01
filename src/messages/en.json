@@ -898,6 +898,9 @@
     }
   },
   "todoList": {
+    "tryAgain": "Try again",
+    "errorLoadingTasks": "Error loading tasks",
+    "redirectingToLogin": "Redirecting to Login...",
     "deleteTask": "Delete Task",
     "deleting": "Deleting...",
     "deleteTaskConfirmation": "Are you sure you want to delete \"{title}\"? This action cannot be undone.",
