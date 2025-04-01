@@ -32,7 +32,11 @@ export default function Providers({
   return (
     <QueryClientProvider client={queryClient}>
       <SessionProvider refetchInterval={0}>
-        <NextIntlClientProvider locale={locale} messages={messages}>
+        <NextIntlClientProvider
+          locale={locale}
+          messages={messages}
+          timeZone="Europe/Lisbon"
+        >
           {children}
         </NextIntlClientProvider>
       </SessionProvider>

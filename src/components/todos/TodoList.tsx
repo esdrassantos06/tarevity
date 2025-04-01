@@ -173,7 +173,6 @@ const TodoList: React.FC = () => {
       e: React.ChangeEvent<HTMLInputElement>,
     ) => {
       e.stopPropagation()
-      console.log('🔄 handleCheckboxChange - Starting update for todo:', id)
 
       const todoToUpdate = todos.find((todo) => todo.id === id)
       if (!todoToUpdate) return
@@ -308,7 +307,6 @@ const TodoList: React.FC = () => {
     (e: React.MouseEvent, id: string) => {
       e.preventDefault()
       e.stopPropagation()
-      console.log('🔄 handleApproveReview - Starting update for todo:', id)
 
       const todoToUpdate = todos.find((todo) => todo.id === id)
       if (!todoToUpdate) return

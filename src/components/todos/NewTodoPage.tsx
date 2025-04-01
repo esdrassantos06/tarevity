@@ -1,7 +1,14 @@
 'use client'
 import React, { useState, ChangeEvent, FormEvent } from 'react'
 import { useRouter } from 'next/navigation'
-import { FaArrowLeft, FaSave, FaTimes, FaFlag, FaClock } from 'react-icons/fa'
+import {
+  FaArrowLeft,
+  FaSave,
+  FaTimes,
+  FaFlag,
+  FaClock,
+  FaExclamationCircle,
+} from 'react-icons/fa'
 import { useCreateTodoMutation } from '@/hooks/useTodosQuery'
 import { showError, showLoading, updateToast, showInfo } from '@/lib/toast'
 import ConfirmationDialog, {
@@ -49,6 +56,11 @@ const NewTodoPage: React.FC = () => {
     status: 'active',
   })
 
+  const titleLength = formData.title.length
+  const titleLimit = 100
+  const isNearLimit = titleLength >= 80
+  const isOverLimit = titleLength > titleLimit
+
   const handleChange = (
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
   ) => {
@@ -64,6 +76,11 @@ const NewTodoPage: React.FC = () => {
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
+
+    if (isOverLimit) {
+      showError(t('titleTooLong'))
+      return
+    }
 
     if (!formData.title.trim()) {
       showError(t('errorEnterTitle'))
@@ -168,103 +185,141 @@ const NewTodoPage: React.FC = () => {
       <div className="dark:bg-BlackLight overflow-hidden rounded-lg bg-white shadow-lg">
         <form onSubmit={handleSubmit} className="p-6">
           {/* Title field */}
-          <div className="mb-4">
-            <label
-              htmlFor="title"
-              className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
-            >
-              {t('titleWithAsterisk')}
-            </label>
-            <input
-              type="text"
-              id="title"
-              name="title"
-              value={formData.title}
-              onChange={handleChange}
-              required
-              className="w-full rounded-md border border-gray-300 px-4 py-2 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-              placeholder={t('enterTaskTitle')}
-            />
-          </div>
-
-          {/* Description field */}
-          <div className="mb-4">
-            <label
-              htmlFor="description"
-              className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
-            >
-              {t('description')}
-            </label>
-            <textarea
-              id="description"
-              name="description"
-              value={formData.description}
-              onChange={handleChange}
-              rows={5}
-              className="w-full rounded-md border border-gray-300 px-4 py-2 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-              placeholder={t('enterTaskDescription')}
-            ></textarea>
-          </div>
-
-          {/* Priority and due date */}
-          <div className="mb-4 grid grid-cols-1 gap-4 md:grid-cols-2">
+          <div className="space-y-4">
             <div>
               <label
-                htmlFor="priority"
+                htmlFor="title"
                 className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
               >
-                <FaFlag className="mr-1 inline text-blue-500" />
-                {t('priority')}
+                {t('titleWithAsterisk')} <span className="text-red-500">*</span>
               </label>
-              <select
-                id="priority"
-                name="priority"
-                value={formData.priority}
-                onChange={handleChange}
-                className="w-full rounded-md border border-gray-300 px-4 py-2 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-              >
-                <option value="1">{t('lowPriority')}</option>
-                <option value="2">{t('mediumPriority')}</option>
-                <option value="3">{t('highPriority')}</option>
-              </select>
+
+              <div className="relative mt-1">
+                <input
+                  type="text"
+                  name="title"
+                  id="title"
+                  placeholder={t('enterTaskTitle')}
+                  value={formData.title}
+                  onChange={handleChange}
+                  className={`w-full rounded-md border border-gray-300 px-4 py-2 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white ${
+                    isOverLimit
+                      ? 'border-red-500'
+                      : isNearLimit
+                        ? 'border-yellow-400'
+                        : ''
+                  }`}
+                  required
+                  maxLength={titleLimit}
+                />
+                <div
+                  className={`mt-1 text-sm ${
+                    isOverLimit
+                      ? 'text-red-500'
+                      : isNearLimit
+                        ? 'text-yellow-600'
+                        : 'text-gray-500'
+                  }`}
+                >
+                  {titleLength}/{titleLimit} {t('characters')}
+                  {isNearLimit && !isOverLimit && (
+                    <p className="mt-1 text-yellow-600">
+                      <FaExclamationCircle className="mr-1 inline" />
+                      {t('approachingTitleLimit')}
+                    </p>
+                  )}
+                  {isOverLimit && (
+                    <p className="text-red-500">
+                      <FaExclamationCircle className="mr-1 inline" />
+                      {t('titleTooLong')}
+                    </p>
+                  )}
+                </div>
+                <p className="mt-2 text-sm text-gray-500">
+                  {t('titleHelpText')}
+                </p>
+              </div>
             </div>
 
-            <div>
+            {/* Description field */}
+            <div className="mb-4">
               <label
-                htmlFor="due_date"
+                htmlFor="description"
                 className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
               >
-                <FaClock className="mr-1 inline text-blue-500" />
-                {t('dueDate')}
+                {t('description')}
               </label>
-              <input
-                type="date"
-                id="due_date"
-                name="due_date"
-                value={formData.due_date}
+              <textarea
+                id="description"
+                name="description"
+                value={formData.description}
                 onChange={handleChange}
+                rows={5}
                 className="w-full rounded-md border border-gray-300 px-4 py-2 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-              />
+                placeholder={t('enterTaskDescription')}
+              ></textarea>
             </div>
-          </div>
 
-          {/* Status checkbox */}
-          <div className="mb-6">
-            <div className="flex items-center">
-              <input
-                type="checkbox"
-                id="is_completed"
-                name="is_completed"
-                checked={formData.is_completed}
-                onChange={handleChange}
-                className="size-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-              />
-              <label
-                htmlFor="is_completed"
-                className="ml-2 block text-sm text-gray-700 dark:text-gray-300"
-              >
-                {t('markAsCompleted')}
-              </label>
+            {/* Priority and due date */}
+            <div className="mb-4 grid grid-cols-1 gap-4 md:grid-cols-2">
+              <div>
+                <label
+                  htmlFor="priority"
+                  className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
+                >
+                  <FaFlag className="mr-1 inline text-blue-500" />
+                  {t('priority')}
+                </label>
+                <select
+                  id="priority"
+                  name="priority"
+                  value={formData.priority}
+                  onChange={handleChange}
+                  className="w-full rounded-md border border-gray-300 px-4 py-2 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                >
+                  <option value="1">{t('lowPriority')}</option>
+                  <option value="2">{t('mediumPriority')}</option>
+                  <option value="3">{t('highPriority')}</option>
+                </select>
+              </div>
+
+              <div>
+                <label
+                  htmlFor="due_date"
+                  className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
+                >
+                  <FaClock className="mr-1 inline text-blue-500" />
+                  {t('dueDate')}
+                </label>
+                <input
+                  type="date"
+                  id="due_date"
+                  name="due_date"
+                  value={formData.due_date}
+                  onChange={handleChange}
+                  className="w-full rounded-md border border-gray-300 px-4 py-2 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                />
+              </div>
+            </div>
+
+            {/* Status checkbox */}
+            <div className="mb-6">
+              <div className="flex items-center">
+                <input
+                  type="checkbox"
+                  id="is_completed"
+                  name="is_completed"
+                  checked={formData.is_completed}
+                  onChange={handleChange}
+                  className="size-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                />
+                <label
+                  htmlFor="is_completed"
+                  className="ml-2 block text-sm text-gray-700 dark:text-gray-300"
+                >
+                  {t('markAsCompleted')}
+                </label>
+              </div>
             </div>
           </div>
 
@@ -281,8 +336,12 @@ const NewTodoPage: React.FC = () => {
             <button
               aria-label={t('saveButton')}
               type="submit"
-              className="rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
-              disabled={createTodoMutation.isPending}
+              className={`rounded-md px-4 py-2 text-white focus:ring-2 focus:ring-offset-2 focus:outline-none ${
+                isOverLimit || createTodoMutation.isPending
+                  ? 'cursor-not-allowed bg-gray-400'
+                  : 'bg-blue-600 hover:bg-blue-700 focus:ring-blue-500'
+              }`}
+              disabled={isOverLimit || createTodoMutation.isPending}
             >
               {createTodoMutation.isPending ? (
                 <>

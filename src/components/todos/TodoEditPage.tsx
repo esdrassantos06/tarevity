@@ -66,6 +66,11 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
     status: 'active',
   })
 
+  const titleLength = formData.title.length
+  const titleLimit = 100
+  const isNearLimit = titleLength >= 80
+  const isOverLimit = titleLength > titleLimit
+
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
   const [originalDueDate, setOriginalDueDate] = useState<string | null>(null)
 
@@ -152,6 +157,11 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
+
+    if (isOverLimit) {
+      showError(t('titleTooLong'))
+      return
+    }
 
     const updateData = {
       ...formData,
@@ -268,18 +278,52 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
               htmlFor="title"
               className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
             >
-              {t('titleWithAsterisk')}
+              {t('titleWithAsterisk')} <span className="text-red-500">*</span>
             </label>
-            <input
-              type="text"
-              id="title"
-              name="title"
-              value={formData.title}
-              onChange={handleChange}
-              required
-              className="w-full rounded-md border border-gray-300 px-4 py-2 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-              placeholder={t('taskTitle')}
-            />
+
+            <div className="relative mt-1">
+              <input
+                type="text"
+                name="title"
+                id="title"
+                placeholder={t('enterTaskTitle')}
+                value={formData.title}
+                onChange={handleChange}
+                className={`w-full rounded-md border border-gray-300 px-4 py-2 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white ${
+                  isOverLimit
+                    ? 'border-red-500'
+                    : isNearLimit
+                      ? 'border-yellow-400'
+                      : ''
+                }`}
+                required
+                maxLength={titleLimit}
+              />
+              <div
+                className={`mt-1 text-sm ${
+                  isOverLimit
+                    ? 'text-red-500'
+                    : isNearLimit
+                      ? 'text-yellow-600'
+                      : 'text-gray-500'
+                }`}
+              >
+                {titleLength}/{titleLimit} {t('characters')}
+                {isNearLimit && !isOverLimit && (
+                  <p className="mt-1 text-yellow-600">
+                    <FaExclamationCircle className="mr-1 inline" />
+                    {t('approachingTitleLimit')}
+                  </p>
+                )}
+                {isOverLimit && (
+                  <p className="text-red-500">
+                    <FaExclamationCircle className="mr-1 inline" />
+                    {t('titleTooLong')}
+                  </p>
+                )}
+              </div>
+              <p className="mt-2 text-sm text-gray-500">{t('titleHelpText')}</p>
+            </div>
           </div>
 
           {/* Description field */}
@@ -420,8 +464,12 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
             <button
               aria-label={t('saveEdit')}
               type="submit"
-              className="rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
-              disabled={updateTodoMutation.isPending}
+              className={`rounded-md px-4 py-2 text-white focus:ring-2 focus:ring-offset-2 focus:outline-none ${
+                isOverLimit || updateTodoMutation.isPending
+                  ? 'cursor-not-allowed bg-gray-400'
+                  : 'bg-blue-600 hover:bg-blue-700 focus:ring-blue-500'
+              }`}
+              disabled={isOverLimit || updateTodoMutation.isPending}
             >
               {updateTodoMutation.isPending ? (
                 <>

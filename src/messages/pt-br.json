@@ -728,8 +728,8 @@
   },
   "NewTodoPage": {
     "backToDashboard": "Voltar para o Dashboard",
-    "createNewTask": "Criar Nova Tarefa",
-    "titleWithAsterisk": "Título*",
+    "createNewTask": "Criar nova tarefa",
+    "titleWithAsterisk": "Título",
     "enterTaskTitle": "Digite o título da tarefa",
     "description": "Descrição",
     "enterTaskDescription": "Digite a descrição da tarefa (opcional)",
@@ -751,7 +751,11 @@
     "discardChanges": "Descartar Alterações",
     "discardChangesDescription": "Descartar alterações? Todas as alterações não salvas serão perdidas.",
     "discard": "Descartar",
-    "changesDiscarded": "Alterações descartadas"
+    "changesDiscarded": "Alterações descartadas",
+    "characters": "caracteres",
+    "approachingTitleLimit": "O título está ficando muito longo. Considere mover alguns detalhes para a descrição.",
+    "titleTooLong": "O título excedeu o limite de caracteres. Por favor, mova alguns detalhes para a descrição.",
+    "titleHelpText": "Use um título conciso e mova os detalhes para o campo de descrição abaixo."
   },
   "todoDetail": {
     "backToDashboard": "Voltar para o Dashboard",
@@ -815,7 +819,7 @@
     "goBack": "Voltar",
     "backToDetails": "Voltar para Detalhes",
     "editTask": "Editar Tarefa",
-    "titleWithAsterisk": "Título*",
+    "titleWithAsterisk": "Título",
     "taskTitle": "Título da tarefa",
     "description": "Descrição",
     "taskDescription": "Descrição da tarefa",
@@ -844,7 +848,12 @@
     "discard": "Descartar",
     "stay": "Ficar",
     "clear": "Limpar",
-    "clearDueDateDescription": "Limpar a data de vencimento também removerá todas as notificações para esta tarefa. Continuar?"
+    "clearDueDateDescription": "Limpar a data de vencimento também removerá todas as notificações para esta tarefa. Continuar?",
+    "changesDiscarded": "Alterações descartadas",
+    "characters": "caracteres",
+    "approachingTitleLimit": "O título está ficando muito longo. Considere mover alguns detalhes para a descrição.",
+    "titleTooLong": "O título excedeu o limite de caracteres. Por favor, mova alguns detalhes para a descrição.",
+    "titleHelpText": "Use um título conciso e mova os detalhes para o campo de descrição abaixo."
   },
   "todoFilters": {
     "tasks": "Tarefas",

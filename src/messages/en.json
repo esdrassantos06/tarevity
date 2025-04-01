@@ -727,8 +727,8 @@
   },
   "NewTodoPage": {
     "backToDashboard": "Back to Dashboard",
-    "createNewTask": "Create New Task",
-    "titleWithAsterisk": "Title*",
+    "createNewTask": "Create new task",
+    "titleWithAsterisk": "Title",
     "enterTaskTitle": "Enter task title",
     "description": "Description",
     "enterTaskDescription": "Enter task description (optional)",
@@ -750,7 +750,11 @@
     "discardChanges": "Discard Changes",
     "discardChangesDescription": "Discard changes? Any unsaved changes will be lost.",
     "discard": "Discard",
-    "changesDiscarded": "Changes discarded"
+    "changesDiscarded": "Changes discarded",
+    "characters": "characters",
+    "approachingTitleLimit": "The title is getting too long. Consider moving some details to the description.",
+    "titleTooLong": "The title exceeded the character limit. Please move some details to the description.",
+    "titleHelpText": "Use a concise title and move the details to the description field below."
   },
   "todoDetail": {
     "backToDashboard": "Back to Dashboard",
@@ -814,7 +818,7 @@
     "goBack": "Go back",
     "backToDetails": "Back to Details",
     "editTask": "Edit Task",
-    "titleWithAsterisk": "Title*",
+    "titleWithAsterisk": "Title",
     "taskTitle": "Task title",
     "description": "Description",
     "taskDescription": "Task description",
@@ -843,7 +847,12 @@
     "discard": "Discard",
     "stay": "Stay",
     "clear": "Clear",
-    "clearDueDateDescription": "Clearing the due date will also remove all notifications for this task. Continue?"
+    "clearDueDateDescription": "Clearing the due date will also remove all notifications for this task. Continue?",
+    "changesDiscarded": "Changes discarded",
+    "characters": "characters",
+    "approachingTitleLimit": "The title is getting too long. Consider moving some details to the description.",
+    "titleTooLong": "The title exceeded the character limit. Please move some details to the description.",
+    "titleHelpText": "Use a concise title and move the details to the description field below."
   },
   "todoFilters": {
     "tasks": "Tasks",
