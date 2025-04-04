@@ -14,7 +14,7 @@ export async function generateMetadata({
 
   const t = await getTranslations({
     locale: resolvedParams.locale,
-    namespace: 'ForgotPasswordPage',
+    namespace: 'ForgotPasswordPage.metadata',
   })
 
   return {
