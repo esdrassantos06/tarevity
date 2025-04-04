@@ -7,34 +7,6 @@ import { supabase } from '@/lib/supabase'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
 import crypto from 'crypto'
 
-declare module 'next-auth' {
-  interface Session {
-    error?: string
-    user: {
-      id: string
-      provider?: string
-      is_admin?: boolean
-    } & {
-      name?: string | null
-      email?: string | null
-      image?: string | null
-    }
-  }
-}
-
-declare module 'next-auth/jwt' {
-  interface JWT {
-    id: string
-    provider?: string
-    refreshToken?: string
-    refreshTokenExpires?: number
-    refreshTokenStored?: boolean
-    error?: string
-    is_admin?: boolean
-    iat?: number
-  }
-}
-
 const cookiePrefix = process.env.NODE_ENV === 'production' ? '__Secure-' : ''
 
 export const authOptions: NextAuthOptions = {

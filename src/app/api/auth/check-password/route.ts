@@ -1,8 +1,8 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import axiosClient from '@/lib/axios'
 import { validatePasswordStrength } from '@/lib/auth'
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   try {
     const { password } = await req.json()
 

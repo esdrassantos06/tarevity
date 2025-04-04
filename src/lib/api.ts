@@ -73,7 +73,7 @@ export const authAPI = {
         data: null,
         error: isAPIError(error)
           ? error
-          : { message: 'api.unknownErrorDuringRegistration' },
+          : { message: 'Unknown error during registration' },
         loading: false,
       }
     }
@@ -92,7 +92,7 @@ export const authAPI = {
         data: null,
         error: isAPIError(error)
           ? error
-          : { message: 'api.errorCheckingPasswordSecurity' },
+          : { message: 'Error checking password security' },
         loading: false,
       }
     }
@@ -109,7 +109,7 @@ export const authAPI = {
         data: null,
         error: isAPIError(error)
           ? error
-          : { message: 'api.errorProcessingPasswordReset' },
+          : { message: 'Error processing password reset' },
         loading: false,
       }
     }
@@ -128,7 +128,7 @@ export const authAPI = {
         data: null,
         error: isAPIError(error)
           ? error
-          : { message: 'api.invalidOrExpiredToken' },
+          : { message: 'Invalid or expired token' },
         loading: false,
       }
     }
@@ -149,7 +149,7 @@ export const authAPI = {
         data: null,
         error: isAPIError(error)
           ? error
-          : { message: 'api.errorCheckingCurrentPassword' },
+          : { message: 'Error checking current password' },
         loading: false,
       }
     }
@@ -170,7 +170,7 @@ export const authAPI = {
         data: null,
         error: isAPIError(error)
           ? error
-          : { message: 'api.errorResettingPassword' },
+          : { message: 'Error resetting password' },
         loading: false,
       }
     }
@@ -195,9 +195,7 @@ export const profileAPI = {
 
       return {
         data: null,
-        error: isAPIError(error)
-          ? error
-          : { message: 'api.errorLoadingProfile' },
+        error: isAPIError(error) ? error : { message: 'Error loading profile' },
         loading: false,
       }
     }
@@ -215,7 +213,7 @@ export const profileAPI = {
         data: null,
         error: isAPIError(error)
           ? error
-          : { message: 'api.errorUpdatingProfile' },
+          : { message: 'Error updating profile' },
         loading: false,
       }
     }
@@ -244,7 +242,7 @@ export const profileAPI = {
         data: null,
         error: isAPIError(error)
           ? error
-          : { message: 'api.errorUploadingProfileImage' },
+          : { message: 'Error uploading profile image' },
         loading: false,
       }
     }
@@ -261,7 +259,7 @@ export const profileAPI = {
         data: null,
         error: isAPIError(error)
           ? error
-          : { message: 'api.errorDeletingProfileImage' },
+          : { message: 'Error deleting profile image' },
         loading: false,
       }
     }
@@ -276,7 +274,7 @@ export const profileAPI = {
         data: null,
         error: isAPIError(error)
           ? error
-          : { message: 'api.errorDeletingAccount' },
+          : { message: 'Error deleting account' },
         loading: false,
       }
     }
@@ -291,7 +289,7 @@ export const profileAPI = {
         data: null,
         error: isAPIError(error)
           ? error
-          : { message: 'api.errorLoadingStatistics' },
+          : { message: 'Error loading statistics' },
         loading: false,
       }
     }
@@ -306,7 +304,7 @@ export const todoAPI = {
     } catch (error) {
       return {
         data: null,
-        error: isAPIError(error) ? error : { message: 'api.errorLoadingTasks' },
+        error: isAPIError(error) ? error : { message: 'Error loading tasks' },
         loading: false,
       }
     }
@@ -319,7 +317,7 @@ export const todoAPI = {
     } catch (error) {
       return {
         data: null,
-        error: isAPIError(error) ? error : { message: 'api.errorLoadingTask' },
+        error: isAPIError(error) ? error : { message: 'Error loading task' },
         loading: false,
       }
     }
@@ -332,7 +330,7 @@ export const todoAPI = {
     } catch (error) {
       return {
         data: null,
-        error: isAPIError(error) ? error : { message: 'api.errorCreatingTask' },
+        error: isAPIError(error) ? error : { message: 'Error creating task' },
         loading: false,
       }
     }
@@ -348,7 +346,7 @@ export const todoAPI = {
     } catch (error) {
       return {
         data: null,
-        error: isAPIError(error) ? error : { message: 'api.errorUpdatingTask' },
+        error: isAPIError(error) ? error : { message: 'Error updating task' },
         loading: false,
       }
     }
@@ -361,7 +359,7 @@ export const todoAPI = {
     } catch (error) {
       return {
         data: null,
-        error: isAPIError(error) ? error : { message: 'api.errorDeletingTask' },
+        error: isAPIError(error) ? error : { message: 'Error deleting task' },
         loading: false,
       }
     }
