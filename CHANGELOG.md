@@ -1,6 +1,25 @@
 # Changelog
 
 All notable changes to the Tarevity project will be documented in this file.
+## [1.1.2] - 2025-04-05
+
+### Added
+- Enhance calendar and todo components with new date picker and UI improvements
+- Integrated a new DatePickerWithClear component in NewTodoPage and TodoEditPage for better date selection and clearing functionality. 
+
+### Changed
+- Updated Calendar component to improve UI with card layout and enhanced event display.
+
+### Fixed
+- Refactored CalendarEvent component for better styling and responsiveness.
+- Added new localized messages for date selection guidance in both English and Portuguese.
+
+### Security
+- Cleaned up code by removing unnecessary comments and improving overall readability.
+
+### Removed
+- 
+
 
 ## [1.1.1] - 2025-03-30
 
