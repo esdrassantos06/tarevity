@@ -818,6 +818,7 @@
   "todoEdit": {
     "goBack": "Voltar",
     "backToDetails": "Voltar para Detalhes",
+    "enterTaskTitle": "Insira o título da tarefa",
     "editTask": "Editar Tarefa",
     "titleWithAsterisk": "Título",
     "taskTitle": "Título da tarefa",
@@ -853,7 +854,8 @@
     "characters": "caracteres",
     "approachingTitleLimit": "O título está ficando muito longo. Considere mover alguns detalhes para a descrição.",
     "titleTooLong": "O título excedeu o limite de caracteres. Por favor, mova alguns detalhes para a descrição.",
-    "titleHelpText": "Use um título conciso e mova os detalhes para o campo de descrição abaixo."
+    "titleHelpText": "Use um título conciso e mova os detalhes para o campo de descrição abaixo.",
+    "selectDate": "Selecione uma data"
   },
   "todoFilters": {
     "tasks": "Tarefas",

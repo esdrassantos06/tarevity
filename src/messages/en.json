@@ -816,6 +816,7 @@
   },
   "todoEdit": {
     "goBack": "Go back",
+    "enterTaskTitle": "Enter task title",
     "backToDetails": "Back to Details",
     "editTask": "Edit Task",
     "titleWithAsterisk": "Title",
@@ -852,7 +853,8 @@
     "characters": "characters",
     "approachingTitleLimit": "The title is getting too long. Consider moving some details to the description.",
     "titleTooLong": "The title exceeded the character limit. Please move some details to the description.",
-    "titleHelpText": "Use a concise title and move the details to the description field below."
+    "titleHelpText": "Use a concise title and move the details to the description field below.",
+    "selectDate": "Select a date"
   },
   "todoFilters": {
     "tasks": "Tasks",

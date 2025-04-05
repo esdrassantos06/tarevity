@@ -8,7 +8,6 @@ import {
   FaFlag,
   FaClock,
   FaExclamationCircle,
-  FaCalendarTimes,
 } from 'react-icons/fa'
 import { useTodosQuery, useUpdateTodoMutation } from '@/hooks/useTodosQuery'
 import ConfirmationDialog, {
@@ -18,6 +17,8 @@ import axios from 'axios'
 import { showError } from '@/lib/toast'
 import { refreshNotifications } from '@/hooks/useNotificationsQuery'
 import { useTranslations } from 'next-intl'
+import DatePickerWithClear from '@/components/ui/DatePickerWithClear'
+import { cn } from '@/lib/utils'
 
 interface Todo {
   id: string
@@ -110,10 +111,19 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
   }, [hasUnsavedChanges, t])
 
   const handleChange = (
-    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
+    e:
+      | ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+      | {
+          target: {
+            name: string
+            value: string
+            type: string
+          }
+        },
   ) => {
     const { name, value, type } = e.target
-    const checked = (e.target as HTMLInputElement).checked
+    const checked =
+      type === 'checkbox' ? (e.target as HTMLInputElement).checked : false
 
     if (name === 'is_completed' && type === 'checkbox') {
       setFormData((prev) => {
@@ -253,7 +263,7 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
   }
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-6">
+    <div className="mx-auto max-w-4xl px-4 py-6">
       {/* Header */}
       <div className="mb-6 flex items-center justify-between">
         <button
@@ -289,15 +299,21 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
                 placeholder={t('enterTaskTitle')}
                 value={formData.title}
                 onChange={handleChange}
-                className={`w-full rounded-md border border-gray-300 px-4 py-2 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white ${
-                  isOverLimit
-                    ? 'border-red-500'
-                    : isNearLimit
-                      ? 'border-yellow-400'
-                      : ''
-                }`}
+                className={cn(
+                  'w-full justify-start text-left font-normal',
+                  'rounded-md border border-gray-300 px-4 py-2',
+                  'focus:border-blue-500 focus:ring-blue-500',
+                  'dark:border-gray-600 dark:bg-gray-700 dark:text-white',
+                  isOverLimit && 'border-red-500',
+                  isNearLimit && !isOverLimit && 'border-yellow-400',
+                  updateTodoMutation.isPending &&
+                    'cursor-not-allowed opacity-50',
+                )}
                 required
                 maxLength={titleLimit}
+                aria-invalid={isOverLimit}
+                aria-label={t('enterTaskTitle')}
+                disabled={updateTodoMutation.isPending}
               />
               <div
                 className={`mt-1 text-sm ${
@@ -322,7 +338,7 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
                   </p>
                 )}
               </div>
-              <p className="mt-2 text-sm text-gray-500">{t('titleHelpText')}</p>
+              <p className="mt-1 text-sm text-gray-500">{t('titleHelpText')}</p>
             </div>
           </div>
 
@@ -330,7 +346,7 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
           <div className="mb-4">
             <label
               htmlFor="description"
-              className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
+              className="mb-1 flex items-center gap-1 text-sm font-medium text-gray-700 dark:text-gray-300"
             >
               {t('description')}
             </label>
@@ -340,8 +356,17 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
               value={formData.description}
               onChange={handleChange}
               rows={5}
-              className="w-full rounded-md border border-gray-300 px-4 py-2 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+              className={cn(
+                'w-full justify-start text-left font-normal',
+                'rounded-md border border-gray-300 px-4 py-2',
+                'focus:border-blue-500 focus:ring-blue-500',
+                'dark:border-gray-600 dark:bg-gray-700 dark:text-white',
+                !formData.description && 'text-gray-500 dark:text-gray-400',
+                updateTodoMutation.isPending && 'cursor-not-allowed opacity-50',
+              )}
               placeholder={t('taskDescription')}
+              aria-label={t('taskDescription')}
+              disabled={updateTodoMutation.isPending}
             ></textarea>
           </div>
 
@@ -350,9 +375,9 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
             <div>
               <label
                 htmlFor="priority"
-                className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
+                className="mb-1 flex items-center gap-1 text-sm font-medium text-gray-700 dark:text-gray-300"
               >
-                <FaFlag className="mr-1 inline text-blue-500" />
+                <FaFlag className="text-blue-500" />
                 {t('priority')}
               </label>
               <select
@@ -360,7 +385,16 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
                 name="priority"
                 value={formData.priority}
                 onChange={handleChange}
-                className="w-full rounded-md border border-gray-300 px-4 py-2 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                className={cn(
+                  'w-full justify-start text-left font-normal',
+                  'rounded-md border border-gray-300 px-4 py-2',
+                  'focus:border-blue-500 focus:ring-blue-500',
+                  'dark:border-gray-600 dark:bg-gray-700 dark:text-white',
+                  updateTodoMutation.isPending &&
+                    'cursor-not-allowed opacity-50',
+                )}
+                aria-label={t('priority')}
+                disabled={updateTodoMutation.isPending}
               >
                 <option value="1">{t('lowPriority')}</option>
                 <option value="2">{t('mediumPriority')}</option>
@@ -371,9 +405,9 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
             <div>
               <label
                 htmlFor="status"
-                className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
+                className="mb-1 flex items-center gap-1 text-sm font-medium text-gray-700 dark:text-gray-300"
               >
-                <FaExclamationCircle className="mr-1 inline text-blue-500" />
+                <FaExclamationCircle className="text-blue-500" />
                 {t('status')}
               </label>
               <select
@@ -383,8 +417,16 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
                   formData.status === 'completed' ? 'active' : formData.status
                 }
                 onChange={handleChange}
-                disabled={formData.is_completed}
-                className="w-full rounded-md border border-gray-300 px-4 py-2 focus:border-blue-500 focus:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-70 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                className={cn(
+                  'w-full justify-start text-left font-normal',
+                  'rounded-md border border-gray-300 px-4 py-2',
+                  'focus:border-blue-500 focus:ring-blue-500',
+                  'dark:border-gray-600 dark:bg-gray-700 dark:text-white',
+                  (formData.is_completed || updateTodoMutation.isPending) &&
+                    'cursor-not-allowed opacity-50',
+                )}
+                aria-label={t('status')}
+                disabled={formData.is_completed || updateTodoMutation.isPending}
               >
                 <option value="active">{t('statusActive')}</option>
                 <option value="review">{t('statusInReview')}</option>
@@ -399,32 +441,22 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
             <div>
               <label
                 htmlFor="due_date"
-                className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
+                className="mb-1 flex items-center gap-1 text-sm font-medium text-gray-700 dark:text-gray-300"
               >
-                <FaClock className="mr-1 inline text-blue-500" />
+                <FaClock className="text-blue-500" />
                 {t('dueDate')}
               </label>
-              <div className="flex">
-                <input
-                  type="date"
-                  id="due_date"
-                  name="due_date"
-                  value={formData.due_date}
-                  onChange={handleChange}
-                  className="w-full rounded-l-md border border-gray-300 px-4 py-2 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                />
-                {formData.due_date && (
-                  <button
-                    aria-label={t('clearDueDate')}
-                    type="button"
-                    onClick={handleConfirmClearDueDate}
-                    className="rounded-r-md border border-l-0 border-gray-300 bg-red-100 px-3 hover:bg-red-200 dark:border-gray-600 dark:bg-red-900 dark:text-white dark:hover:bg-red-800"
-                    title={t('clearDueDate')}
-                  >
-                    <FaCalendarTimes className="text-red-500 dark:text-red-300" />
-                  </button>
-                )}
-              </div>
+
+              <DatePickerWithClear
+                value={formData.due_date}
+                onChange={handleChange}
+                onClear={handleClearDueDate}
+                showConfirmDialog={handleConfirmClearDueDate}
+                minDate={new Date('1900-01-01')}
+                maxDate={new Date('2100-12-31')}
+                disabled={updateTodoMutation.isPending}
+              />
+
               <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
                 {formData.due_date ? t('clearDueDateHelp') : t('noDueDateHelp')}
               </p>
@@ -440,7 +472,13 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
                 name="is_completed"
                 checked={formData.is_completed}
                 onChange={handleChange}
-                className="size-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                className={cn(
+                  'size-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500',
+                  updateTodoMutation.isPending &&
+                    'cursor-not-allowed opacity-50',
+                )}
+                aria-label={t('markAsCompleted')}
+                disabled={updateTodoMutation.isPending}
               />
               <label
                 htmlFor="is_completed"
@@ -457,18 +495,25 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
               aria-label={t('cancelEdit')}
               type="button"
               onClick={handleCancel}
-              className="rounded-md border border-gray-300 px-4 py-2 text-gray-700 hover:bg-gray-50 focus:ring-2 focus:ring-gray-500 focus:outline-none dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
+              className={cn(
+                'rounded-md border border-gray-300 px-4 py-2 text-gray-700',
+                'hover:bg-gray-50 focus:ring-2 focus:ring-gray-500 focus:outline-none',
+                'dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700',
+                updateTodoMutation.isPending && 'cursor-not-allowed opacity-50',
+              )}
+              disabled={updateTodoMutation.isPending}
             >
               <FaTimes className="mr-1 inline" /> {t('cancel')}
             </button>
             <button
               aria-label={t('saveEdit')}
               type="submit"
-              className={`rounded-md px-4 py-2 text-white focus:ring-2 focus:ring-offset-2 focus:outline-none ${
+              className={cn(
+                'rounded-md px-4 py-2 text-white focus:ring-2 focus:ring-offset-2 focus:outline-none',
                 isOverLimit || updateTodoMutation.isPending
                   ? 'cursor-not-allowed bg-gray-400'
-                  : 'bg-blue-600 hover:bg-blue-700 focus:ring-blue-500'
-              }`}
+                  : 'bg-blue-600 hover:bg-blue-700 focus:ring-blue-500',
+              )}
               disabled={isOverLimit || updateTodoMutation.isPending}
             >
               {updateTodoMutation.isPending ? (

@@ -17,6 +17,7 @@ import ConfirmationDialog, {
 import { useQueryClient } from '@tanstack/react-query'
 import { refreshNotifications } from '@/hooks/useNotificationsQuery'
 import { useTranslations } from 'next-intl'
+import DatePickerWithClear from '@/components/ui/DatePickerWithClear'
 
 interface TodoFormData {
   title: string
@@ -62,15 +63,29 @@ const NewTodoPage: React.FC = () => {
   const isOverLimit = titleLength > titleLimit
 
   const handleChange = (
-    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
+    e:
+      | ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+      | { target: { name: string; value: string; type: string } },
   ) => {
     const { name, value, type } = e.target
+
+    const isNativeEvent = 'nativeEvent' in e
+
     const checked =
-      type === 'checkbox' ? (e.target as HTMLInputElement).checked : undefined
+      isNativeEvent && type === 'checkbox'
+        ? (e.target as HTMLInputElement).checked
+        : undefined
 
     setFormData({
       ...formData,
       [name]: type === 'checkbox' ? checked : value,
+    })
+  }
+
+  const handleClearDueDate = () => {
+    setFormData({
+      ...formData,
+      due_date: '',
     })
   }
 
@@ -165,7 +180,7 @@ const NewTodoPage: React.FC = () => {
   }
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-6">
+    <div className="mx-auto max-w-4xl px-4 py-6">
       {/* Header */}
       <div className="mb-6 flex items-center justify-between">
         <button
@@ -235,7 +250,7 @@ const NewTodoPage: React.FC = () => {
                     </p>
                   )}
                 </div>
-                <p className="mt-2 text-sm text-gray-500">
+                <p className="mt-1 text-sm text-gray-500">
                   {t('titleHelpText')}
                 </p>
               </div>
@@ -291,13 +306,13 @@ const NewTodoPage: React.FC = () => {
                   <FaClock className="mr-1 inline text-blue-500" />
                   {t('dueDate')}
                 </label>
-                <input
-                  type="date"
-                  id="due_date"
-                  name="due_date"
+                <DatePickerWithClear
                   value={formData.due_date}
                   onChange={handleChange}
-                  className="w-full rounded-md border border-gray-300 px-4 py-2 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  onClear={handleClearDueDate}
+                  minDate={new Date()}
+                  maxDate={new Date('2100-12-31')}
+                  disabled={createTodoMutation.isPending}
                 />
               </div>
             </div>

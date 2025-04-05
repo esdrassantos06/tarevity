@@ -22,27 +22,22 @@ export default function CalendarEvent({ event }: CalendarEventProps) {
         <TooltipTrigger asChild>
           <div
             className={cn(
-              'max-w-full truncate rounded px-1 py-0.5 text-xs text-white',
+              'max-w-full truncate rounded-sm px-1 py-0.5 text-xs font-medium text-white',
               'sm:px-2 md:py-1 md:text-sm',
               event.color,
             )}
           >
-            {/* Versão para telas maiores */}
             <span className="hidden sm:inline">
               {event.title.length > 20
                 ? event.title.substring(0, 20) + '...'
                 : event.title}
             </span>
-
-            {/* Versão para telas menores */}
             <span className="inline sm:hidden">...</span>
           </div>
         </TooltipTrigger>
-        <TooltipContent className="dark:bg-BlackLight max-w-xs bg-white text-black dark:text-white">
-          <p className="">{event.title}</p>
-          <p className="text-muted-foreground mt-1 text-xs">
-            {event.date.toLocaleDateString()}
-          </p>
+        <TooltipContent side="top" className="max-w-xs text-white">
+          <p className="font-medium">{event.title}</p>
+          <p className="mt-1 text-xs">{event.date.toLocaleDateString()}</p>
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>
