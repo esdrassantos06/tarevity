@@ -1,6 +1,6 @@
 'use client'
 import React, { useState, ChangeEvent, FormEvent } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter } from '@/i18n/navigation'
 import {
   FaArrowLeft,
   FaSave,
@@ -15,7 +15,6 @@ import ConfirmationDialog, {
   useConfirmationDialog,
 } from '@/components/common/ConfirmationDialog'
 import { useQueryClient } from '@tanstack/react-query'
-import { refreshNotifications } from '@/hooks/useNotificationsQuery'
 import { useTranslations } from 'next-intl'
 import DatePickerWithClear from '@/components/ui/DatePickerWithClear'
 
@@ -124,9 +123,18 @@ const NewTodoPage: React.FC = () => {
           if (todoData.due_date && !todoData.is_completed) {
             try {
               queryClient.invalidateQueries({ queryKey: ['notifications'] })
-              queryClient.refetchQueries({ queryKey: ['notifications'] })
+              queryClient.refetchQueries({
+                queryKey: ['notifications'],
+                type: 'all',
+              })
 
-              await refreshNotifications()
+              setTimeout(() => {
+                queryClient.invalidateQueries({ queryKey: ['notifications'] })
+                queryClient.refetchQueries({
+                  queryKey: ['notifications'],
+                  type: 'all',
+                })
+              }, 2000)
             } catch (error) {
               console.error('⚠️ Error updating notifications:', error)
             }

@@ -1,3 +1,5 @@
+'use client'
+
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import axios from 'axios'
 import { showSuccess, showError } from '@/lib/toast'
@@ -10,7 +12,7 @@ interface QueryOptions {
   [key: string]: unknown
 }
 
-export async function refreshNotifications(): Promise<void> {
+async function refreshNotificationsLocal(): Promise<void> {
   try {
     await axios.post('/api/notifications/refresh')
   } catch (error) {
@@ -26,7 +28,7 @@ export function useNotificationsQuery(options: QueryOptions = {}) {
 
   const forceRefreshNotifications = useCallback(async () => {
     try {
-      await axios.post('/api/notifications/refresh')
+      await refreshNotificationsLocal()
       await queryClient.invalidateQueries({ queryKey: ['notifications'] })
       await queryClient.refetchQueries({ queryKey: ['notifications'] })
 
@@ -46,7 +48,7 @@ export function useNotificationsQuery(options: QueryOptions = {}) {
     }
     try {
       lastRefreshRef.current = now
-      await axios.post('/api/notifications/refresh')
+      await refreshNotificationsLocal()
       await queryClient.invalidateQueries({ queryKey: ['notifications'] })
       await queryClient.refetchQueries({ queryKey: ['notifications'] })
     } catch (error) {

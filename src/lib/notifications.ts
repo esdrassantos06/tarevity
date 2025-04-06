@@ -262,7 +262,7 @@ export const notificationsService = {
     userId: string,
     notifications: NotificationRequest[],
   ) {
-    const t = await getTranslations('NotificationErrors')
+    const tErrors = await getTranslations('NotificationErrors')
     const results = []
 
     for (const notification of notifications) {
@@ -274,7 +274,7 @@ export const notificationsService = {
       ) {
         results.push({
           status: 'error',
-          error: t('missingFields'),
+          error: tErrors('missingFields'),
         })
         continue
       }
@@ -284,7 +284,7 @@ export const notificationsService = {
       ) {
         results.push({
           status: 'error',
-          error: t('invalidType'),
+          error: tErrors('invalidType'),
         })
         continue
       }
@@ -306,7 +306,7 @@ export const notificationsService = {
           if (doNotRecreateType === notification.notification_type) {
             results.push({
               status: 'skipped',
-              message: t('skippedDismissed'),
+              message: tErrors('skippedDismissed'),
             })
             continue
           }
@@ -321,11 +321,47 @@ export const notificationsService = {
           .eq('dismissed', false)
 
         if (existing && existing.length > 0) {
+          let message = notification.message
+          let title = notification.title
+
+          if (!notification.due_date) {
+            results.push({
+              status: 'skipped',
+              message: tErrors('missingDueDate'),
+            })
+            continue
+          }
+
+          let dueDate: Date
+          try {
+            dueDate = parseISO(notification.due_date)
+            if (isNaN(dueDate.getTime())) {
+              results.push({
+                status: 'error',
+                error: tErrors('invalidDateFormat'),
+              })
+              continue
+            }
+          } catch (error) {
+            console.error('Error parsing due date:', error)
+            results.push({
+              status: 'error',
+              error: tErrors('errorParsingDate'),
+            })
+            continue
+          }
+
+          title = await this.getNotificationTitle(dueDate)
+          message = await this.formatNotificationMessage(
+            notification.title.replace(/^"|"$/g, '').replace(/"/g, ''),
+            dueDate,
+          )
+
           const { data, error } = await supabaseAdmin
             .from('notifications')
             .update({
-              title: notification.title,
-              message: notification.message,
+              title: title,
+              message: message,
               updated_at: new Date().toISOString(),
             })
             .eq('id', existing[0].id)
@@ -342,7 +378,7 @@ export const notificationsService = {
         if (!notification.due_date) {
           results.push({
             status: 'skipped',
-            message: t('missingDueDate'),
+            message: tErrors('missingDueDate'),
           })
           continue
         }
@@ -353,7 +389,7 @@ export const notificationsService = {
           if (isNaN(dueDate.getTime())) {
             results.push({
               status: 'error',
-              error: t('invalidDateFormat'),
+              error: tErrors('invalidDateFormat'),
             })
             continue
           }
@@ -361,7 +397,7 @@ export const notificationsService = {
           console.error('Error parsing due date:', error)
           results.push({
             status: 'error',
-            error: t('errorParsingDate'),
+            error: tErrors('errorParsingDate'),
           })
           continue
         }
@@ -372,7 +408,8 @@ export const notificationsService = {
         let message = notification.message
         if (
           notification.message.includes('"') &&
-          notification.message.includes('due')
+          (notification.message.includes('due') ||
+            notification.message.includes('expire'))
         ) {
           const titleMatch = notification.message.match(/"([^"]+)"/)
           if (titleMatch && titleMatch[1]) {

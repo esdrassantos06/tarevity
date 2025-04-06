@@ -1,6 +1,6 @@
 'use client'
 import React, { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter } from '@/i18n/navigation'
 import { HiPencilAlt, HiTrash } from 'react-icons/hi'
 import axiosClient from '@/lib/axios'
 import {

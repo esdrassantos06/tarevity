@@ -11,7 +11,7 @@ import {
   FaUserCircle,
   FaShieldAlt,
 } from 'react-icons/fa'
-import { useRouter } from 'next/navigation'
+import { useRouter } from '@/i18n/navigation'
 import ConfirmationDialog, {
   useConfirmationDialog,
 } from '@/components/common/ConfirmationDialog'

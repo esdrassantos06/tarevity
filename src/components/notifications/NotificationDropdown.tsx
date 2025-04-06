@@ -80,8 +80,16 @@ export default function NotificationDropdown() {
       refreshNotifications().catch((error: unknown) => {
         console.error('Error updating notifications when opening:', error)
       })
+      const refreshTimer = setInterval(() => {
+        queryClient.invalidateQueries({ queryKey: ['notifications'] })
+        queryClient.refetchQueries({ queryKey: ['notifications'] })
+      }, 3000)
+
+      return () => {
+        clearInterval(refreshTimer)
+      }
     }
-  }, [open, refreshNotifications])
+  }, [open, refreshNotifications, queryClient])
 
   useEffect(() => {
     const unread = notifications.filter((n: Notification) => !n.read).length

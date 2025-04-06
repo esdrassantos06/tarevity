@@ -997,9 +997,6 @@
     "failedToDeleteAccount": "Failed to delete account: {message}",
     "errorDeletingAccount": "Error deleting account:"
   },
-  "useTodoFilters": {
-    "errorFilteringByDate": "Error filtering by date:"
-  },
   "useTodosQuery": {
     "failedToLoadTasks": "Failed to load tasks",
     "errorCreatingTask": "Error creating task",

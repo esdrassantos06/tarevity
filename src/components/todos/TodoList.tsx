@@ -1,7 +1,8 @@
 'use client'
 
 import React, { useMemo, useCallback, useEffect } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useSearchParams } from 'next/navigation'
+import { useRouter } from '@/i18n/navigation'
 import { useQueryClient } from '@tanstack/react-query'
 import { FiPlus } from 'react-icons/fi'
 import { FaTimes } from 'react-icons/fa'
@@ -251,6 +252,22 @@ const TodoList: React.FC = () => {
                     notifications: [notification],
                   })
                 }
+
+                queryClient.invalidateQueries({
+                  queryKey: ['notifications'],
+                  refetchType: 'all',
+                })
+
+                setTimeout(() => {
+                  queryClient.invalidateQueries({
+                    queryKey: ['notifications'],
+                    refetchType: 'all',
+                  })
+                  queryClient.refetchQueries({
+                    queryKey: ['notifications'],
+                    type: 'all',
+                  })
+                }, 2000)
               }
 
               queryClient.invalidateQueries({

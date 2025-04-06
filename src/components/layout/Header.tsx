@@ -64,20 +64,18 @@ export default function Header() {
             <LanguageSwitcher />
             {isAuthenticated ? (
               <div className="flex items-center justify-center">
-                {/* Notification Dropdown Component */}
                 <NotificationDropdown />
 
                 <Link href="/calendar" aria-label={t('calendar')}>
                   <Button
                     variant="outline"
                     size="icon"
-                    className="border-BorderLight hover:bg-BorderLight dark:border-BorderDark dark:hover:bg-BorderDark relative mr-2 size-10 p-2"
+                    className="border-BorderLight hover:bg-BorderLight dark:border-BorderDark dark:hover:bg-BorderDark relative mr-2 hidden size-10 p-2 sm:flex"
                   >
                     <IoCalendarClearOutline className="size-5" />
                   </Button>
                 </Link>
                 <div className="hidden items-center gap-2 sm:flex">
-                  {/* Shadcn Dropdown Menu for Profile */}
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <button

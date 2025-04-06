@@ -58,6 +58,8 @@ axiosClient.interceptors.response.use(
         'Axios error:',
         error.response?.status,
         error.response?.data,
+        error.request?.url,
+        error.message,
       )
     }
 

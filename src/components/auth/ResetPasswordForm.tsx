@@ -4,8 +4,8 @@ import { useState, useEffect, useCallback } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { useRouter, useSearchParams } from 'next/navigation'
-import { Link } from '@/i18n/navigation'
+import { useSearchParams } from 'next/navigation'
+import { Link, useRouter } from '@/i18n/navigation'
 import { toast } from 'react-toastify'
 import {
   FaCheck,

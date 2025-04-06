@@ -391,96 +391,109 @@ export async function updateNotificationMessages(todo: Todo): Promise<void> {
     return
   }
 
+  if (!todo.due_date) return
+
   try {
     const { supabaseAdmin } = await import('./supabaseAdmin')
     const { getTranslations } = await import('next-intl/server')
     const t = await getTranslations('notificationsUpdater')
 
-    if (todo.is_completed) {
-      await supabaseAdmin
-        .from('notifications')
-        .update({ dismissed: true })
-        .eq('todo_id', todo.id)
-        .eq('dismissed', false)
-      return
-    }
-
-    if (!todo.due_date) return
-
     const { data: notifications, error } = await supabaseAdmin
       .from('notifications')
-      .select('notification_type, id')
+      .select('*')
       .eq('todo_id', todo.id)
       .eq('dismissed', false)
 
     if (error) {
-      console.error('Error fetching notifications for message update:', error)
+      console.error('Error fetching notifications for update:', error)
       return
     }
 
-    if (!notifications || notifications.length === 0) {
-      if (todo.due_date) {
-        const newNotification = await generateNewNotification(todo)
-        if (newNotification) {
-          await supabaseAdmin.from('notifications').insert(newNotification)
-        }
-      }
-      return
-    }
+    if (!notifications || notifications.length === 0) return
 
-    const dueDate = new Date(todo.due_date)
     const updates = []
+    const dueDate = new Date(todo.due_date)
+    const daysDiff = Math.ceil(
+      (dueDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24),
+    )
 
     for (const notification of notifications) {
-      let newMessage = ''
-      let newTitle = ''
-      let newType: 'danger' | 'warning' | 'info' =
-        notification.notification_type
+      let shouldUpdate = false
+      let updatedNotificationType = notification.notification_type
+      let updatedTitle = notification.title
+      let updatedMessage = notification.message
 
+      // Determine the correct notification type, title and message based on due date
       if (isPast(dueDate) && !isToday(dueDate)) {
-        newMessage = t('expiredTaskMessage', {
+        // Overdue task
+        if (notification.notification_type !== 'danger') {
+          updatedNotificationType = 'danger'
+          shouldUpdate = true
+        }
+
+        updatedTitle = t('overdueTask')
+        updatedMessage = t('expiredTaskMessage', {
           title: todo.title,
           timeAgo: formatDistanceToNow(dueDate, { addSuffix: true }),
         })
-        newTitle = t('overdueTask')
-        newType = 'danger'
+        shouldUpdate = true
       } else if (isToday(dueDate)) {
-        newMessage = t('dueTodayMessage', { title: todo.title })
-        newTitle = t('dueToday')
-        newType = 'danger'
-      } else if (isTomorrow(dueDate)) {
-        newMessage = t('dueTomorrowMessage', { title: todo.title })
-        newTitle = t('dueTomorrow')
-        newType = 'warning'
-      } else {
-        const daysDiff = Math.ceil(
-          (dueDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24),
-        )
-
-        if (daysDiff <= 2) {
-          newMessage = t('upcomingDeadlineMessage', {
-            title: todo.title,
-            timeUntil: formatDistanceToNow(dueDate, { addSuffix: true }),
-          })
-          newTitle = t('deadlineApproaching')
-          newType = 'warning'
-        } else if (daysDiff <= 7) {
-          newMessage = t('futureTaskMessage', {
-            title: todo.title,
-            timeUntil: formatDistanceToNow(dueDate, { addSuffix: true }),
-          })
-          newTitle = t('futureTask')
-          newType = 'info'
+        // Due today
+        if (notification.notification_type !== 'danger') {
+          updatedNotificationType = 'danger'
+          shouldUpdate = true
         }
+
+        updatedTitle = t('dueToday')
+        updatedMessage = t('dueTodayMessage', { title: todo.title })
+        shouldUpdate = true
+      } else if (isTomorrow(dueDate)) {
+        // Due tomorrow
+        if (notification.notification_type !== 'warning') {
+          updatedNotificationType = 'warning'
+          shouldUpdate = true
+        }
+
+        updatedTitle = t('dueTomorrow')
+        updatedMessage = t('dueTomorrowMessage', { title: todo.title })
+        shouldUpdate = true
+      } else if (daysDiff <= 2) {
+        // Due in 2 days
+        if (notification.notification_type !== 'warning') {
+          updatedNotificationType = 'warning'
+          shouldUpdate = true
+        }
+
+        updatedTitle = t('deadlineApproaching')
+        updatedMessage = t('upcomingDeadlineMessage', {
+          title: todo.title,
+          timeUntil: formatDistanceToNow(dueDate, { addSuffix: true }),
+        })
+        shouldUpdate = true
+      } else if (daysDiff <= 7) {
+        // Due within a week
+        if (notification.notification_type !== 'info') {
+          updatedNotificationType = 'info'
+          shouldUpdate = true
+        }
+
+        updatedTitle = t('futureTask')
+        updatedMessage = t('futureTaskMessage', {
+          title: todo.title,
+          timeUntil: formatDistanceToNow(dueDate, { addSuffix: true }),
+        })
+        shouldUpdate = true
       }
 
-      updates.push({
-        id: notification.id,
-        message: newMessage,
-        title: newTitle,
-        notification_type: newType,
-        updated_at: new Date().toISOString(),
-      })
+      if (shouldUpdate) {
+        updates.push({
+          id: notification.id,
+          message: updatedMessage,
+          title: updatedTitle,
+          notification_type: updatedNotificationType,
+          updated_at: new Date().toISOString(),
+        })
+      }
     }
 
     for (const update of updates) {
@@ -496,71 +509,6 @@ export async function updateNotificationMessages(todo: Todo): Promise<void> {
     }
   } catch (error) {
     console.error('Error updating notification messages:', error)
-  }
-}
-
-async function generateNewNotification(todo: Todo) {
-  if (!todo.due_date) return null
-
-  const { getTranslations } = await import('next-intl/server')
-  const t = await getTranslations('notificationsUpdater')
-
-  const dueDate = new Date(todo.due_date)
-  let notificationType: 'danger' | 'warning' | 'info'
-  let notificationTitle: string
-  let notificationMessage: string
-
-  if (isPast(dueDate) && !isToday(dueDate)) {
-    notificationType = 'danger'
-    notificationTitle = t('overdueTask')
-    notificationMessage = t('expiredTaskMessage', {
-      title: todo.title,
-      timeAgo: formatDistanceToNow(dueDate, { addSuffix: true }),
-    })
-  } else if (isToday(dueDate)) {
-    notificationType = 'danger'
-    notificationTitle = t('dueToday')
-    notificationMessage = t('dueTodayMessage', { title: todo.title })
-  } else if (isTomorrow(dueDate)) {
-    notificationType = 'warning'
-    notificationTitle = t('dueTomorrow')
-    notificationMessage = t('dueTomorrowMessage', { title: todo.title })
-  } else {
-    const daysDiff = Math.ceil(
-      (dueDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24),
-    )
-
-    if (daysDiff <= 2) {
-      notificationType = 'warning'
-      notificationTitle = t('deadlineApproaching')
-      notificationMessage = t('upcomingDeadlineMessage', {
-        title: todo.title,
-        timeUntil: formatDistanceToNow(dueDate, { addSuffix: true }),
-      })
-    } else if (daysDiff <= 7) {
-      notificationType = 'info'
-      notificationTitle = t('futureTask')
-      notificationMessage = t('futureTaskMessage', {
-        title: todo.title,
-        timeUntil: formatDistanceToNow(dueDate, { addSuffix: true }),
-      })
-    } else {
-      return null
-    }
-  }
-
-  return {
-    todo_id: todo.id,
-    user_id: todo.user_id,
-    notification_type: notificationType,
-    title: notificationTitle,
-    message: notificationMessage,
-    due_date: todo.due_date,
-    read: false,
-    dismissed: false,
-    origin_id: `${notificationType}-${todo.id}-${Date.now()}`,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
   }
 }
 

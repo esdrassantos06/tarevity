@@ -998,9 +998,6 @@
     "failedToDeleteAccount": "Falha ao excluir conta: {message}",
     "errorDeletingAccount": "Erro ao excluir conta:"
   },
-  "useTodoFilters": {
-    "errorFilteringByDate": "Erro ao filtrar por data:"
-  },
   "useTodosQuery": {
     "failedToLoadTasks": "Falha ao carregar tarefas",
     "errorCreatingTask": "Erro ao criar tarefa",

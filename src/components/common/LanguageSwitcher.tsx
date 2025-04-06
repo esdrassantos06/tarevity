@@ -1,7 +1,7 @@
 'use client'
 
 import { useLocale, useTranslations } from 'next-intl'
-import { usePathname, useRouter } from 'next/navigation'
+import { useRouter, usePathname } from '@/i18n/navigation'
 import { useTransition, useState } from 'react'
 import { Check } from 'lucide-react'
 import Image from 'next/image'

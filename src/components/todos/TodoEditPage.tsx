@@ -1,6 +1,6 @@
 'use client'
 import React, { useState, useEffect, ChangeEvent, FormEvent } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter } from '@/i18n/navigation'
 import {
   FaArrowLeft,
   FaSave,
@@ -15,7 +15,7 @@ import ConfirmationDialog, {
 } from '@/components/common/ConfirmationDialog'
 import axios from 'axios'
 import { showError } from '@/lib/toast'
-import { refreshNotifications } from '@/hooks/useNotificationsQuery'
+import { useNotificationsQuery } from '@/hooks/useNotificationsQuery'
 import { useTranslations } from 'next-intl'
 import DatePickerWithClear from '@/components/ui/DatePickerWithClear'
 import { cn } from '@/lib/utils'
@@ -57,6 +57,7 @@ const TodoEditPage: React.FC<TodoEditPageProps> = ({ todoId }) => {
   const router = useRouter()
   const { data: todos = [] as Todo[], isLoading } = useTodosQuery()
   const updateTodoMutation = useUpdateTodoMutation()
+  const { refreshNotifications } = useNotificationsQuery()
 
   const [formData, setFormData] = useState<TodoFormData>({
     title: '',

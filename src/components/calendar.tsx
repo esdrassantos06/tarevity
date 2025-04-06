@@ -9,7 +9,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import CalendarEvent from './calendar-event'
-import { useRouter } from 'next/navigation'
+import { useRouter } from '@/i18n/navigation'
 import { useTodosQuery } from '@/hooks/useTodosQuery'
 import { Todo } from '@/lib/api'
 import { useTranslations } from 'next-intl'
