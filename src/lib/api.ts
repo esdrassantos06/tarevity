@@ -37,11 +37,10 @@ export interface UserStats {
 }
 
 export interface PasswordCheckResponse {
+  isValid: boolean
   isCompromised: boolean
   strength: number
-  isStrong: boolean
-  isValid?: boolean
-  errors?: string[]
+  errors: string[]
 }
 
 export interface ImageUploadResponse {

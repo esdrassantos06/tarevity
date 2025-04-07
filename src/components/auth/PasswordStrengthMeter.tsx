@@ -40,10 +40,6 @@ export default function PasswordStrengthMeter({
       hasDigit: /[0-9]/.test(password),
       hasSpecial: /[^A-Za-z0-9]/.test(password),
       hasNoRepeatingChars: !/(.)\\1{2,}/.test(password),
-      hasNoSequentialChars:
-        !/(abc|bcd|cde|def|efg|fgh|ghi|hij|ijk|jkl|klm|lmn|mno|nop|opq|pqr|qrs|rst|stu|tuv|uvw|vwx|wxy|xyz|012|123|234|345|456|567|678|789)/i.test(
-          password,
-        ),
     }
   }, [password])
 
@@ -56,9 +52,8 @@ export default function PasswordStrengthMeter({
     if (criteria.hasUppercase) localScore += 10
     if (criteria.hasLowercase) localScore += 10
     if (criteria.hasDigit) localScore += 10
-    if (criteria.hasSpecial) localScore += 20
+    if (criteria.hasSpecial) localScore += 30
     if (criteria.hasNoRepeatingChars) localScore += 10
-    if (criteria.hasNoSequentialChars) localScore += 10
 
     const uniqueChars = new Set(password).size
     localScore += Math.min(20, uniqueChars * 2)
@@ -95,23 +90,23 @@ export default function PasswordStrengthMeter({
         }
 
         if (result.data) {
-          const dataStrength = result.data.strength ?? 0
-          const responseErrors = result.data.errors ?? []
+          const {
+            strength: dataStrength,
+            errors: responseErrors,
+            isCompromised,
+            isValid,
+          } = result.data
 
           setState((prev) => ({
             ...prev,
             isChecking: false,
-            strength: dataStrength,
-            isCompromised: !!result.data?.isCompromised,
-            errors: responseErrors,
+            strength: dataStrength ?? localStrength,
+            isCompromised,
+            errors: responseErrors || [],
           }))
 
           if (currentOnValidation) {
-            const isValid =
-              Boolean(result.data.isValid) && !result.data.isCompromised
-            const isStrong =
-              Boolean(result.data.isStrong) && !result.data.isCompromised
-            currentOnValidation(isValid, isStrong)
+            currentOnValidation(isValid, dataStrength >= 70)
           }
         } else {
           setState((prev) => ({
@@ -273,23 +268,6 @@ export default function PasswordStrengthMeter({
               <span>{label}</span>
             </div>
           ))}
-
-          {password.length >= MIN_LENGTH && (
-            <div
-              className={`flex items-center ${
-                criteria.hasNoSequentialChars
-                  ? 'text-green-500'
-                  : 'text-gray-500'
-              }`}
-            >
-              {criteria.hasNoSequentialChars ? (
-                <FaCheck className="mr-1" />
-              ) : (
-                <FaExclamationTriangle className="mr-1" />
-              )}
-              <span>{t('criteria.noSequential')}</span>
-            </div>
-          )}
         </div>
       )}
 

@@ -311,6 +311,7 @@
         "confirmPlaceholder": "Confirm your password",
         "error": {
           "min": "Password must be at least 8 characters",
+          "common": "This password is too common and easy to guess",
           "max": "Password is too long (maximum 100 characters)",
           "uppercase": "Password must contain at least one uppercase letter",
           "lowercase": "Password must contain at least one lowercase letter",

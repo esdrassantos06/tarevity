@@ -1,8 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server'
 import axiosClient from '@/lib/axios'
-import { validatePasswordStrength } from '@/lib/auth'
+import { getTranslations } from 'next-intl/server'
+
+interface PasswordValidationResponse {
+  isValid: boolean
+  isCompromised: boolean
+  isCommon: boolean
+  errors: string[]
+  strength: number
+}
 
 export async function POST(req: NextRequest) {
+  const t = await getTranslations('auth.password.error')
+
   try {
     const { password } = await req.json()
 
@@ -13,20 +23,32 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    const isCompromised = await checkPasswordWithHIBP(password)
+    const response: PasswordValidationResponse = {
+      isValid: true,
+      isCompromised: false,
+      isCommon: false,
+      errors: [],
+      strength: calculatePasswordStrength(password),
+    }
 
-    const { score, isValid, errors } = validatePasswordStrength(
-      password,
-      (key) => key,
-    )
+    response.isCompromised = await checkPasswordWithHIBP(password)
+    if (response.isCompromised) {
+      response.isValid = false
+      response.errors.push(t('compromised'))
+    }
 
-    return NextResponse.json({
-      isCompromised,
-      strength: score,
-      isStrong: !isCompromised && score >= 70,
-      isValid,
-      errors,
-    })
+    response.isCommon = isCommonPassword(password)
+    if (response.isCommon) {
+      response.isValid = false
+      response.errors.push(t('common'))
+    }
+
+    if (response.strength < 40) {
+      response.isValid = false
+      response.errors.push(t('notStrong'))
+    }
+
+    return NextResponse.json(response)
   } catch (error: unknown) {
     console.error('Error checking password:', error)
 
@@ -101,4 +123,21 @@ function isCommonPassword(password: string): boolean {
     '1234567890',
   ]
   return commonPasswords.includes(password.toLowerCase())
+}
+
+function calculatePasswordStrength(password: string): number {
+  let strength = 0
+
+  if (password.length >= 8) strength += 10
+  if (password.length >= 12) strength += 10
+
+  if (/[A-Z]/.test(password)) strength += 10
+  if (/[a-z]/.test(password)) strength += 10
+  if (/[0-9]/.test(password)) strength += 10
+  if (/[^A-Za-z0-9]/.test(password)) strength += 40
+
+  const uniqueChars = new Set(password).size
+  strength += Math.min(20, uniqueChars * 2)
+
+  return Math.min(100, strength)
 }
