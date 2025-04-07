@@ -2,8 +2,8 @@ import { compare, hash } from 'bcryptjs'
 import { supabase } from './supabase'
 
 const emailCheckCache = new Map<
-string,
-{ exists: boolean; timestamp: number }
+  string,
+  { exists: boolean; timestamp: number }
 >()
 const EMAIL_CACHE_TTL = 60 * 1000
 
