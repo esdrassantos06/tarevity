@@ -1,9 +1,9 @@
 import { supabase } from '@/lib/supabase'
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse, NextRequest } from 'next/server'
 
 export async function pingDb(request: NextRequest) {
   try {
-    const authHeader = request.headers.get('Authorization')
+    const authHeader = request.headers.get('authorization')
     const token = authHeader?.replace('Bearer ', '')
 
     if (!token || token !== process.env.HEALTH_CHECK_TOKEN) {
