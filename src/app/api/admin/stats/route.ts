@@ -69,7 +69,7 @@ export async function GET() {
         'Cache-Control': 'private, max-age=60, stale-while-revalidate=300',
       },
     })
-  } catch (error: unknown) {
+  } catch (error) {
     console.error('Error fetching admin stats:', error)
 
     if (error instanceof Error) {

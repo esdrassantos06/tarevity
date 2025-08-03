@@ -49,7 +49,7 @@ export async function POST(req: NextRequest) {
     }
 
     return NextResponse.json(response)
-  } catch (error: unknown) {
+  } catch (error) {
     console.error('Error checking password:', error)
 
     if (error instanceof Error) {

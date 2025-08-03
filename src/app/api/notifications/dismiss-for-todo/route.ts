@@ -30,7 +30,7 @@ export async function POST(req: NextRequest) {
       },
       { status: 200 },
     )
-  } catch (error: unknown) {
+  } catch (error) {
     console.error('Error dismissing notifications:', error)
     return NextResponse.json(
       {

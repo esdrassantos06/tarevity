@@ -22,7 +22,7 @@ export async function GET() {
     }
 
     return NextResponse.json(data || [], { status: 200 })
-  } catch (error: unknown) {
+  } catch (error) {
     console.error('Error in admin users API:', error)
 
     if (error instanceof Error) {

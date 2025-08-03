@@ -79,7 +79,7 @@ export async function DELETE() {
       },
       { status: 200 },
     )
-  } catch (error: unknown) {
+  } catch (error) {
     console.error('Error in delete profile image API:', error)
     return NextResponse.json(
       {

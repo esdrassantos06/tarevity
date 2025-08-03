@@ -81,7 +81,7 @@ export async function POST(req: NextRequest) {
       { message: 'Missing id, todoId, or all parameter' },
       { status: 400 },
     )
-  } catch (error: unknown) {
+  } catch (error) {
     console.error('Error deleting notifications:', error)
     return NextResponse.json(
       {

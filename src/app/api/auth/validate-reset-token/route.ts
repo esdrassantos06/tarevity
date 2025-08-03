@@ -43,7 +43,7 @@ export async function GET(req: NextRequest) {
       { message: 'Valid token', userId: data.user_id },
       { status: 200 },
     )
-  } catch (error: unknown) {
+  } catch (error) {
     if (error instanceof Error) {
       console.error('Error validating reset token:', error)
       return NextResponse.json(

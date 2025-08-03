@@ -16,7 +16,7 @@ export async function POST(req: NextRequest) {
         { message: 'Email is required' },
         { status: 400 },
       )
-    }
+    } 
     const { data: user, error: userError } = await supabaseAdmin
       .from('users')
       .select('id, email')
@@ -68,7 +68,7 @@ export async function POST(req: NextRequest) {
       },
       { status: 200 },
     )
-  } catch (error: unknown) {
+  } catch (error) {
     if (error instanceof Error) {
       console.error('Error in forgot password API:', error)
       return NextResponse.json(

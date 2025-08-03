@@ -25,7 +25,7 @@ export async function GET() {
     }
 
     return NextResponse.json(data, { status: 200 })
-  } catch (error: unknown) {
+  } catch (error) {
     if (error instanceof Error) {
       console.error('Error in profile API:', error)
       return NextResponse.json(
@@ -79,7 +79,7 @@ export async function PUT(req: NextRequest) {
     }
 
     return NextResponse.json(data, { status: 200 })
-  } catch (error: unknown) {
+  } catch (error) {
     if (error instanceof Error) {
       console.error('Error in profile update API:', error)
       return NextResponse.json(

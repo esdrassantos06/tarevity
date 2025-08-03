@@ -43,7 +43,7 @@ export async function POST(req: NextRequest) {
     const isCurrentPassword = await verifyPassword(password, userData.password)
 
     return NextResponse.json({ isCurrentPassword }, { status: 200 })
-  } catch (error: unknown) {
+  } catch (error) {
     console.error('Error checking current password:', error)
     return NextResponse.json(
       {

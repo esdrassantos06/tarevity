@@ -30,7 +30,7 @@ export async function POST(req: NextRequest) {
       { message: 'User registered successfully', user: { id: newUser.id } },
       { status: 201 },
     )
-  } catch (error: unknown) {
+  } catch (error) {
     console.error('Unexpected registration error:', error)
 
     if (error instanceof Error) {

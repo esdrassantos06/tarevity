@@ -35,7 +35,7 @@ export async function DELETE(
       },
       { status: 200 },
     )
-  } catch (error: unknown) {
+  } catch (error) {
     console.error('Error deleting notifications for todo:', error)
     return NextResponse.json(
       {

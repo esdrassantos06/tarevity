@@ -16,7 +16,7 @@ export async function GET() {
       await notificationsService.getUserNotifications(userId)
 
     return NextResponse.json(notifications, { status: 200 })
-  } catch (error: unknown) {
+  } catch (error) {
     console.error('Error fetching notifications:', error)
     return NextResponse.json(
       {
@@ -80,7 +80,7 @@ export async function POST(req: NextRequest) {
       { message: 'Notifications processed successfully', results },
       { status: 200 },
     )
-  } catch (error: unknown) {
+  } catch (error) {
     console.error('Notifications API: Error processing notifications', error)
     return NextResponse.json(
       {

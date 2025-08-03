@@ -66,7 +66,7 @@ export async function PATCH(
     }
 
     return NextResponse.json(data, { status: 200 })
-  } catch (error: unknown) {
+  } catch (error) {
     console.error('Error in admin user update API:', error)
 
     if (error instanceof Error) {
@@ -195,7 +195,7 @@ export async function DELETE(
         { status: 500 },
       )
     }
-  } catch (error: unknown) {
+  } catch (error) {
     console.error('Error in admin user delete API:', error)
 
     if (error instanceof Error) {

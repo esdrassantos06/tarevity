@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
       },
       { status: 200 },
     )
-  } catch (error: unknown) {
+  } catch (error) {
     console.error('Error updating notification read status:', error)
     return NextResponse.json(
       {

@@ -47,7 +47,7 @@ export async function GET() {
         },
       },
     )
-  } catch (error: unknown) {
+  } catch (error) {
     if (error instanceof Error) {
       console.error('Error fetching user stats:', error)
       return NextResponse.json(

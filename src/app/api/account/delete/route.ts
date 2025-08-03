@@ -35,7 +35,7 @@ export async function DELETE() {
       { message: 'Account deleted successfully' },
       { status: 200 },
     )
-  } catch (error: unknown) {
+  } catch (error) {
     if (error instanceof Error) {
       return NextResponse.json(
         { message: error.message || 'Error deleting account' },

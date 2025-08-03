@@ -260,7 +260,7 @@ export default function EnhancedLoginForm() {
           }
         }, 500)
       }
-    } catch (error: unknown) {
+    } catch (error) {
       if (error instanceof Error) {
         setError(error.message || t('error.default'))
         showError(error.message || t('error.default'))

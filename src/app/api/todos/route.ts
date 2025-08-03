@@ -26,7 +26,7 @@ export async function GET() {
     return NextResponse.json(data || [], {
       status: 200,
     })
-  } catch (error: unknown) {
+  } catch (error) {
     console.error('Error fetching tasks:', error)
     return NextResponse.json(
       {
@@ -118,7 +118,7 @@ export async function POST(req: NextRequest) {
     }
 
     return NextResponse.json(data, { status: 201 })
-  } catch (error: unknown) {
+  } catch (error) {
     console.error('Error creating task:', error)
     return NextResponse.json(
       {
