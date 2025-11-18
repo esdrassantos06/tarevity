@@ -3,7 +3,7 @@ import prisma from '@/lib/prisma';
 import { taskSchema } from '@/validation/TaskSchema';
 import { taskQuerySchema } from '@/validation/TaskQuerySchema';
 import { NextRequest, NextResponse } from 'next/server';
-import { TaskWhereInput } from '@/lib/generated/prisma/models';
+import { Prisma } from '@/lib/generated/prisma';
 import { TaskStatus } from '@/lib/generated/prisma/client';
 import { getLocaleFromRequest } from '@/lib/api-locale';
 import { getTranslations } from 'next-intl/server';
@@ -44,7 +44,7 @@ export async function GET(req: NextRequest) {
 
   const { page, limit, search, status } = parseResult.data;
 
-  const where: TaskWhereInput = {
+  const where: Prisma.TaskWhereInput = {
     userId: session.user.id,
   };
 
