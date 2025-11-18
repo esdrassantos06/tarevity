@@ -3,6 +3,7 @@
 import { useTheme } from 'next-themes';
 import CookieConsent from 'react-cookie-consent';
 import { useTranslations } from 'next-intl';
+import Link from 'next/link';
 
 export default function CookieBanner() {
   const { resolvedTheme } = useTheme();
@@ -48,14 +49,14 @@ export default function CookieBanner() {
     >
       <span role='status' aria-live='polite'>
         {t('message')}{' '}
-        <a
+        <Link
           href='/privacy'
           style={{ color: isDark ? '#bbbbbb' : '#0070f3' }}
           aria-label={t('learnMoreAriaLabel')}
           title={t('privacyPolicyTitle')}
         >
           {t('learnMore')}
-        </a>
+        </Link>
       </span>
     </CookieConsent>
   );
