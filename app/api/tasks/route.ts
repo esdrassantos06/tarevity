@@ -1,0 +1,133 @@
+import { auth } from '@/lib/auth';
+import prisma from '@/lib/prisma';
+import { taskSchema } from '@/validation/TaskSchema';
+import { taskQuerySchema } from '@/validation/TaskQuerySchema';
+import { NextRequest, NextResponse } from 'next/server';
+import { TaskWhereInput } from '@/lib/generated/prisma/models';
+import { TaskStatus } from '@/lib/generated/prisma/client';
+import { getLocaleFromRequest } from '@/lib/api-locale';
+import { getTranslations } from 'next-intl/server';
+
+export async function GET(req: NextRequest) {
+  const session = await auth.api.getSession({
+    headers: req.headers,
+  });
+
+  if (!session) {
+    const locale = getLocaleFromRequest(req);
+    const t = await getTranslations({ locale, namespace: 'ApiErrors' });
+    return NextResponse.json({ error: t('notAuthenticated') }, { status: 401 });
+  }
+
+  const { searchParams } = new URL(req.url);
+
+  const queryParams = {
+    page: searchParams.get('page') || undefined,
+    limit: searchParams.get('limit') || undefined,
+    search: searchParams.get('search') || undefined,
+    status: searchParams.get('status') || undefined,
+  };
+
+  const parseResult = taskQuerySchema.safeParse(queryParams);
+
+  if (!parseResult.success) {
+    const locale = getLocaleFromRequest(req);
+    const t = await getTranslations({ locale, namespace: 'Errors' });
+    return NextResponse.json(
+      {
+        error: t('invalidQueryParams'),
+        details: parseResult.error.issues,
+      },
+      { status: 400 },
+    );
+  }
+
+  const { page, limit, search, status } = parseResult.data;
+
+  const where: TaskWhereInput = {
+    userId: session.user.id,
+  };
+
+  if (status !== 'ALL') {
+    where.status = {
+      equals: status as TaskStatus,
+    };
+  }
+
+  if (search) {
+    where.OR = [
+      {
+        title: {
+          contains: search,
+          mode: 'insensitive',
+        },
+      },
+      {
+        description: {
+          contains: search,
+          mode: 'insensitive',
+        },
+      },
+    ];
+  }
+
+  const total = await prisma.task.count({ where });
+
+  const skip = (page - 1) * limit;
+  const totalPages = Math.ceil(total / limit);
+
+  const tasks = await prisma.task.findMany({
+    where,
+    orderBy: { createdAt: 'desc' },
+    skip,
+    take: limit,
+  });
+
+  return NextResponse.json({
+    user: {
+      id: session.user.id,
+      name: session.user.name,
+    },
+    tasks,
+    pagination: {
+      page,
+      limit,
+      total,
+      totalPages,
+    },
+  });
+}
+
+export async function POST(req: NextRequest) {
+  const session = await auth.api.getSession({
+    headers: req.headers,
+  });
+
+  if (!session) {
+    const locale = getLocaleFromRequest(req);
+    const t = await getTranslations({ locale, namespace: 'ApiErrors' });
+    return NextResponse.json({ error: t('notAuthenticated') }, { status: 401 });
+  }
+
+  try {
+    const body = await req.json();
+    const parsed = taskSchema.parse(body);
+
+    const task = await prisma.task.create({
+      data: {
+        title: parsed.title,
+        description: parsed.description,
+        dueDate: parsed.dueDate ? new Date(parsed.dueDate) : undefined,
+        priority: parsed.priority,
+        userId: session.user.id,
+      },
+    });
+
+    return NextResponse.json({ task });
+  } catch (error) {
+    console.error(error);
+    const locale = getLocaleFromRequest(req);
+    const t = await getTranslations({ locale, namespace: 'Errors' });
+    return NextResponse.json({ error: t('creatingTask') }, { status: 500 });
+  }
+}

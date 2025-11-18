@@ -1,0 +1,1016 @@
+{
+  "Layout": {
+    "metadata": {
+      "title": "Tarevity - Gestão de Tarefas Simplificada",
+      "description": "Organize suas tarefas, defina prioridades e nunca mais esqueça prazos importantes. Tarevity é uma plataforma simples e eficiente de gestão de tarefas para aumentar sua produtividade.",
+      "keywords": [
+        "gestão de tarefas",
+        "produtividade",
+        "lista de tarefas",
+        "organizador de tarefas",
+        "rastreador de prazos",
+        "gestão de projetos"
+      ],
+      "openGraph": {
+        "title": "Tarevity - Gestão de Tarefas Simplificada",
+        "description": "Organize suas tarefas, defina prioridades e nunca mais esqueça prazos importantes. Uma forma simples e eficiente de aumentar sua produtividade.",
+        "alt": "Tarevity - Plataforma de Gestão de Tarefas"
+      },
+      "twitter": {
+        "title": "Tarevity - Gestão de Tarefas Simplificada",
+        "description": "Organize suas tarefas, defina prioridades e nunca mais esqueça prazos importantes."
+      }
+    }
+  },
+  "HomePage": {
+    "metadata": {
+      "title": "Tarevity - Gestão de Tarefas Simplificada",
+      "description": "Organize suas tarefas, defina prioridades e nunca mais esqueça prazos importantes. Tarevity é uma plataforma simples e eficiente de gestão de tarefas para aumentar sua produtividade. Gratuito para usar com autenticação segura.",
+      "keywords": [
+        "gestão de tarefas",
+        "produtividade",
+        "lista de tarefas",
+        "organizador de tarefas",
+        "rastreador de prazos",
+        "gestão de projetos",
+        "planejador de tarefas",
+        "aplicativo de produtividade"
+      ],
+      "openGraph": {
+        "title": "Tarevity - Gestão de Tarefas Simplificada",
+        "description": "Organize suas tarefas, defina prioridades e nunca mais esqueça prazos importantes. Uma forma simples e eficiente de aumentar sua produtividade.",
+        "alt": "Tarevity - Plataforma de Gestão de Tarefas"
+      },
+      "twitter": {
+        "title": "Tarevity - Gestão de Tarefas Simplificada",
+        "description": "Organize suas tarefas, defina prioridades e nunca mais esqueça prazos importantes."
+      }
+    },
+    "jsonLd": {
+      "description": "Plataforma de gestão de tarefas para organizar suas tarefas, definir prioridades e aumentar a produtividade",
+      "features": [
+        "Gestão simples de tarefas",
+        "Rastreamento de prazos",
+        "Autenticação segura",
+        "Acesso multiplataforma"
+      ],
+      "organizationDescription": "Plataforma de gestão de tarefas para organizar suas tarefas e aumentar a produtividade"
+    },
+    "hero": {
+      "title": "Gerencie suas tarefas com eficiência",
+      "description": "Organize suas tarefas, defina prioridades e nunca mais esqueça prazos importantes. Uma forma simples e eficiente de aumentar sua produtividade.",
+      "dashboardButton": "Painel",
+      "getStartedButton": "Começar"
+    },
+    "features": {
+      "label": "Recursos",
+      "title": "Tudo que você precisa para se manter organizado",
+      "items": {
+        "simpleTaskManagement": {
+          "title": "Gestão simples de tarefas",
+          "description": "Adicione, edite e marque tarefas como concluídas com facilidade. Interface intuitiva e fácil de usar."
+        },
+        "neverMissDeadline": {
+          "title": "Nunca perca um prazo",
+          "description": "Defina datas de vencimento para suas tarefas e mantenha o controle de seus compromissos."
+        },
+        "secureAndPrivate": {
+          "title": "Seguro e privado",
+          "description": "Suas tarefas são armazenadas com segurança. Faça login com GitHub e Google para maior conveniência."
+        },
+        "accessFromAnywhere": {
+          "title": "Acesso de qualquer lugar",
+          "description": "Design responsivo que funciona em todos os dispositivos. Suas tarefas estão sempre ao alcance."
+        }
+      }
+    },
+    "cta": {
+      "title": "Pronto para se organizar?",
+      "titleLine2": "Comece a usar o Tarevity hoje.",
+      "description": "Cadastre-se gratuitamente e experimente todos os recursos do Tarevity.",
+      "button": "Começar Grátis"
+    }
+  },
+  "LoginPage": {
+    "metadata": {
+      "title": "Entrar",
+      "description": "Entre na sua conta Tarevity para acessar suas tarefas e gerenciar sua produtividade."
+    },
+    "form": {
+      "title": "Entrar",
+      "description": "Entre na sua conta para continuar",
+      "orContinueWith": "Ou continue com",
+      "email": "E-mail",
+      "emailPlaceholder": "seu@email.com",
+      "password": "Senha",
+      "passwordPlaceholder": "••••••••",
+      "rememberMe": "Lembrar-me",
+      "forgotPassword": "Esqueceu sua senha?",
+      "submit": "Entrar",
+      "submitting": "Entrando...",
+      "noAccount": "Não tem uma conta?",
+      "register": "Registrar",
+      "showPassword": "Mostrar senha",
+      "hidePassword": "Ocultar senha",
+      "success": "Login realizado com sucesso! Bem-vindo de volta!",
+      "error": "Erro interno do servidor. Tente novamente mais tarde."
+    }
+  },
+  "RegisterPage": {
+    "metadata": {
+      "title": "Registrar",
+      "description": "Crie uma nova conta no Tarevity e comece a organizar suas tarefas e aumentar sua produtividade."
+    },
+    "form": {
+      "title": "Criar Conta",
+      "description": "Crie sua conta para começar",
+      "orRegisterWith": "Ou registre-se com",
+      "name": "Nome",
+      "namePlaceholder": "João Silva",
+      "email": "E-mail",
+      "emailPlaceholder": "seu@email.com",
+      "password": "Senha",
+      "passwordPlaceholder": "••••••••",
+      "passwordHelp": "Mínimo de 8 caracteres, incluindo maiúsculas, minúsculas e números",
+      "confirmPassword": "Confirmar Senha",
+      "confirmPasswordPlaceholder": "••••••••",
+      "acceptTerms": "Eu aceito os",
+      "termsOfUse": "Termos de Uso",
+      "and": "e",
+      "privacyPolicy": "Política de Privacidade",
+      "submit": "Criar conta",
+      "submitting": "Criando conta...",
+      "hasAccount": "Já tem uma conta?",
+      "login": "Entrar",
+      "showPassword": "Mostrar senha",
+      "hidePassword": "Ocultar senha",
+      "showConfirmPassword": "Mostrar confirmação de senha",
+      "hideConfirmPassword": "Ocultar confirmação de senha",
+      "success": "Usuário registrado com sucesso!",
+      "error": "Erro interno do servidor. Tente novamente mais tarde."
+    }
+  },
+  "ForgotPasswordPage": {
+    "metadata": {
+      "title": "Esqueceu a Senha",
+      "description": "Redefina a senha da sua conta Tarevity. Digite seu e-mail para receber um link de redefinição de senha."
+    },
+    "form": {
+      "title": "Esqueceu sua senha?",
+      "description": "Digite seu endereço de e-mail e enviaremos um link para redefinir sua senha",
+      "email": "E-mail",
+      "emailPlaceholder": "seu@email.com",
+      "submit": "Enviar link de redefinição",
+      "submitting": "Enviando...",
+      "rememberPassword": "Lembrou sua senha?",
+      "login": "Entrar",
+      "success": {
+        "title": "Verifique seu e-mail",
+        "description": "Enviamos um link de redefinição de senha",
+        "message": "Se existir uma conta com esse e-mail, você receberá um link de redefinição de senha em breve. Verifique sua caixa de entrada e siga as instruções.",
+        "backToLogin": "Voltar para Login",
+        "sendAnother": "Enviar outro e-mail"
+      },
+      "error": "Erro interno do servidor. Tente novamente mais tarde."
+    }
+  },
+  "ResetPasswordPage": {
+    "metadata": {
+      "title": "Redefinir Senha",
+      "description": "Redefina a senha da sua conta Tarevity. Digite sua nova senha para concluir o processo de redefinição."
+    },
+    "form": {
+      "title": "Redefina sua senha",
+      "description": "Digite sua nova senha abaixo",
+      "newPassword": "Nova Senha",
+      "newPasswordPlaceholder": "••••••••",
+      "confirmPassword": "Confirmar Senha",
+      "confirmPasswordPlaceholder": "••••••••",
+      "submit": "Redefinir senha",
+      "submitting": "Redefinindo...",
+      "rememberPassword": "Lembrou sua senha?",
+      "login": "Entrar",
+      "showPassword": "Mostrar senha",
+      "hidePassword": "Ocultar senha",
+      "success": {
+        "title": "Senha redefinida com sucesso",
+        "description": "Sua senha foi alterada com sucesso",
+        "message": "Redirecionando para a página de login...",
+        "goToLogin": "Ir para Login"
+      },
+      "error": {
+        "title": "Token de redefinição inválido",
+        "description": "O token de redefinição está ausente ou é inválido",
+        "message": "Por favor, solicite um novo link de redefinição de senha.",
+        "requestNew": "Solicitar novo link de redefinição",
+        "backToLogin": "Voltar para Login",
+        "invalidToken": "O token de redefinição é inválido ou expirou. Por favor, solicite uma nova redefinição de senha.",
+        "noToken": "Token de redefinição inválido. Por favor, solicite uma nova redefinição de senha."
+      },
+      "errorGeneral": "Erro interno do servidor. Tente novamente mais tarde."
+    }
+  },
+  "AuthButtons": {
+    "signInWith": "Entrar com",
+    "signUpWith": "Registrar com",
+    "loading": "Carregando",
+    "google": "Google",
+    "github": "Github",
+    "ariaLabelSignIn": "Entrar com {provider}",
+    "ariaLabelSignUp": "Registrar com {provider}",
+    "titleSignIn": "Entrar usando sua conta {provider}",
+    "titleSignUp": "Registrar usando sua conta {provider}"
+  },
+  "CalendarPage": {
+    "metadata": {
+      "title": "Calendário",
+      "description": "Visualize e gerencie suas tarefas em uma visualização de calendário no Tarevity. Veja todas as suas tarefas agendadas organizadas por data."
+    },
+    "backToDashboard": "Voltar para o painel",
+    "today": "Hoje",
+    "moreTasks": "{count} tarefas a mais",
+    "viewTask": "Ver tarefa: {title}",
+    "tasksOnDate": "{count} tarefas em {date}",
+    "tasksForDate": "Tarefas para {date}",
+    "underReview": "Em revisão"
+  },
+  "DashboardPage": {
+    "metadata": {
+      "title": "Painel",
+      "description": "Acesse seu painel pessoal de gerenciamento de tarefas e painel de controle no Tarevity."
+    },
+    "title": "Tarefas",
+    "createTask": "Criar Tarefa",
+    "create": "Criar",
+    "filters": {
+      "all": "Todas",
+      "active": "Ativas",
+      "completed": "Concluídas",
+      "review": "Revisão"
+    },
+    "noTasks": {
+      "title": "Nenhuma tarefa encontrada",
+      "description": "Comece criando sua primeira tarefa.",
+      "button": "Criar Nova Tarefa"
+    },
+    "task": {
+      "noDescription": "Nenhuma descrição fornecida",
+      "priority": "Prioridade:",
+      "dueDate": "Data de vencimento:"
+    },
+    "pagination": {
+      "previous": "Anterior",
+      "next": "Próxima",
+      "page": "Página {current} de {total}"
+    },
+    "addNewTask": "Adicionar Nova Tarefa"
+  },
+  "PrivacyPage": {
+    "metadata": {
+      "title": "Política de Privacidade",
+      "description": "Leia a Política de Privacidade do Tarevity para entender como coletamos, usamos e protegemos suas informações pessoais."
+    },
+    "title": "Política de Privacidade",
+    "lastUpdated": "Última atualização:",
+    "sections": {
+      "commitment": {
+        "title": "Nosso Compromisso com a Privacidade",
+        "content": "No Tarevity, levamos sua privacidade a sério. Esta Política de Privacidade explica como coletamos, usamos, divulgamos e protegemos suas informações quando você usa nosso aplicativo de gerenciamento de tarefas. Por favor, leia esta política de privacidade cuidadosamente. Se você não concordar com os termos desta política de privacidade, por favor, não acesse o aplicativo."
+      },
+      "information": {
+        "title": "Informações que Coletamos",
+        "personalData": {
+          "title": "Dados Pessoais",
+          "content": "Ao usar nosso aplicativo, podemos solicitar que você nos forneça certas informações pessoalmente identificáveis que podem ser usadas para entrar em contato ou identificá-lo. Informações pessoalmente identificáveis podem incluir, mas não se limitam a:",
+          "items": [
+            "Endereço de e-mail",
+            "Nome",
+            "Foto de perfil (se fornecida)",
+            "Dados de uso e preferências do aplicativo"
+          ]
+        },
+        "usageData": {
+          "title": "Dados de Uso",
+          "content": "Também podemos coletar informações sobre como o aplicativo é acessado e usado (\"Dados de Uso\"). Esses Dados de Uso podem incluir informações como o endereço IP do seu dispositivo, tipo de navegador, versão do navegador, as páginas do nosso aplicativo que você visita, a hora e a data da sua visita, o tempo gasto nessas páginas, identificadores únicos de dispositivos e outros dados de diagnóstico."
+        }
+      },
+      "howWeUse": {
+        "title": "Como Usamos Suas Informações",
+        "content": "Usamos os dados coletados para vários fins:",
+        "items": [
+          "Para fornecer e manter nosso serviço",
+          "Para notificá-lo sobre mudanças em nosso serviço",
+          "Para fornecer suporte ao cliente",
+          "Para coletar análises ou informações valiosas para que possamos melhorar nosso serviço",
+          "Para monitorar o uso do serviço",
+          "Para detectar, prevenir e resolver problemas técnicos"
+        ]
+      },
+      "cookies": {
+        "title": "Cookies e Tecnologias de Rastreamento",
+        "content1": "Usamos cookies e tecnologias de rastreamento semelhantes para rastrear a atividade em nosso aplicativo e armazenar certas informações. Cookies são arquivos com uma pequena quantidade de dados que podem incluir um identificador único anônimo. Cookies são enviados ao seu navegador a partir de um site e armazenados no seu dispositivo.",
+        "content2": "Você pode instruir seu navegador a recusar todos os cookies ou a indicar quando um cookie está sendo enviado. No entanto, se você não aceitar cookies, pode não conseguir usar algumas partes do nosso aplicativo.",
+        "examplesTitle": "Exemplos de cookies que usamos:",
+        "items": [
+          {
+            "type": "Cookies de Sessão:",
+            "description": "Usamos Cookies de Sessão para operar nosso serviço."
+          },
+          {
+            "type": "Cookies de Preferência:",
+            "description": "Usamos Cookies de Preferência para lembrar suas preferências e várias configurações."
+          },
+          {
+            "type": "Cookies de Segurança:",
+            "description": "Usamos Cookies de Segurança para fins de segurança."
+          }
+        ]
+      },
+      "security": {
+        "title": "Segurança de Dados",
+        "content": "A segurança dos seus dados é importante para nós, mas lembre-se de que nenhum método de transmissão pela Internet ou método de armazenamento eletrônico é 100% seguro. Embora nos esforcemos para usar meios comercialmente aceitáveis para proteger seus Dados Pessoais, não podemos garantir sua segurança absoluta.",
+        "measuresTitle": "Nossas medidas de segurança incluem:",
+        "items": [
+          "Criptografia de ponta a ponta para dados sensíveis",
+          "Auditorias de segurança regulares",
+          "Verificação de violação de senha via API HIBP",
+          "Cookies HTTP-only seguros",
+          "Implementação rigorosa da Política de Segurança de Conteúdo (CSP)"
+        ]
+      },
+      "thirdParty": {
+        "title": "Provedores de Autenticação de Terceiros",
+        "content1": "Nosso aplicativo permite que você faça login usando provedores de autenticação de terceiros, como Google e GitHub. Quando você opta por fazer login usando um desses serviços, podemos coletar informações pessoais que suas configurações de privacidade nesse serviço nos permitem acessar.",
+        "content2": "Usamos essas informações apenas para fins de autenticação e para criar seu perfil de usuário em nosso aplicativo. Não compartilhamos essas informações com terceiros adicionais sem seu consentimento."
+      },
+      "rights": {
+        "title": "Seus Direitos de Dados",
+        "content": "Dependendo da sua localização, você pode ter certos direitos em relação às suas informações pessoais, como:",
+        "items": [
+          "O direito de acessar informações pessoais que mantemos sobre você",
+          "O direito de solicitar correção de dados imprecisos",
+          "O direito de solicitar exclusão dos seus dados",
+          "O direito de retirar o consentimento",
+          "O direito à portabilidade de dados"
+        ],
+        "contact": "Para exercer qualquer um desses direitos, entre em contato conosco usando as informações fornecidas abaixo."
+      },
+      "changes": {
+        "title": "Mudanças nesta Política de Privacidade",
+        "content1": "Podemos atualizar nossa Política de Privacidade de tempos em tempos. Notificaremos você sobre quaisquer mudanças publicando a nova Política de Privacidade nesta página e atualizando a data de \"Última atualização\".",
+        "content2": "Recomendamos que você revise esta Política de Privacidade periodicamente para verificar mudanças. As mudanças nesta Política de Privacidade entram em vigor quando são publicadas nesta página."
+      },
+      "contact": {
+        "title": "Entre em Contato",
+        "content": "Se você tiver alguma dúvida sobre esta Política de Privacidade, entre em contato comigo:",
+        "email": "Por e-mail:"
+      }
+    }
+  },
+  "TermsPage": {
+    "metadata": {
+      "title": "Termos de Uso",
+      "description": "Leia os Termos de Uso do Tarevity para entender as regras e diretrizes para usar nosso aplicativo de gerenciamento de tarefas."
+    },
+    "title": "Termos de Uso",
+    "lastUpdated": "Última atualização:",
+    "sections": {
+      "agreement": {
+        "title": "Concordância com os Termos",
+        "content1": "Estes Termos de Uso constituem um acordo legalmente vinculativo feito entre você, seja pessoalmente ou em nome de uma entidade (\"você\") e Tarevity (\"nós\", \"nos\" ou \"nosso\"), relativo ao seu acesso e uso do aplicativo de gerenciamento de tarefas Tarevity.",
+        "content2": "Ao acessar ou usar o aplicativo, você concorda em ficar vinculado a estes Termos de Uso. Se você discordar de qualquer parte dos termos, não poderá acessar o aplicativo."
+      },
+      "accounts": {
+        "title": "Contas de Usuário",
+        "content1": "Quando você cria uma conta conosco, você garante que tem mais de 13 anos de idade e que as informações que você nos fornece são precisas, completas e atuais em todos os momentos. Informações imprecisas, incompletas ou obsoletas podem resultar no encerramento imediato da sua conta no aplicativo.",
+        "content2": "Você é responsável por manter a confidencialidade da sua conta e senha, incluindo, mas não se limitando à restrição de acesso ao seu computador e/ou conta. Você concorda em aceitar a responsabilidade por todas as atividades ou ações que ocorrem sob sua conta e/ou senha.",
+        "content3": "Você deve nos notificar imediatamente ao tomar conhecimento de qualquer violação de segurança ou uso não autorizado da sua conta."
+      },
+      "intellectual": {
+        "title": "Propriedade Intelectual",
+        "content1": "O aplicativo e seu conteúdo original, recursos e funcionalidade são e permanecerão propriedade exclusiva do Tarevity e seus licenciadores. O aplicativo é protegido por direitos autorais, marcas registradas e outras leis dos Estados Unidos e países estrangeiros. Nossas marcas registradas e identidade visual não podem ser usadas em conexão com qualquer produto ou serviço sem o consentimento prévio por escrito do Tarevity.",
+        "content2": "Você mantém a propriedade de quaisquer direitos de propriedade intelectual que você possui no conteúdo que cria e armazena no Tarevity. Ao fazer upload de conteúdo para o Tarevity, você nos concede uma licença mundial, não exclusiva, livre de royalties para usar, reproduzir, adaptar, publicar, traduzir e distribuir seu conteúdo em qualquer mídia existente ou futura. Esta licença é apenas para fins de operação e melhoria dos nossos serviços."
+      },
+      "prohibited": {
+        "title": "Usos Proibidos",
+        "content": "Você pode usar nosso aplicativo apenas para fins legais e de acordo com estes Termos. Você concorda em não usar o aplicativo:",
+        "items": [
+          "De qualquer forma que viole qualquer lei ou regulamento federal, estadual, local ou internacional aplicável.",
+          "Com o propósito de explorar, prejudicar ou tentar explorar ou prejudicar menores de qualquer forma.",
+          "Para enviar, receber conscientemente, fazer upload, baixar, usar ou reutilizar qualquer material que não esteja em conformidade com estes Termos.",
+          "Para transmitir ou obter o envio de qualquer material publicitário ou promocional, incluindo qualquer \"correio não solicitado\", \"carta em cadeia\", \"spam\" ou qualquer outra solicitação semelhante.",
+          "Para se passar por ou tentar se passar por Tarevity, um funcionário do Tarevity, outro usuário ou qualquer outra pessoa ou entidade.",
+          "Para se envolver em qualquer outra conduta que restrinja ou iniba o uso ou aproveitamento do aplicativo por qualquer pessoa, ou que, conforme determinado por nós, possa prejudicar o Tarevity ou os usuários do aplicativo, ou expô-los a responsabilidade."
+        ]
+      },
+      "userContent": {
+        "title": "Conteúdo do Usuário",
+        "content1": "Nosso aplicativo permite que você crie, armazene e compartilhe conteúdo como tarefas, descrições e outros materiais (coletivamente, \"Conteúdo do Usuário\"). Você é o único responsável pelo seu Conteúdo do Usuário e pelas consequências de publicá-lo ou divulgá-lo.",
+        "content2": "Ao fornecer Conteúdo do Usuário, você declara e garante que:",
+        "items": [
+          "Você possui ou tem as licenças, direitos, consentimentos e permissões necessários para usar e nos autorizar a usar todos os direitos de propriedade intelectual em e para qualquer Conteúdo do Usuário.",
+          "Seu Conteúdo do Usuário não viola os direitos de privacidade, direitos de publicidade, direitos autorais, direitos contratuais, direitos de propriedade intelectual ou quaisquer outros direitos de qualquer pessoa ou entidade.",
+          "Seu Conteúdo do Usuário não contém nenhum material que solicite informações pessoais de qualquer pessoa com menos de 18 anos ou explore pessoas com menos de 18 anos de forma sexual ou violenta.",
+          "Seu Conteúdo do Usuário não viola nenhuma lei aplicável relativa à pornografia infantil ou destinada a proteger a saúde ou o bem-estar de menores."
+        ]
+      },
+      "links": {
+        "title": "Links para Outros Sites",
+        "content1": "Nosso aplicativo pode conter links para sites ou serviços de terceiros que não são de propriedade ou controlados pelo Tarevity.",
+        "content2": "O Tarevity não tem controle sobre e não assume responsabilidade pelo conteúdo, políticas de privacidade ou práticas de quaisquer sites ou serviços de terceiros. Você reconhece e concorda ainda que o Tarevity não será responsável ou responsabilizado, direta ou indiretamente, por qualquer dano ou perda causada ou alegadamente causada por ou em conexão com o uso ou confiança em qualquer conteúdo, bens ou serviços disponíveis em ou através de quaisquer sites ou serviços.",
+        "content3": "Recomendamos fortemente que você leia os termos e condições e políticas de privacidade de quaisquer sites ou serviços de terceiros que você visite."
+      },
+      "termination": {
+        "title": "Rescisão",
+        "content1": "Podemos encerrar ou suspender sua conta e bloquear o acesso ao aplicativo imediatamente, sem aviso prévio ou responsabilidade, a nosso exclusivo critério, por qualquer motivo e sem limitação, incluindo, mas não se limitando a uma violação dos Termos.",
+        "content2": "Se você desejar encerrar sua conta, pode simplesmente descontinuar o uso do aplicativo ou solicitar a exclusão da conta através das configurações do aplicativo.",
+        "content3": "Todas as disposições dos Termos que por sua natureza devem sobreviver à rescisão sobreviverão à rescisão, incluindo, sem limitação, disposições de propriedade, renúncias de garantia, indenização e limitações de responsabilidade."
+      },
+      "disclaimer": {
+        "title": "Isenção de Responsabilidade",
+        "content1": "Seu uso do aplicativo é por sua conta e risco. O aplicativo é fornecido \"COMO ESTÁ\" e \"CONFORME DISPONÍVEL\". O aplicativo é fornecido sem garantias de qualquer tipo, expressas ou implícitas, incluindo, mas não se limitando a, garantias implícitas de comercialização, adequação a uma finalidade específica, não violação ou desempenho do curso.",
+        "content2": "O Tarevity, suas subsidiárias, afiliadas e licenciadores não garantem que a) o aplicativo funcionará ininterruptamente, seguro ou disponível em qualquer momento ou local específico; b) quaisquer erros ou defeitos serão corrigidos; c) o aplicativo está livre de vírus ou outros componentes prejudiciais; ou d) os resultados do uso do aplicativo atenderão aos seus requisitos."
+      },
+      "liability": {
+        "title": "Limitação de Responsabilidade",
+        "content": "Em nenhum caso o Tarevity, nem seus diretores, funcionários, parceiros, agentes, fornecedores ou afiliadas, serão responsáveis por quaisquer danos indiretos, incidentais, especiais, consequenciais ou punitivos, incluindo, sem limitação, perda de lucros, dados, uso, boa vontade ou outras perdas intangíveis, resultantes de (i) seu acesso ou uso ou incapacidade de acessar ou usar o aplicativo; (ii) qualquer conduta ou conteúdo de terceiros no aplicativo; (iii) qualquer conteúdo obtido do aplicativo; e (iv) acesso não autorizado, uso ou alteração de suas transmissões ou conteúdo, seja com base em garantia, contrato, delito (incluindo negligência) ou qualquer outra teoria legal, quer tenhamos ou não sido informados da possibilidade de tal dano."
+      },
+      "changes": {
+        "title": "Mudanças nos Termos",
+        "content1": "Reservamo-nos o direito, a nosso exclusivo critério, de modificar ou substituir estes Termos a qualquer momento. Forneceremos aviso de mudanças nestes Termos publicando os termos atualizados no aplicativo com a data de \"Última atualização\" revisada adequadamente. O que constitui uma mudança material será determinado a nosso exclusivo critério.",
+        "content2": "Ao continuar acessando ou usando nosso aplicativo após qualquer revisão entrar em vigor, você concorda em ficar vinculado aos termos revisados. Se você não concordar com os novos termos, não está mais autorizado a usar o aplicativo."
+      },
+      "governing": {
+        "title": "Lei Aplicável",
+        "content1": "Estes Termos serão regidos e interpretados de acordo com as leis da Europa, sem levar em consideração suas disposições de conflito de leis.",
+        "content2": "Nossa falha em fazer cumprir qualquer direito ou disposição destes Termos não será considerada uma renúncia a esses direitos. Se qualquer disposição destes Termos for considerada inválida ou inexequível por um tribunal, as disposições restantes destes Termos permanecerão em vigor."
+      },
+      "contact": {
+        "title": "Entre em Contato",
+        "content": "Se você tiver alguma dúvida sobre estes Termos, entre em contato comigo:",
+        "email": "Por e-mail:"
+      }
+    }
+  },
+  "CreateTaskPage": {
+    "metadata": {
+      "title": "Criar Nova Tarefa",
+      "description": "Crie uma nova tarefa no Tarevity. Adicione título, descrição, data de vencimento e prioridade para organizar seu trabalho."
+    },
+    "title": "Criar nova tarefa",
+    "backToDashboard": "Voltar ao painel",
+    "form": {
+      "title": "Título",
+      "titlePlaceholder": "Digite o título da tarefa",
+      "titleRequired": "O título é obrigatório.",
+      "description": "Descrição",
+      "descriptionPlaceholder": "Digite a descrição da tarefa (opcional)",
+      "dueDate": "Data de Vencimento",
+      "selectDueDate": "Selecionar data de vencimento",
+      "pickDate": "Escolher uma data",
+      "priority": "Prioridade",
+      "selectPriority": "Selecionar prioridade",
+      "priorities": {
+        "LOW": "Baixa",
+        "MEDIUM": "Média",
+        "HIGH": "Alta"
+      },
+      "cancel": "Cancelar",
+      "create": "Criar Tarefa",
+      "creating": "Criando...",
+      "cancelAria": "Cancelar e voltar ao painel",
+      "createAria": "Criar nova tarefa",
+      "selectDueDateAria": "Selecionar data de vencimento",
+      "selectPriorityAria": "Selecionar prioridade da tarefa"
+    },
+    "toast": {
+      "success": "Tarefa criada com sucesso!",
+      "error": "Falha ao criar tarefa",
+      "serverError": "Erro interno do servidor. Tente novamente mais tarde."
+    }
+  },
+  "EditTaskPage": {
+    "metadata": {
+      "title": "Editar Tarefa",
+      "description": "Edite sua tarefa no Tarevity. Atualize título, descrição, data de vencimento, prioridade e status."
+    },
+    "title": "Editar tarefa",
+    "backToTask": "Voltar à tarefa",
+    "loading": "Carregando editor de tarefa",
+    "loadingForm": "Carregando formulário de tarefa",
+    "form": {
+      "title": "Título",
+      "titlePlaceholder": "Digite o título da tarefa",
+      "titleRequired": "O título é obrigatório.",
+      "description": "Descrição",
+      "descriptionPlaceholder": "Digite a descrição da tarefa (opcional)",
+      "dueDate": "Data de Vencimento",
+      "selectDueDate": "Selecionar data de vencimento",
+      "pickDate": "Escolher uma data",
+      "priority": "Prioridade",
+      "selectPriority": "Selecionar prioridade",
+      "status": "Status",
+      "selectStatus": "Selecionar status",
+      "priorities": {
+        "LOW": "Baixa",
+        "MEDIUM": "Média",
+        "HIGH": "Alta"
+      },
+      "statuses": {
+        "ACTIVE": "Ativa",
+        "REVIEW": "Revisão",
+        "COMPLETED": "Concluída"
+      },
+      "cancel": "Cancelar",
+      "save": "Salvar Alterações",
+      "saving": "Salvando...",
+      "cancelAria": "Cancelar edição e voltar à visualização da tarefa",
+      "saveAria": "Salvar alterações da tarefa",
+      "selectDueDateAria": "Selecionar data de vencimento",
+      "selectPriorityAria": "Selecionar prioridade da tarefa",
+      "selectStatusAria": "Selecionar status da tarefa"
+    },
+    "toast": {
+      "success": "Tarefa atualizada com sucesso!",
+      "error": "Falha ao atualizar tarefa",
+      "loadError": "Falha ao carregar tarefa",
+      "loadErrorGeneric": "Erro ao carregar tarefa",
+      "serverError": "Erro interno do servidor. Tente novamente mais tarde."
+    }
+  },
+  "TaskPage": {
+    "metadata": {
+      "notFound": {
+        "title": "Tarefa Não Encontrada",
+        "description": "A tarefa solicitada não foi encontrada."
+      },
+      "viewDetails": "Ver detalhes da tarefa: {title}"
+    },
+    "backToDashboard": "Voltar ao painel",
+    "editTask": "Editar tarefa",
+    "created": "Criada:",
+    "priority": "Prioridade",
+    "description": "Descrição",
+    "noDescription": "Nenhuma descrição fornecida.",
+    "review": {
+      "title": "Esta tarefa está atualmente em revisão",
+      "message": "A tarefa foi enviada para revisão. Uma vez aprovada, retornará ao status ativo ou concluído."
+    },
+    "details": "Detalhes",
+    "status": "Status",
+    "lastUpdated": "Última Atualização",
+    "dueDate": "Data de Vencimento",
+    "noDueDate": "Sem data de vencimento",
+    "assignedTo": "Atribuída a"
+  },
+  "CompleteTaskButton": {
+    "buttonText": {
+      "updating": "Atualizando...",
+      "completed": "Concluída",
+      "markComplete": "Marcar como Concluída"
+    },
+    "toast": {
+      "reactivated": "Tarefa reativada!",
+      "completed": "Tarefa marcada como concluída!",
+      "error": "Falha ao atualizar tarefa",
+      "errorGeneric": "Erro ao atualizar tarefa"
+    },
+    "ariaLabel": {
+      "reactivate": "Reativar tarefa {taskId}",
+      "markComplete": "Marcar tarefa {taskId} como concluída"
+    }
+  },
+  "SubmitReviewButton": {
+    "buttonText": {
+      "updating": "Atualizando...",
+      "cancelReview": "Cancelar Revisão",
+      "submitReview": "Enviar para Revisão"
+    },
+    "toast": {
+      "returned": "Tarefa retornou ao status ativo!",
+      "submitted": "Tarefa enviada para revisão!",
+      "error": "Falha ao atualizar tarefa",
+      "errorGeneric": "Erro ao atualizar tarefa"
+    },
+    "ariaLabel": {
+      "cancel": "Cancelar revisão da tarefa {taskId}",
+      "submit": "Enviar tarefa {taskId} para revisão"
+    }
+  },
+  "ProfilePage": {
+    "metadata": {
+      "title": "Perfil",
+      "description": "Gerencie seu perfil pessoal, preferências e configurações da conta no Tarevity."
+    },
+    "title": "Meu Perfil",
+    "edit": "Editar",
+    "form": {
+      "name": "Nome",
+      "namePlaceholder": "Seu nome",
+      "nameMinLength": "O nome deve ter pelo menos 2 caracteres.",
+      "imageSelect": "Selecione uma imagem.",
+      "imageOneOnly": "Selecione apenas uma imagem.",
+      "imageMaxSize": "O tamanho máximo do arquivo é 5MB.",
+      "imageType": "Apenas arquivos de imagem (PNG, JPG, etc.) são permitidos.",
+      "save": "Salvar",
+      "saving": "Salvando...",
+      "cancel": "Cancelar",
+      "removeImage": "Remover imagem",
+      "removingImage": "Removendo imagem..."
+    },
+    "toast": {
+      "noChanges": "Nenhuma alteração detectada.",
+      "success": "Perfil atualizado com sucesso!",
+      "imageRemoved": "Imagem do perfil removida!",
+      "error": "Ocorreu um erro inesperado. Tente novamente.",
+      "errorGeneric": "Ocorreu um erro inesperado."
+    },
+    "statistics": {
+      "title": "Estatísticas de Tarefas",
+      "created": "Tarefas Criadas",
+      "completed": "Tarefas Concluídas",
+      "pending": "Tarefas Pendentes"
+    }
+  },
+  "SettingsPage": {
+    "metadata": {
+      "title": "Configurações",
+      "description": "Gerencie as configurações da sua conta, preferências e configuração do aplicativo no Tarevity."
+    },
+    "title": "Configurações",
+    "tabs": {
+      "appearance": "Aparência",
+      "account": "Conta",
+      "admin": "Admin"
+    },
+    "appearance": {
+      "title": "Aparência",
+      "description": "Personalize a aparência do aplicativo",
+      "theme": "Tema",
+      "light": "Claro",
+      "dark": "Escuro",
+      "system": "Sistema",
+      "themeDescription": "O tema afeta como o Tarevity aparece para você. O tema escuro é ideal para uso noturno e pode reduzir a fadiga ocular. O tema claro oferece melhor visibilidade em ambientes claros. A opção do sistema segue a preferência do seu dispositivo."
+    },
+    "account": {
+      "title": "Conta",
+      "description": "Gerencie as configurações e preferências da sua conta",
+      "basicInfo": "Informações Básicas",
+      "name": "Nome",
+      "email": "E-mail",
+      "createdAt": "Criado em",
+      "management": "Gerenciamento de Conta",
+      "editProfile": "Editar perfil",
+      "deleteAccount": "Excluir minha conta",
+      "deleteDialog": {
+        "title": "Tem certeza absoluta?",
+        "description": "Esta ação <strong>NÃO PODE</strong> ser desfeita. Sua conta e todos os dados associados serão permanentemente excluídos.",
+        "cancel": "Cancelar",
+        "confirm": "Excluir conta",
+        "loading": "Excluindo conta…",
+        "success": "Conta excluída com sucesso",
+        "error": "Falha ao excluir conta: {error}"
+      }
+    },
+    "admin": {
+      "title": "Painel de Administração",
+      "description": "Configurações e controles administrativos",
+      "content": "Conteúdo do Painel de Administração",
+      "loadError": "Erro ao carregar usuários",
+      "table": {
+        "id": "ID",
+        "name": "Nome",
+        "email": "E-mail",
+        "tasks": "Tarefas",
+        "filterEmails": "Filtrar e-mails...",
+        "columns": "Colunas",
+        "noResults": "Nenhum resultado.",
+        "rowsSelected": "linha(s) selecionada(s).",
+        "previous": "Anterior",
+        "next": "Próxima",
+        "openMenu": "Abrir menu",
+        "actions": "Ações",
+        "copyUserId": "Copiar ID do usuário",
+        "copyUserIdSuccess": "ID do usuário copiado para a área de transferência",
+        "viewUser": "Ver usuário",
+        "editUser": "Editar usuário",
+        "deleteUser": "Excluir usuário",
+        "editUserDialog": {
+          "title": "Editar Usuário",
+          "description": "Atualizar informações do usuário",
+          "name": "Nome",
+          "namePlaceholder": "Digite o nome",
+          "email": "E-mail",
+          "emailPlaceholder": "Digite o e-mail",
+          "role": "Função",
+          "rolePlaceholder": "Selecione a função",
+          "roleUser": "Usuário",
+          "roleAdmin": "Administrador",
+          "roleSuperadmin": "Superadministrador",
+          "cancel": "Cancelar",
+          "save": "Salvar",
+          "saving": "Salvando...",
+          "success": "Usuário atualizado com sucesso",
+          "error": "Falha ao atualizar usuário"
+        },
+        "deleteDialog": {
+          "title": "Excluir Usuário",
+          "description": "Tem certeza de que deseja excluir {name}? Esta ação não pode ser desfeita.",
+          "cancel": "Cancelar",
+          "confirm": "Excluir",
+          "deleting": "Excluindo...",
+          "success": "Usuário excluído com sucesso",
+          "error": "Falha ao excluir usuário"
+        },
+        "viewUserDialog": {
+          "title": "Detalhes do Usuário",
+          "description": "Visualize informações detalhadas sobre este usuário",
+          "id": "ID",
+          "name": "Nome",
+          "email": "E-mail",
+          "tasks": "Tarefas",
+          "role": "Função",
+          "noRole": "Sem função",
+          "status": "Status",
+          "banned": "Banido",
+          "active": "Ativo",
+          "createdAt": "Criado em"
+        }
+      }
+    },
+    "navigation": {
+      "ariaLabel": "Navegação de configurações"
+    }
+  },
+  "NotificationsDropdown": {
+    "ariaLabel": "Ver notificações",
+    "title": "Notificações",
+    "header": "Notificações",
+    "refresh": "Atualizar",
+    "refreshAriaLabel": "Atualizar notificações",
+    "refreshTitle": "Atualizar notificações",
+    "empty": "Sem notificações",
+    "menuAriaLabel": "Menu de notificações",
+    "urgency": {
+      "overdue": "Atrasada",
+      "high": "Alta",
+      "medium": "Média"
+    },
+    "messages": {
+      "overdue": "Data de vencimento passou há {days} {days, plural, one {dia} other {dias}}",
+      "dueIn": "Vence em {days} {days, plural, one {dia} other {dias}}",
+      "dueDatePassed": "Data de vencimento passou"
+    },
+    "errors": {
+      "fetchError": "Erro ao buscar notificações"
+    }
+  },
+  "CompleteTaskCheckbox": {
+    "toast": {
+      "loading": "Atualizando tarefa...",
+      "completed": "Tarefa marcada como concluída!",
+      "active": "Tarefa ativa!",
+      "error": "Erro ao atualizar tarefa",
+      "errorGeneric": "Falha ao atualizar tarefa"
+    },
+    "ariaLabel": {
+      "completed": "Tarefa {taskId} está concluída. Clique para marcar como ativa.",
+      "active": "Tarefa {taskId} está ativa. Clique para marcar como concluída."
+    },
+    "title": {
+      "markActive": "Marcar tarefa como ativa",
+      "markCompleted": "Marcar tarefa como concluída"
+    }
+  },
+  "DeleteTaskButton": {
+    "button": {
+      "label": "Excluir tarefa",
+      "ariaLabel": "Excluir tarefa {taskId}",
+      "title": "Excluir tarefa"
+    },
+    "dialog": {
+      "title": "Tem certeza?",
+      "description": "Esta ação não pode ser desfeita. Isso excluirá permanentemente a tarefa.",
+      "cancel": "Cancelar",
+      "cancelAriaLabel": "Cancelar exclusão",
+      "confirm": "Excluir",
+      "confirmAriaLabel": "Confirmar exclusão da tarefa {taskId}",
+      "deleting": "Excluindo..."
+    },
+    "toast": {
+      "success": "Tarefa excluída com sucesso!",
+      "error": "Falha ao excluir tarefa",
+      "errorGeneric": "Erro ao excluir tarefa"
+    }
+  },
+  "CookieBanner": {
+    "message": "Este site usa cookies para melhorar sua experiência.",
+    "learnMore": "Saiba mais",
+    "learnMoreAriaLabel": "Saiba mais sobre nossa política de cookies",
+    "privacyPolicyTitle": "Política de Privacidade",
+    "accept": "Aceitar Cookies",
+    "decline": "Recusar",
+    "ariaLabel": "Banner de consentimento de cookies"
+  },
+  "Footer": {
+    "copyright": "Todos os direitos reservados.",
+    "navigation": {
+      "title": "Navegação",
+      "home": "Início",
+      "dashboard": "Painel",
+      "profile": "Perfil",
+      "settings": "Configurações",
+      "goTo": "Ir para a página {page}"
+    },
+    "legal": {
+      "title": "Legal",
+      "privacy": "Privacidade",
+      "terms": "Termos",
+      "view": "Ver página {page}"
+    },
+    "contact": {
+      "title": "Contato",
+      "email": "E-mail",
+      "emailAriaLabel": "Enviar e-mail para {email}",
+      "contactUs": "Entre em contato por e-mail"
+    },
+    "social": {
+      "title": "Redes Sociais",
+      "ariaLabel": "Links de redes sociais",
+      "github": "GitHub",
+      "githubAriaLabel": "Visitar perfil do GitHub de Esdras Santos (abre em nova aba)",
+      "linkedin": "LinkedIn",
+      "linkedinAriaLabel": "Visitar perfil do LinkedIn de Esdras Santos (abre em nova aba)"
+    },
+    "madeWith": "Feito com",
+    "by": "por",
+    "love": "amor",
+    "authorAriaLabel": "Visitar perfil do GitHub de Esdras (abre em nova aba)",
+    "authorTitle": "Esdras Santos - Desenvolvedor",
+    "homepageAriaLabel": "Ir para a página inicial do Tarevity",
+    "homepageTitle": "Tarevity - Plataforma de Gerenciamento de Tarefas"
+  },
+  "Header": {
+    "dashboardAriaLabel": "Ir para o painel do Tarevity",
+    "dashboardTitle": "Tarevity - Plataforma de Gerenciamento de Tarefas",
+    "mainNavigation": "Navegação principal",
+    "loadingUserActions": "Carregando ações do usuário",
+    "calendar": {
+      "ariaLabel": "Ir para a visualização do calendário",
+      "title": "Ver calendário"
+    },
+    "userMenu": {
+      "ariaLabel": "Menu do usuário para {name}",
+      "title": "Menu da conta de {name}",
+      "menuAriaLabel": "Menu da conta do usuário",
+      "profilePicture": "Foto de perfil de {name}",
+      "avatar": "Avatar de {name}",
+      "avatarAriaLabel": "Avatar para {name}"
+    },
+    "menu": {
+      "profile": {
+        "label": "Perfil",
+        "ariaLabel": "Ir para seu perfil",
+        "title": "Ver e editar seu perfil"
+      },
+      "settings": {
+        "label": "Configurações",
+        "ariaLabel": "Ir para configurações",
+        "title": "Gerenciar configurações da sua conta"
+      },
+      "logout": {
+        "label": "Sair",
+        "ariaLabel": "Sair da sua conta",
+        "title": "Sair"
+      }
+    },
+    "auth": {
+      "login": {
+        "label": "Entrar",
+        "ariaLabel": "Entrar na sua conta",
+        "title": "Entrar"
+      },
+      "register": {
+        "label": "Registrar",
+        "ariaLabel": "Criar uma nova conta",
+        "title": "Registrar-se"
+      }
+    },
+    "toast": {
+      "loggingOut": "Saindo…",
+      "loggedOut": "Saiu com sucesso",
+      "logoutFailed": "Falha ao sair"
+    }
+  },
+  "SearchComponent": {
+    "label": "Buscar tarefas e conteúdo",
+    "placeholder": "Buscar...",
+    "ariaLabel": "Buscar tarefas e conteúdo",
+    "description": "Digite para buscar. Pressione Enter para buscar ou Escape para fechar.",
+    "openSearch": "Abrir busca",
+    "title": "Buscar tarefas e conteúdo"
+  },
+  "NotFoundPage": {
+    "title": "404",
+    "heading": "Página não encontrada",
+    "description": "Desculpe, não conseguimos encontrar a página que você está procurando.",
+    "goHome": "Ir para Início"
+  },
+  "Validation": {
+    "email": {
+      "invalid": "Formato de e-mail inválido"
+    },
+    "password": {
+      "required": "Senha é obrigatória",
+      "minLength": "A senha deve ter pelo menos 8 caracteres",
+      "maxLength": "A senha deve ter menos de 100 caracteres",
+      "confirmRequired": "Por favor, confirme sua senha",
+      "confirmRequiredAlt": "Confirmação de senha é obrigatória",
+      "passwordConfirmationRequired": "Confirmação de senha é obrigatória",
+      "dontMatch": "As senhas não coincidem",
+      "doNotMatch": "As senhas não coincidem",
+      "mustContain": "Deve conter maiúscula, minúscula, número e caractere especial",
+      "mustContainAlt": "A senha deve conter pelo menos uma letra minúscula, uma letra maiúscula e um número"
+    },
+    "name": {
+      "required": "Por favor, insira seu nome",
+      "minLength": "O nome deve ter pelo menos 2 caracteres",
+      "maxLength": "O nome deve ter no máximo 50 caracteres",
+      "invalidFormat": "O nome deve conter apenas letras, espaços, apóstrofos ou hífens",
+      "invalidFormatAlt": "O nome deve conter apenas letras e espaços"
+    },
+    "title": {
+      "required": "O título é obrigatório."
+    },
+    "token": {
+      "required": "Token é obrigatório"
+    },
+    "terms": {
+      "mustAccept": "Você deve aceitar os termos e condições"
+    },
+    "role": {
+      "invalid": "Função inválida"
+    },
+    "image": {
+      "maxSize": "O tamanho máximo do arquivo é {maxSize}MB.",
+      "invalidFormat": "Formato de imagem inválido. Apenas JPG, PNG, WEBP ou GIF."
+    }
+  },
+  "Errors": {
+    "loadingTasks": "Erro ao carregar tarefas",
+    "invalidQueryParams": "Parâmetros de consulta inválidos",
+    "creatingTask": "Erro ao criar tarefa",
+    "updatingTask": "Erro ao atualizar tarefa",
+    "fetchingNotifications": "Erro ao buscar notificações",
+    "fetchingCalendarTasks": "Erro ao buscar tarefas do calendário"
+  },
+  "ServerActions": {
+    "cannotDeleteYourself": "Você não pode excluir a si mesmo",
+    "unauthorized": "Não autorizado.",
+    "unknownError": "Erro desconhecido",
+    "internalServerError": "Erro interno do servidor",
+    "userNotFound": "Usuário não encontrado",
+    "cannotModifyAdmin": "Não é possível modificar usuários administradores",
+    "cannotModifySuperadmin": "Não é possível modificar usuários superadministradores",
+    "cannotSetSuperadmin": "Não é possível definir função de superadministrador",
+    "emailAlreadyExists": "E-mail já existe",
+    "cannotDeleteAdmin": "Não é possível excluir usuários administradores",
+    "cannotDeleteSuperadmin": "Não é possível excluir usuários superadministradores",
+    "updateUser": {
+      "invalidData": "Dados inválidos.",
+      "noNewInformation": "Nenhuma informação nova para atualizar.",
+      "fileSizeExceeded": "O tamanho do arquivo excede o tamanho máximo permitido de 5MB.",
+      "invalidFileType": "Tipo de arquivo inválido. Apenas JPEG, PNG, WEBP e GIF são permitidos.",
+      "invalidFileExtension": "Extensão de arquivo inválida. Apenas .jpg, .jpeg, .png, .webp e .gif são permitidos.",
+      "invalidFilePath": "Caminho de arquivo inválido.",
+      "errorUploadingImage": "Erro ao fazer upload da imagem. Por favor, tente novamente.",
+      "couldNotRetrieveUrl": "Não foi possível recuperar a URL pública da imagem."
+    },
+    "deleteUserImage": {
+      "noProfileImage": "Nenhuma imagem de perfil para remover.",
+      "invalidImageUrlFormat": "Formato de URL de imagem inválido.",
+      "couldNotDeterminePath": "Não foi possível determinar o caminho do arquivo a partir da URL.",
+      "failedToDelete": "Falha ao excluir imagem do armazenamento."
+    },
+    "signUp": {
+      "unexpectedError": "Ocorreu um erro inesperado. Por favor, tente novamente."
+    },
+    "resetPassword": {
+      "tokenInvalidOrExpired": "O token de redefinição é inválido ou expirou. Por favor, solicite uma nova redefinição de senha.",
+      "failedToReset": "Falha ao redefinir senha"
+    },
+    "requestPasswordReset": {
+      "failedToSendEmail": "Falha ao enviar e-mail de redefinição de senha"
+    }
+  },
+  "ApiErrors": {
+    "notAuthenticated": "Não autenticado",
+    "taskNotFound": "Tarefa não encontrada"
+  },
+  "LanguageSelector": {
+    "changeLanguage": "Alterar idioma",
+    "selectLanguage": "Selecionar idioma",
+    "languageSelectionMenu": "Menu de seleção de idioma",
+    "switchTo": "Alternar para {language}"
+  }
+}

@@ -1,0 +1,1009 @@
+{
+  "Layout": {
+    "metadata": {
+      "title": "Tarevity - Task Management Made Simple",
+      "description": "Organize your tasks, set priorities, and never forget important deadlines again. Tarevity is a simple and efficient task management platform to boost your productivity.",
+      "keywords": [
+        "task management",
+        "productivity",
+        "todo list",
+        "task organizer",
+        "deadline tracker",
+        "project management"
+      ],
+      "openGraph": {
+        "title": "Tarevity - Task Management Made Simple",
+        "description": "Organize your tasks, set priorities, and never forget important deadlines again. A simple and efficient way to increase your productivity.",
+        "alt": "Tarevity - Task Management Platform"
+      },
+      "twitter": {
+        "title": "Tarevity - Task Management Made Simple",
+        "description": "Organize your tasks, set priorities, and never forget important deadlines again."
+      }
+    }
+  },
+  "HomePage": {
+    "metadata": {
+      "title": "Tarevity - Task Management Made Simple",
+      "description": "Organize your tasks, set priorities, and never forget important deadlines again. Tarevity is a simple and efficient task management platform to boost your productivity. Free to use with secure authentication.",
+      "keywords": [
+        "task management",
+        "productivity",
+        "todo list",
+        "task organizer",
+        "deadline tracker",
+        "project management",
+        "task planner",
+        "productivity app"
+      ],
+      "openGraph": {
+        "title": "Tarevity - Task Management Made Simple",
+        "description": "Organize your tasks, set priorities, and never forget important deadlines again. A simple and efficient way to increase your productivity.",
+        "alt": "Tarevity - Task Management Platform"
+      },
+      "twitter": {
+        "title": "Tarevity - Task Management Made Simple",
+        "description": "Organize your tasks, set priorities, and never forget important deadlines again."
+      }
+    },
+    "jsonLd": {
+      "description": "Task management platform to organize your tasks, set priorities, and boost productivity",
+      "features": [
+        "Simple task management",
+        "Deadline tracking",
+        "Secure authentication",
+        "Cross-platform access"
+      ],
+      "organizationDescription": "Task management platform to organize your tasks and boost productivity"
+    },
+    "hero": {
+      "title": "Manage your tasks efficiently",
+      "description": "Organize your tasks, set priorities, and never forget important deadlines again. A simple and efficient way to increase your productivity.",
+      "dashboardButton": "Dashboard",
+      "getStartedButton": "Get Started"
+    },
+    "features": {
+      "label": "Features",
+      "title": "Everything you need to stay organized",
+      "items": {
+        "simpleTaskManagement": {
+          "title": "Simple task management",
+          "description": "Add, edit, and mark tasks as completed with ease. Intuitive and user-friendly interface."
+        },
+        "neverMissDeadline": {
+          "title": "Never miss a deadline",
+          "description": "Set due dates for your tasks and stay in control of your commitments."
+        },
+        "secureAndPrivate": {
+          "title": "Secure and private",
+          "description": "Your tasks are stored securely. Login with GitHub and Google for greater convenience."
+        },
+        "accessFromAnywhere": {
+          "title": "Access from anywhere",
+          "description": "Responsive design that works on all devices. Your tasks are always within reach."
+        }
+      }
+    },
+    "cta": {
+      "title": "Ready to get organized?",
+      "titleLine2": "Start using Tarevity today.",
+      "description": "Sign up for free and try all features of Tarevity.",
+      "button": "Start for Free"
+    }
+  },
+  "LoginPage": {
+    "metadata": {
+      "title": "Login",
+      "description": "Sign in to your Tarevity account to access your tasks and manage your productivity."
+    },
+    "form": {
+      "title": "Log in",
+      "description": "Log in to your account to continue",
+      "orContinueWith": "Or continue with",
+      "email": "Email",
+      "emailPlaceholder": "your@email.com",
+      "password": "Password",
+      "passwordPlaceholder": "••••••••",
+      "rememberMe": "Remember me",
+      "forgotPassword": "Forgot your password?",
+      "submit": "Login",
+      "submitting": "Logging in...",
+      "noAccount": "Don't have an account?",
+      "register": "Register",
+      "showPassword": "Show password",
+      "hidePassword": "Hide password",
+      "success": "Login successful! Welcome back!",
+      "error": "Internal Server Error. Try again later."
+    }
+  },
+  "RegisterPage": {
+    "metadata": {
+      "title": "Register",
+      "description": "Create a new account on Tarevity and start organizing your tasks and boosting your productivity."
+    },
+    "form": {
+      "title": "Create Account",
+      "description": "Create your account to get started",
+      "orRegisterWith": "Or register with",
+      "name": "Name",
+      "namePlaceholder": "John Doe",
+      "email": "Email",
+      "emailPlaceholder": "your@email.com",
+      "password": "Password",
+      "passwordPlaceholder": "••••••••",
+      "passwordHelp": "Minimum 8 characters, including uppercase, lowercase and number",
+      "confirmPassword": "Confirm Password",
+      "confirmPasswordPlaceholder": "••••••••",
+      "acceptTerms": "I accept the",
+      "termsOfUse": "Terms of Use",
+      "and": "and",
+      "privacyPolicy": "Privacy Policy",
+      "submit": "Create account",
+      "submitting": "Creating account...",
+      "hasAccount": "Already have an account?",
+      "login": "Log in",
+      "showPassword": "Show password",
+      "hidePassword": "Hide password",
+      "showConfirmPassword": "Show confirm password",
+      "hideConfirmPassword": "Hide confirm password",
+      "success": "User registered successfully!",
+      "error": "Internal Server Error.Try again later."
+    }
+  },
+  "ForgotPasswordPage": {
+    "metadata": {
+      "title": "Forgot Password",
+      "description": "Reset your Tarevity account password. Enter your email to receive a password reset link."
+    },
+    "form": {
+      "title": "Forgot your password?",
+      "description": "Enter your email address and we'll send you a link to reset your password",
+      "email": "Email",
+      "emailPlaceholder": "your@email.com",
+      "submit": "Send reset link",
+      "submitting": "Sending...",
+      "rememberPassword": "Remember your password?",
+      "login": "Login",
+      "success": {
+        "title": "Check your email",
+        "description": "We've sent you a password reset link",
+        "message": "If an account exists with that email, you'll receive a password reset link shortly. Please check your inbox and follow the instructions.",
+        "backToLogin": "Back to Login",
+        "sendAnother": "Send another email"
+      },
+      "error": "Internal Server Error. Try again later."
+    }
+  },
+  "ResetPasswordPage": {
+    "metadata": {
+      "title": "Reset Password",
+      "description": "Reset your Tarevity account password. Enter your new password to complete the reset process."
+    },
+    "form": {
+      "title": "Reset your password",
+      "description": "Enter your new password below",
+      "newPassword": "New Password",
+      "newPasswordPlaceholder": "••••••••",
+      "confirmPassword": "Confirm Password",
+      "confirmPasswordPlaceholder": "••••••••",
+      "submit": "Reset password",
+      "submitting": "Resetting...",
+      "rememberPassword": "Remember your password?",
+      "login": "Login",
+      "showPassword": "Show password",
+      "hidePassword": "Hide password",
+      "success": {
+        "title": "Password reset successful",
+        "description": "Your password has been changed successfully",
+        "message": "Redirecting you to the login page...",
+        "goToLogin": "Go to Login"
+      },
+      "error": {
+        "title": "Invalid reset token",
+        "description": "The reset token is missing or invalid",
+        "message": "Please request a new password reset link.",
+        "requestNew": "Request new reset link",
+        "backToLogin": "Back to Login",
+        "invalidToken": "The reset token is invalid or has expired. Please request a new password reset.",
+        "noToken": "Invalid reset token. Please request a new password reset."
+      },
+      "errorGeneral": "Internal Server Error. Try again later."
+    }
+  },
+  "AuthButtons": {
+    "signInWith": "Sign In with",
+    "signUpWith": "Sign Up with",
+    "loading": "Loading",
+    "google": "Google",
+    "github": "Github",
+    "ariaLabelSignIn": "Sign in with {provider}",
+    "ariaLabelSignUp": "Sign up with {provider}",
+    "titleSignIn": "Sign in using your {provider} account",
+    "titleSignUp": "Sign up using your {provider} account"
+  },
+  "CalendarPage": {
+    "metadata": {
+      "title": "Calendar",
+      "description": "View and manage your tasks in a calendar view on Tarevity. See all your scheduled tasks organized by date."
+    },
+    "backToDashboard": "Back to dashboard",
+    "today": "Today",
+    "moreTasks": "{count} more tasks",
+    "viewTask": "View task: {title}",
+    "tasksOnDate": "{count} tasks on {date}",
+    "tasksForDate": "Tasks for {date}",
+    "underReview": "Under review"
+  },
+  "DashboardPage": {
+    "metadata": {
+      "title": "Dashboard",
+      "description": "Access your personal task management dashboard and control panel on Tarevity."
+    },
+    "title": "Tasks",
+    "createTask": "Create Task",
+    "create": "Create",
+    "filters": {
+      "all": "All",
+      "active": "Active",
+      "completed": "Completed",
+      "review": "Review"
+    },
+    "noTasks": {
+      "title": "No tasks found",
+      "description": "Get started by creating your first task.",
+      "button": "Create New Task"
+    },
+    "task": {
+      "noDescription": "No description provided",
+      "priority": "Priority:",
+      "dueDate": "Due date:"
+    },
+    "pagination": {
+      "previous": "Previous",
+      "next": "Next",
+      "page": "Page {current} of {total}"
+    },
+    "addNewTask": "Add New Task"
+  },
+  "PrivacyPage": {
+    "metadata": {
+      "title": "Privacy Policy",
+      "description": "Read Tarevity's Privacy Policy to understand how we collect, use, and protect your personal information."
+    },
+    "title": "Privacy Policy",
+    "lastUpdated": "Last updated:",
+    "sections": {
+      "commitment": {
+        "title": "Our Commitment to Privacy",
+        "content": "At Tarevity, we take your privacy seriously. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our task management application. Please read this privacy policy carefully. If you do not agree with the terms of this privacy policy, please do not access the application."
+      },
+      "information": {
+        "title": "Information We Collect",
+        "personalData": {
+          "title": "Personal Data",
+          "content": "While using our application, we may ask you to provide us with certain personally identifiable information that can be used to contact or identify you. Personally identifiable information may include, but is not limited to:",
+          "items": [
+            "Email address",
+            "Name",
+            "Profile picture (if provided)",
+            "Usage data and application preferences"
+          ]
+        },
+        "usageData": {
+          "title": "Usage Data",
+          "content": "We may also collect information on how the application is accessed and used (\"Usage Data\"). This Usage Data may include information such as your device's IP address, browser type, browser version, the pages of our application that you visit, the time and date of your visit, the time spent on those pages, unique device identifiers, and other diagnostic data."
+        }
+      },
+      "howWeUse": {
+        "title": "How We Use Your Information",
+        "content": "We use the collected data for various purposes:",
+        "items": [
+          "To provide and maintain our service",
+          "To notify you about changes to our service",
+          "To provide customer support",
+          "To gather analysis or valuable information so that we can improve our service",
+          "To monitor the usage of the service",
+          "To detect, prevent and address technical issues"
+        ]
+      },
+      "cookies": {
+        "title": "Cookies and Tracking Technologies",
+        "content1": "We use cookies and similar tracking technologies to track activity on our application and store certain information. Cookies are files with a small amount of data which may include an anonymous unique identifier. Cookies are sent to your browser from a website and stored on your device.",
+        "content2": "You can instruct your browser to refuse all cookies or to indicate when a cookie is being sent. However, if you do not accept cookies, you may not be able to use some portions of our application.",
+        "examplesTitle": "Examples of Cookies we use:",
+        "items": [
+          {
+            "type": "Session Cookies:",
+            "description": "We use Session Cookies to operate our service."
+          },
+          {
+            "type": "Preference Cookies:",
+            "description": "We use Preference Cookies to remember your preferences and various settings."
+          },
+          {
+            "type": "Security Cookies:",
+            "description": "We use Security Cookies for security purposes."
+          }
+        ]
+      },
+      "security": {
+        "title": "Data Security",
+        "content": "The security of your data is important to us, but remember that no method of transmission over the Internet, or method of electronic storage is 100% secure. While we strive to use commercially acceptable means to protect your Personal Data, we cannot guarantee its absolute security.",
+        "measuresTitle": "Our security measures include:",
+        "items": [
+          "End-to-end encryption for sensitive data",
+          "Regular security audits",
+          "Password breach checking via HIBP API",
+          "Secure HTTP-only cookies",
+          "Strict Content Security Policy (CSP) implementation"
+        ]
+      },
+      "thirdParty": {
+        "title": "Third-Party Authentication Providers",
+        "content1": "Our application allows you to sign in using third-party authentication providers, such as Google and GitHub. When you choose to sign in using one of these services, we may collect personal information that your privacy settings on that service permit us to access.",
+        "content2": "We only use this information for authentication purposes and to create your user profile within our application. We do not share this information with additional third parties without your consent."
+      },
+      "rights": {
+        "title": "Your Data Rights",
+        "content": "Depending on your location, you may have certain rights regarding your personal information, such as:",
+        "items": [
+          "The right to access personal information we hold about you",
+          "The right to request correction of inaccurate data",
+          "The right to request deletion of your data",
+          "The right to withdraw consent",
+          "The right to data portability"
+        ],
+        "contact": "To exercise any of these rights, please contact us using the information provided below."
+      },
+      "changes": {
+        "title": "Changes to This Privacy Policy",
+        "content1": "We may update our Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy on this page and updating the \"Last updated\" date.",
+        "content2": "You are advised to review this Privacy Policy periodically for any changes. Changes to this Privacy Policy are effective when they are posted on this page."
+      },
+      "contact": {
+        "title": "Contact Us",
+        "content": "If you have any questions about this Privacy Policy, please contact me:",
+        "email": "By email:"
+      }
+    }
+  },
+  "TermsPage": {
+    "metadata": {
+      "title": "Terms of Use",
+      "description": "Read Tarevity's Terms of Use to understand the rules and guidelines for using our task management application."
+    },
+    "title": "Terms of Use",
+    "lastUpdated": "Last updated:",
+    "sections": {
+      "agreement": {
+        "title": "Agreement to Terms",
+        "content1": "These Terms of Use constitute a legally binding agreement made between you, whether personally or on behalf of an entity (\"you\") and Tarevity (\"we,\" \"us\" or \"our\"), concerning your access to and use of the Tarevity task management application.",
+        "content2": "By accessing or using the application, you agree to be bound by these Terms of Use. If you disagree with any part of the terms, you may not access the application."
+      },
+      "accounts": {
+        "title": "User Accounts",
+        "content1": "When you create an account with us, you guarantee that you are above the age of 13, and that the information you provide us is accurate, complete, and current at all times. Inaccurate, incomplete, or obsolete information may result in the immediate termination of your account on the application.",
+        "content2": "You are responsible for maintaining the confidentiality of your account and password, including but not limited to the restriction of access to your computer and/or account. You agree to accept responsibility for any and all activities or actions that occur under your account and/or password.",
+        "content3": "You must notify us immediately upon becoming aware of any breach of security or unauthorized use of your account."
+      },
+      "intellectual": {
+        "title": "Intellectual Property",
+        "content1": "The application and its original content, features, and functionality are and will remain the exclusive property of Tarevity and its licensors. The application is protected by copyright, trademark, and other laws of both the United States and foreign countries. Our trademarks and trade dress may not be used in connection with any product or service without the prior written consent of Tarevity.",
+        "content2": "You retain ownership of any intellectual property rights that you hold in the content you create and store on Tarevity. By uploading content to Tarevity, you grant us a worldwide, non-exclusive, royalty-free license to use, reproduce, adapt, publish, translate, and distribute your content in any existing or future media. This license is for the purpose of operating and improving our services only."
+      },
+      "prohibited": {
+        "title": "Prohibited Uses",
+        "content": "You may use our application only for lawful purposes and in accordance with these Terms. You agree not to use the application:",
+        "items": [
+          "In any way that violates any applicable federal, state, local, or international law or regulation.",
+          "For the purpose of exploiting, harming, or attempting to exploit or harm minors in any way.",
+          "To send, knowingly receive, upload, download, use, or re-use any material that does not comply with these Terms.",
+          "To transmit, or procure the sending of, any advertising or promotional material, including any \"junk mail,\" \"chain letter,\" \"spam,\" or any other similar solicitation.",
+          "To impersonate or attempt to impersonate Tarevity, a Tarevity employee, another user, or any other person or entity.",
+          "To engage in any other conduct that restricts or inhibits anyone's use or enjoyment of the application, or which, as determined by us, may harm Tarevity or users of the application, or expose them to liability."
+        ]
+      },
+      "userContent": {
+        "title": "User Content",
+        "content1": "Our application allows you to create, store, and share content such as tasks, descriptions, and other materials (collectively, \"User Content\"). You are solely responsible for your User Content and the consequences of posting or publishing it.",
+        "content2": "By providing User Content, you represent and warrant that:",
+        "items": [
+          "You own or have the necessary licenses, rights, consents, and permissions to use and authorize us to use all intellectual property rights in and to any User Content.",
+          "Your User Content does not violate the privacy rights, publicity rights, copyrights, contractual rights, intellectual property rights, or any other rights of any person or entity.",
+          "Your User Content does not contain any material that solicits personal information from anyone under the age of 18 or exploits people under the age of 18 in a sexual or violent manner.",
+          "Your User Content does not violate any applicable law concerning child pornography, or otherwise intended to protect the health or well-being of minors."
+        ]
+      },
+      "links": {
+        "title": "Links to Other Websites",
+        "content1": "Our application may contain links to third-party websites or services that are not owned or controlled by Tarevity.",
+        "content2": "Tarevity has no control over, and assumes no responsibility for, the content, privacy policies, or practices of any third-party websites or services. You further acknowledge and agree that Tarevity shall not be responsible or liable, directly or indirectly, for any damage or loss caused or alleged to be caused by or in connection with the use of or reliance on any such content, goods, or services available on or through any such websites or services.",
+        "content3": "We strongly advise you to read the terms and conditions and privacy policies of any third-party websites or services that you visit."
+      },
+      "termination": {
+        "title": "Termination",
+        "content1": "We may terminate or suspend your account and bar access to the application immediately, without prior notice or liability, under our sole discretion, for any reason whatsoever and without limitation, including but not limited to a breach of the Terms.",
+        "content2": "If you wish to terminate your account, you may simply discontinue using the application or request account deletion through the application's settings.",
+        "content3": "All provisions of the Terms which by their nature should survive termination shall survive termination, including, without limitation, ownership provisions, warranty disclaimers, indemnity, and limitations of liability."
+      },
+      "disclaimer": {
+        "title": "Disclaimer",
+        "content1": "Your use of the application is at your sole risk. The application is provided on an \"AS IS\" and \"AS AVAILABLE\" basis. The application is provided without warranties of any kind, whether express or implied, including, but not limited to, implied warranties of merchantability, fitness for a particular purpose, non-infringement, or course of performance.",
+        "content2": "Tarevity, its subsidiaries, affiliates, and its licensors do not warrant that a) the application will function uninterrupted, secure, or available at any particular time or location; b) any errors or defects will be corrected; c) the application is free of viruses or other harmful components; or d) the results of using the application will meet your requirements."
+      },
+      "liability": {
+        "title": "Limitation of Liability",
+        "content": "In no event shall Tarevity, nor its directors, employees, partners, agents, suppliers, or affiliates, be liable for any indirect, incidental, special, consequential, or punitive damages, including without limitation, loss of profits, data, use, goodwill, or other intangible losses, resulting from (i) your access to or use of or inability to access or use the application; (ii) any conduct or content of any third party on the application; (iii) any content obtained from the application; and (iv) unauthorized access, use, or alteration of your transmissions or content, whether based on warranty, contract, tort (including negligence), or any other legal theory, whether or not we have been informed of the possibility of such damage."
+      },
+      "changes": {
+        "title": "Changes to Terms",
+        "content1": "We reserve the right, at our sole discretion, to modify or replace these Terms at any time. We will provide notice of changes to these Terms by posting the updated terms on the application with the \"Last updated\" date revised accordingly. What constitutes a material change will be determined at our sole discretion.",
+        "content2": "By continuing to access or use our application after any revisions become effective, you agree to be bound by the revised terms. If you do not agree to the new terms, you are no longer authorized to use the application."
+      },
+      "governing": {
+        "title": "Governing Law",
+        "content1": "These Terms shall be governed and construed in accordance with the laws of Europe, without regard to its conflict of law provisions.",
+        "content2": "Our failure to enforce any right or provision of these Terms will not be considered a waiver of those rights. If any provision of these Terms is held to be invalid or unenforceable by a court, the remaining provisions of these Terms will remain in effect."
+      },
+      "contact": {
+        "title": "Contact Us",
+        "content": "If you have any questions about these Terms, please contact me:",
+        "email": "By email:"
+      }
+    }
+  },
+  "CreateTaskPage": {
+    "metadata": {
+      "title": "Create New Task",
+      "description": "Create a new task on Tarevity. Add title, description, due date, and priority to organize your work."
+    },
+    "title": "Create new task",
+    "backToDashboard": "Back to dashboard",
+    "form": {
+      "title": "Title",
+      "titlePlaceholder": "Enter task title",
+      "titleRequired": "Title is required.",
+      "description": "Description",
+      "descriptionPlaceholder": "Enter task description (optional)",
+      "dueDate": "Due Date",
+      "selectDueDate": "Select due date",
+      "pickDate": "Pick a date",
+      "priority": "Priority",
+      "selectPriority": "Select priority",
+      "priorities": {
+        "LOW": "Low",
+        "MEDIUM": "Medium",
+        "HIGH": "High"
+      },
+      "cancel": "Cancel",
+      "create": "Create Task",
+      "creating": "Creating...",
+      "cancelAria": "Cancel and return to dashboard",
+      "createAria": "Create new task",
+      "selectDueDateAria": "Select due date",
+      "selectPriorityAria": "Select task priority"
+    },
+    "toast": {
+      "success": "Task created successfully!",
+      "error": "Failed to create task",
+      "serverError": "Internal Server Error. Try again later."
+    }
+  },
+  "EditTaskPage": {
+    "metadata": {
+      "title": "Edit Task",
+      "description": "Edit your task on Tarevity. Update title, description, due date, priority, and status."
+    },
+    "title": "Edit task",
+    "backToTask": "Back to task",
+    "loading": "Loading task editor",
+    "loadingForm": "Loading task form",
+    "form": {
+      "title": "Title",
+      "titlePlaceholder": "Enter task title",
+      "titleRequired": "Title is required.",
+      "description": "Description",
+      "descriptionPlaceholder": "Enter task description (optional)",
+      "dueDate": "Due Date",
+      "selectDueDate": "Select due date",
+      "pickDate": "Pick a date",
+      "priority": "Priority",
+      "selectPriority": "Select priority",
+      "status": "Status",
+      "selectStatus": "Select status",
+      "priorities": {
+        "LOW": "Low",
+        "MEDIUM": "Medium",
+        "HIGH": "High"
+      },
+      "statuses": {
+        "ACTIVE": "Active",
+        "REVIEW": "Review",
+        "COMPLETED": "Completed"
+      },
+      "cancel": "Cancel",
+      "save": "Save Changes",
+      "saving": "Saving...",
+      "cancelAria": "Cancel editing and return to task view",
+      "saveAria": "Save task changes",
+      "selectDueDateAria": "Select due date",
+      "selectPriorityAria": "Select task priority",
+      "selectStatusAria": "Select task status"
+    },
+    "toast": {
+      "success": "Task updated successfully!",
+      "error": "Failed to update task",
+      "loadError": "Failed to load task",
+      "loadErrorGeneric": "Error loading task",
+      "serverError": "Internal Server Error. Try again later."
+    }
+  },
+  "TaskPage": {
+    "metadata": {
+      "notFound": {
+        "title": "Task Not Found",
+        "description": "The requested task could not be found."
+      },
+      "viewDetails": "View details for task: {title}"
+    },
+    "backToDashboard": "Back to dashboard",
+    "editTask": "Edit task",
+    "created": "Created:",
+    "priority": "Priority",
+    "description": "Description",
+    "noDescription": "No description provided.",
+    "review": {
+      "title": "This task is currently under review",
+      "message": "The task has been submited for review. Once approved, it will return to active or completed status."
+    },
+    "details": "Details",
+    "status": "Status",
+    "lastUpdated": "Last Updated",
+    "dueDate": "Due Date",
+    "noDueDate": "No due date",
+    "assignedTo": "Assigned to"
+  },
+  "CompleteTaskButton": {
+    "buttonText": {
+      "updating": "Updating...",
+      "completed": "Completed",
+      "markComplete": "Mark as Complete"
+    },
+    "toast": {
+      "reactivated": "Task reactivated!",
+      "completed": "Task marked as completed!",
+      "error": "Failed to update task",
+      "errorGeneric": "Error updating task"
+    },
+    "ariaLabel": {
+      "reactivate": "Reactivate task {taskId}",
+      "markComplete": "Mark task {taskId} as completed"
+    }
+  },
+  "SubmitReviewButton": {
+    "buttonText": {
+      "updating": "Updating...",
+      "cancelReview": "Cancel Review",
+      "submitReview": "Submit for Review"
+    },
+    "toast": {
+      "returned": "Task returned to active status!",
+      "submitted": "Task submitted for review!",
+      "error": "Failed to update task",
+      "errorGeneric": "Error updating task"
+    },
+    "ariaLabel": {
+      "cancel": "Cancel review for task {taskId}",
+      "submit": "Submit task {taskId} for review"
+    }
+  },
+  "ProfilePage": {
+    "metadata": {
+      "title": "Profile",
+      "description": "Manage your personal profile, preferences, and account settings on Tarevity."
+    },
+    "title": "My Profile",
+    "edit": "Edit",
+    "form": {
+      "name": "Name",
+      "namePlaceholder": "Your name",
+      "nameMinLength": "Name must be at least 2 characters.",
+      "imageSelect": "Select an image.",
+      "imageOneOnly": "Select only one image.",
+      "imageMaxSize": "Maximum file size is 5MB.",
+      "imageType": "Only image files (PNG, JPG, etc.) are allowed.",
+      "save": "Save",
+      "saving": "Saving...",
+      "cancel": "Cancel",
+      "removeImage": "Remove image",
+      "removingImage": "Removing image..."
+    },
+    "toast": {
+      "noChanges": "No changes detected.",
+      "success": "Profile updated successfully!",
+      "imageRemoved": "Profile image removed!",
+      "error": "An unexpected error occurred. Please try again.",
+      "errorGeneric": "An unexpected error occurred."
+    },
+    "statistics": {
+      "title": "Task Statistics",
+      "created": "Created Tasks",
+      "completed": "Completed Tasks",
+      "pending": "Pending Tasks"
+    }
+  },
+  "SettingsPage": {
+    "metadata": {
+      "title": "Settings",
+      "description": "Manage your account settings, preferences, and application configuration on Tarevity."
+    },
+    "title": "Settings",
+    "tabs": {
+      "appearance": "Appearance",
+      "account": "Account",
+      "admin": "Admin"
+    },
+    "appearance": {
+      "title": "Appearance",
+      "description": "Customize how the application looks to you",
+      "theme": "Theme",
+      "light": "Light",
+      "dark": "Dark",
+      "system": "System",
+      "themeDescription": "The theme affects how Tarevity appears to you. The dark theme is ideal for night use and can reduce eye strain. The light theme provides better visibility in bright environments. The system option follows your device preference."
+    },
+    "account": {
+      "title": "Account",
+      "description": "Manage your account settings and preferences",
+      "basicInfo": "Basic Information",
+      "name": "Name",
+      "email": "Email",
+      "createdAt": "Created at",
+      "management": "Account Management",
+      "editProfile": "Edit profile",
+      "deleteAccount": "Delete my account",
+      "deleteDialog": {
+        "title": "Are you absolutely sure?",
+        "description": "This action <strong>CANNOT</strong> be undone. Your account and all associated data will be permanently deleted.",
+        "cancel": "Cancel",
+        "confirm": "Delete account",
+        "loading": "Deleting account…",
+        "success": "Account deleted successfully",
+        "error": "Failed to delete account: {error}"
+      }
+    },
+    "admin": {
+      "title": "Admin Panel",
+      "description": "Administrative settings and controls",
+      "content": "Admin Panel Content",
+      "loadError": "Error loading users",
+      "table": {
+        "id": "ID",
+        "name": "Name",
+        "email": "Email",
+        "tasks": "Tasks",
+        "filterEmails": "Filter emails...",
+        "columns": "Columns",
+        "noResults": "No results.",
+        "rowsSelected": "row(s) selected.",
+        "previous": "Previous",
+        "next": "Next",
+        "openMenu": "Open menu",
+        "actions": "Actions",
+        "copyUserId": "Copy user ID",
+        "copyUserIdSuccess": "User ID copied to clipboard",
+        "viewUser": "View user",
+        "editUser": "Edit user",
+        "deleteUser": "Delete user",
+        "editUserDialog": {
+          "title": "Edit User",
+          "description": "Update user information",
+          "name": "Name",
+          "namePlaceholder": "Enter name",
+          "email": "Email",
+          "emailPlaceholder": "Enter email",
+          "role": "Role",
+          "rolePlaceholder": "Select role",
+          "roleUser": "User",
+          "roleAdmin": "Admin",
+          "roleSuperadmin": "Superadmin",
+          "cancel": "Cancel",
+          "save": "Save",
+          "saving": "Saving...",
+          "success": "User updated successfully",
+          "error": "Failed to update user"
+        },
+        "deleteDialog": {
+          "title": "Delete User",
+          "description": "Are you sure you want to delete {name}? This action cannot be undone.",
+          "cancel": "Cancel",
+          "confirm": "Delete",
+          "deleting": "Deleting...",
+          "success": "User deleted successfully",
+          "error": "Failed to delete user"
+        },
+        "viewUserDialog": {
+          "title": "User Details",
+          "description": "View detailed information about this user",
+          "id": "ID",
+          "name": "Name",
+          "email": "Email",
+          "tasks": "Tasks",
+          "role": "Role",
+          "noRole": "No role",
+          "status": "Status",
+          "banned": "Banned",
+          "active": "Active",
+          "createdAt": "Created at"
+        }
+      }
+    },
+    "navigation": {
+      "ariaLabel": "Settings navigation"
+    }
+  },
+  "NotificationsDropdown": {
+    "ariaLabel": "View notifications",
+    "title": "Notifications",
+    "header": "Notifications",
+    "refresh": "Refresh",
+    "refreshAriaLabel": "Refresh notifications",
+    "refreshTitle": "Refresh notifications",
+    "empty": "No notifications",
+    "menuAriaLabel": "Notifications menu",
+    "urgency": {
+      "overdue": "Overdue",
+      "high": "High",
+      "medium": "Medium"
+    },
+    "messages": {
+      "overdue": "Due date passed {days} {days, plural, one {day} other {days}} ago",
+      "dueIn": "Due in {days} {days, plural, one {day} other {days}}",
+      "dueDatePassed": "Due date has passed"
+    },
+    "errors": {
+      "fetchError": "Error fetching notifications"
+    }
+  },
+  "CompleteTaskCheckbox": {
+    "toast": {
+      "loading": "Updating task...",
+      "completed": "Task marked as completed!",
+      "active": "Task active!",
+      "error": "Error updating task",
+      "errorGeneric": "Failed to update task"
+    },
+    "ariaLabel": {
+      "completed": "Task {taskId} is completed. Click to mark as active.",
+      "active": "Task {taskId} is active. Click to mark as completed."
+    },
+    "title": {
+      "markActive": "Mark task as active",
+      "markCompleted": "Mark task as completed"
+    }
+  },
+  "DeleteTaskButton": {
+    "button": {
+      "label": "Delete task",
+      "ariaLabel": "Delete task {taskId}",
+      "title": "Delete task"
+    },
+    "dialog": {
+      "title": "Are you sure?",
+      "description": "This action cannot be undone. This will permanently delete the task.",
+      "cancel": "Cancel",
+      "cancelAriaLabel": "Cancel deletion",
+      "confirm": "Delete",
+      "confirmAriaLabel": "Confirm deletion of task {taskId}",
+      "deleting": "Deleting..."
+    },
+    "toast": {
+      "success": "Task deleted successfully!",
+      "error": "Failed to delete task",
+      "errorGeneric": "Error deleting task"
+    }
+  },
+  "CookieBanner": {
+    "message": "This website uses cookies to improve your experience.",
+    "learnMore": "Learn more",
+    "learnMoreAriaLabel": "Learn more about our cookie policy",
+    "privacyPolicyTitle": "Privacy Policy",
+    "accept": "Accept Cookies",
+    "decline": "Decline",
+    "ariaLabel": "Cookie consent banner"
+  },
+  "Footer": {
+    "copyright": "All rights reserved.",
+    "navigation": {
+      "title": "Navigation",
+      "home": "Home",
+      "dashboard": "Dashboard",
+      "profile": "Profile",
+      "settings": "Settings",
+      "goTo": "Go to {page} page"
+    },
+    "legal": {
+      "title": "Legal",
+      "privacy": "Privacy",
+      "terms": "Terms",
+      "view": "View {page} page"
+    },
+    "contact": {
+      "title": "Contact",
+      "email": "Email",
+      "emailAriaLabel": "Send email to {email}",
+      "contactUs": "Contact us via email"
+    },
+    "social": {
+      "title": "Social Media",
+      "ariaLabel": "Social media links",
+      "github": "GitHub",
+      "githubAriaLabel": "Visit Esdras Santos GitHub profile (opens in new tab)",
+      "linkedin": "LinkedIn",
+      "linkedinAriaLabel": "Visit Esdras Santos LinkedIn profile (opens in new tab)"
+    },
+    "madeWith": "Made with",
+    "by": "by",
+    "love": "love",
+    "authorAriaLabel": "Visit Esdras GitHub profile (opens in new tab)",
+    "authorTitle": "Esdras Santos - Developer",
+    "homepageAriaLabel": "Go to Tarevity homepage",
+    "homepageTitle": "Tarevity - Task Management Platform"
+  },
+  "Header": {
+    "dashboardAriaLabel": "Go to Tarevity dashboard",
+    "dashboardTitle": "Tarevity - Task Management Platform",
+    "mainNavigation": "Main navigation",
+    "loadingUserActions": "Loading user actions",
+    "calendar": {
+      "ariaLabel": "Go to calendar view",
+      "title": "View calendar"
+    },
+    "userMenu": {
+      "ariaLabel": "User menu for {name}",
+      "title": "{name}'s account menu",
+      "menuAriaLabel": "User account menu",
+      "profilePicture": "{name}'s profile picture",
+      "avatar": "{name}'s avatar",
+      "avatarAriaLabel": "Avatar for {name}"
+    },
+    "menu": {
+      "profile": {
+        "label": "Profile",
+        "ariaLabel": "Go to your profile",
+        "title": "View and edit your profile"
+      },
+      "settings": {
+        "label": "Settings",
+        "ariaLabel": "Go to settings",
+        "title": "Manage your account settings"
+      },
+      "logout": {
+        "label": "Log out",
+        "ariaLabel": "Sign out of your account",
+        "title": "Sign out"
+      }
+    },
+    "auth": {
+      "login": {
+        "label": "Login",
+        "ariaLabel": "Sign in to your account",
+        "title": "Sign in"
+      },
+      "register": {
+        "label": "Register",
+        "ariaLabel": "Create a new account",
+        "title": "Sign up"
+      }
+    },
+    "toast": {
+      "loggingOut": "Logging out…",
+      "loggedOut": "Logged out successfully",
+      "logoutFailed": "Logout failed"
+    }
+  },
+  "SearchComponent": {
+    "label": "Search tasks and content",
+    "placeholder": "Search...",
+    "ariaLabel": "Search tasks and content",
+    "description": "Type to search. Press Enter to search or Escape to close.",
+    "openSearch": "Open search",
+    "title": "Search tasks and content"
+  },
+  "NotFoundPage": {
+    "title": "404",
+    "heading": "Page not found",
+    "description": "Sorry, we couldn't find the page you're looking for.",
+    "goHome": "Go Home"
+  },
+  "Validation": {
+    "email": {
+      "invalid": "Invalid email format"
+    },
+    "password": {
+      "required": "Password is required",
+      "minLength": "Password must be at least 8 characters",
+      "maxLength": "Password must be less than 100 characters",
+      "confirmRequired": "Please confirm your password",
+      "confirmRequiredAlt": "Confirm password is required",
+      "passwordConfirmationRequired": "Password confirmation is required",
+      "dontMatch": "Passwords don't match",
+      "doNotMatch": "Passwords do not match",
+      "mustContain": "Must contain uppercase, lowercase, number and special character",
+      "mustContainAlt": "Password must contain at least one lowercase letter, one uppercase letter and one number"
+    },
+    "name": {
+      "required": "Please enter your name",
+      "minLength": "Name must be at least 2 characters",
+      "maxLength": "Name must be at most 50 characters",
+      "invalidFormat": "Name must contain only letters, spaces, apostrophes, or hyphens",
+      "invalidFormatAlt": "Name must contain only letters and spaces"
+    },
+    "title": {
+      "required": "Title is required."
+    },
+    "token": {
+      "required": "Token is required"
+    },
+    "terms": {
+      "mustAccept": "You must accept the terms and conditions"
+    },
+    "role": {
+      "invalid": "Invalid role"
+    },
+    "image": {
+      "maxSize": "Maximum file size is {maxSize}MB.",
+      "invalidFormat": "Invalid image format. Only JPG, PNG, WEBP or GIF."
+    }
+  },
+  "Errors": {
+    "loadingTasks": "Error loading tasks",
+    "invalidQueryParams": "Invalid query parameters",
+    "creatingTask": "Error creating task",
+    "updatingTask": "Error updating task",
+    "fetchingNotifications": "Error fetching notifications",
+    "fetchingCalendarTasks": "Error fetching calendar tasks"
+  },
+  "ServerActions": {
+    "cannotDeleteYourself": "Cannot delete yourself",
+    "unauthorized": "Unauthorized.",
+    "unknownError": "Unknown error",
+    "internalServerError": "Internal Server Error",
+    "updateUser": {
+      "invalidData": "Invalid data.",
+      "noNewInformation": "No new information to update.",
+      "fileSizeExceeded": "File size exceeds maximum allowed size of 5MB.",
+      "invalidFileType": "Invalid file type. Only JPEG, PNG, WEBP, and GIF are allowed.",
+      "invalidFileExtension": "Invalid file extension. Only .jpg, .jpeg, .png, .webp, and .gif are allowed.",
+      "invalidFilePath": "Invalid file path.",
+      "errorUploadingImage": "Error uploading image. Please try again.",
+      "couldNotRetrieveUrl": "Could not retrieve the public URL for the image."
+    },
+    "deleteUserImage": {
+      "noProfileImage": "No profile image to remove.",
+      "invalidImageUrlFormat": "Invalid image URL format.",
+      "couldNotDeterminePath": "Could not determine file path from URL.",
+      "failedToDelete": "Failed to delete image from storage."
+    },
+    "signUp": {
+      "unexpectedError": "An unexpected error occurred. Please try again."
+    },
+    "resetPassword": {
+      "tokenInvalidOrExpired": "The reset token is invalid or has expired. Please request a new password reset.",
+      "failedToReset": "Failed to reset password"
+    },
+    "requestPasswordReset": {
+      "failedToSendEmail": "Failed to send password reset email"
+    }
+  },
+  "ApiErrors": {
+    "notAuthenticated": "Not authenticated",
+    "taskNotFound": "Task not found"
+  },
+  "LanguageSelector": {
+    "changeLanguage": "Change language",
+    "selectLanguage": "Select language",
+    "languageSelectionMenu": "Language selection menu",
+    "switchTo": "Switch to {language}"
+  }
+}

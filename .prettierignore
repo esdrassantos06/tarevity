@@ -1,0 +1,5 @@
+lib/generated
+components/ui
+.next
+node_modules
+.env*

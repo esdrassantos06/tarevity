@@ -1,0 +1,438 @@
+'use client';
+
+import Footer from '@/components/footer';
+import Header from '@/components/header';
+import { Button } from '@/components/ui/button';
+import { useFormatter, useTranslations } from 'next-intl';
+import { Card, CardContent, CardFooter } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
+import { authClient } from '@/lib/auth-client';
+import { Icon } from '@iconify/react';
+import { Link, useRouter } from '@/i18n/navigation';
+import { useEffect, useState } from 'react';
+import type { Task, TaskStatus } from '@/lib/generated/prisma/client';
+import { Skeleton } from '@/components/ui/skeleton';
+import { translatePriority } from '@/utils/text';
+import { DeleteTaskButton } from '@/components/tasks/delete-task-button';
+import { CompleteTaskCheckbox } from '@/components/tasks/complete-task-checkbox';
+import SearchComponent from '@/components/search-component';
+import { TasksDonutChart } from '@/components/tasks/tasks-donut-chart';
+
+type FilterStatus = 'ALL' | keyof typeof TaskStatus;
+
+export default function Dashboard() {
+  const { data: session, isPending } = authClient.useSession();
+  const router = useRouter();
+  const format = useFormatter();
+  const t = useTranslations('DashboardPage');
+  const tForm = useTranslations('EditTaskPage.form');
+  const tErrors = useTranslations('Errors');
+
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [filter, setFilter] = useState<FilterStatus>('ALL');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize] = useState(6);
+  const [pagination, setPagination] = useState<{
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  } | null>(null);
+
+  useEffect(() => {
+    if (!session && !isPending) {
+      router.push('/auth/login');
+    }
+  }, [session, isPending, router]);
+
+  useEffect(() => {
+    async function fetchTasks() {
+      if (!session) return;
+      setLoading(true);
+      try {
+        const params = new URLSearchParams({
+          page: currentPage.toString(),
+          limit: pageSize.toString(),
+        });
+
+        if (searchQuery.trim()) {
+          params.append('search', searchQuery.trim());
+        }
+
+        if (filter !== 'ALL') {
+          params.append('status', filter);
+        }
+
+        const res = await fetch(`/api/tasks?${params.toString()}`);
+        if (!res.ok) throw new Error(tErrors('loadingTasks'));
+        const data = await res.json();
+        setTasks(data.tasks);
+        setPagination(data.pagination);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchTasks();
+  }, [session, currentPage, pageSize, searchQuery, filter, tErrors]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, filter]);
+
+  const handleTaskStatusChange = (taskId: string, newStatus: TaskStatus) => {
+    setTasks((prevTasks) =>
+      prevTasks.map((task) =>
+        task.id === taskId ? { ...task, status: newStatus } : task,
+      ),
+    );
+  };
+
+  const handlePreviousPage = () => {
+    setCurrentPage((prev) => Math.max(1, prev - 1));
+    setTimeout(() => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, 100);
+  };
+
+  const handleNextPage = () => {
+    setCurrentPage((prev) => Math.min(pagination?.totalPages || 1, prev + 1));
+    setTimeout(() => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, 100);
+  };
+
+  return (
+    <>
+      <Header />
+      <main className='flex min-h-screen w-full flex-1 flex-col items-center px-4 py-20 sm:px-6 lg:px-8'>
+        <nav className='flex w-full flex-col items-center justify-center gap-4 py-4 sm:gap-6'>
+          <div className='flex w-full max-w-7xl flex-col items-start justify-between gap-4 sm:flex-row sm:items-center'>
+            <h1 className='text-2xl font-bold sm:text-3xl md:text-4xl'>
+              {t('title')}
+            </h1>
+            <div className='flex w-full items-center justify-center gap-2 sm:w-auto'>
+              <Button
+                asChild
+                className='bg-blue-accent hover:bg-blue-accent/80 flex-1 sm:flex-initial dark:text-white'
+              >
+                <Link href={'/tasks/new'}>
+                  <Icon icon={'material-symbols:add'} className='size-5' />
+                  <span className='hidden sm:inline'>{t('createTask')}</span>
+                  <span className='sm:hidden'>{t('create')}</span>
+                </Link>
+              </Button>
+              <SearchComponent value={searchQuery} onChange={setSearchQuery} />
+            </div>
+          </div>
+          <div className='flex w-full max-w-7xl items-center justify-between overflow-x-auto'>
+            <div className='flex min-w-max items-center justify-center gap-2'>
+              <Button
+                variant='ghost'
+                onClick={() => setFilter('ALL')}
+                className={`cursor-pointer gap-2 text-sm whitespace-nowrap sm:text-base ${
+                  filter === 'ALL'
+                    ? 'bg-blue-100 text-blue-700 hover:bg-blue-200 dark:bg-blue-900/70 dark:text-white dark:hover:bg-blue-800/50'
+                    : 'text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800'
+                }`}
+              >
+                <div className='bg-blue-accent size-2 rounded-full' />
+                {t('filters.all')}
+              </Button>
+
+              <div className='hidden h-8 border-r border-gray-300 sm:block dark:border-slate-700' />
+
+              <Button
+                variant={'ghost'}
+                className={`cursor-pointer gap-2 text-sm whitespace-nowrap sm:text-base ${
+                  filter === 'ACTIVE'
+                    ? 'bg-blue-100 text-blue-600 hover:bg-blue-200 dark:bg-blue-900/20 dark:text-blue-400 dark:hover:bg-blue-900/30'
+                    : 'text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800'
+                }`}
+                onClick={() => setFilter('ACTIVE')}
+              >
+                <div className='size-1 cursor-pointer rounded-full bg-blue-400' />
+                {t('filters.active')}
+              </Button>
+
+              <Button
+                variant={'ghost'}
+                className={`cursor-pointer gap-2 text-sm whitespace-nowrap sm:text-base ${
+                  filter === 'COMPLETED'
+                    ? 'bg-green-100 text-green-700 hover:bg-green-200 dark:bg-green-900/20 dark:text-green-500 dark:hover:bg-green-900/30'
+                    : 'text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800'
+                }`}
+                onClick={() => setFilter('COMPLETED')}
+              >
+                <div className='size-1 cursor-pointer rounded-full bg-green-500' />
+                {t('filters.completed')}
+              </Button>
+
+              <Button
+                variant={'ghost'}
+                className={`cursor-pointer gap-2 text-sm whitespace-nowrap sm:text-base ${
+                  filter === 'REVIEW'
+                    ? 'bg-yellow-100 text-yellow-700 hover:bg-yellow-200 dark:bg-yellow-900/20 dark:text-yellow-500 dark:hover:bg-yellow-900/30'
+                    : 'text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800'
+                }`}
+                onClick={() => setFilter('REVIEW')}
+              >
+                <div className='size-1 cursor-pointer rounded-full bg-yellow-500' />
+                {t('filters.review')}
+              </Button>
+            </div>
+          </div>
+        </nav>
+        <div className='w-full max-w-7xl py-4'>
+          {loading ? (
+            <div className='flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:gap-6'>
+              <div className='flex-shrink-0'>
+                <Skeleton className='size-40 rounded-full' />
+              </div>
+              <div className='flex flex-col gap-3'>
+                {[...Array(4)].map((_, i) => (
+                  <div key={i} className='flex items-center gap-2'>
+                    <Skeleton className='size-4 rounded-full' />
+                    <Skeleton className='h-4 w-24' />
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : tasks.length > 0 && pagination && pagination.total > 0 ? (
+            <TasksDonutChart tasks={tasks} />
+          ) : null}
+        </div>
+        <section className='w-full max-w-7xl py-10 sm:py-16 md:py-20'>
+          {loading ? (
+            <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
+              {[...Array(2)].map((_, i) => (
+                <Card
+                  key={i}
+                  className='flex h-70 flex-col justify-between pb-2 dark:bg-[#1d1929]'
+                >
+                  <CardContent className='flex h-full flex-col justify-between'>
+                    <div className='flex flex-col gap-2'>
+                      <div className='flex items-center gap-2'>
+                        <Skeleton className='size-4 rounded-full' />
+                        <Skeleton className='h-6 w-3/4' />
+                      </div>
+                      <Skeleton className='h-4 w-1/2' />
+                      <Skeleton className='mt-2 h-4 w-full' />
+                      <Skeleton className='mt-2 h-4 w-2/3' />
+                    </div>
+                    <div className='mt-4'>
+                      <Skeleton className='h-3 w-24' />
+                    </div>
+                  </CardContent>
+                  <div>
+                    <Separator />
+                    <CardFooter className='flex items-center justify-end gap-2 pt-2'>
+                      <Skeleton className='h-4 w-6' />
+                      <Skeleton className='h-4 w-6' />
+                    </CardFooter>
+                  </div>
+                </Card>
+              ))}
+            </div>
+          ) : tasks.length === 0 ? (
+            <div className='flex flex-col items-center justify-center gap-4'>
+              <div className='flex size-15 items-center justify-center rounded-full bg-gray-800 p-2'>
+                <Icon
+                  icon={'material-symbols:folder-outline'}
+                  className='size-8 text-gray-400'
+                />
+              </div>
+              <div className='flex flex-col items-center justify-center gap-1'>
+                <h3 className='font-semibold'>{t('noTasks.title')}</h3>
+                <p className='text-sm text-gray-400'>
+                  {t('noTasks.description')}
+                </p>
+              </div>
+              <Button
+                asChild
+                className='bg-blue-accent dark:bg-blue-accent/80 flex items-center dark:text-white'
+              >
+                <Link href={'/tasks/new'}>
+                  <Icon icon={'material-symbols:add'} className='size-5' />
+                  {t('noTasks.button')}
+                </Link>
+              </Button>
+            </div>
+          ) : (
+            <>
+              <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
+                {tasks.map((task) => (
+                  <Card
+                    key={task.id}
+                    className={`flex h-70 flex-col justify-between pb-2 dark:bg-[#1d1929] ${
+                      task.status === 'REVIEW' &&
+                      'border-l-6 border-l-yellow-500'
+                    }`}
+                  >
+                    <CardContent className='flex h-full justify-between'>
+                      <Link
+                        href={`/tasks/${task.id}`}
+                        className='flex h-full flex-col justify-between'
+                      >
+                        <div className='flex flex-col gap-2'>
+                          <div className='flex items-center gap-2'>
+                            <div
+                              className={`size-4 rounded-full ${
+                                task.priority === 'HIGH'
+                                  ? 'bg-red-500'
+                                  : task.priority === 'MEDIUM'
+                                    ? 'bg-yellow-500'
+                                    : 'bg-green-500'
+                              }`}
+                            />
+                            <h2
+                              className={`font-semibold ${
+                                task.status === 'COMPLETED' &&
+                                'text-gray-500 line-through'
+                              }`}
+                            >
+                              {task.title.length > 20
+                                ? `${task.title.slice(0, 20)}...`
+                                : task.title}
+                            </h2>
+                          </div>
+                          <p className='text-sm text-gray-500'>
+                            {task.description
+                              ? `${task.description?.slice(0, 20)} ${
+                                  task.description?.length > 20 ? '...' : ''
+                                }`
+                              : t('task.noDescription')}
+                          </p>
+                        </div>
+                        <div className='flex flex-col gap-2'>
+                          <span className='flex items-center gap-1 text-xs text-gray-500'>
+                            <Icon
+                              icon={'mdi:flag'}
+                              className={`size-4 ${
+                                task.priority === 'HIGH'
+                                  ? 'text-red-500'
+                                  : task.priority === 'MEDIUM'
+                                    ? 'text-yellow-500'
+                                    : 'text-green-500'
+                              }`}
+                            />
+                            {t('task.priority')}{' '}
+                            {translatePriority(task.priority, tForm)}
+                          </span>
+                          {task.dueDate && (
+                            <p className='flex items-center gap-1 text-xs text-gray-500'>
+                              {t('task.dueDate')}{' '}
+                              {format.dateTime(new Date(task.dueDate), {
+                                year: 'numeric',
+                                month: 'short',
+                                day: 'numeric',
+                              })}
+                            </p>
+                          )}
+                        </div>
+                      </Link>
+                      <div className='flex items-start'>
+                        <CompleteTaskCheckbox
+                          taskId={task.id}
+                          currentStatus={task.status}
+                          onStatusChange={handleTaskStatusChange}
+                        />
+                      </div>
+                    </CardContent>
+                    <div>
+                      <Separator />
+                      <CardFooter className='flex items-center justify-end gap-2 pt-2'>
+                        <Link
+                          className='text-blue-accent hover:text-blue-accent/80 flex items-center justify-center gap-2 transition-all duration-300'
+                          href={`/tasks/${task.id}/edit`}
+                        >
+                          <Icon icon={'uil:edit'} className='size-4.5' />
+                        </Link>
+                        <div className='flex items-center'>
+                          <DeleteTaskButton
+                            iconSize='size-4.5'
+                            className='cursor-pointer bg-transparent text-red-500 hover:bg-transparent hover:text-red-500/80'
+                            variant='default'
+                            taskId={task.id}
+                            onDelete={() =>
+                              setTasks((prev) =>
+                                prev.filter((t) => t.id !== task.id),
+                              )
+                            }
+                          />
+                        </div>
+                      </CardFooter>
+                    </div>
+                  </Card>
+                ))}
+
+                {pagination &&
+                pagination.totalPages > 1 &&
+                currentPage === pagination.totalPages ? (
+                  <Card className='hover:border-blue-accent flex h-70 items-center justify-center border-2 border-dashed transition-all duration-300 dark:bg-[#1d1929]'>
+                    <Link
+                      href={`/tasks/new`}
+                      className='flex size-full items-center justify-center'
+                    >
+                      <CardContent className='flex w-full flex-col items-center'>
+                        <Icon
+                          icon={'mdi:plus'}
+                          className='size-5 text-gray-500'
+                        />
+                        <p className='text-sm text-gray-500'>
+                          {t('addNewTask')}
+                        </p>
+                      </CardContent>
+                    </Link>
+                  </Card>
+                ) : null}
+              </div>
+              {pagination && pagination.totalPages > 1 && (
+                <div className='mt-8 flex items-center justify-center'>
+                  <div className='flex items-center gap-2'>
+                    <Button
+                      variant='ghost'
+                      size='sm'
+                      onClick={handlePreviousPage}
+                      disabled={currentPage === 1}
+                    >
+                      <Icon
+                        icon='material-symbols:chevron-left'
+                        className='size-4'
+                      />
+                      {t('pagination.previous')}
+                    </Button>
+                    <div className='flex items-center gap-1 px-4'>
+                      <span className='text-sm text-gray-600 dark:text-gray-400'>
+                        {t('pagination.page', {
+                          current: pagination.page,
+                          total: pagination.totalPages,
+                        })}
+                      </span>
+                    </div>
+                    <Button
+                      variant='ghost'
+                      size='sm'
+                      onClick={handleNextPage}
+                      disabled={currentPage === pagination.totalPages}
+                    >
+                      {t('pagination.next')}
+                      <Icon
+                        icon='material-symbols:chevron-right'
+                        className='size-4'
+                      />
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </>
+          )}
+        </section>
+      </main>
+      <Footer />
+    </>
+  );
+}
