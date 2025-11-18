@@ -18,11 +18,14 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22' 
           cache: 'npm'
 
       - name: Install dependencies
         run: npm ci
+        env:
+          DATABASE_URL: 'postgresql://user:password@localhost:5432/tarevity'
+          DIRECT_URL: 'postgresql://user:password@localhost:5432/tarevity'
 
       - name: Run ESLint
         run: npm run lint
@@ -44,6 +47,9 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL || 'postgresql://user:password@localhost:5432/tarevity' }}
+          DIRECT_URL: ${{ secrets.DIRECT_URL || 'postgresql://user:password@localhost:5432/tarevity' }}
 
       - name: Generate Prisma Client
         run: npx prisma generate
@@ -58,7 +64,6 @@ jobs:
           DIRECT_URL: ${{ secrets.DIRECT_URL || 'postgresql://user:password@localhost:5432/tarevity' }}
           BETTER_AUTH_SECRET: ${{ secrets.BETTER_AUTH_SECRET || 'dummy-secret-for-ci-build-min-32-chars' }}
           BETTER_AUTH_URL: ${{ secrets.BETTER_AUTH_URL || 'http://localhost:3000' }}
-          # Optional variables - dummy values for build
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL || 'https://dummy.supabase.co' }}
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'dummy-anon-key' }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY || 'dummy-service-key' }}
