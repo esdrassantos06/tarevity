@@ -58,6 +58,10 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+  outputFileTracingIncludes: {
+    '/api/**/*': ['./node_modules/.prisma/client/**/*'],
+    '/*': ['./node_modules/.prisma/client/**/*'],
+  },
 };
 
 const withNextIntl = createNextIntlPlugin();
