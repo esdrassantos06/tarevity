@@ -104,9 +104,9 @@ function addSecurityHeaders(response: NextResponse) {
     default-src 'self';
     script-src ${scriptSrc};
     style-src ${styleSrc};
-    img-src 'self' data: blob: https://api.iconify.design https://api.simplesvg.com https://api.unisvg.com ${process.env.NEXT_PUBLIC_SUPABASE_URL || ''};
+    img-src 'self' data: blob: https://api.iconify.design https://lh3.googleusercontent.com https://api.simplesvg.com https://api.unisvg.com ${process.env.NEXT_PUBLIC_SUPABASE_URL || ''};
     font-src 'self';
-    connect-src 'self' https://api.iconify.design https://api.simplesvg.com https://api.unisvg.com ${process.env.NEXT_PUBLIC_SUPABASE_URL || ''};
+    connect-src 'self' https://api.iconify.design https://lh3.googleusercontent.com https://api.simplesvg.com https://api.unisvg.com ${process.env.NEXT_PUBLIC_SUPABASE_URL || ''};
     object-src 'none';
     base-uri 'self';
     form-action 'self';
