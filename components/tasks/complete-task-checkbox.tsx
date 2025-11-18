@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { Checkbox } from '@/components/ui/checkbox';
-import { TaskStatus } from '@/lib/generated/prisma/enums';
+import { TaskStatus } from '@/lib/generated/prisma';
 import { useTranslations } from 'next-intl';
 
 interface CompleteTaskCheckboxProps {
