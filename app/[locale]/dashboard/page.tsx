@@ -554,7 +554,7 @@ export default function Dashboard() {
                       {t('pagination.previous')}
                     </Button>
                     <div className='flex items-center gap-1 px-4'>
-                      <span className='text-sm text-center text-gray-600 dark:text-gray-400'>
+                      <span className='text-center text-sm text-gray-600 dark:text-gray-400'>
                         {t('pagination.page', {
                           current: pagination.page,
                           total: pagination.totalPages,

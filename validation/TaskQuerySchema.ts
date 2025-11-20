@@ -22,14 +22,8 @@ export const taskQuerySchema = z.object({
     .enum(['ALL', 'ACTIVE', 'COMPLETED', 'REVIEW'])
     .optional()
     .default('ALL'),
-  priority: z
-    .enum(['ALL', 'LOW', 'MEDIUM', 'HIGH'])
-    .optional()
-    .default('ALL'),
-  sortBy: z
-    .enum(['createdAt', 'dueDate'])
-    .optional()
-    .default('createdAt'),
+  priority: z.enum(['ALL', 'LOW', 'MEDIUM', 'HIGH']).optional().default('ALL'),
+  sortBy: z.enum(['createdAt', 'dueDate']).optional().default('createdAt'),
   sortOrder: z.enum(['asc', 'desc']).optional().default('desc'),
 });
 

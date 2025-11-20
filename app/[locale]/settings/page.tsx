@@ -331,7 +331,6 @@ export default function Settings() {
                             {tDeleteDialog('title')}
                           </AlertDialogTitle>
 
-                          
                           <AlertDialogHeader>
                             <AlertDialogTitle>
                               {tDeleteDialog('title')}

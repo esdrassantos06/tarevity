@@ -96,7 +96,9 @@ export const DeleteTaskButton = ({
         aria-labelledby='delete-dialog-title'
         aria-describedby='delete-dialog-description'
       >
-        <AlertDialogTitle className='sr-only'>{t('dialog.title')}</AlertDialogTitle>
+        <AlertDialogTitle className='sr-only'>
+          {t('dialog.title')}
+        </AlertDialogTitle>
         <AlertDialogHeader>
           <AlertDialogTitle id='delete-dialog-title'>
             {t('dialog.title')}
