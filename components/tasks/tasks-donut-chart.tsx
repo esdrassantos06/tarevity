@@ -1,13 +1,19 @@
 'use client';
 
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
-import { useMemo } from 'react';
-import type { Task } from '@/lib/generated/prisma/client';
+import { useMemo, useEffect, useState } from 'react';
 import { translateStatus } from '@/utils/text';
 import { useTranslations } from 'next-intl';
 
 interface TasksDonutChartProps {
-  tasks: Task[];
+  userId?: string;
+}
+
+interface TaskStats {
+  active: number;
+  completed: number;
+  review: number;
+  total: number;
 }
 
 const COLORS = {
@@ -17,43 +23,83 @@ const COLORS = {
   TOTAL: '#6b7280',
 };
 
-export function TasksDonutChart({ tasks }: TasksDonutChartProps) {
+export function TasksDonutChart({ userId }: TasksDonutChartProps) {
   const t = useTranslations('EditTaskPage.form');
+  const [stats, setStats] = useState<TaskStats | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchStats() {
+      if (!userId) return;
+      try {
+        const res = await fetch('/api/tasks/stats');
+        if (res.ok) {
+          const data = await res.json();
+          setStats(data);
+        }
+      } catch (error) {
+        console.error('Failed to fetch task stats:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchStats();
+  }, [userId]);
 
   const { chartData, totalCount } = useMemo(() => {
-    const activeCount = tasks.filter((task) => task.status === 'ACTIVE').length;
-
-    const completedCount = tasks.filter(
-      (task) => task.status === 'COMPLETED',
-    ).length;
-
-    const reviewCount = tasks.filter((task) => task.status === 'REVIEW').length;
-
-    const total = tasks.length;
+    if (!stats) {
+      return {
+        chartData: [
+          {
+            name: 'ACTIVE',
+            value: 0,
+            label: translateStatus('ACTIVE', t),
+            color: COLORS.ACTIVE,
+          },
+          {
+            name: 'COMPLETED',
+            value: 0,
+            label: translateStatus('COMPLETED', t),
+            color: COLORS.COMPLETED,
+          },
+          {
+            name: 'REVIEW',
+            value: 0,
+            label: translateStatus('REVIEW', t),
+            color: COLORS.REVIEW,
+          },
+        ],
+        totalCount: 0,
+      };
+    }
 
     const data = [
       {
         name: 'ACTIVE',
-        value: activeCount,
+        value: stats.active,
         label: translateStatus('ACTIVE', t),
         color: COLORS.ACTIVE,
       },
       {
         name: 'COMPLETED',
-        value: completedCount,
+        value: stats.completed,
         label: translateStatus('COMPLETED', t),
         color: COLORS.COMPLETED,
       },
       {
         name: 'REVIEW',
-        value: reviewCount,
+        value: stats.review,
         label: translateStatus('REVIEW', t),
         color: COLORS.REVIEW,
       },
     ];
 
-    return { chartData: data, totalCount: total };
-  }, [tasks, t]);
+    return { chartData: data, totalCount: stats.total };
+  }, [stats, t]);
+
+  if (loading || !stats) {
+    return null;
+  }
 
   return (
     <div className='flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:gap-6'>

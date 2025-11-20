@@ -4,6 +4,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { NotificationUrgency, Notification } from '@/types/Notification';
 import { getLocaleFromRequest } from '@/lib/api-locale';
 import { getTranslations } from 'next-intl/server';
+import { getCached, cacheKeys, CACHE_TTL } from '@/lib/cache';
+import { cache } from 'react';
 
 function calculateUrgency(dueDate: Date): {
   urgency: NotificationUrgency;
@@ -43,6 +45,61 @@ function sortNotifications(a: Notification, b: Notification): number {
   return a.daysUntil - b.daysUntil;
 }
 
+const getNotificationsCached = cache(async (userId: string) => {
+  const cacheKey = cacheKeys.notifications(userId);
+
+  return getCached(
+    cacheKey,
+    async () => {
+      const now = new Date();
+      now.setHours(0, 0, 0, 0);
+
+      const sevenDaysFromNow = new Date(now);
+      sevenDaysFromNow.setDate(sevenDaysFromNow.getDate() + 7);
+
+      const tasks = await prisma.task.findMany({
+        where: {
+          userId,
+          dueDate: {
+            lte: sevenDaysFromNow,
+          },
+          status: {
+            not: 'COMPLETED',
+          },
+        },
+        select: {
+          id: true,
+          title: true,
+          dueDate: true,
+        },
+        orderBy: {
+          dueDate: 'asc',
+        },
+      });
+
+      const notifications: Notification[] = tasks
+        .filter((task) => task.dueDate !== null)
+        .map((task) => {
+          const { urgency, daysUntil } = calculateUrgency(task.dueDate!);
+          return {
+            taskId: task.id,
+            title: task.title,
+            dueDate: task.dueDate!.toISOString(),
+            urgency,
+            daysUntil,
+          };
+        })
+        .filter((notification) => {
+          return notification.daysUntil <= 7;
+        })
+        .sort(sortNotifications);
+
+      return notifications;
+    },
+    CACHE_TTL.SHORT,
+  );
+});
+
 export async function GET(req: NextRequest) {
   const session = await auth.api.getSession({
     headers: req.headers,
@@ -55,48 +112,7 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    const now = new Date();
-    now.setHours(0, 0, 0, 0);
-
-    const sevenDaysFromNow = new Date(now);
-    sevenDaysFromNow.setDate(sevenDaysFromNow.getDate() + 7);
-
-    const tasks = await prisma.task.findMany({
-      where: {
-        userId: session.user.id,
-        dueDate: {
-          lte: sevenDaysFromNow,
-        },
-        status: {
-          not: 'COMPLETED',
-        },
-      },
-      select: {
-        id: true,
-        title: true,
-        dueDate: true,
-      },
-      orderBy: {
-        dueDate: 'asc',
-      },
-    });
-
-    const notifications: Notification[] = tasks
-      .filter((task) => task.dueDate !== null)
-      .map((task) => {
-        const { urgency, daysUntil } = calculateUrgency(task.dueDate!);
-        return {
-          taskId: task.id,
-          title: task.title,
-          dueDate: task.dueDate!.toISOString(),
-          urgency,
-          daysUntil,
-        };
-      })
-      .filter((notification) => {
-        return notification.daysUntil <= 7;
-      })
-      .sort(sortNotifications);
+    const notifications = await getNotificationsCached(session.user.id);
 
     return NextResponse.json({
       notifications,

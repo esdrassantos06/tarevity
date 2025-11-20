@@ -5,6 +5,7 @@ import { taskSchema } from '@/validation/TaskSchema';
 import { z } from 'zod';
 import { getLocaleFromRequest } from '@/lib/api-locale';
 import { getTranslations } from 'next-intl/server';
+import { invalidateCacheKeys, cacheKeys } from '@/lib/cache';
 
 type EditTaskProps = {
   params: Promise<{ id: string }>;
@@ -74,6 +75,12 @@ export async function PATCH(req: NextRequest, { params }: EditTaskProps) {
       },
     });
 
+    await invalidateCacheKeys([
+      cacheKeys.userStats(session.user.id),
+      cacheKeys.notifications(session.user.id),
+      cacheKeys.taskStats(session.user.id),
+    ]);
+
     return NextResponse.json({ task: updated });
   } catch (error) {
     console.error(error);
@@ -115,6 +122,12 @@ export async function DELETE(req: NextRequest, { params }: EditTaskProps) {
   }
 
   await prisma.task.delete({ where: { id } });
+
+  await invalidateCacheKeys([
+    cacheKeys.userStats(session.user.id),
+    cacheKeys.notifications(session.user.id),
+    cacheKeys.taskStats(session.user.id),
+  ]);
 
   return NextResponse.json({ success: true });
 }

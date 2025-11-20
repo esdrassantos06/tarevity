@@ -11,7 +11,6 @@ import { authClient } from '@/lib/auth-client';
 import { Icon } from '@iconify/react';
 import { useRouter } from '@/i18n/navigation';
 import { useEffect, useState, useRef } from 'react';
-import type { Task } from '@/lib/generated/prisma/client';
 import { useTranslations } from 'next-intl';
 
 import { useForm } from 'react-hook-form';
@@ -102,19 +101,18 @@ export default function Profile() {
   useEffect(() => {
     if (!session) return;
 
-    fetch('/api/tasks')
-      .then((res) => res.json())
-      .then((data: { tasks: Task[] }) => {
-        const counts = {
-          created: data.tasks.length,
-          completed: data.tasks.filter((t) => t.status === 'COMPLETED').length,
-          pending: data.tasks.filter((t) => t.status !== 'COMPLETED').length,
-        };
-        setTaskCounts(counts);
-      })
-      .finally(() => {
-        setLoadingTasks(false);
-      });
+    import('@/actions/profile-actions').then(({ getTaskCounts }) => {
+      getTaskCounts()
+        .then((counts) => {
+          setTaskCounts(counts);
+        })
+        .catch((error) => {
+          console.error('Failed to fetch task counts:', error);
+        })
+        .finally(() => {
+          setLoadingTasks(false);
+        });
+    });
   }, [session]);
 
   useEffect(() => {

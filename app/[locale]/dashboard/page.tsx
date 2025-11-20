@@ -3,18 +3,15 @@
 import Footer from '@/components/footer';
 import Header from '@/components/header';
 import { Button } from '@/components/ui/button';
-import { useFormatter, useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
 import { authClient } from '@/lib/auth-client';
 import { Icon } from '@iconify/react';
 import { Link, useRouter } from '@/i18n/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo, useCallback } from 'react';
 import { Task, TaskPriority, TaskStatus } from '@/lib/generated/prisma/client';
 import { Skeleton } from '@/components/ui/skeleton';
-import { translatePriority } from '@/utils/text';
-import { DeleteTaskButton } from '@/components/tasks/delete-task-button';
-import { CompleteTaskCheckbox } from '@/components/tasks/complete-task-checkbox';
+import { TaskCard } from '@/components/tasks/task-card';
 import SearchComponent from '@/components/search-component';
 import { TasksDonutChart } from '@/components/tasks/tasks-donut-chart';
 import {
@@ -29,6 +26,7 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { Separator } from '@/components/ui/separator';
 
 type FilterStatus = 'ALL' | keyof typeof TaskStatus;
 type FilterPriority = 'ALL' | keyof typeof TaskPriority;
@@ -38,9 +36,7 @@ type SortOrder = 'asc' | 'desc';
 export default function Dashboard() {
   const { data: session, isPending } = authClient.useSession();
   const router = useRouter();
-  const format = useFormatter();
   const t = useTranslations('DashboardPage');
-  const tForm = useTranslations('EditTaskPage.form');
   const tErrors = useTranslations('Errors');
 
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -65,32 +61,46 @@ export default function Dashboard() {
     }
   }, [session, isPending, router]);
 
+  const apiUrl = useMemo(() => {
+    if (!session) return null;
+    const params = new URLSearchParams({
+      page: currentPage.toString(),
+      limit: pageSize.toString(),
+    });
+
+    if (searchQuery.trim()) {
+      params.append('search', searchQuery.trim());
+    }
+
+    if (filter !== 'ALL') {
+      params.append('status', filter);
+    }
+
+    if (priorityFilter !== 'ALL') {
+      params.append('priority', priorityFilter);
+    }
+
+    params.append('sortBy', sortBy);
+    params.append('sortOrder', sortOrder);
+
+    return `/api/tasks?${params.toString()}`;
+  }, [
+    session,
+    currentPage,
+    pageSize,
+    searchQuery,
+    filter,
+    priorityFilter,
+    sortBy,
+    sortOrder,
+  ]);
+
   useEffect(() => {
     async function fetchTasks() {
-      if (!session) return;
+      if (!apiUrl || !session) return;
       setLoading(true);
       try {
-        const params = new URLSearchParams({
-          page: currentPage.toString(),
-          limit: pageSize.toString(),
-        });
-
-        if (searchQuery.trim()) {
-          params.append('search', searchQuery.trim());
-        }
-
-        if (filter !== 'ALL') {
-          params.append('status', filter);
-        }
-
-        if (priorityFilter !== 'ALL') {
-          params.append('priority', priorityFilter);
-        }
-
-        params.append('sortBy', sortBy);
-        params.append('sortOrder', sortOrder);
-
-        const res = await fetch(`/api/tasks?${params.toString()}`);
+        const res = await fetch(apiUrl);
         if (!res.ok) throw new Error(tErrors('loadingTasks'));
         const data = await res.json();
         setTasks(data.tasks);
@@ -102,51 +112,44 @@ export default function Dashboard() {
       }
     }
     fetchTasks();
-  }, [
-    session,
-    currentPage,
-    pageSize,
-    searchQuery,
-    filter,
-    priorityFilter,
-    sortBy,
-    sortOrder,
-    tErrors,
-  ]);
+  }, [apiUrl, session, tErrors]);
 
   useEffect(() => {
     setCurrentPage(1);
   }, [searchQuery, filter, priorityFilter, sortBy, sortOrder]);
 
-  const handleTaskStatusChange = (taskId: string, newStatus: TaskStatus) => {
-    setTasks((prevTasks) =>
-      prevTasks.map((task) =>
-        task.id === taskId ? { ...task, status: newStatus } : task,
-      ),
-    );
-  };
+  const handleTaskStatusChange = useCallback(
+    (taskId: string, newStatus: TaskStatus) => {
+      setTasks((prevTasks) =>
+        prevTasks.map((task) =>
+          task.id === taskId ? { ...task, status: newStatus } : task,
+        ),
+      );
+    },
+    [],
+  );
 
-  const handlePreviousPage = () => {
+  const handlePreviousPage = useCallback(() => {
     setCurrentPage((prev) => Math.max(1, prev - 1));
     setTimeout(() => {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }, 100);
-  };
+  }, []);
 
-  const handleNextPage = () => {
+  const handleNextPage = useCallback(() => {
     setCurrentPage((prev) => Math.min(pagination?.totalPages || 1, prev + 1));
     setTimeout(() => {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }, 100);
-  };
+  }, [pagination?.totalPages]);
 
-  const handleResetFilters = () => {
+  const handleResetFilters = useCallback(() => {
     setFilter('ALL');
     setPriorityFilter('ALL');
     setSortBy('createdAt');
     setSortOrder('desc');
     setSearchQuery('');
-  };
+  }, []);
 
   return (
     <>
@@ -349,8 +352,8 @@ export default function Dashboard() {
                 ))}
               </div>
             </div>
-          ) : tasks.length > 0 && pagination && pagination.total > 0 ? (
-            <TasksDonutChart tasks={tasks} />
+          ) : session?.user?.id && !loading && !isPending ? (
+            <TasksDonutChart userId={session.user.id} />
           ) : null}
         </div>
         <section className='w-full max-w-7xl py-10 sm:py-16 md:py-20'>
@@ -413,108 +416,14 @@ export default function Dashboard() {
             <>
               <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
                 {tasks.map((task) => (
-                  <Card
+                  <TaskCard
                     key={task.id}
-                    className={`flex h-70 flex-col justify-between pb-2 dark:bg-[#1d1929] ${
-                      task.status === 'REVIEW' &&
-                      'border-l-6 border-l-yellow-500'
-                    }`}
-                  >
-                    <CardContent className='flex h-full justify-between'>
-                      <Link
-                        href={`/tasks/${task.id}`}
-                        className='flex h-full flex-col justify-between'
-                      >
-                        <div className='flex flex-col gap-2'>
-                          <div className='flex items-center gap-2'>
-                            <div
-                              className={`size-4 rounded-full ${
-                                task.priority === 'HIGH'
-                                  ? 'bg-red-500'
-                                  : task.priority === 'MEDIUM'
-                                    ? 'bg-yellow-500'
-                                    : 'bg-green-500'
-                              }`}
-                            />
-                            <h2
-                              className={`font-semibold ${
-                                task.status === 'COMPLETED' &&
-                                'text-gray-500 line-through'
-                              }`}
-                            >
-                              {task.title.length > 20
-                                ? `${task.title.slice(0, 20)}...`
-                                : task.title}
-                            </h2>
-                          </div>
-                          <p className='text-sm text-gray-500'>
-                            {task.description
-                              ? `${task.description?.slice(0, 20)} ${
-                                  task.description?.length > 20 ? '...' : ''
-                                }`
-                              : t('task.noDescription')}
-                          </p>
-                        </div>
-                        <div className='flex flex-col gap-2'>
-                          <span className='flex items-center gap-1 text-xs text-gray-500'>
-                            <Icon
-                              icon={'mdi:flag'}
-                              className={`size-4 ${
-                                task.priority === 'HIGH'
-                                  ? 'text-red-500'
-                                  : task.priority === 'MEDIUM'
-                                    ? 'text-yellow-500'
-                                    : 'text-green-500'
-                              }`}
-                            />
-                            {t('task.priority')}{' '}
-                            {translatePriority(task.priority, tForm)}
-                          </span>
-                          {task.dueDate && (
-                            <p className='flex items-center gap-1 text-xs text-gray-500'>
-                              {t('task.dueDate')}{' '}
-                              {format.dateTime(new Date(task.dueDate), {
-                                year: 'numeric',
-                                month: 'short',
-                                day: 'numeric',
-                              })}
-                            </p>
-                          )}
-                        </div>
-                      </Link>
-                      <div className='flex items-start'>
-                        <CompleteTaskCheckbox
-                          taskId={task.id}
-                          currentStatus={task.status}
-                          onStatusChange={handleTaskStatusChange}
-                        />
-                      </div>
-                    </CardContent>
-                    <div>
-                      <Separator />
-                      <CardFooter className='flex items-center justify-end gap-2 pt-2'>
-                        <Link
-                          className='text-blue-accent hover:text-blue-accent/80 flex items-center justify-center gap-2 transition-all duration-300'
-                          href={`/tasks/${task.id}/edit`}
-                        >
-                          <Icon icon={'uil:edit'} className='size-4.5' />
-                        </Link>
-                        <div className='flex items-center'>
-                          <DeleteTaskButton
-                            iconSize='size-4.5'
-                            className='cursor-pointer bg-transparent text-red-500 hover:bg-transparent hover:text-red-500/80'
-                            variant='default'
-                            taskId={task.id}
-                            onDelete={() =>
-                              setTasks((prev) =>
-                                prev.filter((t) => t.id !== task.id),
-                              )
-                            }
-                          />
-                        </div>
-                      </CardFooter>
-                    </div>
-                  </Card>
+                    task={task}
+                    onStatusChange={handleTaskStatusChange}
+                    onDelete={(taskId) =>
+                      setTasks((prev) => prev.filter((t) => t.id !== taskId))
+                    }
+                  />
                 ))}
 
                 {pagination &&

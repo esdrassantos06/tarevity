@@ -7,6 +7,12 @@ import { Prisma } from '@/lib/generated/prisma';
 import { TaskPriority, TaskStatus } from '@/lib/generated/prisma/client';
 import { getLocaleFromRequest } from '@/lib/api-locale';
 import { getTranslations } from 'next-intl/server';
+import {
+  invalidateCacheKeys,
+  cacheKeys,
+  getCached,
+  CACHE_TTL,
+} from '@/lib/cache';
 
 export async function GET(req: NextRequest) {
   const session = await auth.api.getSession({
@@ -48,64 +54,92 @@ export async function GET(req: NextRequest) {
   const { page, limit, search, status, priority, sortBy, sortOrder } =
     parseResult.data;
 
-  const where: Prisma.TaskWhereInput = {
-    userId: session.user.id,
-  };
-
-  if (status !== 'ALL') {
-    where.status = {
-      equals: status as TaskStatus,
-    };
-  }
-
-  if (priority !== 'ALL') {
-    where.priority = {
-      equals: priority as TaskPriority,
-    };
-  }
-
-  if (search) {
-    where.OR = [
-      {
-        title: {
-          contains: search,
-          mode: 'insensitive',
-        },
-      },
-      {
-        description: {
-          contains: search,
-          mode: 'insensitive',
-        },
-      },
-    ];
-  }
-
-  const total = await prisma.task.count({ where });
-
-  const skip = (page - 1) * limit;
-  const totalPages = Math.ceil(total / limit);
-
-  const tasks = await prisma.task.findMany({
-    where,
-    orderBy: { [sortBy]: sortOrder },
-    skip,
-    take: limit,
+  const filters = JSON.stringify({
+    status,
+    priority,
+    search,
+    sortBy,
+    sortOrder,
   });
+  const cacheKey = cacheKeys.tasks(session.user.id, page, filters);
 
-  return NextResponse.json({
-    user: {
-      id: session.user.id,
-      name: session.user.name,
+  const result = await getCached(
+    cacheKey,
+    async () => {
+      const where: Prisma.TaskWhereInput = {
+        userId: session.user.id,
+      };
+
+      if (status !== 'ALL') {
+        where.status = {
+          equals: status as TaskStatus,
+        };
+      }
+
+      if (priority !== 'ALL') {
+        where.priority = {
+          equals: priority as TaskPriority,
+        };
+      }
+
+      if (search) {
+        where.OR = [
+          {
+            title: {
+              contains: search,
+              mode: 'insensitive',
+            },
+          },
+          {
+            description: {
+              contains: search,
+              mode: 'insensitive',
+            },
+          },
+        ];
+      }
+
+      const total = await prisma.task.count({ where });
+
+      const skip = (page - 1) * limit;
+      const totalPages = Math.ceil(total / limit);
+
+      const tasks = await prisma.task.findMany({
+        where,
+        orderBy: { [sortBy]: sortOrder },
+        skip,
+        take: limit,
+        select: {
+          id: true,
+          title: true,
+          description: true,
+          status: true,
+          priority: true,
+          dueDate: true,
+          createdAt: true,
+          updatedAt: true,
+          userId: true,
+        },
+      });
+
+      return {
+        user: {
+          id: session.user.id,
+          name: session.user.name,
+        },
+        tasks,
+        pagination: {
+          page,
+          limit,
+          total,
+          totalPages,
+        },
+      };
     },
-    tasks,
-    pagination: {
-      page,
-      limit,
-      total,
-      totalPages,
-    },
-  });
+    CACHE_TTL.MEDIUM,
+  );
+
+  return NextResponse.json(result);
 }
 
 export async function POST(req: NextRequest) {
@@ -132,6 +166,12 @@ export async function POST(req: NextRequest) {
         userId: session.user.id,
       },
     });
+
+    await invalidateCacheKeys([
+      cacheKeys.userStats(session.user.id),
+      cacheKeys.notifications(session.user.id),
+      cacheKeys.taskStats(session.user.id),
+    ]);
 
     return NextResponse.json({ task });
   } catch (error) {

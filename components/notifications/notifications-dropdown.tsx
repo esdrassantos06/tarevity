@@ -13,38 +13,16 @@ import {
 import { authClient } from '@/lib/auth-client';
 import { Icon } from '@iconify/react';
 import { Link } from '@/i18n/navigation';
-import { useEffect, useState, useRef } from 'react';
+import { useState } from 'react';
 import { NotificationUrgency, Notification } from '@/types/Notification';
 
 export function NotificationsDropdown() {
   const { data: session } = authClient.useSession();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [notificationsLoading, setNotificationsLoading] = useState(false);
-  const hasFetchedRef = useRef<string | null>(null);
+
   const format = useFormatter();
   const t = useTranslations('NotificationsDropdown');
-
-  useEffect(() => {
-    const userId = session?.user?.id;
-    if (!userId || hasFetchedRef.current === userId) return;
-
-    const fetchNotifications = async () => {
-      setNotificationsLoading(true);
-      try {
-        const res = await fetch('/api/notifications');
-        if (!res.ok) throw new Error(t('errors.fetchError'));
-        const data = await res.json();
-        setNotifications(data.notifications || []);
-      } catch (error) {
-        console.error(t('errors.fetchError'), error);
-      } finally {
-        setNotificationsLoading(false);
-      }
-    };
-
-    hasFetchedRef.current = userId;
-    fetchNotifications();
-  }, [session?.user?.id, t]);
 
   const fetchNotifications = async () => {
     if (!session) return;
@@ -100,6 +78,11 @@ export function NotificationsDropdown() {
           aria-expanded='false'
           title={t('title')}
           className='relative overflow-visible'
+          onClick={() => {
+            if (notifications.length === 0 && !notificationsLoading) {
+              fetchNotifications();
+            }
+          }}
         >
           <Icon icon='akar-icons:bell' className='size-5' aria-hidden='true' />
           {notifications.length > 0 && (
@@ -177,7 +160,7 @@ export function NotificationsDropdown() {
                 >
                   <Link
                     href={`/tasks/${notification.taskId}`}
-                    className='flex flex-col items-start gap-1 p-3 hover:bg-gray-50 hover:dark:bg-[#1d1915]/50'
+                    className='flex flex-col items-start gap-1 p-3 hover:bg-gray-50 hover:dark:bg-[#1d1915]/80'
                   >
                     <div className='flex w-full min-w-0 items-start justify-between gap-2'>
                       <h3 className='line-clamp-1 min-w-0 flex-1 text-sm font-medium'>
