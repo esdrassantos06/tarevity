@@ -176,7 +176,7 @@ export const getColumns = (
               <Icon icon='lucide:more-horizontal' className='size-4' />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent className='dark:bg-[#1d1929]' align='end'>
+          <DropdownMenuContent sideOffset={4} className='dark:bg-[#1d1929]' align='end'>
             <DropdownMenuLabel>{t('actions')}</DropdownMenuLabel>
             <DropdownMenuItem onClick={() => getUserId(user.id)}>
               {t('copyUserId')}
@@ -272,7 +272,7 @@ export function UsersDataTable({ data }: UsersDataTableProps) {
               <Icon icon='lucide:chevron-down' className='ml-2 size-4' />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent className='dark:bg-[#1d1929]' align='end'>
+          <DropdownMenuContent sideOffset={4} className='dark:bg-[#1d1929]' align='end'>
             {table
               .getAllColumns()
               .filter((column) => column.getCanHide())
@@ -393,6 +393,7 @@ export function UsersDataTable({ data }: UsersDataTableProps) {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
+            <AlertDialogTitle className='sr-only'>{t('deleteDialog.title')}</AlertDialogTitle>
             <AlertDialogTitle>{t('deleteDialog.title')}</AlertDialogTitle>
             <AlertDialogDescription>
               {t('deleteDialog.description', { name: deleteUser?.name || '' })}

@@ -327,6 +327,11 @@ export default function Settings() {
                           </Button>
                         </AlertDialogTrigger>
                         <AlertDialogContent className='dark:bg-[#1d1929]'>
+                          <AlertDialogTitle className='sr-only'>
+                            {tDeleteDialog('title')}
+                          </AlertDialogTitle>
+
+                          
                           <AlertDialogHeader>
                             <AlertDialogTitle>
                               {tDeleteDialog('title')}
