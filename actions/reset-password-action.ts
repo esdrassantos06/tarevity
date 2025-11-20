@@ -1,6 +1,6 @@
 'use server';
 
-import { auth } from '@/lib/auth';
+import { auth, ErrorCode } from '@/lib/auth';
 import { headers } from 'next/headers';
 import { APIError } from 'better-auth/api';
 import { resetPasswordSchema } from '@/validation/ResetPasswordSchema';
@@ -46,7 +46,11 @@ export async function ResetPasswordAction(formData: FormData) {
           error: t('resetPassword.tokenInvalidOrExpired'),
         };
       }
-      return { error: err.message || t('resetPassword.failedToReset') };
+      const errCode = err.body ? (err.body.code as ErrorCode) : 'UNKNOWN';
+      switch (errCode) {
+        default:
+          return { error: err.message || t('resetPassword.failedToReset') };
+      }
     }
     console.error('ResetPassword error:', err);
     return { error: t('internalServerError') };

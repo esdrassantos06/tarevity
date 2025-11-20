@@ -44,6 +44,7 @@ export async function SignUpEmailActions(formData: FormData) {
           return { error: err.message };
       }
     }
+    console.error('SignUp error:', err);
   }
 
   return { error: t('signUp.unexpectedError') };
