@@ -5,6 +5,8 @@ import createMiddleware from 'next-intl/middleware';
 
 const protectedRoutes = ['/profile', '/admin', '/dashboard', '/settings'];
 
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+
 const intlMiddleware = createMiddleware(routing);
 
 export default async function proxy(req: NextRequest) {
@@ -110,9 +112,9 @@ function addSecurityHeaders(response: NextResponse) {
     default-src 'self';
     script-src ${scriptSrc};
     style-src ${styleSrc};
-    img-src 'self' data: blob: https://api.iconify.design https://lh3.googleusercontent.com https://api.simplesvg.com https://api.unisvg.com ${process.env.NEXT_PUBLIC_SUPABASE_URL || ''};
+    img-src 'self' data: blob: https://api.iconify.design https://lh3.googleusercontent.com https://api.simplesvg.com https://api.unisvg.com ${supabaseUrl || ''};
     font-src 'self';
-    connect-src 'self' https://api.iconify.design https://lh3.googleusercontent.com https://api.simplesvg.com https://api.unisvg.com ${process.env.NEXT_PUBLIC_SUPABASE_URL || ''};
+    connect-src 'self' https://api.iconify.design https://lh3.googleusercontent.com https://api.simplesvg.com https://api.unisvg.com ${supabaseUrl || ''};
     object-src 'none';
     base-uri 'self';
     form-action 'self';
