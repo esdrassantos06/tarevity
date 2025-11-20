@@ -40,6 +40,7 @@ export const auth = betterAuth({
         `,
       });
     },
+    resetPasswordTokenExpiresIn: 3600,
   },
   socialProviders: {
     github: {
@@ -64,18 +65,19 @@ export const auth = betterAuth({
   advanced: {
     cookiePrefix: 'tarevity-session',
   },
-  session: {
-    expiresIn: 60 * 60 * 24 * 30,
-    updateAge: 60 * 60 * 24,
-    cookieCache: {
-      enabled: true,
-      maxAge: 2 * 60,
-    },
-  },
   user: {
     deleteUser: {
       enabled: true,
     },
+  },
+  session: {
+    expiresIn: 7 * 24 * 60 * 60,
+    updateAge: 24 * 60 * 60,
+    cookieCache: {
+      enabled: true,
+      maxAge: 5 * 60,
+    },
+    storeSessionInDatabase: true,
   },
   secondaryStorage: {
     get: async (key) => {
@@ -98,6 +100,32 @@ export const auth = betterAuth({
     window: 60,
     max: 100,
     storage: 'secondary-storage',
+    customRules: {
+      '/sign-in/email': {
+        window: 15 * 60, // 15 minutes
+        max: 5,
+      },
+      '/sign-up/email': {
+        window: 15 * 60, // 15 minutes
+        max: 3,
+      },
+      '/forgot-password': {
+        window: 15 * 60, // 15 minutes
+        max: 3,
+      },
+      '/reset-password': {
+        window: 15 * 60, // 15 minutes
+        max: 5,
+      },
+      '/change-password': {
+        window: 15 * 60, // 15 minutes
+        max: 5,
+      },
+      '/verify-email': {
+        window: 15 * 60, // 15 minutes
+        max: 10,
+      },
+    },
   },
 });
 
