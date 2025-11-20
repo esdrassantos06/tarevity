@@ -61,6 +61,9 @@ export const auth = betterAuth({
     }),
     nextCookies(),
   ],
+  advanced: {
+    cookiePrefix: 'tarevity-session',
+  },
   session: {
     expiresIn: 60 * 60 * 24 * 30,
     updateAge: 60 * 60 * 24,

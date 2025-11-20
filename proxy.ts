@@ -23,7 +23,10 @@ export default async function proxy(req: NextRequest) {
       const locale = url.pathname.split('/')[1];
       const pathWithoutLocale = url.pathname.replace(`/${locale}`, '') || '/';
 
-      const sessionCookie = getSessionCookie(req);
+      const sessionCookie = getSessionCookie(req, {
+        cookiePrefix: 'tarevity-session',
+      });
+
       const isLoggedIn = !!sessionCookie;
 
       const isProtectedRoute = protectedRoutes.some(
@@ -55,7 +58,10 @@ export default async function proxy(req: NextRequest) {
     ? pathname.replace(`/${locale}`, '') || '/'
     : pathname;
 
-  const sessionCookie = getSessionCookie(req);
+  const sessionCookie = getSessionCookie(req, {
+    cookiePrefix: 'tarevity-session',
+  });
+
   const isLoggedIn = !!sessionCookie;
 
   const isProtectedRoute = protectedRoutes.some(
