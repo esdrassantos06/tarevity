@@ -246,7 +246,9 @@
       "all": "Todas",
       "active": "Ativas",
       "completed": "Concluídas",
-      "review": "Revisão"
+      "review": "Revisão",
+      "open": "Filtros",
+      "close": "Fechar"
     },
     "noTasks": {
       "title": "Nenhuma tarefa encontrada",
@@ -257,6 +259,19 @@
       "noDescription": "Nenhuma descrição fornecida",
       "priority": "Prioridade:",
       "dueDate": "Data de vencimento:"
+    },
+    "sortBy": "Ordenar por",
+    "sortOptions": {
+      "createdAt": "Data de Criação",
+      "dueDate": "Data de Vencimento"
+    },
+    "reset": "Redefinir",
+    "priority": {
+      "label": "Prioridade",
+      "all": "Todas",
+      "high": "Alta",
+      "medium": "Média",
+      "low": "Baixa"
     },
     "pagination": {
       "previous": "Anterior",

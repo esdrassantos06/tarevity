@@ -246,7 +246,9 @@
       "all": "All",
       "active": "Active",
       "completed": "Completed",
-      "review": "Review"
+      "review": "Review",
+      "open": "Filters",
+      "close": "Close"
     },
     "noTasks": {
       "title": "No tasks found",
@@ -257,6 +259,19 @@
       "noDescription": "No description provided",
       "priority": "Priority:",
       "dueDate": "Due date:"
+    },
+    "sortBy": "Sort by",
+    "sortOptions": {
+      "createdAt": "Created Date",
+      "dueDate": "Due Date"
+    },
+    "reset": "Reset",
+    "priority": {
+      "label": "Priority",
+      "all": "All",
+      "high": "High",
+      "medium": "Medium",
+      "low": "Low"
     },
     "pagination": {
       "previous": "Previous",

@@ -10,15 +10,30 @@ import { authClient } from '@/lib/auth-client';
 import { Icon } from '@iconify/react';
 import { Link, useRouter } from '@/i18n/navigation';
 import { useEffect, useState } from 'react';
-import type { Task, TaskStatus } from '@/lib/generated/prisma/client';
+import { Task, TaskPriority, TaskStatus } from '@/lib/generated/prisma/client';
 import { Skeleton } from '@/components/ui/skeleton';
 import { translatePriority } from '@/utils/text';
 import { DeleteTaskButton } from '@/components/tasks/delete-task-button';
 import { CompleteTaskCheckbox } from '@/components/tasks/complete-task-checkbox';
 import SearchComponent from '@/components/search-component';
 import { TasksDonutChart } from '@/components/tasks/tasks-donut-chart';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 type FilterStatus = 'ALL' | keyof typeof TaskStatus;
+type FilterPriority = 'ALL' | keyof typeof TaskPriority;
+type SortBy = 'createdAt' | 'dueDate';
+type SortOrder = 'asc' | 'desc';
 
 export default function Dashboard() {
   const { data: session, isPending } = authClient.useSession();
@@ -31,6 +46,9 @@ export default function Dashboard() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<FilterStatus>('ALL');
+  const [priorityFilter, setPriorityFilter] = useState<FilterPriority>('ALL');
+  const [sortBy, setSortBy] = useState<SortBy>('createdAt');
+  const [sortOrder, setSortOrder] = useState<SortOrder>('desc');
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize] = useState(6);
@@ -65,6 +83,13 @@ export default function Dashboard() {
           params.append('status', filter);
         }
 
+        if (priorityFilter !== 'ALL') {
+          params.append('priority', priorityFilter);
+        }
+
+        params.append('sortBy', sortBy);
+        params.append('sortOrder', sortOrder);
+
         const res = await fetch(`/api/tasks?${params.toString()}`);
         if (!res.ok) throw new Error(tErrors('loadingTasks'));
         const data = await res.json();
@@ -77,11 +102,21 @@ export default function Dashboard() {
       }
     }
     fetchTasks();
-  }, [session, currentPage, pageSize, searchQuery, filter, tErrors]);
+  }, [
+    session,
+    currentPage,
+    pageSize,
+    searchQuery,
+    filter,
+    priorityFilter,
+    sortBy,
+    sortOrder,
+    tErrors,
+  ]);
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchQuery, filter]);
+  }, [searchQuery, filter, priorityFilter, sortBy, sortOrder]);
 
   const handleTaskStatusChange = (taskId: string, newStatus: TaskStatus) => {
     setTasks((prevTasks) =>
@@ -103,6 +138,14 @@ export default function Dashboard() {
     setTimeout(() => {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }, 100);
+  };
+
+  const handleResetFilters = () => {
+    setFilter('ALL');
+    setPriorityFilter('ALL');
+    setSortBy('createdAt');
+    setSortOrder('desc');
+    setSearchQuery('');
   };
 
   return (
@@ -128,61 +171,166 @@ export default function Dashboard() {
               <SearchComponent value={searchQuery} onChange={setSearchQuery} />
             </div>
           </div>
-          <div className='flex w-full max-w-7xl items-center justify-between overflow-x-auto'>
-            <div className='flex min-w-max items-center justify-center gap-2'>
+          <div className='flex w-full max-w-7xl flex-col gap-3 sm:flex-row sm:items-center sm:justify-between'>
+            <div className='flex min-w-0 flex-1 items-center gap-2 overflow-x-auto pb-2 sm:pb-0'>
               <Button
                 variant='ghost'
                 onClick={() => setFilter('ALL')}
-                className={`cursor-pointer gap-2 text-sm whitespace-nowrap sm:text-base ${
+                className={`shrink-0 cursor-pointer gap-2 text-xs whitespace-nowrap sm:text-sm md:text-base ${
                   filter === 'ALL'
                     ? 'bg-blue-100 text-blue-700 hover:bg-blue-200 dark:bg-blue-900/70 dark:text-white dark:hover:bg-blue-800/50'
                     : 'text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800'
                 }`}
               >
-                <div className='bg-blue-accent size-2 rounded-full' />
+                <div className='bg-blue-accent size-2 shrink-0 rounded-full' />
                 {t('filters.all')}
               </Button>
 
-              <div className='hidden h-8 border-r border-gray-300 sm:block dark:border-slate-700' />
+              <div className='hidden h-6 border-r border-gray-300 sm:block dark:border-slate-700' />
 
               <Button
                 variant={'ghost'}
-                className={`cursor-pointer gap-2 text-sm whitespace-nowrap sm:text-base ${
+                className={`shrink-0 cursor-pointer gap-2 text-xs whitespace-nowrap sm:text-sm md:text-base ${
                   filter === 'ACTIVE'
                     ? 'bg-blue-100 text-blue-600 hover:bg-blue-200 dark:bg-blue-900/20 dark:text-blue-400 dark:hover:bg-blue-900/30'
                     : 'text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800'
                 }`}
                 onClick={() => setFilter('ACTIVE')}
               >
-                <div className='size-1 cursor-pointer rounded-full bg-blue-400' />
+                <div className='size-1 shrink-0 cursor-pointer rounded-full bg-blue-400' />
                 {t('filters.active')}
               </Button>
 
               <Button
                 variant={'ghost'}
-                className={`cursor-pointer gap-2 text-sm whitespace-nowrap sm:text-base ${
+                className={`shrink-0 cursor-pointer gap-2 text-xs whitespace-nowrap sm:text-sm md:text-base ${
                   filter === 'COMPLETED'
                     ? 'bg-green-100 text-green-700 hover:bg-green-200 dark:bg-green-900/20 dark:text-green-500 dark:hover:bg-green-900/30'
                     : 'text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800'
                 }`}
                 onClick={() => setFilter('COMPLETED')}
               >
-                <div className='size-1 cursor-pointer rounded-full bg-green-500' />
+                <div className='size-1 shrink-0 cursor-pointer rounded-full bg-green-500' />
                 {t('filters.completed')}
               </Button>
 
               <Button
                 variant={'ghost'}
-                className={`cursor-pointer gap-2 text-sm whitespace-nowrap sm:text-base ${
+                className={`shrink-0 cursor-pointer gap-2 text-xs whitespace-nowrap sm:text-sm md:text-base ${
                   filter === 'REVIEW'
                     ? 'bg-yellow-100 text-yellow-700 hover:bg-yellow-200 dark:bg-yellow-900/20 dark:text-yellow-500 dark:hover:bg-yellow-900/30'
                     : 'text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800'
                 }`}
                 onClick={() => setFilter('REVIEW')}
               >
-                <div className='size-1 cursor-pointer rounded-full bg-yellow-500' />
+                <div className='size-1 shrink-0 cursor-pointer rounded-full bg-yellow-500' />
                 {t('filters.review')}
               </Button>
+            </div>
+            <div className='flex shrink-0'>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant={'outline'} className='w-full sm:w-auto'>
+                    <Icon
+                      icon={'mdi:filter-outline'}
+                      className='size-4 sm:size-5'
+                    />
+                    <span className='ml-2 sm:ml-0'>{t('filters.open')}</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent
+                  align='end'
+                  sideOffset={4}
+                  className='w-[calc(100vw-2rem)] max-w-[20rem] rounded-md border border-gray-200 bg-white p-4 shadow-lg sm:w-auto dark:border-gray-700 dark:bg-[#1d1929]'
+                >
+                  <div className='flex flex-col gap-4'>
+                    <div className='flex flex-col gap-2'>
+                      <label className='text-sm font-medium text-gray-700 dark:text-gray-300'>
+                        {t('priority.label')}
+                      </label>
+                      <Select
+                        value={priorityFilter}
+                        onValueChange={(value) =>
+                          setPriorityFilter(value as FilterPriority)
+                        }
+                      >
+                        <SelectTrigger className='w-full'>
+                          <SelectValue placeholder={t('priority.label')} />
+                        </SelectTrigger>
+                        <SelectContent className='dark:bg-[#1d1929]'>
+                          <SelectItem value='ALL'>
+                            {t('priority.all')}
+                          </SelectItem>
+                          <SelectItem value='HIGH'>
+                            {t('priority.high')}
+                          </SelectItem>
+                          <SelectItem value='MEDIUM'>
+                            {t('priority.medium')}
+                          </SelectItem>
+                          <SelectItem value='LOW'>
+                            {t('priority.low')}
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className='flex flex-col gap-2'>
+                      <label className='text-sm font-medium text-gray-700 dark:text-gray-300'>
+                        {t('sortBy')}
+                      </label>
+                      <div className='flex gap-2'>
+                        <Select
+                          value={sortBy}
+                          onValueChange={(value) => setSortBy(value as SortBy)}
+                        >
+                          <SelectTrigger className='w-full'>
+                            <SelectValue placeholder={t('sortBy')} />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value='createdAt'>
+                              {t('sortOptions.createdAt')}
+                            </SelectItem>
+                            <SelectItem value='dueDate'>
+                              {t('sortOptions.dueDate')}
+                            </SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <Button
+                          variant='outline'
+                          size='icon'
+                          onClick={() =>
+                            setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')
+                          }
+                          title={
+                            sortOrder === 'asc' ? 'Ascending' : 'Descending'
+                          }
+                        >
+                          <Icon
+                            icon={
+                              sortOrder === 'asc'
+                                ? 'mdi:sort-ascending'
+                                : 'mdi:sort-descending'
+                            }
+                            className='size-4'
+                          />
+                        </Button>
+                      </div>
+                    </div>
+
+                    <Separator />
+
+                    <Button
+                      variant='ghost'
+                      size='sm'
+                      onClick={handleResetFilters}
+                      className='w-full text-red-500 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/20'
+                    >
+                      <Icon icon='mdi:refresh' className='mr-2 size-4' />
+                      {t('reset')}
+                    </Button>
+                  </div>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </div>
         </nav>
@@ -406,7 +554,7 @@ export default function Dashboard() {
                       {t('pagination.previous')}
                     </Button>
                     <div className='flex items-center gap-1 px-4'>
-                      <span className='text-sm text-gray-600 dark:text-gray-400'>
+                      <span className='text-sm text-center text-gray-600 dark:text-gray-400'>
                         {t('pagination.page', {
                           current: pagination.page,
                           total: pagination.totalPages,

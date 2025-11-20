@@ -122,6 +122,12 @@
   body {
     @apply bg-background text-foreground;
   }
+  body[data-scroll-locked] {
+    margin-right: 0 !important;
+    margin-left: 0 !important;
+    overflow: visible !important;
+    position: static !important;
+  }
 }
 
 @layer utilities {

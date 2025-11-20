@@ -4,7 +4,7 @@ import { taskSchema } from '@/validation/TaskSchema';
 import { taskQuerySchema } from '@/validation/TaskQuerySchema';
 import { NextRequest, NextResponse } from 'next/server';
 import { Prisma } from '@/lib/generated/prisma';
-import { TaskStatus } from '@/lib/generated/prisma/client';
+import { TaskPriority, TaskStatus } from '@/lib/generated/prisma/client';
 import { getLocaleFromRequest } from '@/lib/api-locale';
 import { getTranslations } from 'next-intl/server';
 
@@ -26,6 +26,9 @@ export async function GET(req: NextRequest) {
     limit: searchParams.get('limit') || undefined,
     search: searchParams.get('search') || undefined,
     status: searchParams.get('status') || undefined,
+    priority: searchParams.get('priority') || undefined,
+    sortBy: searchParams.get('sortBy') || undefined,
+    sortOrder: searchParams.get('sortOrder') || undefined,
   };
 
   const parseResult = taskQuerySchema.safeParse(queryParams);
@@ -42,7 +45,8 @@ export async function GET(req: NextRequest) {
     );
   }
 
-  const { page, limit, search, status } = parseResult.data;
+  const { page, limit, search, status, priority, sortBy, sortOrder } =
+    parseResult.data;
 
   const where: Prisma.TaskWhereInput = {
     userId: session.user.id,
@@ -51,6 +55,12 @@ export async function GET(req: NextRequest) {
   if (status !== 'ALL') {
     where.status = {
       equals: status as TaskStatus,
+    };
+  }
+
+  if (priority !== 'ALL') {
+    where.priority = {
+      equals: priority as TaskPriority,
     };
   }
 
@@ -78,7 +88,7 @@ export async function GET(req: NextRequest) {
 
   const tasks = await prisma.task.findMany({
     where,
-    orderBy: { createdAt: 'desc' },
+    orderBy: { [sortBy]: sortOrder },
     skip,
     take: limit,
   });

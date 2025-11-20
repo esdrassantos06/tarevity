@@ -246,7 +246,9 @@
       "all": "Todas",
       "active": "Activas",
       "completed": "Completadas",
-      "review": "Revisión"
+      "review": "Revisión",
+      "open": "Filtros",
+      "close": "Cerrar"
     },
     "noTasks": {
       "title": "No se encontraron tareas",
@@ -257,6 +259,19 @@
       "noDescription": "No se proporcionó descripción",
       "priority": "Prioridad:",
       "dueDate": "Fecha de vencimiento:"
+    },
+    "sortBy": "Ordenar por",
+    "sortOptions": {
+      "createdAt": "Fecha de Creación",
+      "dueDate": "Fecha de Vencimiento"
+    },
+    "reset": "Restablecer",
+    "priority": {
+      "label": "Prioridad",
+      "all": "Todas",
+      "high": "Alta",
+      "medium": "Media",
+      "low": "Baja"
     },
     "pagination": {
       "previous": "Anterior",

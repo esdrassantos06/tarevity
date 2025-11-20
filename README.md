@@ -18,7 +18,7 @@ Tarevity is a sophisticated task management application built with Next.js 16, R
 - **Priority Levels** (Low, Medium, High) with visual indicators
 - **Status Workflow** (Active, Review, Completed) for organized task progression
 - **Due Date Management** with date picker integration
-- **Sorting & Filtering** capabilities for better organization
+- **Sorting & Filtering** capabilities with fully translated filter options (All, Active, Completed, Review) and priority filters (All, High, Medium, Low) for better organization
 - **Visual Indicators** showing task priority and status at a glance
 - **Search Functionality** to quickly find tasks by title or description
 - **Calendar View** with interactive calendar showing tasks by due date
@@ -55,7 +55,12 @@ Tarevity is a sophisticated task management application built with Next.js 16, R
 - **Multi-language Support** with next-intl integration
 - **Supported Languages**: English (en), Portuguese (pt), Spanish (es)
 - **Language Selector** in navigation for easy language switching
-- **Localized Content** for all user-facing text and messages
+- **Localized Content** for all user-facing text and messages, including:
+  - Dashboard filters and sorting options
+  - Priority levels and task statuses
+  - Form labels and validation messages
+  - Notifications and toast messages
+  - Admin panel interface
 - **SEO-friendly** URL structure with locale prefixes
 
 ### 🎨 Polished UX/UI
@@ -401,8 +406,8 @@ Tarevity includes comprehensive legal pages for transparency and compliance:
 - [x] Multi-language support (English, Portuguese, Spanish)
 - [x] Admin panel with user management
 - [x] GitHub Actions CI/CD pipeline
+- [x] Advanced filtering and sorting options
 - [ ] Mobile application
-- [ ] Advanced filtering and sorting options
 
 ## 🚀 Deployment
 
