@@ -245,7 +245,6 @@ export default function CalendarPage() {
                 components={{
                   DayButton: CustomDayButton,
                 }}
-                style={{ '--cell-size': '1rem' } as React.CSSProperties}
                 className='w-full'
                 classNames={{
                   caption_label: 'text-xl font-bold mt-10',

@@ -218,7 +218,7 @@ export default function Footer() {
               itemScope
               itemType='https://schema.org/Person'
             >
-              <span itemProp='name'>Esdras</span>
+              Esdras Santos
             </a>
           </p>
         </div>

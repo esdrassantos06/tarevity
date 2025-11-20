@@ -80,7 +80,8 @@ export function LanguageSelector() {
             <DropdownMenuItem
               key={language.code}
               onClick={() => handleLanguageChange(language.code)}
-              className='flex cursor-pointer items-center gap-2 hover:dark:bg-[#1d1915]/50'
+              disabled={isActive}
+              className='flex cursor-pointer items-center gap-2 hover:dark:bg-[#1d1915]/80'
               role='menuitem'
               aria-label={t('switchTo', { language: language.name })}
               aria-current={isActive ? 'true' : 'false'}

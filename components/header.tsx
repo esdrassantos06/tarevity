@@ -157,7 +157,7 @@ export default function Header() {
                 <DropdownMenuItem asChild role='menuitem'>
                   <Link
                     href='/profile'
-                    className='flex items-center gap-2 hover:dark:bg-[#1d1915]/50'
+                    className='flex items-center gap-2 hover:dark:bg-[#1d1915]/80'
                     aria-label={t('menu.profile.ariaLabel')}
                     title={t('menu.profile.title')}
                   >
@@ -172,7 +172,7 @@ export default function Header() {
                 <DropdownMenuItem asChild role='menuitem'>
                   <Link
                     href='/settings'
-                    className='flex items-center gap-2 hover:dark:bg-[#1d1915]/50'
+                    className='flex items-center gap-2 hover:dark:bg-[#1d1915]/80'
                     aria-label={t('menu.settings.ariaLabel')}
                     title={t('menu.settings.title')}
                   >
@@ -187,7 +187,7 @@ export default function Header() {
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                   onSelect={handleSignOut}
-                  className='text-destructive hover:dark:bg-[#1d1915]/50'
+                  className='text-destructive hover:dark:bg-[#1d1915]/80'
                   role='menuitem'
                   aria-label={t('menu.logout.ariaLabel')}
                   title={t('menu.logout.title')}
