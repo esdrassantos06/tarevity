@@ -70,6 +70,33 @@ export async function UpdateUserAction(formData: FormData) {
         };
       }
 
+      const currentImageUrl = session.user.image;
+      if (currentImageUrl) {
+        try {
+          const url = new URL(currentImageUrl);
+          const pathSegments = url.pathname.split('/');
+          const bucketIndex = pathSegments.indexOf(BUCKET_NAME);
+
+          if (bucketIndex !== -1) {
+            const filePath = pathSegments.slice(bucketIndex + 1).join('/');
+            if (filePath) {
+              const { error: deleteError } = await supabase.storage
+                .from(BUCKET_NAME)
+                .remove([filePath]);
+
+              if (
+                deleteError &&
+                deleteError.message !== 'The object was not found'
+              ) {
+                console.error('ErrorDeletingOldUserImage:', deleteError);
+              }
+            }
+          }
+        } catch (urlError) {
+          console.error('ErrorParsingOldImageUrl:', urlError);
+        }
+      }
+
       const originalName = newImageFile.name.replace(/[^a-zA-Z0-9.-]/g, '_');
       const fileExtension = originalName.split('.').pop()?.toLowerCase();
 
