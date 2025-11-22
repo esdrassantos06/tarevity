@@ -645,6 +645,9 @@
       "created": "Created Tasks",
       "completed": "Completed Tasks",
       "pending": "Pending Tasks"
+    },
+    "errors": {
+      "fetchingTaskCounts": "Failed to fetch task counts"
     }
   },
   "SettingsPage": {

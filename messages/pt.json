@@ -645,6 +645,9 @@
       "created": "Tarefas Criadas",
       "completed": "Tarefas Concluídas",
       "pending": "Tarefas Pendentes"
+    },
+    "errors": {
+      "fetchingTaskCounts": "Erro ao obter as estatísticas de tarefas"
     }
   },
   "SettingsPage": {

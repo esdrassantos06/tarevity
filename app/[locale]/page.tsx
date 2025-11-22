@@ -53,8 +53,10 @@ export default async function Home({ params }: Props) {
   const t = await getTranslations('HomePage');
   const tJsonLd = await getTranslations('HomePage.jsonLd');
 
+  const headersList = await headers();
+
   const session = await auth.api.getSession({
-    headers: await headers(),
+    headers: headersList,
   });
 
   const jsonLd = {

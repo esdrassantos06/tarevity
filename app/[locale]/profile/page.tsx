@@ -28,6 +28,7 @@ import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
 import { UpdateUserAction } from '@/actions/update-user-actions';
 import { RemoveUserImageAction } from '@/actions/delete-user-image-action';
+import { getTaskCounts } from '@/actions/profile-actions';
 import { TaskCounts } from '@/types/TaskCount';
 
 type ProfileFormValues = {
@@ -42,6 +43,7 @@ export default function Profile() {
   const tForm = useTranslations('ProfilePage.form');
   const tToast = useTranslations('ProfilePage.toast');
   const tStats = useTranslations('ProfilePage.statistics');
+  const tErrors = useTranslations('ProfilePage.errors');
   const [loadingTasks, setLoadingTasks] = useState(true);
 
   const profileFormSchema = z.object({
@@ -99,21 +101,20 @@ export default function Profile() {
   }, [session, form]);
 
   useEffect(() => {
-    if (!session) return;
+    const fetchTaskCounts = async () => {
+      if (!session) return;
 
-    import('@/actions/profile-actions').then(({ getTaskCounts }) => {
-      getTaskCounts()
-        .then((counts) => {
-          setTaskCounts(counts);
-        })
-        .catch((error) => {
-          console.error('Failed to fetch task counts:', error);
-        })
-        .finally(() => {
-          setLoadingTasks(false);
-        });
-    });
-  }, [session]);
+      try {
+        const counts = await getTaskCounts();
+        setTaskCounts(counts);
+      } catch (error) {
+        console.error(tErrors('fetchingTaskCounts'), error);
+      } finally {
+        setLoadingTasks(false);
+      }
+    };
+    fetchTaskCounts();
+  }, [session, tErrors]);
 
   useEffect(() => {
     if (!session && !isPending) {
