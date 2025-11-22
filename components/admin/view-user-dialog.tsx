@@ -8,7 +8,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import type { AdminUser } from '@/actions/admin-actions';
+import type { AdminUser } from '@/types/Admin';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { useFormatter } from 'next-intl';

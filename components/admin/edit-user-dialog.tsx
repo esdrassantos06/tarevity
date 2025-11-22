@@ -29,7 +29,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import type { AdminUser } from '@/actions/admin-actions';
+import type { AdminUser } from '@/types/Admin';
 import { UpdateUserAdminAction } from '@/actions/admin-actions';
 import { toast } from 'sonner';
 import { createAdminUpdateUserSchema } from '@/validation/schemas';

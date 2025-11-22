@@ -5,7 +5,7 @@ import { Separator } from '@/components/ui/separator';
 export default function DashboardLoading() {
   return (
     <>
-      <div className='w-full max-w-7xl py-4'>
+      <div className='flex min-h-screen w-full max-w-7xl items-center justify-center'>
         <div className='flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:gap-6'>
           <div className='flex-shrink-0'>
             <Skeleton className='size-40 rounded-full' />

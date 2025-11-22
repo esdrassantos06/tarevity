@@ -3,7 +3,8 @@
 import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { UsersDataTable } from './users-data-table';
-import { ListUsersAction, type AdminUser } from '@/actions/admin-actions';
+import { ListUsersAction } from '@/actions/admin-actions';
+import type { AdminUser } from '@/types/Admin';
 import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'sonner';
 

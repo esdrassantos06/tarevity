@@ -34,7 +34,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { useTranslations } from 'next-intl';
-import type { AdminUser } from '@/actions/admin-actions';
+import type { AdminUser } from '@/types/Admin';
 import { toast } from 'sonner';
 import { ViewUserDialog } from './view-user-dialog';
 import { EditUserDialog } from './edit-user-dialog';

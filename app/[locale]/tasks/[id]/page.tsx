@@ -49,8 +49,10 @@ export async function generateMetadata({
   const { id, locale } = await params;
   const t = await getTranslations({ locale, namespace: 'TaskPage.metadata' });
 
+  const headersList = await headers();
+
   const session = await auth.api.getSession({
-    headers: await headers(),
+    headers: headersList,
   });
 
   if (!session) {
@@ -101,8 +103,10 @@ export async function generateMetadata({
 export default async function TaskPage({ params }: TaskPageProps) {
   const { id, locale } = await params;
 
+  const headersList = await headers();
+
   const session = await auth.api.getSession({
-    headers: await headers(),
+    headers: headersList,
   });
 
   if (!session) {
