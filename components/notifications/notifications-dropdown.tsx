@@ -13,7 +13,7 @@ import {
 import { authClient } from '@/lib/auth-client';
 import { Icon } from '@iconify/react';
 import { Link } from '@/i18n/navigation';
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { NotificationUrgency, Notification } from '@/types/Notification';
 
 export function NotificationsDropdown() {
@@ -24,7 +24,7 @@ export function NotificationsDropdown() {
   const format = useFormatter();
   const t = useTranslations('NotificationsDropdown');
 
-  const fetchNotifications = async () => {
+  const fetchNotifications = useCallback(async () => {
     if (!session) return;
 
     setNotificationsLoading(true);
@@ -38,17 +38,20 @@ export function NotificationsDropdown() {
     } finally {
       setNotificationsLoading(false);
     }
-  };
+  }, [session, t]);
+
+  useEffect(() => {
+    fetchNotifications();
+  }, [fetchNotifications]);
 
   const getUrgencyMessage = (notification: Notification): string => {
-    const daysPassed = Math.abs(notification.daysUntil);
+    const days = Math.abs(notification.daysUntil);
     switch (notification.urgency) {
       case 'overdue':
-        return t('messages.overdue', { days: daysPassed });
+        return t('messages.overdue', { days });
       case 'high':
-        return t('messages.dueIn', { days: notification.daysUntil });
       case 'medium':
-        return t('messages.dueIn', { days: notification.daysUntil });
+        return t('messages.dueIn', { days });
       default:
         return t('messages.dueDatePassed');
     }
@@ -78,11 +81,6 @@ export function NotificationsDropdown() {
           aria-expanded='false'
           title={t('title')}
           className='relative overflow-visible'
-          onClick={() => {
-            if (notifications.length === 0 && !notificationsLoading) {
-              fetchNotifications();
-            }
-          }}
         >
           <Icon icon='akar-icons:bell' className='size-5' aria-hidden='true' />
           {notifications.length > 0 && (

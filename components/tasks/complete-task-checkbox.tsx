@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { Checkbox } from '@/components/ui/checkbox';
 import { TaskStatus } from '@/lib/generated/prisma';
@@ -21,30 +21,41 @@ export const CompleteTaskCheckbox = ({
   const [checked, setChecked] = useState(currentStatus === 'COMPLETED');
   const t = useTranslations('CompleteTaskCheckbox');
 
+  useEffect(() => {
+    setChecked(currentStatus === 'COMPLETED');
+  }, [currentStatus]);
+
   const handleToggle = async (nextChecked: boolean) => {
     setIsLoading(true);
+
+    const previousChecked = checked;
+    const previousStatus = checked ? TaskStatus.COMPLETED : TaskStatus.ACTIVE;
     const newStatus = nextChecked ? TaskStatus.COMPLETED : TaskStatus.ACTIVE;
 
-    const promise = fetch(`/api/tasks/${taskId}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ status: newStatus }),
-    }).then(async (response) => {
+    setChecked(nextChecked);
+    onStatusChange?.(taskId, newStatus);
+
+    try {
+      const response = await fetch(`/api/tasks/${taskId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: newStatus }),
+      });
+
       if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.error || t('toast.errorGeneric'));
+        throw new Error(
+          (await response.json()).error || t('toast.errorGeneric'),
+        );
       }
-      setChecked(nextChecked);
-      onStatusChange?.(taskId, newStatus);
-    });
 
-    toast.promise(promise, {
-      loading: t('toast.loading'),
-      success: nextChecked ? t('toast.completed') : t('toast.active'),
-      error: (err) => err.message || t('toast.error'),
-    });
-
-    promise.finally(() => setIsLoading(false));
+      toast.success(nextChecked ? t('toast.completed') : t('toast.active'));
+    } catch (error) {
+      setChecked(previousChecked);
+      onStatusChange?.(taskId, previousStatus);
+      toast.error(error instanceof Error ? error.message : t('toast.error'));
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
