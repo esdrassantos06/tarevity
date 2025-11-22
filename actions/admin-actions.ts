@@ -6,23 +6,7 @@ import { APIError } from 'better-auth/api';
 import { getTranslations } from 'next-intl/server';
 import prisma from '@/lib/prisma';
 import { Prisma } from '@/lib/generated/prisma/client';
-
-export interface AdminUser {
-  id: string;
-  name: string;
-  email: string;
-  tasksCount: number;
-  role?: string | null;
-  banned?: boolean | null;
-  createdAt: Date;
-}
-
-export interface ListUsersResult {
-  users: AdminUser[];
-  total: number;
-  limit?: number;
-  offset?: number;
-}
+import type { ListUsersResult, AdminUser } from '@/types/Admin';
 
 export async function ListUsersAction(
   searchValue?: string,
