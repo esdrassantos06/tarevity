@@ -1,17 +1,19 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import prisma from '@/lib/prisma';
 import { getLocaleFromRequest } from '@/lib/api-locale';
 import { getTranslations } from 'next-intl/server';
 import { getCached, CACHE_TTL, cacheKeys } from '@/lib/cache';
+import { headers } from 'next/headers';
 
-export async function GET(req: NextRequest) {
+export async function GET() {
+  const headersList = await headers();
   const session = await auth.api.getSession({
-    headers: req.headers,
+    headers: headersList,
   });
 
   if (!session) {
-    const locale = getLocaleFromRequest(req);
+    const locale = await getLocaleFromRequest();
     const t = await getTranslations({ locale, namespace: 'ApiErrors' });
     return NextResponse.json({ error: t('notAuthenticated') }, { status: 401 });
   }

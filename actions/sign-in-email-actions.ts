@@ -27,8 +27,9 @@ export async function SignInEmailActions(formData: FormData) {
   const { email, password, rememberMe } = parsed.data;
 
   try {
+    const headersList = await headers();
     await auth.api.signInEmail({
-      headers: await headers(),
+      headers: headersList,
       body: {
         email,
         password,

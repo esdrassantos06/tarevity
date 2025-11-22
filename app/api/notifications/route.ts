@@ -1,11 +1,12 @@
 import { auth } from '@/lib/auth';
 import prisma from '@/lib/prisma';
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { NotificationUrgency, Notification } from '@/types/Notification';
 import { getLocaleFromRequest } from '@/lib/api-locale';
 import { getTranslations } from 'next-intl/server';
 import { getCached, cacheKeys, CACHE_TTL } from '@/lib/cache';
 import { cache } from 'react';
+import { headers } from 'next/headers';
 
 function calculateUrgency(dueDate: Date): {
   urgency: NotificationUrgency;
@@ -100,13 +101,14 @@ const getNotificationsCached = cache(async (userId: string) => {
   );
 });
 
-export async function GET(req: NextRequest) {
+export async function GET() {
+  const headersList = await headers();
   const session = await auth.api.getSession({
-    headers: req.headers,
+    headers: headersList,
   });
 
   if (!session) {
-    const locale = getLocaleFromRequest(req);
+    const locale = await getLocaleFromRequest();
     const t = await getTranslations({ locale, namespace: 'ApiErrors' });
     return NextResponse.json({ error: t('notAuthenticated') }, { status: 401 });
   }
@@ -120,7 +122,7 @@ export async function GET(req: NextRequest) {
     });
   } catch (error) {
     console.error('Error fetching notifications:', error);
-    const locale = getLocaleFromRequest(req);
+    const locale = await getLocaleFromRequest();
     const t = await getTranslations({ locale, namespace: 'Errors' });
     return NextResponse.json(
       { error: t('fetchingNotifications') },

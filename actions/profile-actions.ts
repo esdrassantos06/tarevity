@@ -5,14 +5,18 @@ import prisma from '@/lib/prisma';
 import { headers } from 'next/headers';
 import { cache } from 'react';
 import { getCached, cacheKeys, CACHE_TTL } from '@/lib/cache';
+import { getTranslations } from 'next-intl/server';
 
 export const getTaskCounts = cache(async () => {
+  const headersList = await headers();
+  const t = await getTranslations('ServerActions');
+
   const session = await auth.api.getSession({
-    headers: await headers(),
+    headers: headersList,
   });
 
   if (!session) {
-    throw new Error('Not authenticated');
+    throw new Error(t('unauthorized'));
   }
 
   const cacheKey = cacheKeys.userStats(session.user.id);

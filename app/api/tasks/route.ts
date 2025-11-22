@@ -13,14 +13,16 @@ import {
   getCached,
   CACHE_TTL,
 } from '@/lib/cache';
+import { headers } from 'next/headers';
 
 export async function GET(req: NextRequest) {
+  const headersList = await headers();
   const session = await auth.api.getSession({
-    headers: req.headers,
+    headers: headersList,
   });
 
   if (!session) {
-    const locale = getLocaleFromRequest(req);
+    const locale = await getLocaleFromRequest();
     const t = await getTranslations({ locale, namespace: 'ApiErrors' });
     return NextResponse.json({ error: t('notAuthenticated') }, { status: 401 });
   }
@@ -40,7 +42,7 @@ export async function GET(req: NextRequest) {
   const parseResult = taskQuerySchema.safeParse(queryParams);
 
   if (!parseResult.success) {
-    const locale = getLocaleFromRequest(req);
+    const locale = await getLocaleFromRequest();
     const t = await getTranslations({ locale, namespace: 'Errors' });
     return NextResponse.json(
       {
@@ -143,12 +145,13 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  const headersList = await headers();
   const session = await auth.api.getSession({
-    headers: req.headers,
+    headers: headersList,
   });
 
   if (!session) {
-    const locale = getLocaleFromRequest(req);
+    const locale = await getLocaleFromRequest();
     const t = await getTranslations({ locale, namespace: 'ApiErrors' });
     return NextResponse.json({ error: t('notAuthenticated') }, { status: 401 });
   }
@@ -176,7 +179,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ task });
   } catch (error) {
     console.error(error);
-    const locale = getLocaleFromRequest(req);
+    const locale = await getLocaleFromRequest();
     const t = await getTranslations({ locale, namespace: 'Errors' });
     return NextResponse.json({ error: t('creatingTask') }, { status: 500 });
   }

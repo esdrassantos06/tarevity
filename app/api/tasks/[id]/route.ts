@@ -6,23 +6,25 @@ import { z } from 'zod';
 import { getLocaleFromRequest } from '@/lib/api-locale';
 import { getTranslations } from 'next-intl/server';
 import { invalidateCacheKeys, cacheKeys } from '@/lib/cache';
+import { headers } from 'next/headers';
 
 type EditTaskProps = {
   params: Promise<{ id: string }>;
 };
 
 export async function GET(req: NextRequest, { params }: EditTaskProps) {
-  const session = await auth.api.getSession({ headers: req.headers });
+  const headersList = await headers();
+  const session = await auth.api.getSession({ headers: headersList });
 
   const { id } = await params;
 
   if (!session) {
-    const locale = getLocaleFromRequest(req);
+    const locale = await getLocaleFromRequest();
     const t = await getTranslations({ locale, namespace: 'ApiErrors' });
     return NextResponse.json({ error: t('notAuthenticated') }, { status: 401 });
   }
 
-  const locale = getLocaleFromRequest(req);
+  const locale = await getLocaleFromRequest();
   const t = await getTranslations({ locale, namespace: 'ApiErrors' });
 
   const task = await prisma.task.findFirst({
@@ -40,16 +42,17 @@ export async function GET(req: NextRequest, { params }: EditTaskProps) {
 }
 
 export async function PATCH(req: NextRequest, { params }: EditTaskProps) {
-  const session = await auth.api.getSession({ headers: req.headers });
+  const headersList = await headers();
+  const session = await auth.api.getSession({ headers: headersList });
   const { id } = await params;
 
   if (!session) {
-    const locale = getLocaleFromRequest(req);
+    const locale = await getLocaleFromRequest();
     const t = await getTranslations({ locale, namespace: 'ApiErrors' });
     return NextResponse.json({ error: t('notAuthenticated') }, { status: 401 });
   }
 
-  const locale = getLocaleFromRequest(req);
+  const locale = await getLocaleFromRequest();
   const t = await getTranslations({ locale, namespace: 'ApiErrors' });
 
   try {
@@ -84,7 +87,7 @@ export async function PATCH(req: NextRequest, { params }: EditTaskProps) {
     return NextResponse.json({ task: updated });
   } catch (error) {
     console.error(error);
-    const errorLocale = getLocaleFromRequest(req);
+    const errorLocale = await getLocaleFromRequest();
     const tError = await getTranslations({
       locale: errorLocale,
       namespace: 'Errors',
@@ -100,17 +103,18 @@ export async function PATCH(req: NextRequest, { params }: EditTaskProps) {
 }
 
 export async function DELETE(req: NextRequest, { params }: EditTaskProps) {
-  const session = await auth.api.getSession({ headers: req.headers });
+  const headersList = await headers();
+  const session = await auth.api.getSession({ headers: headersList });
 
   const { id } = await params;
 
   if (!session) {
-    const locale = getLocaleFromRequest(req);
+    const locale = await getLocaleFromRequest();
     const t = await getTranslations({ locale, namespace: 'ApiErrors' });
     return NextResponse.json({ error: t('notAuthenticated') }, { status: 401 });
   }
 
-  const locale = getLocaleFromRequest(req);
+  const locale = await getLocaleFromRequest();
   const t = await getTranslations({ locale, namespace: 'ApiErrors' });
 
   const existing = await prisma.task.findUnique({

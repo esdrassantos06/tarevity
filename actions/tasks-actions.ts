@@ -7,6 +7,7 @@ import { cache } from 'react';
 import { Prisma } from '@/lib/generated/prisma';
 import { TaskPriority, TaskStatus } from '@/lib/generated/prisma/client';
 import { getCached, cacheKeys, CACHE_TTL } from '@/lib/cache';
+import { getTranslations } from 'next-intl/server';
 
 export const getTasks = cache(
   async (
@@ -18,12 +19,14 @@ export const getTasks = cache(
     sortBy: string = 'createdAt',
     sortOrder: 'asc' | 'desc' = 'desc',
   ) => {
+    const t = await getTranslations('ServerActions');
+    const headersList = await headers();
     const session = await auth.api.getSession({
-      headers: await headers(),
+      headers: headersList,
     });
 
     if (!session) {
-      throw new Error('Not authenticated');
+      throw new Error(t('unauthorized'));
     }
 
     const filters = JSON.stringify({

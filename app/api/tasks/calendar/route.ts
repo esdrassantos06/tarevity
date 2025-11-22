@@ -3,14 +3,16 @@ import prisma from '@/lib/prisma';
 import { NextRequest, NextResponse } from 'next/server';
 import { getLocaleFromRequest } from '@/lib/api-locale';
 import { getTranslations } from 'next-intl/server';
+import { headers } from 'next/headers';
 
 export async function GET(req: NextRequest) {
+  const headersList = await headers();
   const session = await auth.api.getSession({
-    headers: req.headers,
+    headers: headersList,
   });
 
   if (!session) {
-    const locale = getLocaleFromRequest(req);
+    const locale = await getLocaleFromRequest();
     const t = await getTranslations({ locale, namespace: 'ApiErrors' });
     return NextResponse.json({ error: t('notAuthenticated') }, { status: 401 });
   }
@@ -56,7 +58,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ tasks });
   } catch (error) {
     console.error('Error fetching calendar tasks:', error);
-    const locale = getLocaleFromRequest(req);
+    const locale = await getLocaleFromRequest();
     const t = await getTranslations({ locale, namespace: 'Errors' });
     return NextResponse.json(
       { error: t('fetchingCalendarTasks') },
