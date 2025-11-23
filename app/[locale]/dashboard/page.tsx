@@ -8,7 +8,7 @@ import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { authClient } from '@/lib/auth-client';
 import { Icon } from '@iconify/react';
 import { Link, useRouter } from '@/i18n/navigation';
-import { useEffect, useState, useMemo, useCallback } from 'react';
+import { useEffect, useState, useMemo, useCallback, useRef } from 'react';
 import { Task, TaskPriority, TaskStatus } from '@/lib/generated/prisma/client';
 import { Skeleton } from '@/components/ui/skeleton';
 import { TaskCard } from '@/components/tasks/task-card';
@@ -55,6 +55,8 @@ export default function Dashboard() {
     totalPages: number;
   } | null>(null);
 
+  const lastFetchedUrlRef = useRef<string | null>(null);
+
   useEffect(() => {
     if (!session && !isPending) {
       router.push('/auth/login');
@@ -98,6 +100,9 @@ export default function Dashboard() {
   useEffect(() => {
     async function fetchTasks() {
       if (!apiUrl || !session) return;
+
+      if (lastFetchedUrlRef.current === apiUrl) return;
+
       setLoading(true);
       try {
         const res = await fetch(apiUrl);
@@ -105,6 +110,7 @@ export default function Dashboard() {
         const data = await res.json();
         setTasks(data.tasks);
         setPagination(data.pagination);
+        lastFetchedUrlRef.current = apiUrl;
       } catch (error) {
         console.error(error);
       } finally {

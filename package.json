@@ -1,6 +1,6 @@
 {
   "name": "tarevity",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "A sophisticated task management application built with Next.js 16, React 19, TypeScript, and Prisma. Provides an intuitive and secure interface to help users organize their tasks with efficiency and style.",
   "private": true,
   "scripts": {
