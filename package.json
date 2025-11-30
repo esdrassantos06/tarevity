@@ -4,9 +4,9 @@
   "description": "A sophisticated task management application built with Next.js 16, React 19, TypeScript, and Prisma. Provides an intuitive and secure interface to help users organize their tasks with efficiency and style.",
   "private": true,
   "scripts": {
-    "dev": "prisma generate && next dev",
-    "build": "prisma generate && next build",
-    "start": "prisma generate && next start",
+    "dev": "npx prisma generate && next dev",
+    "build": "npx prisma generate && next build",
+    "start": "npx prisma generate && next start",
     "lint": "eslint",
     "format": "prettier --write ."
   },
