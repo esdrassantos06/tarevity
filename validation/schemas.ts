@@ -23,8 +23,14 @@ export function createTaskSchema(t: Translator) {
     title: z.string().min(1, t('title.required')),
     description: z.string().optional(),
     dueDate: z.string().optional(),
-    priority: z.enum(['LOW', 'MEDIUM', 'HIGH']),
-    status: z.enum(['ACTIVE', 'REVIEW', 'COMPLETED']),
+    priority: z.preprocess(
+      (val) => (typeof val === 'string' ? val.toUpperCase() : val),
+      z.enum(['LOW', 'MEDIUM', 'HIGH']),
+    ),
+    status: z.preprocess(
+      (val) => (typeof val === 'string' ? val.toUpperCase() : val),
+      z.enum(['ACTIVE', 'REVIEW', 'COMPLETED']),
+    ),
   });
 }
 

@@ -9,6 +9,7 @@ import { getLocaleFromRequest } from '@/lib/api-locale';
 import { getTranslations } from 'next-intl/server';
 import {
   invalidateCacheKeys,
+  invalidateUserTasksCache,
   cacheKeys,
   getCached,
   CACHE_TTL,
@@ -175,6 +176,8 @@ export async function POST(req: NextRequest) {
       cacheKeys.notifications(session.user.id),
       cacheKeys.taskStats(session.user.id),
     ]);
+
+    await invalidateUserTasksCache(session.user.id);
 
     return NextResponse.json({ task });
   } catch (error) {

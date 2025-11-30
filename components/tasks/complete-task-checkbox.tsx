@@ -1,60 +1,35 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { Checkbox } from '@/components/ui/checkbox';
 import { TaskStatus } from '@/lib/generated/prisma';
 import { useTranslations } from 'next-intl';
+import { useUpdateTaskStatus } from '@/hooks/use-tasks';
 
 interface CompleteTaskCheckboxProps {
   taskId: string;
   currentStatus: TaskStatus;
-  onStatusChange?: (taskId: string, newStatus: TaskStatus) => void;
 }
 
 export const CompleteTaskCheckbox = ({
   taskId,
   currentStatus,
-  onStatusChange,
 }: CompleteTaskCheckboxProps) => {
-  const [isLoading, setIsLoading] = useState(false);
-  const [checked, setChecked] = useState(currentStatus === 'COMPLETED');
+  const checked = currentStatus === 'COMPLETED';
   const t = useTranslations('CompleteTaskCheckbox');
-
-  useEffect(() => {
-    setChecked(currentStatus === 'COMPLETED');
-  }, [currentStatus]);
+  const updateTaskStatusMutation = useUpdateTaskStatus();
 
   const handleToggle = async (nextChecked: boolean) => {
-    setIsLoading(true);
-
-    const previousChecked = checked;
-    const previousStatus = checked ? TaskStatus.COMPLETED : TaskStatus.ACTIVE;
     const newStatus = nextChecked ? TaskStatus.COMPLETED : TaskStatus.ACTIVE;
 
-    setChecked(nextChecked);
-    onStatusChange?.(taskId, newStatus);
-
     try {
-      const response = await fetch(`/api/tasks/${taskId}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: newStatus }),
+      await updateTaskStatusMutation.mutateAsync({
+        taskId,
+        status: newStatus,
       });
-
-      if (!response.ok) {
-        throw new Error(
-          (await response.json()).error || t('toast.errorGeneric'),
-        );
-      }
-
       toast.success(nextChecked ? t('toast.completed') : t('toast.active'));
     } catch (error) {
-      setChecked(previousChecked);
-      onStatusChange?.(taskId, previousStatus);
       toast.error(error instanceof Error ? error.message : t('toast.error'));
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -62,7 +37,7 @@ export const CompleteTaskCheckbox = ({
     <Checkbox
       checked={checked}
       onCheckedChange={(val) => handleToggle(!!val)}
-      disabled={isLoading}
+      disabled={updateTaskStatusMutation.isPending}
       className='data-[state=checked]:border-green-500 data-[state=checked]:bg-green-500 dark:data-[state=checked]:bg-green-500'
       aria-label={
         checked

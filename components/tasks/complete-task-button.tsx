@@ -1,12 +1,13 @@
 'use client';
 
-import { useState } from 'react';
 import { useRouter } from '@/i18n/navigation';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Icon } from '@iconify/react';
 import { useTranslations } from 'next-intl';
 import { translateStatus } from '@/utils/text';
+import { TaskStatus } from '@/lib/generated/prisma';
+import { useUpdateTaskStatus } from '@/hooks/use-tasks';
 
 interface CompleteTaskButtonProps {
   taskId: string;
@@ -17,27 +18,20 @@ export const CompleteTaskButton = ({
   taskId,
   currentStatus,
 }: CompleteTaskButtonProps) => {
-  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const t = useTranslations('CompleteTaskButton');
   const tForm = useTranslations('EditTaskPage.form');
+  const updateTaskStatusMutation = useUpdateTaskStatus();
 
   const handleComplete = async () => {
-    setIsLoading(true);
-    try {
-      const response = await fetch(`/api/tasks/${taskId}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          status: currentStatus === 'COMPLETED' ? 'ACTIVE' : 'COMPLETED',
-        }),
-      });
+    const newStatus =
+      currentStatus === 'COMPLETED' ? TaskStatus.ACTIVE : TaskStatus.COMPLETED;
 
-      if (!response.ok) {
-        const data = await response.json();
-        toast.error(data.error || t('toast.error'));
-        return;
-      }
+    try {
+      await updateTaskStatusMutation.mutateAsync({
+        taskId,
+        status: newStatus,
+      });
 
       toast.success(
         currentStatus === 'COMPLETED'
@@ -46,12 +40,13 @@ export const CompleteTaskButton = ({
       );
       router.refresh();
     } catch (error) {
-      console.error(error);
-      toast.error(t('toast.errorGeneric'));
-    } finally {
-      setIsLoading(false);
+      toast.error(
+        error instanceof Error ? error.message : t('toast.errorGeneric'),
+      );
     }
   };
+
+  const isLoading = updateTaskStatusMutation.isPending;
 
   const buttonText = isLoading
     ? t('buttonText.updating')

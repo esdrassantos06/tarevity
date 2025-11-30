@@ -8,8 +8,8 @@ import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { authClient } from '@/lib/auth-client';
 import { Icon } from '@iconify/react';
 import { Link, useRouter } from '@/i18n/navigation';
-import { useEffect, useState, useMemo, useCallback, useRef } from 'react';
-import { Task, TaskPriority, TaskStatus } from '@/lib/generated/prisma/client';
+import { useEffect, useState, useCallback } from 'react';
+import { TaskPriority, TaskStatus } from '@/lib/generated/prisma/client';
 import { Skeleton } from '@/components/ui/skeleton';
 import { TaskCard } from '@/components/tasks/task-card';
 import SearchComponent from '@/components/search-component';
@@ -27,6 +27,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Separator } from '@/components/ui/separator';
+import { useTasks } from '@/hooks/use-tasks';
 
 type FilterStatus = 'ALL' | keyof typeof TaskStatus;
 type FilterPriority = 'ALL' | keyof typeof TaskPriority;
@@ -37,25 +38,31 @@ export default function Dashboard() {
   const { data: session, isPending } = authClient.useSession();
   const router = useRouter();
   const t = useTranslations('DashboardPage');
-  const tErrors = useTranslations('Errors');
 
-  const [tasks, setTasks] = useState<Task[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState<FilterStatus>('ALL');
-  const [priorityFilter, setPriorityFilter] = useState<FilterPriority>('ALL');
-  const [sortBy, setSortBy] = useState<SortBy>('createdAt');
-  const [sortOrder, setSortOrder] = useState<SortOrder>('desc');
-  const [searchQuery, setSearchQuery] = useState('');
+  const [filter, setFilterState] = useState<FilterStatus>('ALL');
+  const [priorityFilter, setPriorityFilterState] =
+    useState<FilterPriority>('ALL');
+  const [sortBy, setSortByState] = useState<SortBy>('createdAt');
+  const [sortOrder, setSortOrderState] = useState<SortOrder>('desc');
+  const [searchQuery, setSearchQueryState] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize] = useState(6);
-  const [pagination, setPagination] = useState<{
-    page: number;
-    limit: number;
-    total: number;
-    totalPages: number;
-  } | null>(null);
 
-  const lastFetchedUrlRef = useRef<string | null>(null);
+  const {
+    data: tasksData,
+    isLoading,
+    isFetching,
+    error,
+  } = useTasks({
+    page: currentPage,
+    pageSize,
+    searchQuery,
+    filter,
+    priorityFilter,
+    sortBy,
+    sortOrder,
+    enabled: !!session && !isPending,
+  });
 
   useEffect(() => {
     if (!session && !isPending) {
@@ -63,77 +70,30 @@ export default function Dashboard() {
     }
   }, [session, isPending, router]);
 
-  const apiUrl = useMemo(() => {
-    if (!session) return null;
-    const params = new URLSearchParams({
-      page: currentPage.toString(),
-      limit: pageSize.toString(),
-    });
-
-    if (searchQuery.trim()) {
-      params.append('search', searchQuery.trim());
-    }
-
-    if (filter !== 'ALL') {
-      params.append('status', filter);
-    }
-
-    if (priorityFilter !== 'ALL') {
-      params.append('priority', priorityFilter);
-    }
-
-    params.append('sortBy', sortBy);
-    params.append('sortOrder', sortOrder);
-
-    return `/api/tasks?${params.toString()}`;
-  }, [
-    session,
-    currentPage,
-    pageSize,
-    searchQuery,
-    filter,
-    priorityFilter,
-    sortBy,
-    sortOrder,
-  ]);
-
-  useEffect(() => {
-    async function fetchTasks() {
-      if (!apiUrl || !session) return;
-
-      if (lastFetchedUrlRef.current === apiUrl) return;
-
-      setLoading(true);
-      try {
-        const res = await fetch(apiUrl);
-        if (!res.ok) throw new Error(tErrors('loadingTasks'));
-        const data = await res.json();
-        setTasks(data.tasks);
-        setPagination(data.pagination);
-        lastFetchedUrlRef.current = apiUrl;
-      } catch (error) {
-        console.error(error);
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchTasks();
-  }, [apiUrl, session, tErrors]);
-
-  useEffect(() => {
+  const setFilter = useCallback((value: FilterStatus) => {
+    setFilterState(value);
     setCurrentPage(1);
-  }, [searchQuery, filter, priorityFilter, sortBy, sortOrder]);
+  }, []);
 
-  const handleTaskStatusChange = useCallback(
-    (taskId: string, newStatus: TaskStatus) => {
-      setTasks((prevTasks) =>
-        prevTasks.map((task) =>
-          task.id === taskId ? { ...task, status: newStatus } : task,
-        ),
-      );
-    },
-    [],
-  );
+  const setPriorityFilter = useCallback((value: FilterPriority) => {
+    setPriorityFilterState(value);
+    setCurrentPage(1);
+  }, []);
+
+  const setSortBy = useCallback((value: SortBy) => {
+    setSortByState(value);
+    setCurrentPage(1);
+  }, []);
+
+  const setSortOrder = useCallback((value: SortOrder) => {
+    setSortOrderState(value);
+    setCurrentPage(1);
+  }, []);
+
+  const setSearchQuery = useCallback((value: string) => {
+    setSearchQueryState(value);
+    setCurrentPage(1);
+  }, []);
 
   const handlePreviousPage = useCallback(() => {
     setCurrentPage((prev) => Math.max(1, prev - 1));
@@ -143,11 +103,13 @@ export default function Dashboard() {
   }, []);
 
   const handleNextPage = useCallback(() => {
-    setCurrentPage((prev) => Math.min(pagination?.totalPages || 1, prev + 1));
+    setCurrentPage((prev) =>
+      Math.min(tasksData?.pagination?.totalPages || 1, prev + 1),
+    );
     setTimeout(() => {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }, 100);
-  }, [pagination?.totalPages]);
+  }, [tasksData?.pagination?.totalPages]);
 
   const handleResetFilters = useCallback(() => {
     setFilter('ALL');
@@ -155,7 +117,7 @@ export default function Dashboard() {
     setSortBy('createdAt');
     setSortOrder('desc');
     setSearchQuery('');
-  }, []);
+  }, [setFilter, setPriorityFilter, setSortBy, setSortOrder, setSearchQuery]);
 
   return (
     <>
@@ -344,7 +306,9 @@ export default function Dashboard() {
           </div>
         </nav>
         <div className='w-full max-w-7xl py-4'>
-          {loading ? (
+          {session?.user?.id && !isPending ? (
+            <TasksDonutChart userId={session.user.id} />
+          ) : !isPending ? null : (
             <div className='flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:gap-6'>
               <div className='flex-shrink-0'>
                 <Skeleton className='size-40 rounded-full' />
@@ -358,12 +322,10 @@ export default function Dashboard() {
                 ))}
               </div>
             </div>
-          ) : session?.user?.id && !loading && !isPending ? (
-            <TasksDonutChart userId={session.user.id} />
-          ) : null}
+          )}
         </div>
         <section className='w-full max-w-7xl py-10 sm:py-16 md:py-20'>
-          {loading ? (
+          {isPending || isLoading || (isFetching && !tasksData) ? (
             <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
               {[...Array(2)].map((_, i) => (
                 <Card
@@ -394,7 +356,24 @@ export default function Dashboard() {
                 </Card>
               ))}
             </div>
-          ) : tasks.length === 0 ? (
+          ) : !isPending && error ? (
+            <div className='flex flex-col items-center justify-center gap-4'>
+              <div className='flex size-15 items-center justify-center rounded-full bg-red-800 p-2'>
+                <Icon
+                  icon={'material-symbols:error-outline'}
+                  className='size-8 text-red-400'
+                />
+              </div>
+              <div className='flex flex-col items-center justify-center gap-1'>
+                <h3 className='font-semibold'>{t('error.title')}</h3>
+                <p className='text-sm text-gray-400'>
+                  {error instanceof Error
+                    ? error.message
+                    : t('error.description')}
+                </p>
+              </div>
+            </div>
+          ) : !isPending && (!tasksData || tasksData.tasks.length === 0) ? (
             <div className='flex flex-col items-center justify-center gap-4'>
               <div className='flex size-15 items-center justify-center rounded-full bg-gray-800 p-2'>
                 <Icon
@@ -418,23 +397,16 @@ export default function Dashboard() {
                 </Link>
               </Button>
             </div>
-          ) : (
+          ) : tasksData ? (
             <>
               <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
-                {tasks.map((task) => (
-                  <TaskCard
-                    key={task.id}
-                    task={task}
-                    onStatusChange={handleTaskStatusChange}
-                    onDelete={(taskId) =>
-                      setTasks((prev) => prev.filter((t) => t.id !== taskId))
-                    }
-                  />
+                {tasksData.tasks.map((task) => (
+                  <TaskCard key={task.id} task={task} />
                 ))}
 
-                {pagination &&
-                pagination.totalPages > 1 &&
-                currentPage === pagination.totalPages ? (
+                {(!tasksData.pagination ||
+                  tasksData.pagination.totalPages <= 1 ||
+                  currentPage === tasksData.pagination.totalPages) && (
                   <Card className='hover:border-blue-accent flex h-70 items-center justify-center border-2 border-dashed transition-all duration-300 dark:bg-[#1d1929]'>
                     <Link
                       href={`/tasks/new`}
@@ -451,9 +423,9 @@ export default function Dashboard() {
                       </CardContent>
                     </Link>
                   </Card>
-                ) : null}
+                )}
               </div>
-              {pagination && pagination.totalPages > 1 && (
+              {tasksData.pagination && tasksData.pagination.totalPages > 1 && (
                 <div className='mt-8 flex items-center justify-center'>
                   <div className='flex items-center gap-2'>
                     <Button
@@ -471,8 +443,8 @@ export default function Dashboard() {
                     <div className='flex items-center gap-1 px-4'>
                       <span className='text-center text-sm text-gray-600 dark:text-gray-400'>
                         {t('pagination.page', {
-                          current: pagination.page,
-                          total: pagination.totalPages,
+                          current: tasksData.pagination.page,
+                          total: tasksData.pagination.totalPages,
                         })}
                       </span>
                     </div>
@@ -480,7 +452,7 @@ export default function Dashboard() {
                       variant='ghost'
                       size='sm'
                       onClick={handleNextPage}
-                      disabled={currentPage === pagination.totalPages}
+                      disabled={currentPage === tasksData.pagination.totalPages}
                     >
                       {t('pagination.next')}
                       <Icon
@@ -492,7 +464,7 @@ export default function Dashboard() {
                 </div>
               )}
             </>
-          )}
+          ) : null}
         </section>
       </main>
       <Footer />

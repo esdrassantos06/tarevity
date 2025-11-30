@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import { ThemeProvider } from '@/components/theme-provider';
+import { QueryProvider } from '@/components/query-provider';
 import '../globals.css';
 import { Toaster } from '@/components/ui/sonner';
 import CookieBanner from '@/components/cookie-banner';
@@ -88,16 +89,18 @@ export default async function RootLayout({ children, params }: Props) {
         className={`${inter.className} flex min-h-screen w-full flex-col overflow-x-hidden antialiased`}
       >
         <NextIntlClientProvider messages={messages} locale={locale}>
-          <ThemeProvider
-            attribute='class'
-            defaultTheme='system'
-            enableSystem
-            disableTransitionOnChange
-          >
-            {children}
-            <Toaster richColors closeButton position='top-right' />
-            <CookieBanner />
-          </ThemeProvider>
+          <QueryProvider>
+            <ThemeProvider
+              attribute='class'
+              defaultTheme='system'
+              enableSystem
+              disableTransitionOnChange
+            >
+              {children}
+              <Toaster richColors closeButton position='top-right' />
+              <CookieBanner />
+            </ThemeProvider>
+          </QueryProvider>
         </NextIntlClientProvider>
       </body>
     </html>

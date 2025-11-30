@@ -17,6 +17,7 @@ import { DayButton } from 'react-day-picker';
 import { cn } from '@/lib/utils';
 import type { Task } from '@/lib/generated/prisma/client';
 import { useTranslations } from 'next-intl';
+import { useQuery } from '@tanstack/react-query';
 
 export default function CalendarPage() {
   const router = useRouter();
@@ -24,8 +25,6 @@ export default function CalendarPage() {
   const tErrors = useTranslations('Errors');
   const { data: session, isPending: isSessionPending } =
     authClient.useSession();
-  const [tasks, setTasks] = useState<Task[]>([]);
-  const [loading, setLoading] = useState(true);
   const [currentMonth, setCurrentMonth] = useState<Date>(new Date());
 
   useEffect(() => {
@@ -34,31 +33,33 @@ export default function CalendarPage() {
     }
   }, [session, isSessionPending, router]);
 
-  useEffect(() => {
-    async function fetchTasks() {
-      if (!session) return;
-      setLoading(true);
-      try {
-        const month = currentMonth.getMonth() + 1;
-        const year = currentMonth.getFullYear();
-        const res = await fetch(
-          `/api/tasks/calendar?month=${month}&year=${year}`,
-        );
-        if (!res.ok) throw new Error(tErrors('loadingTasks'));
-        const data = await res.json();
-        setTasks(data.tasks || []);
-      } catch (error) {
-        console.error(error);
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchTasks();
-  }, [session, currentMonth, tErrors]);
+  const {
+    data: tasks,
+    isLoading,
+    isFetching,
+    error,
+  } = useQuery<Task[]>({
+    queryKey: ['tasks-calendar', currentMonth],
+    queryFn: async () => {
+      const month = currentMonth.getMonth() + 1;
+      const year = currentMonth.getFullYear();
+      const res = await fetch(
+        `/api/tasks/calendar?month=${month}&year=${year}`,
+      );
+      if (!res.ok) throw new Error(tErrors('loadingTasks'));
+      const data = await res.json();
+      return data.tasks;
+    },
+    enabled: !!session && !isSessionPending,
+  });
+
+  if (error) {
+    console.error(error);
+  }
 
   const tasksByDate = useMemo(() => {
     const grouped: Record<string, Task[]> = {};
-    tasks.forEach((task) => {
+    tasks?.forEach((task: Task) => {
       if (task.dueDate) {
         const dateKey = format(new Date(task.dueDate), 'yyyy-MM-dd');
         if (!grouped[dateKey]) {
@@ -169,7 +170,7 @@ export default function CalendarPage() {
     setCurrentMonth(new Date());
   };
 
-  if (isSessionPending || loading) {
+  if (isSessionPending || isLoading || (isFetching && !tasks)) {
     return (
       <>
         <Header />

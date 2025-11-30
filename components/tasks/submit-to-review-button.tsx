@@ -1,11 +1,12 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from '@/i18n/navigation';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Icon } from '@iconify/react';
 import { useTranslations } from 'next-intl';
+import { TaskStatus } from '@/lib/generated/prisma';
+import { useUpdateTaskStatus } from '@/hooks/use-tasks';
+import { useRouter } from '@/i18n/navigation';
 
 interface SubmitReviewButtonProps {
   taskId: string;
@@ -16,38 +17,31 @@ export const SubmitReviewButton = ({
   taskId,
   currentStatus,
 }: SubmitReviewButtonProps) => {
-  const [isLoading, setIsLoading] = useState(false);
-  const router = useRouter();
   const t = useTranslations('SubmitReviewButton');
-
+  const updateTaskStatusMutation = useUpdateTaskStatus();
+  const router = useRouter();
   const handleSubmitReview = async () => {
-    setIsLoading(true);
-    try {
-      const response = await fetch(`/api/tasks/${taskId}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          status: currentStatus === 'REVIEW' ? 'ACTIVE' : 'REVIEW',
-        }),
-      });
+    const newStatus =
+      currentStatus === 'REVIEW' ? TaskStatus.ACTIVE : TaskStatus.REVIEW;
 
-      if (!response.ok) {
-        const data = await response.json();
-        toast.error(data.error || t('toast.error'));
-        return;
-      }
+    try {
+      await updateTaskStatusMutation.mutateAsync({
+        taskId,
+        status: newStatus,
+      });
 
       toast.success(
         currentStatus === 'REVIEW' ? t('toast.returned') : t('toast.submitted'),
       );
       router.refresh();
     } catch (error) {
-      console.error(error);
-      toast.error(t('toast.errorGeneric'));
-    } finally {
-      setIsLoading(false);
+      toast.error(
+        error instanceof Error ? error.message : t('toast.errorGeneric'),
+      );
     }
   };
+
+  const isLoading = updateTaskStatusMutation.isPending;
 
   const buttonText = isLoading
     ? t('buttonText.updating')

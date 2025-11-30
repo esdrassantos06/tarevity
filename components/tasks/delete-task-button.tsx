@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from 'react';
 import { useRouter } from '@/i18n/navigation';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
@@ -17,6 +16,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 interface DeleteTaskButtonProps {
   taskId: string;
@@ -32,7 +32,6 @@ interface DeleteTaskButtonProps {
   icon?: string;
   label?: string;
   iconSize?: string;
-  onDelete?: () => void;
 }
 
 export const DeleteTaskButton = ({
@@ -43,35 +42,51 @@ export const DeleteTaskButton = ({
   icon = 'bxs:trash',
   label,
   iconSize = 'size-4',
-  onDelete,
 }: DeleteTaskButtonProps) => {
-  const [isDeleting, setIsDeleting] = useState(false);
+  const queryClient = useQueryClient();
   const router = useRouter();
   const t = useTranslations('DeleteTaskButton');
 
-  const handleDelete = async () => {
-    setIsDeleting(true);
-
-    try {
+  const mutation = useMutation({
+    mutationFn: async () => {
       const response = await fetch(`/api/tasks/${taskId}`, {
         method: 'DELETE',
       });
-
-      if (!response.ok) {
-        const result = await response.json();
-        toast.error(result.error || t('toast.error'));
-        return;
-      }
-
+      if (!response.ok) throw new Error(t('toast.error'));
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ['tasks'],
+        refetchType: 'active',
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['tasks-calendar'],
+        refetchType: 'active',
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['tasks-stats'],
+        refetchType: 'active',
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['task-counts'],
+        refetchType: 'active',
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['notifications'],
+        refetchType: 'active',
+      });
       toast.success(t('toast.success'));
-      if (onDelete) onDelete();
       router.push('/dashboard');
-    } catch (error) {
+    },
+    onError: (error) => {
       console.error(error);
       toast.error(t('toast.errorGeneric'));
-    } finally {
-      setIsDeleting(false);
-    }
+    },
+  });
+
+  const handleDelete = () => {
+    mutation.mutate();
   };
 
   return (
@@ -80,7 +95,7 @@ export const DeleteTaskButton = ({
         <Button
           variant={variant}
           size={size}
-          disabled={isDeleting}
+          disabled={mutation.isPending}
           className={className}
           aria-label={label || t('button.ariaLabel', { taskId })}
           title={label || t('button.title')}
@@ -109,18 +124,18 @@ export const DeleteTaskButton = ({
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel
-            disabled={isDeleting}
+            disabled={mutation.isPending}
             aria-label={t('dialog.cancelAriaLabel')}
           >
             {t('dialog.cancel')}
           </AlertDialogCancel>
           <AlertDialogAction
             onClick={handleDelete}
-            disabled={isDeleting}
+            disabled={mutation.isPending}
             className='bg-red-500 hover:bg-red-600 dark:text-white'
             aria-label={t('dialog.confirmAriaLabel', { taskId })}
           >
-            {isDeleting ? (
+            {mutation.isPending ? (
               <span aria-live='polite'>{t('dialog.deleting')}</span>
             ) : (
               t('dialog.confirm')

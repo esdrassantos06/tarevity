@@ -1,19 +1,15 @@
 'use client';
 
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
-import { useMemo, useEffect, useState } from 'react';
+import { useMemo } from 'react';
 import { translateStatus } from '@/utils/text';
 import { useTranslations } from 'next-intl';
+import { useQuery } from '@tanstack/react-query';
+import { CACHE_TTL } from '@/lib/cache';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface TasksDonutChartProps {
   userId?: string;
-}
-
-interface TaskStats {
-  active: number;
-  completed: number;
-  review: number;
-  total: number;
 }
 
 const COLORS = {
@@ -25,26 +21,21 @@ const COLORS = {
 
 export function TasksDonutChart({ userId }: TasksDonutChartProps) {
   const t = useTranslations('EditTaskPage.form');
-  const [stats, setStats] = useState<TaskStats | null>(null);
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    async function fetchStats() {
-      if (!userId) return;
-      try {
-        const res = await fetch('/api/tasks/stats');
-        if (res.ok) {
-          const data = await res.json();
-          setStats(data);
-        }
-      } catch (error) {
-        console.error('Failed to fetch task stats:', error);
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchStats();
-  }, [userId]);
+  const {
+    data: stats,
+    isLoading,
+    isFetching,
+  } = useQuery({
+    queryKey: ['tasks-stats'],
+    queryFn: async () => {
+      const res = await fetch('/api/tasks/stats');
+      if (res.ok) return res.json();
+      throw new Error('Failed to fetch task stats');
+    },
+    staleTime: CACHE_TTL.MEDIUM,
+    enabled: !!userId,
+  });
 
   const { chartData, totalCount } = useMemo(() => {
     if (!stats) {
@@ -97,9 +88,25 @@ export function TasksDonutChart({ userId }: TasksDonutChartProps) {
     return { chartData: data, totalCount: stats.total };
   }, [stats, t]);
 
-  if (loading || !stats) {
-    return null;
+  if (isLoading || (isFetching && !stats)) {
+    return (
+      <div className='flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:gap-6'>
+        <div className='flex-shrink-0'>
+          <Skeleton className='size-40 rounded-full' />
+        </div>
+        <div className='flex flex-col gap-3'>
+          {[...Array(4)].map((_, i) => (
+            <div key={i} className='flex items-center gap-2'>
+              <Skeleton className='size-4 rounded-full' />
+              <Skeleton className='h-4 w-24' />
+            </div>
+          ))}
+        </div>
+      </div>
+    );
   }
+
+  const hasData = totalCount > 0;
 
   return (
     <div className='flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:gap-6'>
@@ -110,26 +117,48 @@ export function TasksDonutChart({ userId }: TasksDonutChartProps) {
           height={160}
         >
           <PieChart style={{ outline: 'none' }}>
-            <Pie
-              isAnimationActive={false}
-              style={{ outline: 'none' }}
-              data={chartData}
-              cx='50%'
-              cy='50%'
-              labelLine={false}
-              outerRadius={65}
-              innerRadius={40}
-              fill='#8884d8'
-              dataKey='value'
-            >
-              {chartData.map((entry, index) => (
+            {hasData ? (
+              <Pie
+                isAnimationActive={false}
+                style={{ outline: 'none' }}
+                data={chartData}
+                cx='50%'
+                cy='50%'
+                labelLine={false}
+                outerRadius={65}
+                innerRadius={40}
+                fill='#8884d8'
+                dataKey='value'
+              >
+                {chartData.map((entry, index) => (
+                  <Cell
+                    style={{ outline: 'none' }}
+                    key={`cell-${index}`}
+                    fill={entry.color}
+                  />
+                ))}
+              </Pie>
+            ) : (
+              <Pie
+                isAnimationActive={false}
+                style={{ outline: 'none' }}
+                data={[{ name: 'empty', value: 1 }]}
+                cx='50%'
+                cy='50%'
+                labelLine={false}
+                outerRadius={65}
+                innerRadius={40}
+                fill='#e5e7eb'
+                dataKey='value'
+              >
                 <Cell
                   style={{ outline: 'none' }}
-                  key={`cell-${index}`}
-                  fill={entry.color}
+                  fill='#e5e7eb'
+                  stroke='#9ca3af'
+                  strokeWidth={1}
                 />
-              ))}
-            </Pie>
+              </Pie>
+            )}
           </PieChart>
         </ResponsiveContainer>
       </div>

@@ -28,7 +28,7 @@ import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
 import { UpdateUserAction } from '@/actions/update-user-actions';
 import { RemoveUserImageAction } from '@/actions/delete-user-image-action';
-import { getTaskCounts } from '@/actions/profile-actions';
+import { useTaskCounts } from '@/hooks/use-tasks';
 import { TaskCounts } from '@/types/TaskCount';
 
 type ProfileFormValues = {
@@ -44,7 +44,6 @@ export default function Profile() {
   const tToast = useTranslations('ProfilePage.toast');
   const tStats = useTranslations('ProfilePage.statistics');
   const tErrors = useTranslations('ProfilePage.errors');
-  const [loadingTasks, setLoadingTasks] = useState(true);
 
   const profileFormSchema = z.object({
     name: z.string().min(2, tForm('nameMinLength')),
@@ -75,11 +74,12 @@ export default function Profile() {
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const [taskCounts, setTaskCounts] = useState<TaskCounts>({
-    created: 0,
-    completed: 0,
-    pending: 0,
-  });
+  const {
+    data: taskCounts,
+    isLoading: loadingTasks,
+    isFetching: fetchingTasks,
+    error: taskCountsError,
+  } = useTaskCounts(!!session && !isPending);
 
   const form = useForm({
     resolver: zodResolver(profileFormSchema),
@@ -99,22 +99,6 @@ export default function Profile() {
       }
     }
   }, [session, form]);
-
-  useEffect(() => {
-    const fetchTaskCounts = async () => {
-      if (!session) return;
-
-      try {
-        const counts = await getTaskCounts();
-        setTaskCounts(counts);
-      } catch (error) {
-        console.error(tErrors('fetchingTaskCounts'), error);
-      } finally {
-        setLoadingTasks(false);
-      }
-    };
-    fetchTaskCounts();
-  }, [session, tErrors]);
 
   useEffect(() => {
     if (!session && !isPending) {
@@ -255,7 +239,7 @@ export default function Profile() {
         </section>
 
         <section className='flex w-full max-w-7xl flex-col gap-4 rounded-lg shadow dark:bg-[#1d1929]'>
-          {isPending || loadingTasks ? (
+          {isPending || loadingTasks || (fetchingTasks && !taskCounts) ? (
             <>
               <div className='bg-blue-accent h-24 rounded-t-lg sm:h-32' />
               <div className='flex items-center justify-between gap-4 px-4 py-4 sm:px-6 md:px-10'>
@@ -521,7 +505,7 @@ export default function Profile() {
                         <CardTitle
                           className={`${item.titleColor} text-xl font-bold sm:text-2xl`}
                         >
-                          {taskCounts[item.key]}
+                          {taskCounts ? taskCounts[item.key] : 0}
                         </CardTitle>
                       </CardHeader>
                       <CardContent className='flex items-center gap-2 text-xs text-gray-600 sm:text-sm dark:text-gray-400'>
@@ -531,6 +515,11 @@ export default function Profile() {
                     </Card>
                   ))}
                 </div>
+                {taskCountsError && (
+                  <div className='px-4 pb-4 text-center text-sm text-red-600 sm:px-6'>
+                    {tErrors('fetchingTaskCounts')}
+                  </div>
+                )}
               </div>
             </>
           )}

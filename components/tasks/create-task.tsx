@@ -2,11 +2,11 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Link, useRouter } from '@/i18n/navigation';
-import { useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import z from 'zod';
 import { Card, CardContent } from '../ui/card';
+import { BackButton } from '@/components/back-button';
 import {
   FormControl,
   FormField,
@@ -32,8 +32,10 @@ import { useFormatter, useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
 import { translatePriority } from '@/utils/text';
 import { createTaskSchema } from '@/validation/schemas';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 export const CreateTask = () => {
+  const queryClient = useQueryClient();
   const t = useTranslations('CreateTaskPage');
   const tForm = useTranslations('CreateTaskPage.form');
   const tToast = useTranslations('CreateTaskPage.toast');
@@ -43,12 +45,54 @@ export const CreateTask = () => {
 
   type TaskFormValues = z.infer<typeof taskFormSchema>;
 
-  const [isPending, setIsPending] = useState(false);
   const router = useRouter();
   const format = useFormatter();
 
-  const form = useForm<TaskFormValues>({
+  const mutation = useMutation({
+    mutationFn: async (data: TaskFormValues) => {
+      const response = await fetch('/api/tasks', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+      if (!response.ok) throw new Error(tToast('error'));
+      return response.json();
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({
+        queryKey: ['tasks'],
+        refetchType: 'active',
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['tasks-calendar'],
+        refetchType: 'active',
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['tasks-stats'],
+        refetchType: 'active',
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['task-counts'],
+        refetchType: 'active',
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['notifications'],
+        refetchType: 'active',
+      });
+      toast.success(tToast('success'));
+      router.push(`/tasks/${data.task.id}`);
+    },
+    onError: (error) => {
+      console.error(error);
+      toast.error(tToast('serverError'));
+    },
+  });
+
+  const form = useForm({
     resolver: zodResolver(taskFormSchema),
+    mode: 'onSubmit',
     defaultValues: {
       title: '',
       description: '',
@@ -57,57 +101,14 @@ export const CreateTask = () => {
     },
   });
 
-  const onSubmit = async (data: TaskFormValues) => {
-    setIsPending(true);
-
-    try {
-      const response = await fetch('/api/tasks', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      });
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        toast.error(result.error || tToast('error'));
-        return;
-      }
-
-      toast.success(tToast('success'));
-      router.push(`/tasks/${result.task.id}`);
-    } catch (error) {
-      console.error(error);
-      toast.error(tToast('serverError'));
-    } finally {
-      setIsPending(false);
-    }
+  const handleSubmit = (data: TaskFormValues) => {
+    mutation.mutate(data);
   };
 
   return (
     <div className='flex w-full flex-1 flex-col items-center justify-center px-4 py-12 sm:px-6 lg:px-8'>
       <div className='flex w-full max-w-7xl flex-col gap-3 py-4 sm:flex-row sm:items-center sm:justify-between'>
-        <Button
-          asChild
-          variant={'ghost'}
-          className='w-full justify-start sm:w-auto'
-        >
-          <Link
-            className='flex items-center justify-center gap-2'
-            href={'/dashboard'}
-            aria-label={t('backToDashboard')}
-            title={t('backToDashboard')}
-          >
-            <Icon
-              icon={'tabler:arrow-left'}
-              className='size-4 sm:size-5'
-              aria-hidden='true'
-            />
-            <span className='text-sm sm:text-base'>{t('backToDashboard')}</span>
-          </Link>
-        </Button>
+        <BackButton href='/dashboard' translationKey='backToDashboard' />
         <h1 className='text-xl font-bold sm:text-2xl' id='create-task-title'>
           {t('title')}
         </h1>
@@ -116,7 +117,7 @@ export const CreateTask = () => {
         <CardContent className='space-y-4'>
           <FormProvider {...form}>
             <form
-              onSubmit={form.handleSubmit(onSubmit)}
+              onSubmit={form.handleSubmit(handleSubmit)}
               className='space-y-4'
               aria-labelledby='create-task-title'
               noValidate
@@ -134,7 +135,7 @@ export const CreateTask = () => {
                         {...field}
                         id='create-task-title-input'
                         placeholder={tForm('titlePlaceholder')}
-                        disabled={isPending}
+                        disabled={mutation.isPending}
                         aria-required='true'
                         aria-invalid={!!form.formState.errors.title}
                         aria-describedby={
@@ -164,7 +165,7 @@ export const CreateTask = () => {
                         rows={5}
                         {...field}
                         placeholder={tForm('descriptionPlaceholder')}
-                        disabled={isPending}
+                        disabled={mutation.isPending}
                         aria-invalid={!!form.formState.errors.description}
                         aria-describedby={
                           form.formState.errors.description
@@ -206,7 +207,7 @@ export const CreateTask = () => {
                                 'w-full pl-3 text-left font-normal',
                                 !field.value && 'text-muted-foreground',
                               )}
-                              disabled={isPending}
+                              disabled={mutation.isPending}
                               type='button'
                               aria-label={
                                 field.value
@@ -262,7 +263,8 @@ export const CreateTask = () => {
                             }}
                             disabled={(date) => {
                               return (
-                                isPending || isBefore(date, startOfToday())
+                                mutation.isPending ||
+                                isBefore(date, startOfToday())
                               );
                             }}
                             autoFocus
@@ -291,9 +293,9 @@ export const CreateTask = () => {
                         {tForm('priority')}
                       </FormLabel>
                       <Select
-                        disabled={isPending}
+                        disabled={mutation.isPending}
                         onValueChange={field.onChange}
-                        value={field.value}
+                        value={field.value as string}
                       >
                         <SelectTrigger
                           id='create-task-priority'
@@ -345,7 +347,7 @@ export const CreateTask = () => {
                 <Button
                   type='submit'
                   className='bg-blue-accent hover:bg-blue-accent/80 w-full sm:w-auto dark:text-white'
-                  disabled={isPending}
+                  disabled={mutation.isPending}
                   aria-label={tForm('createAria')}
                 >
                   <Icon
@@ -354,7 +356,7 @@ export const CreateTask = () => {
                     aria-hidden='true'
                   />
                   <span className='text-sm sm:text-base'>
-                    {isPending ? (
+                    {mutation.isPending ? (
                       <span aria-live='polite'>{tForm('creating')}</span>
                     ) : (
                       tForm('create')

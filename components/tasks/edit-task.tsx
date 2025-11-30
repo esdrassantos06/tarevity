@@ -2,11 +2,11 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Link, useRouter } from '@/i18n/navigation';
-import { useState, useEffect } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import z from 'zod';
 import { Card, CardContent } from '../ui/card';
+import { BackButton } from '@/components/back-button';
 import {
   FormControl,
   FormField,
@@ -33,6 +33,9 @@ import { format as dateFnsFormat, isBefore, startOfToday } from 'date-fns';
 import { useFormatter, useTranslations } from 'next-intl';
 import { translatePriority, translateStatus } from '@/utils/text';
 import { createTaskSchema } from '@/validation/schemas';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { Task } from '@/lib/generated/prisma';
+import { useEffect } from 'react';
 
 interface EditTaskProps {
   taskId: string;
@@ -48,13 +51,13 @@ export const EditTask = ({ taskId }: EditTaskProps) => {
 
   type TaskFormValues = z.infer<typeof taskFormSchema>;
 
-  const [isPending, setIsPending] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
   const format = useFormatter();
+  const queryClient = useQueryClient();
 
   const form = useForm({
     resolver: zodResolver(taskFormSchema),
+    mode: 'onSubmit',
     defaultValues: {
       title: '',
       description: '',
@@ -64,44 +67,43 @@ export const EditTask = ({ taskId }: EditTaskProps) => {
     },
   });
 
+  const {
+    data: task,
+    isLoading: isTaskLoading,
+    isFetching: isTaskFetching,
+    isError,
+  } = useQuery<{ task: Task }>({
+    queryKey: ['task', taskId],
+    queryFn: async () => {
+      const response = await fetch(`/api/tasks/${taskId}`);
+      if (!response.ok) throw new Error(tToast('loadError'));
+      return response.json();
+    },
+  });
+
   useEffect(() => {
-    const fetchTask = async () => {
-      try {
-        const response = await fetch(`/api/tasks/${taskId}`);
+    if (isError) {
+      toast.error(tToast('loadErrorGeneric'));
+      router.push('/dashboard');
+    }
+  }, [isError, router, tToast]);
 
-        if (!response.ok) {
-          toast.error(tToast('loadError'));
-          router.push('/dashboard');
-          return;
-        }
+  useEffect(() => {
+    if (task) {
+      form.reset({
+        title: task.task.title,
+        description: task.task.description || '',
+        dueDate: task.task.dueDate
+          ? new Date(task.task.dueDate).toISOString().split('T')[0]
+          : '',
+        priority: task.task.priority,
+        status: task.task.status,
+      });
+    }
+  }, [task, form]);
 
-        const { task } = await response.json();
-
-        form.reset({
-          title: task.title,
-          description: task.description || '',
-          dueDate: task.dueDate
-            ? new Date(task.dueDate).toISOString().split('T')[0]
-            : '',
-          priority: task.priority,
-          status: task.status,
-        });
-      } catch (error) {
-        console.error(error);
-        toast.error(tToast('loadErrorGeneric'));
-        router.push('/dashboard');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchTask();
-  }, [taskId, form, router, tToast]);
-
-  const onSubmit = async (data: TaskFormValues) => {
-    setIsPending(true);
-
-    try {
+  const mutation = useMutation({
+    mutationFn: async (data: TaskFormValues) => {
       const response = await fetch(`/api/tasks/${taskId}`, {
         method: 'PATCH',
         headers: {
@@ -109,25 +111,48 @@ export const EditTask = ({ taskId }: EditTaskProps) => {
         },
         body: JSON.stringify(data),
       });
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        toast.error(result.error || tToast('error'));
-        return;
-      }
-
+      if (!response.ok) throw new Error(tToast('error'));
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ['task', taskId],
+        refetchType: 'active',
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['tasks'],
+        refetchType: 'active',
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['tasks-calendar'],
+        refetchType: 'active',
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['tasks-stats'],
+        refetchType: 'active',
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['task-counts'],
+        refetchType: 'active',
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['notifications'],
+        refetchType: 'active',
+      });
       toast.success(tToast('success'));
       router.push(`/tasks/${taskId}`);
-    } catch (error) {
+    },
+    onError: (error) => {
       console.error(error);
       toast.error(tToast('serverError'));
-    } finally {
-      setIsPending(false);
-    }
+    },
+  });
+
+  const handleSubmit = (data: TaskFormValues) => {
+    mutation.mutate(data);
   };
 
-  if (isLoading) {
+  if (isTaskLoading || (isTaskFetching && !task)) {
     return (
       <div className='flex w-full flex-1 flex-col items-center justify-center px-4 py-12 sm:px-6 lg:px-8'>
         <div className='w-full max-w-7xl space-y-4'>
@@ -161,25 +186,11 @@ export const EditTask = ({ taskId }: EditTaskProps) => {
   return (
     <div className='flex w-full flex-col items-center justify-center px-4 py-12 sm:px-6 lg:px-8'>
       <div className='flex w-full max-w-7xl flex-col gap-3 py-4 sm:flex-row sm:items-center sm:justify-between'>
-        <Button
-          asChild
-          variant={'ghost'}
-          className='w-full justify-start sm:w-auto'
-        >
-          <Link
-            className='flex items-center justify-center gap-2'
-            href={`/tasks/${taskId}`}
-            aria-label={t('backToTask')}
-            title={t('backToTask')}
-          >
-            <Icon
-              icon={'tabler:arrow-left'}
-              className='size-4 sm:size-5'
-              aria-hidden='true'
-            />
-            <span className='text-sm sm:text-base'>{t('backToTask')}</span>
-          </Link>
-        </Button>
+        <BackButton
+          href={`/tasks/${taskId}`}
+          translationKey='backToTask'
+          namespace='EditTaskPage'
+        />
         <h1 className='text-xl font-bold sm:text-2xl' id='edit-task-title'>
           {t('title')}
         </h1>
@@ -188,7 +199,7 @@ export const EditTask = ({ taskId }: EditTaskProps) => {
         <CardContent className='space-y-4'>
           <FormProvider {...form}>
             <form
-              onSubmit={form.handleSubmit(onSubmit)}
+              onSubmit={form.handleSubmit(handleSubmit)}
               className='space-y-4'
               aria-labelledby='edit-task-title'
               noValidate
@@ -206,7 +217,7 @@ export const EditTask = ({ taskId }: EditTaskProps) => {
                         {...field}
                         id='edit-task-title-input'
                         placeholder={tForm('titlePlaceholder')}
-                        disabled={isPending}
+                        disabled={mutation.isPending}
                         aria-required='true'
                         aria-invalid={!!form.formState.errors.title}
                         aria-describedby={
@@ -236,7 +247,7 @@ export const EditTask = ({ taskId }: EditTaskProps) => {
                         rows={5}
                         {...field}
                         placeholder={tForm('descriptionPlaceholder')}
-                        disabled={isPending}
+                        disabled={mutation.isPending}
                         aria-invalid={!!form.formState.errors.description}
                         aria-describedby={
                           form.formState.errors.description
@@ -277,7 +288,7 @@ export const EditTask = ({ taskId }: EditTaskProps) => {
                                 'w-full pl-3 text-left font-normal',
                                 !field.value && 'text-muted-foreground',
                               )}
-                              disabled={isPending}
+                              disabled={mutation.isPending}
                               type='button'
                               aria-label={
                                 field.value
@@ -333,7 +344,8 @@ export const EditTask = ({ taskId }: EditTaskProps) => {
                             }}
                             disabled={(date) => {
                               return (
-                                isPending || isBefore(date, startOfToday())
+                                mutation.isPending ||
+                                isBefore(date, startOfToday())
                               );
                             }}
                             autoFocus
@@ -362,9 +374,16 @@ export const EditTask = ({ taskId }: EditTaskProps) => {
                         {tForm('priority')}
                       </FormLabel>
                       <Select
-                        disabled={isPending}
-                        onValueChange={field.onChange}
-                        value={field.value}
+                        disabled={mutation.isPending}
+                        onValueChange={(value) => {
+                          if (!value || value.trim() === '') return;
+                          field.onChange(value.toUpperCase());
+                        }}
+                        value={
+                          (field.value as string) ||
+                          task?.task?.priority ||
+                          'MEDIUM'
+                        }
                       >
                         <SelectTrigger
                           id='edit-task-priority'
@@ -407,9 +426,16 @@ export const EditTask = ({ taskId }: EditTaskProps) => {
                         {tForm('status')}
                       </FormLabel>
                       <Select
-                        disabled={isPending}
-                        onValueChange={field.onChange}
-                        value={field.value}
+                        disabled={mutation.isPending}
+                        onValueChange={(value) => {
+                          if (!value || value.trim() === '') return;
+                          field.onChange(value.toUpperCase());
+                        }}
+                        value={
+                          (field.value as string) ||
+                          task?.task?.status ||
+                          'ACTIVE'
+                        }
                       >
                         <SelectTrigger
                           id='edit-task-status'
@@ -461,7 +487,7 @@ export const EditTask = ({ taskId }: EditTaskProps) => {
                 <Button
                   type='submit'
                   className='bg-blue-accent hover:bg-blue-accent/80 w-full sm:w-auto dark:text-white'
-                  disabled={isPending}
+                  disabled={mutation.isPending}
                   aria-label={tForm('saveAria')}
                 >
                   <Icon
@@ -470,7 +496,7 @@ export const EditTask = ({ taskId }: EditTaskProps) => {
                     aria-hidden='true'
                   />
                   <span className='text-sm sm:text-base'>
-                    {isPending ? (
+                    {mutation.isPending ? (
                       <span aria-live='polite'>{tForm('saving')}</span>
                     ) : (
                       tForm('save')

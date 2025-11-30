@@ -13,36 +13,33 @@ import {
 import { authClient } from '@/lib/auth-client';
 import { Icon } from '@iconify/react';
 import { Link } from '@/i18n/navigation';
-import { useCallback, useEffect, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { NotificationUrgency, Notification } from '@/types/Notification';
 
 export function NotificationsDropdown() {
   const { data: session } = authClient.useSession();
-  const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [notificationsLoading, setNotificationsLoading] = useState(false);
-
   const format = useFormatter();
   const t = useTranslations('NotificationsDropdown');
 
-  const fetchNotifications = useCallback(async () => {
-    if (!session) return;
-
-    setNotificationsLoading(true);
-    try {
+  const {
+    data: notificationsData,
+    isLoading: notificationsLoading,
+    isFetching: notificationsFetching,
+    refetch,
+  } = useQuery<{ notifications: Notification[] }>({
+    queryKey: ['notifications'],
+    queryFn: async () => {
       const res = await fetch('/api/notifications');
       if (!res.ok) throw new Error(t('errors.fetchError'));
-      const data = await res.json();
-      setNotifications(data.notifications || []);
-    } catch (error) {
-      console.error(t('errors.fetchError'), error);
-    } finally {
-      setNotificationsLoading(false);
-    }
-  }, [session, t]);
+      return res.json();
+    },
+    enabled: !!session,
+    staleTime: 60 * 1000,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+  });
 
-  useEffect(() => {
-    fetchNotifications();
-  }, [fetchNotifications]);
+  const notifications = notificationsData?.notifications || [];
 
   const getUrgencyMessage = (notification: Notification): string => {
     const days = Math.abs(notification.daysUntil);
@@ -80,7 +77,7 @@ export function NotificationsDropdown() {
           aria-haspopup='true'
           aria-expanded='false'
           title={t('title')}
-          className='relative overflow-visible'
+          className='relative overflow-visible rounded-full'
         >
           <Icon icon='akar-icons:bell' className='size-5' aria-hidden='true' />
           {notifications.length > 0 && (
@@ -93,7 +90,7 @@ export function NotificationsDropdown() {
       <DropdownMenuContent
         align='end'
         sideOffset={4}
-        className='w-[calc(100vw-2rem)] max-w-sm overflow-x-hidden bg-white md:min-w-80 dark:bg-[#1d1929]'
+        className='z-999 w-[calc(100vw-2rem)] max-w-sm overflow-x-hidden border border-white/20 bg-white/80 backdrop-blur-md md:min-w-80 dark:border-white/10 dark:bg-[#1d1929]/80'
         role='menu'
         aria-label={t('menuAriaLabel')}
       >
@@ -107,14 +104,14 @@ export function NotificationsDropdown() {
             title={t('refreshTitle')}
             onClick={(e) => {
               e.stopPropagation();
-              fetchNotifications();
+              refetch();
             }}
-            disabled={notificationsLoading}
+            disabled={notificationsFetching}
           >
             <Icon
               icon={'material-symbols:refresh'}
               className={`size-5 transition-all duration-1000 ${
-                notificationsLoading && 'animate-spin'
+                notificationsFetching && 'animate-spin'
               }`}
               aria-hidden='true'
             />
@@ -122,7 +119,8 @@ export function NotificationsDropdown() {
           </Button>
         </div>
         <DropdownMenuSeparator />
-        {notificationsLoading ? (
+        {notificationsLoading ||
+        (notificationsFetching && notifications.length === 0) ? (
           <div className='flex flex-col gap-2 p-4'>
             {[...Array(3)].map((_, i) => (
               <div key={i} className='flex items-center gap-3'>
@@ -158,7 +156,7 @@ export function NotificationsDropdown() {
                 >
                   <Link
                     href={`/tasks/${notification.taskId}`}
-                    className='flex flex-col items-start gap-1 p-3 hover:bg-gray-50 hover:dark:bg-[#1d1915]/80'
+                    className='flex flex-col items-start gap-1 p-3'
                   >
                     <div className='flex w-full min-w-0 items-start justify-between gap-2'>
                       <h3 className='line-clamp-1 min-w-0 flex-1 text-sm font-medium'>
