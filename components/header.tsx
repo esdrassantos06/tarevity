@@ -42,7 +42,7 @@ export default function Header() {
 
   return (
     <header
-      className='flex h-16 w-full items-center justify-between gap-2 bg-white p-3 shadow-sm md:p-4 dark:bg-[#1d1929]'
+      className='sticky top-5 z-999 mx-auto flex h-16 w-full max-w-7xl items-center justify-between gap-2 rounded-full border border-white/20 bg-white/70 p-3 shadow-lg backdrop-blur-md md:p-4 dark:border-white/10 dark:bg-[#1d1929]/70'
       role='banner'
     >
       {/* Logo */}
@@ -67,10 +67,9 @@ export default function Header() {
             role='status'
             aria-label={t('loadingUserActions')}
           >
-            <Skeleton className='size-8 rounded-md' />
-            <Skeleton className='size-8 rounded-md' />
-            <Skeleton className='size-8 rounded-md' />
-            <Skeleton className='size-8 rounded-md' />
+            <Skeleton className='size-8 rounded-full' />
+            <Skeleton className='size-8 rounded-full' />
+            <Skeleton className='size-8 rounded-full' />
           </div>
         ) : session ? (
           <>
@@ -78,7 +77,12 @@ export default function Header() {
             <LanguageSelector />
 
             {/* Calendar Link */}
-            <Button asChild size='icon' variant='outline'>
+            <Button
+              asChild
+              size='icon'
+              variant='outline'
+              className='rounded-full'
+            >
               <Link
                 href='/calendar'
                 aria-label={t('calendar.ariaLabel')}
@@ -100,7 +104,7 @@ export default function Header() {
               <DropdownMenuTrigger asChild>
                 <Button
                   variant='ghost'
-                  className='size-9 cursor-pointer rounded-full p-0'
+                  className='size-9 cursor-pointer rounded-full'
                   aria-label={t('userMenu.ariaLabel', {
                     name: session.user.name,
                   })}
@@ -138,7 +142,7 @@ export default function Header() {
               <DropdownMenuContent
                 align='end'
                 sideOffset={4}
-                className='w-[calc(100vw-2rem)] max-w-56 bg-white dark:bg-[#1d1929]'
+                className='z-999 w-[calc(100vw-2rem)] max-w-56 border border-white/20 bg-white/80 backdrop-blur-md dark:border-white/10 dark:bg-[#1d1929]/80'
                 role='menu'
                 aria-label={t('userMenu.menuAriaLabel')}
               >
@@ -157,7 +161,7 @@ export default function Header() {
                 <DropdownMenuItem asChild role='menuitem'>
                   <Link
                     href='/profile'
-                    className='flex items-center gap-2 hover:dark:bg-[#1d1915]/80'
+                    className='flex items-center gap-2'
                     aria-label={t('menu.profile.ariaLabel')}
                     title={t('menu.profile.title')}
                   >
@@ -172,7 +176,7 @@ export default function Header() {
                 <DropdownMenuItem asChild role='menuitem'>
                   <Link
                     href='/settings'
-                    className='flex items-center gap-2 hover:dark:bg-[#1d1915]/80'
+                    className='flex items-center gap-2'
                     aria-label={t('menu.settings.ariaLabel')}
                     title={t('menu.settings.title')}
                   >
@@ -187,7 +191,7 @@ export default function Header() {
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                   onSelect={handleSignOut}
-                  className='text-destructive hover:dark:bg-[#1d1915]/80'
+                  className='text-destructive'
                   role='menuitem'
                   aria-label={t('menu.logout.ariaLabel')}
                   title={t('menu.logout.title')}
@@ -208,7 +212,7 @@ export default function Header() {
             <LanguageSelector />
 
             {/* Auth Links */}
-            <Button asChild variant='outline'>
+            <Button asChild variant='outline' className='rounded-full'>
               <Link
                 href='/auth/login'
                 aria-label={t('auth.login.ariaLabel')}
@@ -219,7 +223,7 @@ export default function Header() {
             </Button>
             <Button
               asChild
-              className='bg-blue-accent hover:bg-blue-accent/70 text-white'
+              className='bg-blue-accent hover:bg-blue-accent/70 rounded-full text-white'
             >
               <Link
                 href='/auth/register'

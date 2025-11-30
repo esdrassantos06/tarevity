@@ -22,6 +22,7 @@ import { translatePriority, translateStatus } from '@/utils/text';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { CompleteTaskButton } from '@/components/tasks/complete-task-button';
 import { SubmitReviewButton } from '@/components/tasks/submit-to-review-button';
+import { BackButton } from '@/components/back-button';
 import type { Metadata } from 'next';
 import { cache } from 'react';
 
@@ -131,23 +132,11 @@ export default async function TaskPage({ params }: TaskPageProps) {
       <Header />
       <main className='flex flex-1 flex-col items-center justify-center px-4 py-8 sm:px-6 sm:py-12 lg:px-8 lg:py-20'>
         <div className='flex w-full max-w-7xl items-center justify-between gap-3 py-4'>
-          <Button asChild variant={'ghost'} className='justify-start'>
-            <Link
-              className='flex items-center justify-center gap-2'
-              href={'/dashboard'}
-              aria-label={t('backToDashboard')}
-              title={t('backToDashboard')}
-            >
-              <Icon
-                icon={'tabler:arrow-left'}
-                className='size-4 sm:size-5'
-                aria-hidden='true'
-              />
-              <span className='text-sm sm:text-base'>
-                {t('backToDashboard')}
-              </span>
-            </Link>
-          </Button>
+          <BackButton
+            href='/dashboard'
+            translationKey='backToDashboard'
+            namespace='TaskPage'
+          />
           <div className='flex items-center gap-2'>
             <Button
               asChild

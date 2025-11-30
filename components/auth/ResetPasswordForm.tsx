@@ -9,6 +9,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
+import { BackButton } from '@/components/back-button';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
 import { useState, useEffect } from 'react';
@@ -112,7 +113,10 @@ export const ResetPasswordForm = () => {
 
   if (isSuccess) {
     return (
-      <div className='flex min-h-screen items-center justify-center px-4 py-12 sm:px-6 lg:px-8'>
+      <div className='flex min-h-screen flex-col items-center justify-center px-4 py-12 sm:px-6 lg:px-8'>
+        <div className='mb-4 w-full max-w-md'>
+          <BackButton href='/auth/login' translationKey='backToLogin' />
+        </div>
         <Card
           className='w-full max-w-md bg-white dark:bg-[#1d1929]'
           role='main'
@@ -153,7 +157,10 @@ export const ResetPasswordForm = () => {
 
   if (!token) {
     return (
-      <div className='flex min-h-screen items-center justify-center px-4 py-12 sm:px-6 lg:px-8'>
+      <div className='flex min-h-screen flex-col items-center justify-center px-4 py-12 sm:px-6 lg:px-8'>
+        <div className='mb-4 w-full max-w-md'>
+          <BackButton href='/auth/login' translationKey='backToLogin' />
+        </div>
         <Card
           className='w-full max-w-md bg-white dark:bg-[#1d1929]'
           role='main'
@@ -202,7 +209,10 @@ export const ResetPasswordForm = () => {
   }
 
   return (
-    <div className='flex min-h-screen items-center justify-center px-4 py-12 sm:px-6 lg:px-8'>
+    <div className='flex min-h-screen flex-col items-center justify-center px-4 py-12 sm:px-6 lg:px-8'>
+      <div className='mb-4 w-full max-w-md'>
+        <BackButton href='/auth/login' translationKey='backToLogin' />
+      </div>
       <Card className='w-full max-w-md bg-white dark:bg-[#1d1929]' role='main'>
         <CardHeader className='space-y-1'>
           <CardTitle

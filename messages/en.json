@@ -1023,5 +1023,11 @@
     "selectLanguage": "Select language",
     "languageSelectionMenu": "Language selection menu",
     "switchTo": "Switch to {language}"
+  },
+  "BackButton": {
+    "backToDashboard": "Back to dashboard",
+    "backToTask": "Back to task",
+    "backToHome": "Back to home",
+    "backToLogin": "Back to Login"
   }
 }

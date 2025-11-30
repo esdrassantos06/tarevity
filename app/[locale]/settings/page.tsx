@@ -92,7 +92,7 @@ export default function Settings() {
               className='w-full border-b border-gray-200 pb-0 md:w-56 md:border-r md:border-b-0 md:pb-6 md:dark:border-gray-700'
               aria-label={t('navigation.ariaLabel')}
             >
-              <TabsList className='flex h-auto w-full flex-row gap-1 overflow-x-auto border-0 bg-transparent p-2 md:flex-col md:items-start md:gap-0 md:p-0 md:pt-6'>
+              <TabsList className='flex h-auto w-full flex-row gap-1 overflow-x-auto border-0 bg-transparent p-2 md:flex-col md:items-start'>
                 <TabsTrigger
                   value='appearance'
                   className='h-auto min-w-0 flex-1 justify-center rounded-md px-3 py-2.5 text-sm transition-all duration-200 hover:bg-gray-100 data-[state=active]:border-b-2 data-[state=active]:border-blue-500 data-[state=active]:bg-blue-50 md:min-w-full md:justify-start md:px-4 md:data-[state=active]:border-b-0 md:data-[state=active]:border-l-4 dark:hover:bg-gray-800/50 data-[state=active]:dark:bg-blue-900/30'

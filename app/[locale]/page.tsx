@@ -7,6 +7,7 @@ import Footer from '@/components/footer';
 import { Button } from '@/components/ui/button';
 import { Link } from '@/i18n/navigation';
 import { Icon } from '@iconify/react';
+import { FadeIn } from '@/components/fade-in';
 
 type Props = {
   params: Promise<{ locale: string }>;
@@ -130,40 +131,44 @@ export default async function Home({ params }: Props) {
           aria-labelledby='hero-heading'
         >
           <div className='flex flex-col items-center justify-center gap-6 text-center sm:gap-8'>
-            <h1
-              id='hero-heading'
-              className='px-4 text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl dark:text-white'
-            >
-              {t('hero.title')}
-            </h1>
-            <p className='mx-auto mt-3 max-w-md px-4 text-base text-gray-600 sm:text-lg md:mt-5 md:max-w-2xl md:text-xl lg:max-w-3xl dark:text-gray-300'>
-              {t('hero.description')}
-            </p>
-            <Button asChild size='lg' className='group mt-2'>
-              {session ? (
-                <Link
-                  href='/dashboard'
-                  className='flex items-center gap-2 dark:bg-[#1d1929] dark:text-white'
-                >
-                  {t('hero.dashboardButton')}
-                  <Icon
-                    icon='mdi:arrow-right'
-                    className='size-5 transition-transform duration-300 group-hover:translate-x-1'
-                  />
-                </Link>
-              ) : (
-                <Link
-                  href='/auth/register'
-                  className='flex items-center gap-2 dark:bg-[#1d1929] dark:text-white'
-                >
-                  {t('hero.getStartedButton')}
-                  <Icon
-                    icon='mdi:arrow-right'
-                    className='size-5 transition-transform duration-300 group-hover:translate-x-1'
-                  />
-                </Link>
-              )}
-            </Button>
+            <FadeIn direction='up'>
+              <h1
+                id='hero-heading'
+                className='px-4 text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl dark:text-white'
+              >
+                {t('hero.title')}
+              </h1>
+              <p className='mx-auto mt-3 max-w-md px-4 text-base text-gray-600 sm:text-lg md:mt-5 md:max-w-2xl md:text-xl lg:max-w-3xl dark:text-gray-300'>
+                {t('hero.description')}
+              </p>
+            </FadeIn>
+            <FadeIn direction='up'>
+              <Button asChild size='lg' className='group mt-2'>
+                {session ? (
+                  <Link
+                    href='/dashboard'
+                    className='flex items-center gap-2 dark:bg-[#1d1929] dark:text-white'
+                  >
+                    {t('hero.dashboardButton')}
+                    <Icon
+                      icon='mdi:arrow-right'
+                      className='size-5 transition-transform duration-300 group-hover:translate-x-1'
+                    />
+                  </Link>
+                ) : (
+                  <Link
+                    href='/auth/register'
+                    className='flex items-center gap-2 dark:bg-[#1d1929] dark:text-white'
+                  >
+                    {t('hero.getStartedButton')}
+                    <Icon
+                      icon='mdi:arrow-right'
+                      className='size-5 transition-transform duration-300 group-hover:translate-x-1'
+                    />
+                  </Link>
+                )}
+              </Button>
+            </FadeIn>
           </div>
         </section>
 
@@ -172,60 +177,61 @@ export default async function Home({ params }: Props) {
           className='mx-auto w-full max-w-7xl py-12 sm:py-16'
           aria-labelledby='features-heading'
         >
-          <div className='rounded-2xl p-6 shadow-lg sm:p-8 md:p-10 lg:p-12 dark:bg-[#1d1929]'>
-            <header className='mb-8 flex flex-col items-center justify-center sm:mb-10 md:mb-12'>
-              <span className='mb-2 text-sm font-semibold tracking-wider uppercase'>
-                {t('features.label')}
-              </span>
-              <h2
-                id='features-heading'
-                className='px-4 text-center text-2xl font-extrabold sm:text-3xl md:text-4xl dark:text-white'
-              >
-                {t('features.title')}
-              </h2>
-            </header>
-
-            <div className='grid grid-cols-1 gap-6 sm:grid-cols-2 sm:gap-8 lg:gap-10'>
-              {[
-                {
-                  key: 'simpleTaskManagement',
-                  icon: 'mdi:playlist-check',
-                },
-                {
-                  key: 'neverMissDeadline',
-                  icon: 'mdi:bell-ring',
-                },
-                {
-                  key: 'secureAndPrivate',
-                  icon: 'mdi:lock',
-                },
-                {
-                  key: 'accessFromAnywhere',
-                  icon: 'mdi:cellphone-link',
-                },
-              ].map((item) => (
-                <article
-                  key={item.key}
-                  className='group flex items-start gap-4 rounded-xl p-4 transition-colors duration-300 hover:bg-gray-50 sm:p-5 dark:hover:bg-[#252131]'
+          <FadeIn direction='up'>
+            <div className='rounded-2xl p-6 shadow-lg sm:p-8 md:p-10 lg:p-12 dark:bg-[#1d1929]'>
+              <header className='mb-8 flex flex-col items-center justify-center sm:mb-10 md:mb-12'>
+                <span className='mb-2 text-sm font-semibold tracking-wider uppercase'>
+                  {t('features.label')}
+                </span>
+                <h2
+                  id='features-heading'
+                  className='px-4 text-center text-2xl font-extrabold sm:text-3xl md:text-4xl dark:text-white'
                 >
-                  <div className='bg-blue-accent flex flex-shrink-0 items-center justify-center rounded-lg p-3 shadow-md transition-transform duration-300 group-hover:scale-110'>
-                    <Icon
-                      icon={item.icon}
-                      className='size-6 text-white sm:size-7'
-                    />
-                  </div>
-                  <div className='min-w-0 flex-1'>
-                    <h3 className='mb-2 text-lg leading-6 font-semibold sm:text-xl dark:text-white'>
-                      {t(`features.items.${item.key}.title`)}
-                    </h3>
-                    <p className='text-sm leading-relaxed text-gray-600 sm:text-base dark:text-gray-300'>
-                      {t(`features.items.${item.key}.description`)}
-                    </p>
-                  </div>
-                </article>
-              ))}
+                  {t('features.title')}
+                </h2>
+              </header>
+
+              <div className='grid grid-cols-1 gap-6 sm:grid-cols-2 sm:gap-8 lg:gap-10'>
+                {[
+                  {
+                    key: 'simpleTaskManagement',
+                    icon: 'mdi:playlist-check',
+                  },
+                  {
+                    key: 'neverMissDeadline',
+                    icon: 'mdi:bell-ring',
+                  },
+                  {
+                    key: 'secureAndPrivate',
+                    icon: 'mdi:lock',
+                  },
+                  {
+                    key: 'accessFromAnywhere',
+                    icon: 'mdi:cellphone-link',
+                  },
+                ].map((item) => (
+                  <FadeIn direction='up' key={item.key}>
+                    <article className='group flex items-start gap-4 rounded-xl p-4 transition-colors duration-300 hover:bg-gray-50 sm:p-5 dark:hover:bg-[#252131]'>
+                      <div className='bg-blue-accent flex flex-shrink-0 items-center justify-center rounded-lg p-3 shadow-md transition-transform duration-300 group-hover:scale-110'>
+                        <Icon
+                          icon={item.icon}
+                          className='size-6 text-white sm:size-7'
+                        />
+                      </div>
+                      <div className='min-w-0 flex-1'>
+                        <h3 className='mb-2 text-lg leading-6 font-semibold sm:text-xl dark:text-white'>
+                          {t(`features.items.${item.key}.title`)}
+                        </h3>
+                        <p className='text-sm leading-relaxed text-gray-600 sm:text-base dark:text-gray-300'>
+                          {t(`features.items.${item.key}.description`)}
+                        </p>
+                      </div>
+                    </article>
+                  </FadeIn>
+                ))}
+              </div>
             </div>
-          </div>
+          </FadeIn>
         </section>
 
         {/* CTA Section */}
@@ -233,29 +239,30 @@ export default async function Home({ params }: Props) {
           className='bg-blue-accent mx-auto mb-20 w-full max-w-7xl rounded-lg py-12 text-center shadow sm:py-20'
           aria-labelledby='cta-heading'
         >
-          <div className='flex flex-col items-center gap-6 px-4'>
-            <div className='flex flex-col items-center justify-center gap-2'>
-              <h2
-                id='cta-heading'
-                className='text-2xl font-bold text-white sm:text-3xl md:text-4xl'
-              >
-                {t('cta.title')} <br /> {t('cta.titleLine2')}
-              </h2>
-              <p className='max-w-2xl text-base text-white'>
-                {t('cta.description')}
-              </p>
+          <FadeIn direction='up'>
+            <div className='flex flex-col items-center gap-6 px-4'>
+              <div className='flex flex-col items-center justify-center gap-2'>
+                <h2
+                  id='cta-heading'
+                  className='text-2xl font-bold text-white sm:text-3xl md:text-4xl'
+                >
+                  {t('cta.title')} <br /> {t('cta.titleLine2')}
+                </h2>
+                <p className='max-w-2xl text-base text-white'>
+                  {t('cta.description')}
+                </p>
+              </div>
+              <Button asChild className='group'>
+                <Link href='/auth/register' className='flex items-center gap-2'>
+                  {t('cta.button')}
+                  <Icon
+                    icon='mdi:arrow-right'
+                    className='size-5 transition-transform duration-300 group-hover:translate-x-1'
+                  />
+                </Link>
+              </Button>
             </div>
-
-            <Button asChild className='group'>
-              <Link href='/auth/register' className='flex items-center gap-2'>
-                {t('cta.button')}
-                <Icon
-                  icon='mdi:arrow-right'
-                  className='size-5 transition-transform duration-300 group-hover:translate-x-1'
-                />
-              </Link>
-            </Button>
-          </div>
+          </FadeIn>
         </section>
       </main>
       <Footer />

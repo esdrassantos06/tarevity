@@ -1030,5 +1030,11 @@
     "selectLanguage": "Selecionar idioma",
     "languageSelectionMenu": "Menu de seleção de idioma",
     "switchTo": "Alternar para {language}"
+  },
+  "BackButton": {
+    "backToDashboard": "Voltar ao painel",
+    "backToTask": "Voltar à tarefa",
+    "backToHome": "Voltar ao início",
+    "backToLogin": "Voltar para Login"
   }
 }

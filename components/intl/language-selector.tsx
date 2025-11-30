@@ -45,6 +45,7 @@ export function LanguageSelector() {
     <DropdownMenu modal={false}>
       <DropdownMenuTrigger asChild>
         <Button
+          className='rounded-full'
           size='icon'
           variant='outline'
           aria-label={t('changeLanguage')}
@@ -70,7 +71,7 @@ export function LanguageSelector() {
       <DropdownMenuContent
         align='end'
         sideOffset={4}
-        className='w-[calc(100vw-2rem)] max-w-48 bg-white dark:bg-[#1d1929]'
+        className='z-999 w-[calc(100vw-2rem)] max-w-48 border border-white/20 bg-white/80 backdrop-blur-md dark:border-white/10 dark:bg-[#1d1929]/80'
         role='menu'
         aria-label={t('languageSelectionMenu')}
       >
@@ -81,7 +82,7 @@ export function LanguageSelector() {
               key={language.code}
               onClick={() => handleLanguageChange(language.code)}
               disabled={isActive}
-              className='flex cursor-pointer items-center gap-2 hover:dark:bg-[#1d1915]/80'
+              className='flex cursor-pointer items-center gap-2'
               role='menuitem'
               aria-label={t('switchTo', { language: language.name })}
               aria-current={isActive ? 'true' : 'false'}
