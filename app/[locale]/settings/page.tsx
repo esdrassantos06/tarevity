@@ -66,8 +66,7 @@ export default function Settings() {
     return null;
   }
 
-  const isAdmin =
-    session?.user.role === 'admin' || session?.user.role === 'superadmin';
+  const isAdmin = session?.user.role === 'admin';
 
   return (
     <>

@@ -78,7 +78,7 @@ Tarevity is a sophisticated task management application built with Next.js 16, R
 ### 👥 Admin Panel
 
 - **User Management** with comprehensive user data table
-- **User Roles** (User, Admin, Superadmin) with role-based access control
+- **User Roles** (User, Admin) with role-based access control
 - **User Actions**: View, Edit, and Delete users
 - **User Statistics** showing task counts per user
 - **Email Filtering** for quick user search

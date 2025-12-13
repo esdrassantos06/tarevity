@@ -26,8 +26,7 @@ export async function ListUsersAction(
     return { error: t('unauthorized') };
   }
 
-  const isAdmin =
-    session.user.role === 'admin' || session.user.role === 'superadmin';
+  const isAdmin = session.user.role === 'admin';
 
   if (!isAdmin) {
     return { error: t('unauthorized') };
@@ -117,8 +116,7 @@ export async function UpdateUserAdminAction(
   }
 
   const currentUserRole = session.user.role;
-  const isAdmin =
-    currentUserRole === 'admin' || currentUserRole === 'superadmin';
+  const isAdmin = currentUserRole === 'admin';
 
   if (!isAdmin) {
     return { error: t('unauthorized') };
@@ -135,15 +133,8 @@ export async function UpdateUserAdminAction(
     }
 
     if (currentUserRole === 'admin') {
-      if (targetUser.role === 'admin' || targetUser.role === 'superadmin') {
+      if (targetUser.role === 'admin') {
         return { error: t('cannotModifyAdmin') || 'Cannot modify admin users' };
-      }
-    } else if (currentUserRole === 'superadmin') {
-      if (targetUser.role === 'superadmin') {
-        return {
-          error:
-            t('cannotModifySuperadmin') || 'Cannot modify superadmin users',
-        };
       }
     }
 
@@ -158,11 +149,6 @@ export async function UpdateUserAdminAction(
     }
 
     if (data.role !== undefined) {
-      if (data.role === 'superadmin' && currentUserRole !== 'superadmin') {
-        return {
-          error: t('cannotSetSuperadmin') || 'Cannot set superadmin role',
-        };
-      }
       updateData.role = data.role;
     }
 
@@ -197,8 +183,7 @@ export async function RemoveUserAction(
   }
 
   const currentUserRole = session.user.role;
-  const isAdmin =
-    currentUserRole === 'admin' || currentUserRole === 'superadmin';
+  const isAdmin = currentUserRole === 'admin';
 
   if (!isAdmin) {
     return { error: t('unauthorized') };
@@ -219,15 +204,8 @@ export async function RemoveUserAction(
     }
 
     if (currentUserRole === 'admin') {
-      if (targetUser.role === 'admin' || targetUser.role === 'superadmin') {
+      if (targetUser.role === 'admin') {
         return { error: t('cannotDeleteAdmin') || 'Cannot delete admin users' };
-      }
-    } else if (currentUserRole === 'superadmin') {
-      if (targetUser.role === 'superadmin') {
-        return {
-          error:
-            t('cannotDeleteSuperadmin') || 'Cannot delete superadmin users',
-        };
       }
     }
 

@@ -120,7 +120,7 @@ export function createAdminUpdateUserSchema(t: Translator) {
       .optional(),
     email: z.email(t('email.invalid')).optional(),
     role: z
-      .enum(['user', 'admin', 'superadmin'], {
+      .enum(['user', 'admin'], {
         message: t('role.invalid') || 'Invalid role',
       })
       .optional(),

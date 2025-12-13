@@ -724,7 +724,6 @@
           "rolePlaceholder": "Select role",
           "roleUser": "User",
           "roleAdmin": "Admin",
-          "roleSuperadmin": "Superadmin",
           "cancel": "Cancel",
           "save": "Save",
           "saving": "Saving...",
