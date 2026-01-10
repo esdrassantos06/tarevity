@@ -112,7 +112,7 @@ function addSecurityHeaders(response: NextResponse) {
     default-src 'self';
     script-src ${scriptSrc};
     style-src ${styleSrc};
-    img-src 'self' data: blob: https://api.iconify.design https://lh3.googleusercontent.com https://api.simplesvg.com https://api.unisvg.com ${supabaseUrl || ''};
+    img-src 'self' data: blob: https://api.iconify.design https://lh3.googleusercontent.com https://api.simplesvg.com https://api.unisvg.com https://avatars.githubusercontent.com ${supabaseUrl || ''};
     font-src 'self';
     connect-src 'self' https://api.iconify.design https://lh3.googleusercontent.com https://api.simplesvg.com https://api.unisvg.com ${supabaseUrl || ''};
     object-src 'none';

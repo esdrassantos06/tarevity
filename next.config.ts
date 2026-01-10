@@ -49,7 +49,6 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
-  reactStrictMode: true,
   async headers() {
     return [
       {
@@ -72,6 +71,14 @@ const nextConfig: NextConfig = {
       {
         protocol: 'https',
         hostname: 'lh3.googleusercontent.com',
+      },
+      {
+        protocol: 'https',
+        hostname: '**.githubusercontent.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'github.com',
       },
     ],
     formats: ['image/avif', 'image/webp'],

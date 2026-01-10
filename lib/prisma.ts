@@ -7,14 +7,16 @@ const adapter = new PrismaPg({
 
 const globalForPrisma = global as unknown as { prisma?: PrismaClient };
 
+const isDevelopment = process.env.NODE_ENV === 'development';
+
 const prisma =
   globalForPrisma.prisma ||
   new PrismaClient({
     adapter,
-    log: ['query', 'info', 'warn', 'error'],
+    log: isDevelopment ? ['query', 'info', 'warn', 'error'] : ['error'],
   });
 
-if (process.env.NODE_ENV !== 'production') {
+if (!isDevelopment) {
   globalForPrisma.prisma = prisma;
 }
 
