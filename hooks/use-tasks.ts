@@ -123,7 +123,94 @@ export function useUpdateTaskStatus() {
 
       return response.json();
     },
+    onMutate: async ({ taskId, status }) => {
+      await queryClient.cancelQueries({ queryKey: ['tasks'] });
+      await queryClient.cancelQueries({ queryKey: ['tasks-calendar'] });
+      await queryClient.cancelQueries({ queryKey: ['tasks-stats'] });
+      await queryClient.cancelQueries({ queryKey: ['task-counts'] });
+
+      const previousTasksQueries = queryClient.getQueriesData({
+        queryKey: ['tasks'],
+      });
+      const previousCalendarQueries = queryClient.getQueriesData({
+        queryKey: ['tasks-calendar'],
+      });
+      const previousStatsQueries = queryClient.getQueriesData({
+        queryKey: ['tasks-stats'],
+      });
+      const previousCountsQueries = queryClient.getQueriesData({
+        queryKey: ['task-counts'],
+      });
+
+      queryClient.setQueriesData<TasksResponse>(
+        { queryKey: ['tasks'] },
+        (old) => {
+          if (!old) return old;
+          return {
+            ...old,
+            tasks: old.tasks.map((task) =>
+              task.id === taskId ? { ...task, status } : task,
+            ),
+          };
+        },
+      );
+
+      queryClient.setQueriesData<Task[]>(
+        { queryKey: ['tasks-calendar'] },
+        (old) => {
+          if (!old) return old;
+          return old.map((task) =>
+            task.id === taskId ? { ...task, status } : task,
+          );
+        },
+      );
+
+      return {
+        previousTasksQueries,
+        previousCalendarQueries,
+        previousStatsQueries,
+        previousCountsQueries,
+      };
+    },
+    onError: (error, variables, context) => {
+      if (context) {
+        context.previousTasksQueries.forEach(([queryKey, data]) => {
+          queryClient.setQueryData(queryKey, data);
+        });
+        context.previousCalendarQueries.forEach(([queryKey, data]) => {
+          queryClient.setQueryData(queryKey, data);
+        });
+        context.previousStatsQueries.forEach(([queryKey, data]) => {
+          queryClient.setQueryData(queryKey, data);
+        });
+        context.previousCountsQueries.forEach(([queryKey, data]) => {
+          queryClient.setQueryData(queryKey, data);
+        });
+      }
+    },
     onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ['tasks'],
+        refetchType: 'none',
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['tasks-calendar'],
+        refetchType: 'none',
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['tasks-stats'],
+        refetchType: 'none',
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['task-counts'],
+        refetchType: 'none',
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['notifications'],
+        refetchType: 'none',
+      });
+    },
+    onSettled: () => {
       queryClient.invalidateQueries({
         queryKey: ['tasks'],
         refetchType: 'active',

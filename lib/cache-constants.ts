@@ -21,4 +21,8 @@ export const cacheKeys = {
   notifications: (userId: string) => `notifications:${userId}`,
   userProfile: (userId: string) => `user:${userId}:profile`,
   userStats: (userId: string) => `user:${userId}:stats`,
+  task: (userId: string, taskId: string) => `task:${userId}:${taskId}`,
+  calendar: (userId: string, month: number, year: number) =>
+    `calendar:${userId}:${year}:${month}`,
+  userTaskKeys: (userId: string) => `cache_keys:user_tasks:${userId}`,
 };

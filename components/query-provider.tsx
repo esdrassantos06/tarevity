@@ -11,17 +11,20 @@ export function QueryProvider({ children }: { children: React.ReactNode }) {
       new QueryClient({
         defaultOptions: {
           queries: {
-            staleTime: 5 * 60 * 1000,
-            gcTime: 10 * 60 * 1000,
+            staleTime: 5 * 60 * 1000, // 5 minutes - data is fresh for 5 minutes
+            gcTime: 10 * 60 * 1000, // 10 minutes in cache
             refetchOnMount: false,
             refetchOnWindowFocus: false,
             refetchOnReconnect: false,
             retry: 1,
-            retryDelay: 1000,
+            retryDelay: (attemptIndex) =>
+              Math.min(1000 * 2 ** attemptIndex, 30000), // Exponential backoff
+            structuralSharing: true,
           },
           mutations: {
             retry: 1,
             retryDelay: 1000,
+            networkMode: 'online',
           },
         },
       }),

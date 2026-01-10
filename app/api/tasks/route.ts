@@ -13,8 +13,12 @@ import {
   cacheKeys,
   getCached,
   CACHE_TTL,
+  registerTaskCacheKey,
 } from '@/lib/cache';
 import { headers } from 'next/headers';
+
+export const dynamic = 'force-dynamic';
+export const revalidate = 60;
 
 export async function GET(req: NextRequest) {
   const headersList = await headers();
@@ -141,6 +145,8 @@ export async function GET(req: NextRequest) {
     },
     CACHE_TTL.MEDIUM,
   );
+
+  await registerTaskCacheKey(session.user.id, cacheKey);
 
   return NextResponse.json(result);
 }

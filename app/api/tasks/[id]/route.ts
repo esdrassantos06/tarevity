@@ -9,12 +9,18 @@ import {
   invalidateCacheKeys,
   invalidateUserTasksCache,
   cacheKeys,
+  getCached,
+  CACHE_TTL,
+  registerTaskCacheKey,
 } from '@/lib/cache';
 import { headers } from 'next/headers';
 
 type EditTaskProps = {
   params: Promise<{ id: string }>;
 };
+
+export const dynamic = 'force-dynamic';
+export const revalidate = 60;
 
 export async function GET(req: NextRequest, { params }: EditTaskProps) {
   const headersList = await headers();
@@ -30,18 +36,34 @@ export async function GET(req: NextRequest, { params }: EditTaskProps) {
 
   const t = await getTranslations({ locale, namespace: 'ApiErrors' });
 
-  const task = await prisma.task.findFirst({
-    where: {
-      id,
-      userId: session.user.id,
-    },
-  });
+  const cacheKey = cacheKeys.task(session.user.id, id);
 
-  if (!task) {
+  const result = await getCached(
+    cacheKey,
+    async () => {
+      const task = await prisma.task.findFirst({
+        where: {
+          id,
+          userId: session.user.id,
+        },
+      });
+
+      if (!task) {
+        return null;
+      }
+
+      return { task };
+    },
+    CACHE_TTL.MEDIUM,
+  );
+
+  if (!result || !result.task) {
     return NextResponse.json({ error: t('taskNotFound') }, { status: 404 });
   }
 
-  return NextResponse.json({ task });
+  await registerTaskCacheKey(session.user.id, cacheKey);
+
+  return NextResponse.json(result);
 }
 
 export async function PATCH(req: NextRequest, { params }: EditTaskProps) {
@@ -84,6 +106,7 @@ export async function PATCH(req: NextRequest, { params }: EditTaskProps) {
       cacheKeys.userStats(session.user.id),
       cacheKeys.notifications(session.user.id),
       cacheKeys.taskStats(session.user.id),
+      cacheKeys.task(session.user.id, id),
     ]);
 
     await invalidateUserTasksCache(session.user.id);
@@ -134,6 +157,7 @@ export async function DELETE(req: NextRequest, { params }: EditTaskProps) {
     cacheKeys.userStats(session.user.id),
     cacheKeys.notifications(session.user.id),
     cacheKeys.taskStats(session.user.id),
+    cacheKeys.task(session.user.id, id),
   ]);
 
   await invalidateUserTasksCache(session.user.id);

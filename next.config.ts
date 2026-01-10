@@ -86,6 +86,16 @@ const nextConfig: NextConfig = {
   },
   compress: true,
   poweredByHeader: false,
+  experimental: {
+    optimizePackageImports: [
+      '@iconify/react',
+      '@radix-ui/react-avatar',
+      '@radix-ui/react-dropdown-menu',
+      '@radix-ui/react-select',
+      'date-fns',
+      'lucide-react',
+    ],
+  },
 };
 
 const withNextIntl = createNextIntlPlugin();

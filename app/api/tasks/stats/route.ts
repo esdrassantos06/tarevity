@@ -6,6 +6,9 @@ import { getTranslations } from 'next-intl/server';
 import { getCached, CACHE_TTL, cacheKeys } from '@/lib/cache';
 import { headers } from 'next/headers';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 60;
+
 export async function GET() {
   const headersList = await headers();
   const session = await auth.api.getSession({

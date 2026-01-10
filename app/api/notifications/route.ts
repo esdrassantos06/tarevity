@@ -101,6 +101,9 @@ const getNotificationsCached = cache(async (userId: string) => {
   );
 });
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 60;
+
 export async function GET() {
   const headersList = await headers();
   const session = await auth.api.getSession({

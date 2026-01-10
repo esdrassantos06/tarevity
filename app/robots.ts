@@ -11,6 +11,7 @@ export default function robots(): MetadataRoute.Robots {
           '/dashboard/',
           '/profile/',
           '/settings/',
+          '/calendar/',
           '/auth/',
           '/tasks/',
         ],
