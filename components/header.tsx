@@ -68,8 +68,8 @@ export default function Header() {
             aria-label={t('loadingUserActions')}
           >
             <Skeleton className='size-8 rounded-full' />
-            <Skeleton className='size-8 rounded-full' />
-            <Skeleton className='size-8 rounded-full' />
+            <Skeleton className='h-8 w-15 rounded-full' />
+            <Skeleton className='h-8 w-15 rounded-full' />
           </div>
         ) : session ? (
           <>

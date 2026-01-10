@@ -46,7 +46,7 @@ export function BackButton({
           className='size-4 sm:size-5'
           aria-hidden='true'
         />
-        <span className='text-sm sm:text-base'>{t(translationKey)}</span>
+        <span className='text-sm'>{t(translationKey)}</span>
       </Link>
     </Button>
   );

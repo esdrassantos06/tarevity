@@ -5,7 +5,7 @@ import { useMemo } from 'react';
 import { translateStatus } from '@/utils/text';
 import { useTranslations } from 'next-intl';
 import { useQuery } from '@tanstack/react-query';
-import { CACHE_TTL } from '@/lib/cache';
+import { CACHE_TTL } from '@/lib/cache-constants';
 import { Skeleton } from '@/components/ui/skeleton';
 
 interface TasksDonutChartProps {
