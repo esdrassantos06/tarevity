@@ -139,3 +139,30 @@
     display: none;
   }
 }
+
+/* Cookie banner button styles */
+#rcc-confirm-button {
+  background: oklch(0.496 0.284 263.9) !important;
+  transition: background-color 0.2s ease-in-out !important;
+}
+
+#rcc-confirm-button:hover {
+  background: oklch(0.496 0.284 263.9 / 0.7) !important;
+}
+
+#rcc-decline-button {
+  background: transparent !important;
+  transition: background-color 0.2s ease-in-out !important;
+}
+
+#rcc-decline-button:hover {
+  background: oklch(0.145 0 0 / 0.1) !important;
+}
+
+.dark #rcc-decline-button {
+  background: rgba(255, 255, 255, 0.1) !important;
+}
+
+.dark #rcc-decline-button:hover {
+  background: rgba(255, 255, 255, 0.15) !important;
+}

@@ -24,24 +24,27 @@ export default function CookieBanner() {
         background: isDark ? '#1d1929' : '#ffffff',
         color: isDark ? '#ffffff' : '#000000',
         padding: '1em',
+        borderTop: `1px solid ${
+          isDark ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.2)'
+        }`,
       }}
       buttonStyle={{
         color: '#ffffff',
-        background: 'oklch(0.496 0.284 263.9)',
         fontSize: '14px',
-        marginLeft: '0.25em',
-        borderRadius: '0.375rem',
+        fontWeight: '500',
+        padding: '0.5rem 1rem',
+        borderRadius: '9999px',
         border: 'none',
         cursor: 'pointer',
       }}
       declineButtonStyle={{
         color: isDark ? '#ffffff' : '#000000',
-        background: 'transparent',
         fontSize: '14px',
-        marginLeft: '0.25em',
-        borderRadius: '0.375rem',
+        fontWeight: '500',
+        padding: '0.5rem 1rem',
+        borderRadius: '9999px',
         border: `1px solid ${
-          isDark ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.7)'
+          isDark ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.2)'
         }`,
         cursor: 'pointer',
       }}
