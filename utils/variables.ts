@@ -1,6 +1,6 @@
 import { Locale } from 'next-intl';
 
-export const isDevelopment = process.env.NODE_ENV !== 'production';
+export const isDevelopment = process.env.NODE_ENV === 'development';
 
 export function getOpenGraphLocale(locale: Locale): string {
   const localeMap: Record<Locale, string> = {
