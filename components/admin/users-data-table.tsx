@@ -1,6 +1,5 @@
 'use client';
 
-import * as React from 'react';
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -51,6 +50,7 @@ import {
 import { RemoveUserAction } from '@/actions/admin-actions';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type { ListUsersResult } from '@/types/Admin';
+import { useMemo, useState } from 'react';
 
 export const getColumns = (
   t: (key: string) => string,
@@ -173,7 +173,7 @@ export const getColumns = (
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant='ghost' className='h-8 w-8 p-0'>
+            <Button variant='ghost' className='size-8 p-0'>
               <span className='sr-only'>{t('openMenu')}</span>
               <Icon icon='lucide:more-horizontal' className='size-4' />
             </Button>
@@ -215,21 +215,16 @@ interface UsersDataTableProps {
 export function UsersDataTable({ data }: UsersDataTableProps) {
   const t = useTranslations('SettingsPage.admin.table');
   const queryClient = useQueryClient();
-  const [sorting, setSorting] = React.useState<SortingState>([]);
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    [],
-  );
-  const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({});
-  const [rowSelection, setRowSelection] = React.useState({});
-  const [selectedUser, setSelectedUser] = React.useState<AdminUser | null>(
-    null,
-  );
-  const [isViewDialogOpen, setIsViewDialogOpen] = React.useState(false);
-  const [editUser, setEditUser] = React.useState<AdminUser | null>(null);
-  const [isEditDialogOpen, setIsEditDialogOpen] = React.useState(false);
-  const [deleteUser, setDeleteUser] = React.useState<AdminUser | null>(null);
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = React.useState(false);
+  const [sorting, setSorting] = useState<SortingState>([]);
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
+  const [rowSelection, setRowSelection] = useState({});
+  const [selectedUser, setSelectedUser] = useState<AdminUser | null>(null);
+  const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
+  const [editUser, setEditUser] = useState<AdminUser | null>(null);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [deleteUser, setDeleteUser] = useState<AdminUser | null>(null);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
   const deleteUserMutation = useMutation({
     mutationFn: async (userId: string) => {
@@ -272,7 +267,7 @@ export function UsersDataTable({ data }: UsersDataTableProps) {
     },
   });
 
-  const columns = React.useMemo(() => getColumns((key: string) => t(key)), [t]);
+  const columns = useMemo(() => getColumns((key: string) => t(key)), [t]);
 
   // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
