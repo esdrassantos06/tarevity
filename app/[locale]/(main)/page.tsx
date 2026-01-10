@@ -2,8 +2,6 @@ import type { Metadata } from 'next';
 import { headers } from 'next/headers';
 import { getTranslations } from 'next-intl/server';
 import { auth } from '@/lib/auth';
-import Header from '@/components/header';
-import Footer from '@/components/footer';
 import { Button } from '@/components/ui/button';
 import { Link } from '@/i18n/navigation';
 import { Icon } from '@iconify/react';
@@ -123,7 +121,6 @@ export default async function Home({ params }: Props) {
         type='application/ld+json'
         dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
       />
-      <Header />
       <main className='flex flex-1 flex-col items-center justify-center px-4 py-20 sm:px-6 lg:px-8'>
         {/* Hero Section */}
         <section
@@ -265,7 +262,6 @@ export default async function Home({ params }: Props) {
           </FadeIn>
         </section>
       </main>
-      <Footer />
     </>
   );
 }

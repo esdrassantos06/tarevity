@@ -1,12 +1,15 @@
-import { CreateTask } from '@/components/tasks/create-task';
 import Header from '@/components/header';
 import Footer from '@/components/footer';
 
-export default function CreateTaskPage() {
+export default function MainLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <>
       <Header />
-      <CreateTask />
+      {children}
       <Footer />
     </>
   );
