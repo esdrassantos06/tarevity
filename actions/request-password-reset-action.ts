@@ -5,6 +5,8 @@ import { headers } from 'next/headers';
 import { APIError } from 'better-auth/api';
 import { forgotPasswordSchema } from '@/validation/ForgotPasswordSchema';
 import { getTranslations } from 'next-intl/server';
+import { logger } from '@/lib/logger';
+import { handleError } from '@/lib/error-handler';
 
 export async function RequestPasswordResetAction(formData: FormData) {
   const t = await getTranslations('ServerActions');
@@ -45,7 +47,12 @@ export async function RequestPasswordResetAction(formData: FormData) {
           return { error: err.message || t('resetPassword.failedToReset') };
       }
     }
-    console.error('RequestPasswordReset error:', err);
-    return { error: t('internalServerError') };
+    const error = handleError(err);
+    logger.error(
+      'RequestPasswordReset error',
+      err instanceof Error ? err : new Error(String(err)),
+      { email },
+    );
+    return { error: error.error || t('internalServerError') };
   }
 }

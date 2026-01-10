@@ -4,6 +4,8 @@ import { auth, ErrorCode } from '@/lib/auth';
 import { APIError } from 'better-auth/api';
 import { signUpSchema } from '@/validation/SignUpSchema';
 import { getTranslations } from 'next-intl/server';
+import { logger } from '@/lib/logger';
+import { handleError } from '@/lib/error-handler';
 
 export async function SignUpEmailActions(formData: FormData) {
   const t = await getTranslations('ServerActions');
@@ -44,7 +46,15 @@ export async function SignUpEmailActions(formData: FormData) {
           return { error: err.message };
       }
     }
-    console.error('SignUp error:', err);
+    const error = handleError(err);
+    logger.error(
+      'SignUp error',
+      err instanceof Error ? err : new Error(String(err)),
+      {
+        email,
+      },
+    );
+    return { error: error.error };
   }
 
   return { error: t('signUp.unexpectedError') };

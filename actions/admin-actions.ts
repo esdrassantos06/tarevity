@@ -7,6 +7,8 @@ import { getTranslations } from 'next-intl/server';
 import prisma from '@/lib/prisma';
 import { Prisma } from '@/lib/generated/prisma/client';
 import type { ListUsersResult, AdminUser } from '@/types/Admin';
+import { logger } from '@/lib/logger';
+import { handleError } from '@/lib/error-handler';
 
 export async function ListUsersAction(
   searchValue?: string,
@@ -96,8 +98,15 @@ export async function ListUsersAction(
       },
     };
   } catch (err) {
-    console.error('ListUsersAction error:', err);
-    return { error: t('internalServerError') };
+    const error = handleError(err);
+    logger.error(
+      'ListUsersAction error',
+      err instanceof Error ? err : new Error(String(err)),
+      {
+        userId: session.user.id,
+      },
+    );
+    return { error: error.error || t('internalServerError') };
   }
 }
 
@@ -164,8 +173,16 @@ export async function UpdateUserAdminAction(
         return { error: t('emailAlreadyExists') || 'Email already exists' };
       }
     }
-    console.error('UpdateUserAdminAction error:', err);
-    return { error: t('internalServerError') };
+    const error = handleError(err);
+    logger.error(
+      'UpdateUserAdminAction error',
+      err instanceof Error ? err : new Error(String(err)),
+      {
+        adminUserId: session.user.id,
+        targetUserId: userId,
+      },
+    );
+    return { error: error.error || t('internalServerError') };
   }
 }
 
@@ -221,7 +238,15 @@ export async function RemoveUserAction(
     if (err instanceof APIError) {
       return { error: err.message };
     }
-    console.error('RemoveUserAction error:', err);
-    return { error: t('internalServerError') };
+    const error = handleError(err);
+    logger.error(
+      'RemoveUserAction error',
+      err instanceof Error ? err : new Error(String(err)),
+      {
+        adminUserId: session.user.id,
+        targetUserId: userId,
+      },
+    );
+    return { error: error.error || t('internalServerError') };
   }
 }
