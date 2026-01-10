@@ -6,7 +6,7 @@ import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Icon } from '@iconify/react';
 import { useFormatter, useTranslations } from 'next-intl';
-import type { Task } from '@/lib/generated/prisma/client';
+import type { Task } from '@/lib/generated/prisma/browser';
 import { translatePriority } from '@/utils/text';
 import { CompleteTaskCheckbox } from './complete-task-checkbox';
 import { DeleteTaskButton } from './delete-task-button';

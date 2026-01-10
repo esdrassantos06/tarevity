@@ -34,7 +34,7 @@ import { useFormatter, useTranslations } from 'next-intl';
 import { translatePriority, translateStatus } from '@/utils/text';
 import { createTaskSchema } from '@/validation/schemas';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Task } from '@/lib/generated/prisma/client';
+import { Task } from '@/lib/generated/prisma/browser';
 import { useEffect } from 'react';
 
 interface EditTaskProps {
