@@ -1,5 +1,5 @@
 generator client {
-  provider = "prisma-client-js"
+  provider = "prisma-client"
   output   = "../lib/generated/prisma"
 }
 
@@ -10,40 +10,36 @@ datasource db {
 model User {
   id            String    @id
   name          String
-  email         String
+  email         String    @unique
   emailVerified Boolean   @default(false)
   image         String?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @default(now()) @updatedAt
-  sessions      Session[]
+  banExpires    DateTime?
+  banReason     String?
+  banned        Boolean?  @default(false)
+  role          String?
   accounts      Account[]
+  sessions      Session[]
   tasks         Task[]
 
-  role       String?
-  banned     Boolean?  @default(false)
-  banReason  String?
-  banExpires DateTime?
-
-  @@unique([email])
   @@index([email])
   @@index([createdAt])
   @@map("user")
 }
 
 model Session {
-  id        String   @id
-  expiresAt DateTime
-  token     String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  ipAddress String?
-  userAgent String?
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
+  id             String   @id
+  expiresAt      DateTime
+  token          String   @unique
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  ipAddress      String?
+  userAgent      String?
+  userId         String
   impersonatedBy String?
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([token])
   @@index([userId])
   @@index([token])
   @@index([expiresAt])
@@ -55,7 +51,6 @@ model Account {
   accountId             String
   providerId            String
   userId                String
-  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   accessToken           String?
   refreshToken          String?
   idToken               String?
@@ -65,6 +60,7 @@ model Account {
   password              String?
   createdAt             DateTime  @default(now())
   updatedAt             DateTime  @updatedAt
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@index([providerId, accountId])
@@ -82,18 +78,6 @@ model Verification {
   @@index([identifier])
   @@index([expiresAt])
   @@map("verification")
-}
-
-enum TaskStatus {
-  ACTIVE
-  REVIEW
-  COMPLETED
-}
-
-enum TaskPriority {
-  LOW
-  MEDIUM
-  HIGH
 }
 
 model Task {
@@ -115,4 +99,25 @@ model Task {
   @@index([userId, status])
   @@index([userId, dueDate])
   @@map("task")
+}
+
+model DbKeepAliveLog {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  note      String?
+
+  @@index([createdAt])
+  @@map("db_keep_alive_log")
+}
+
+enum TaskStatus {
+  ACTIVE
+  REVIEW
+  COMPLETED
+}
+
+enum TaskPriority {
+  LOW
+  MEDIUM
+  HIGH
 }
