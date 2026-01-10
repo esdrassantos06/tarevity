@@ -106,9 +106,9 @@ export async function GET() {
   const session = await auth.api.getSession({
     headers: headersList,
   });
+  const locale = await getLocaleFromRequest();
 
   if (!session) {
-    const locale = await getLocaleFromRequest();
     const t = await getTranslations({ locale, namespace: 'ApiErrors' });
     return NextResponse.json({ error: t('notAuthenticated') }, { status: 401 });
   }
@@ -122,7 +122,6 @@ export async function GET() {
     });
   } catch (error) {
     console.error('Error fetching notifications:', error);
-    const locale = await getLocaleFromRequest();
     const t = await getTranslations({ locale, namespace: 'Errors' });
     return NextResponse.json(
       { error: t('fetchingNotifications') },

@@ -21,9 +21,9 @@ export async function GET(req: NextRequest) {
   const session = await auth.api.getSession({
     headers: headersList,
   });
+  const locale = await getLocaleFromRequest();
 
   if (!session) {
-    const locale = await getLocaleFromRequest();
     const t = await getTranslations({ locale, namespace: 'ApiErrors' });
     return NextResponse.json({ error: t('notAuthenticated') }, { status: 401 });
   }
@@ -43,7 +43,6 @@ export async function GET(req: NextRequest) {
   const parseResult = taskQuerySchema.safeParse(queryParams);
 
   if (!parseResult.success) {
-    const locale = await getLocaleFromRequest();
     const t = await getTranslations({ locale, namespace: 'Errors' });
     return NextResponse.json(
       {
@@ -64,6 +63,7 @@ export async function GET(req: NextRequest) {
     sortBy,
     sortOrder,
   });
+
   const cacheKey = cacheKeys.tasks(session.user.id, page, filters);
 
   const result = await getCached(
@@ -150,9 +150,9 @@ export async function POST(req: NextRequest) {
   const session = await auth.api.getSession({
     headers: headersList,
   });
+  const locale = await getLocaleFromRequest();
 
   if (!session) {
-    const locale = await getLocaleFromRequest();
     const t = await getTranslations({ locale, namespace: 'ApiErrors' });
     return NextResponse.json({ error: t('notAuthenticated') }, { status: 401 });
   }
@@ -182,7 +182,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ task });
   } catch (error) {
     console.error(error);
-    const locale = await getLocaleFromRequest();
     const t = await getTranslations({ locale, namespace: 'Errors' });
     return NextResponse.json({ error: t('creatingTask') }, { status: 500 });
   }

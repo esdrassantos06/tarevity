@@ -10,9 +10,9 @@ export async function GET(req: NextRequest) {
   const session = await auth.api.getSession({
     headers: headersList,
   });
+  const locale = await getLocaleFromRequest();
 
   if (!session) {
-    const locale = await getLocaleFromRequest();
     const t = await getTranslations({ locale, namespace: 'ApiErrors' });
     return NextResponse.json({ error: t('notAuthenticated') }, { status: 401 });
   }
@@ -58,7 +58,6 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ tasks });
   } catch (error) {
     console.error('Error fetching calendar tasks:', error);
-    const locale = await getLocaleFromRequest();
     const t = await getTranslations({ locale, namespace: 'Errors' });
     return NextResponse.json(
       { error: t('fetchingCalendarTasks') },

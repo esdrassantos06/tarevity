@@ -19,16 +19,15 @@ type EditTaskProps = {
 export async function GET(req: NextRequest, { params }: EditTaskProps) {
   const headersList = await headers();
   const session = await auth.api.getSession({ headers: headersList });
+  const locale = await getLocaleFromRequest();
 
   const { id } = await params;
 
   if (!session) {
-    const locale = await getLocaleFromRequest();
     const t = await getTranslations({ locale, namespace: 'ApiErrors' });
     return NextResponse.json({ error: t('notAuthenticated') }, { status: 401 });
   }
 
-  const locale = await getLocaleFromRequest();
   const t = await getTranslations({ locale, namespace: 'ApiErrors' });
 
   const task = await prisma.task.findFirst({
@@ -49,14 +48,13 @@ export async function PATCH(req: NextRequest, { params }: EditTaskProps) {
   const headersList = await headers();
   const session = await auth.api.getSession({ headers: headersList });
   const { id } = await params;
+  const locale = await getLocaleFromRequest();
 
   if (!session) {
-    const locale = await getLocaleFromRequest();
     const t = await getTranslations({ locale, namespace: 'ApiErrors' });
     return NextResponse.json({ error: t('notAuthenticated') }, { status: 401 });
   }
 
-  const locale = await getLocaleFromRequest();
   const t = await getTranslations({ locale, namespace: 'ApiErrors' });
 
   try {
@@ -111,16 +109,15 @@ export async function PATCH(req: NextRequest, { params }: EditTaskProps) {
 export async function DELETE(req: NextRequest, { params }: EditTaskProps) {
   const headersList = await headers();
   const session = await auth.api.getSession({ headers: headersList });
+  const locale = await getLocaleFromRequest();
 
   const { id } = await params;
 
   if (!session) {
-    const locale = await getLocaleFromRequest();
     const t = await getTranslations({ locale, namespace: 'ApiErrors' });
     return NextResponse.json({ error: t('notAuthenticated') }, { status: 401 });
   }
 
-  const locale = await getLocaleFromRequest();
   const t = await getTranslations({ locale, namespace: 'ApiErrors' });
 
   const existing = await prisma.task.findUnique({
