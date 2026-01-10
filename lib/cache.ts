@@ -1,5 +1,6 @@
 import { redis } from './redis';
 import { CACHE_TTL, cacheKeys as cacheKeysConstants } from './cache-constants';
+import { logger } from './logger';
 
 export const cacheKeys = cacheKeysConstants;
 
@@ -21,10 +22,13 @@ export async function getCached<T>(
         }
         return cached as T;
       } catch (parseError) {
-        console.warn(
-          `Failed to parse cached data for key ${key}, invalidating:`,
-          parseError,
-        );
+        logger.warn('Failed to parse cached data, invalidating', {
+          key,
+          error:
+            parseError instanceof Error
+              ? parseError.message
+              : String(parseError),
+        });
         try {
           await redis.del(key);
         } catch {
@@ -39,7 +43,13 @@ export async function getCached<T>(
 
     return data;
   } catch (error) {
-    console.error(`Cache error for key ${key}:`, error);
+    logger.error(
+      'Cache error',
+      error instanceof Error ? error : new Error(String(error)),
+      {
+        key,
+      },
+    );
     // If cache fails, just fetch the data
     return fetcher();
   }
@@ -56,7 +66,11 @@ async function trackCacheKey(userId: string, key: string): Promise<void> {
     // Set expiry on the tracking set to prevent memory leaks
     await redis.expire(trackingKey, CACHE_TTL.LONG * 2);
   } catch (error) {
-    console.error('Cache key tracking error:', error);
+    logger.warn('Cache key tracking error', {
+      userId,
+      key,
+      error: error instanceof Error ? error.message : String(error),
+    });
   }
 }
 
@@ -83,7 +97,13 @@ export async function invalidateCacheKeys(keys: string[]): Promise<void> {
       }
     }
   } catch (error) {
-    console.error('Cache invalidation error:', error);
+    logger.error(
+      'Cache invalidation error',
+      error instanceof Error ? error : new Error(String(error)),
+      {
+        keysCount: keys.length,
+      },
+    );
   }
 }
 
@@ -113,7 +133,13 @@ async function scanKeys(pattern: string): Promise<string[]> {
       }
     } while (cursor !== '0');
   } catch (error) {
-    console.error('Redis SCAN error:', error);
+    logger.error(
+      'Redis SCAN error',
+      error instanceof Error ? error : new Error(String(error)),
+      {
+        pattern,
+      },
+    );
   }
 
   return keys;
@@ -142,7 +168,10 @@ export async function invalidateUserTasksCache(userId: string): Promise<void> {
         return;
       }
     } catch (error) {
-      console.warn('Cache tracking failed, falling back to SCAN:', error);
+      logger.warn('Cache tracking failed, falling back to SCAN', {
+        userId,
+        error: error instanceof Error ? error.message : String(error),
+      });
     }
 
     // Fallback to SCAN-based pattern matching (non-blocking)
@@ -166,7 +195,13 @@ export async function invalidateUserTasksCache(userId: string): Promise<void> {
       }
     }
   } catch (error) {
-    console.error('Cache invalidation error for user tasks:', error);
+    logger.error(
+      'Cache invalidation error for user tasks',
+      error instanceof Error ? error : new Error(String(error)),
+      {
+        userId,
+      },
+    );
   }
 }
 

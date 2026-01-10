@@ -2,6 +2,7 @@ import { PrismaClient } from './generated/prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { Pool } from 'pg';
 import { isDevelopment } from '@/utils/variables';
+import { logger } from './logger';
 
 const globalForPrisma = global as unknown as {
   prisma?: PrismaClient;
@@ -23,7 +24,7 @@ const pool =
 if (!globalForPrisma.pool) {
   globalForPrisma.pool = pool;
   pool.on('error', (err: Error) => {
-    console.error('Unexpected error on idle PostgreSQL client', err);
+    logger.error('Unexpected error on idle PostgreSQL client', err);
   });
 }
 

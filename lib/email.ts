@@ -1,4 +1,5 @@
 import { Resend } from 'resend';
+import { logger } from './logger';
 
 type SendEmailParams = {
   to: string;
@@ -24,7 +25,10 @@ export async function sendEmail({
   html,
 }: SendEmailParams): Promise<void> {
   if (!resendClient) {
-    console.error('RESEND_API_KEY is not configured. Cannot send email.');
+    logger.warn('RESEND_API_KEY is not configured. Cannot send email.', {
+      to,
+      subject,
+    });
     return;
   }
 
@@ -38,11 +42,21 @@ export async function sendEmail({
     });
 
     if (error) {
-      console.error('Failed to send email via Resend:', error);
+      logger.error('Failed to send email via Resend', error, {
+        to,
+        subject,
+      });
       throw new Error(`Failed to send email: ${error.message}`);
     }
   } catch (error) {
-    console.error('Error sending email:', error);
+    logger.error(
+      'Error sending email',
+      error instanceof Error ? error : new Error(String(error)),
+      {
+        to,
+        subject,
+      },
+    );
     throw error;
   }
 }

@@ -1,6 +1,6 @@
 import { auth } from '@/lib/auth';
 import prisma from '@/lib/prisma';
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { getLocaleFromRequest } from '@/lib/api-locale';
 import { getTranslations } from 'next-intl/server';
 import { headers } from 'next/headers';
@@ -10,6 +10,15 @@ import {
   CACHE_TTL,
   registerTaskCacheKey,
 } from '@/lib/cache';
+import { logger } from '@/lib/logger';
+import { createErrorResponse } from '@/lib/error-handler';
+import { errorResponse, successResponse } from '@/lib/api-response';
+import {
+  rateLimiters,
+  getRateLimitIdentifier,
+  checkRateLimit,
+  getRateLimitIp,
+} from '@/lib/rate-limit';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 60;
@@ -23,7 +32,31 @@ export async function GET(req: NextRequest) {
 
   if (!session) {
     const t = await getTranslations({ locale, namespace: 'ApiErrors' });
-    return NextResponse.json({ error: t('notAuthenticated') }, { status: 401 });
+    return errorResponse(t('notAuthenticated'), 401, 'AUTHENTICATION_ERROR');
+  }
+
+  const ip = getRateLimitIp(req);
+  const identifier = getRateLimitIdentifier(ip, session.user.id);
+  const rateLimitResult = await checkRateLimit(
+    rateLimiters.calendar,
+    identifier,
+  );
+
+  if (!rateLimitResult.success) {
+    const retryAfter = Math.ceil((rateLimitResult.reset - Date.now()) / 1000);
+    const response = errorResponse(
+      'Rate limit exceeded. Please try again later.',
+      429,
+      'RATE_LIMIT_ERROR',
+    );
+    response.headers.set('Retry-After', retryAfter.toString());
+    response.headers.set('X-RateLimit-Limit', rateLimitResult.limit.toString());
+    response.headers.set(
+      'X-RateLimit-Remaining',
+      rateLimitResult.remaining.toString(),
+    );
+    response.headers.set('X-RateLimit-Reset', rateLimitResult.reset.toString());
+    return response;
   }
 
   try {
@@ -77,13 +110,24 @@ export async function GET(req: NextRequest) {
 
     await registerTaskCacheKey(session.user.id, cacheKey);
 
-    return NextResponse.json(result);
+    return successResponse(result);
   } catch (error) {
-    console.error('Error fetching calendar tasks:', error);
+    const errorRes = createErrorResponse(error, {
+      userId: session.user.id,
+    });
+    logger.error(
+      'Error fetching calendar tasks',
+      error instanceof Error ? error : new Error(String(error)),
+      {
+        userId: session.user.id,
+      },
+    );
     const t = await getTranslations({ locale, namespace: 'Errors' });
-    return NextResponse.json(
-      { error: t('fetchingCalendarTasks') },
-      { status: 500 },
+    return errorResponse(
+      errorRes.error || t('fetchingCalendarTasks'),
+      errorRes.statusCode,
+      errorRes.code,
+      errorRes.details,
     );
   }
 }

@@ -1,7 +1,7 @@
 import prisma from './prisma';
 import { redis } from './redis';
-
 import { NextResponse, NextRequest } from 'next/server';
+import { logger } from './logger';
 
 export async function pingDb(request: NextRequest) {
   try {
@@ -35,7 +35,10 @@ export async function pingDb(request: NextRequest) {
       message: 'All systems operational',
     });
   } catch (error) {
-    console.error('Error pinging database:', error);
+    logger.error(
+      'Error pinging database',
+      error instanceof Error ? error : new Error(String(error)),
+    );
     return NextResponse.json(
       { message: 'Database is not running' },
       { status: 500 },
