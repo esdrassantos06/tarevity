@@ -1,10 +1,7 @@
 import { redis } from './redis';
+import { CACHE_TTL, cacheKeys as cacheKeysConstants } from './cache-constants';
 
-const CACHE_TTL = {
-  SHORT: 60, // 1 minute
-  MEDIUM: 5 * 60, // 5 minutes
-  LONG: 15 * 60, // 15 minutes
-} as const;
+export const cacheKeys = cacheKeysConstants;
 
 /**
  * Redis cache utility for application data
@@ -68,19 +65,5 @@ export async function invalidateUserTasksCache(userId: string): Promise<void> {
     console.error('Cache invalidation error for user tasks:', error);
   }
 }
-
-/**
- * Cache key generators
- */
-export const cacheKeys = {
-  tasks: (userId: string, page: number, filters: string) =>
-    `tasks:${userId}:${page}:${filters}`,
-  taskCount: (userId: string, status?: string) =>
-    status ? `tasks:count:${userId}:${status}` : `tasks:count:${userId}`,
-  taskStats: (userId: string) => `tasks:stats:${userId}`,
-  notifications: (userId: string) => `notifications:${userId}`,
-  userProfile: (userId: string) => `user:${userId}:profile`,
-  userStats: (userId: string) => `user:${userId}:stats`,
-};
 
 export { CACHE_TTL };

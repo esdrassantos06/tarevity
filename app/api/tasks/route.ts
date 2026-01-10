@@ -3,7 +3,7 @@ import prisma from '@/lib/prisma';
 import { taskSchema } from '@/validation/TaskSchema';
 import { taskQuerySchema } from '@/validation/TaskQuerySchema';
 import { NextRequest, NextResponse } from 'next/server';
-import { Prisma } from '@/lib/generated/prisma';
+import { Prisma } from '@/lib/generated/prisma/client';
 import { TaskPriority, TaskStatus } from '@/lib/generated/prisma/client';
 import { getLocaleFromRequest } from '@/lib/api-locale';
 import { getTranslations } from 'next-intl/server';

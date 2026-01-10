@@ -9,7 +9,7 @@ import { authClient } from '@/lib/auth-client';
 import { Icon } from '@iconify/react';
 import { Link, useRouter } from '@/i18n/navigation';
 import { useEffect, useState, useCallback } from 'react';
-import { TaskPriority, TaskStatus } from '@/lib/generated/prisma/client';
+import { TaskPriority, TaskStatus } from '@/lib/generated/prisma/enums';
 import { Skeleton } from '@/components/ui/skeleton';
 import { TaskCard } from '@/components/tasks/task-card';
 import SearchComponent from '@/components/search-component';

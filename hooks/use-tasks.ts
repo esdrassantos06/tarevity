@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Task, TaskStatus, TaskPriority } from '@/lib/generated/prisma/client';
+import { Task } from '@/lib/generated/prisma/client';
+import { TaskStatus, TaskPriority } from '@/lib/generated/prisma/enums';
 import { getTaskCounts } from '@/actions/profile-actions';
 import { TaskCounts } from '@/types/TaskCount';
 import { CACHE_TTL } from '@/lib/cache';

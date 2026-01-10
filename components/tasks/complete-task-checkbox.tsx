@@ -2,7 +2,7 @@
 
 import { toast } from 'sonner';
 import { Checkbox } from '@/components/ui/checkbox';
-import { TaskStatus } from '@/lib/generated/prisma';
+import { TaskStatus } from '@/lib/generated/prisma/client';
 import { useTranslations } from 'next-intl';
 import { useUpdateTaskStatus } from '@/hooks/use-tasks';
 

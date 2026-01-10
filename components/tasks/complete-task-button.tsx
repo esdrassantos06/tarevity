@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Icon } from '@iconify/react';
 import { useTranslations } from 'next-intl';
 import { translateStatus } from '@/utils/text';
-import { TaskStatus } from '@/lib/generated/prisma';
+import { TaskStatus } from '@/lib/generated/prisma/enums';
 import { useUpdateTaskStatus } from '@/hooks/use-tasks';
 
 interface CompleteTaskButtonProps {
