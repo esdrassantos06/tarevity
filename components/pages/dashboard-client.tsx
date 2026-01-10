@@ -10,7 +10,13 @@ import { TaskPriority, TaskStatus } from '@/lib/generated/prisma/enums';
 import { Skeleton } from '@/components/ui/skeleton';
 import { TaskCard } from '@/components/tasks/task-card';
 import SearchComponent from '@/components/search-component';
-import { TasksDonutChart } from '@/components/tasks/tasks-donut-chart';
+import { lazy, Suspense } from 'react';
+
+const TasksDonutChart = lazy(() =>
+  import('@/components/tasks/tasks-donut-chart').then((mod) => ({
+    default: mod.TasksDonutChart,
+  })),
+);
 import {
   Select,
   SelectContent,
@@ -300,7 +306,22 @@ export function DashboardClient({ session }: { session: SessionWithUser }) {
       </nav>
       <div className='w-full max-w-7xl py-4'>
         {session.user?.id ? (
-          <TasksDonutChart userId={session.user.id} />
+          <Suspense
+            fallback={
+              <div className='flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:gap-6'>
+                <div className='flex-shrink-0'>
+                  <Skeleton className='size-40 rounded-full' />
+                </div>
+                <div className='flex flex-col gap-3'>
+                  <Skeleton className='h-4 w-24' />
+                  <Skeleton className='h-4 w-24' />
+                  <Skeleton className='h-4 w-24' />
+                </div>
+              </div>
+            }
+          >
+            <TasksDonutChart userId={session.user.id} />
+          </Suspense>
         ) : (
           <div className='flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:gap-6'>
             <div className='flex-shrink-0'>
@@ -366,7 +387,7 @@ export function DashboardClient({ session }: { session: SessionWithUser }) {
               </p>
             </div>
           </div>
-        ) : !tasksData || tasksData.tasks.length === 0 ? (
+        ) : !tasksData || !tasksData.tasks || tasksData.tasks.length === 0 ? (
           <div className='flex flex-col items-center justify-center gap-4'>
             <div className='flex size-15 items-center justify-center rounded-full bg-gray-800 p-2'>
               <Icon

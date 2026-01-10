@@ -113,29 +113,26 @@ export default function Header() {
                   title={t('userMenu.title', { name: session.user.name })}
                 >
                   <Avatar className='size-9 select-none'>
-                    {session.user.image ? (
-                      <AvatarImage
-                        src={session.user.image}
-                        alt={t('userMenu.profilePicture', {
-                          name: session.user.name,
-                        })}
-                        title={t('userMenu.avatar', {
-                          name: session.user.name,
-                        })}
-                      />
-                    ) : (
-                      <AvatarFallback
-                        aria-label={t('userMenu.avatarAriaLabel', {
-                          name: session.user.name,
-                        })}
-                        className='select-none'
-                        title={t('userMenu.avatar', {
-                          name: session.user.name,
-                        })}
-                      >
-                        {session.user.name.charAt(0)}
-                      </AvatarFallback>
-                    )}
+                    <AvatarFallback
+                      aria-label={t('userMenu.avatarAriaLabel', {
+                        name: session.user.name,
+                      })}
+                      className='select-none'
+                      title={t('userMenu.avatar', {
+                        name: session.user.name,
+                      })}
+                    >
+                      {session.user.name.charAt(0)}
+                    </AvatarFallback>
+                    <AvatarImage
+                      src={session.user.image || ''}
+                      alt={t('userMenu.profilePicture', {
+                        name: session.user.name,
+                      })}
+                      title={t('userMenu.avatar', {
+                        name: session.user.name,
+                      })}
+                    />
                   </Avatar>
                 </Button>
               </DropdownMenuTrigger>

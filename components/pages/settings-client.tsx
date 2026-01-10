@@ -22,9 +22,15 @@ import {
 } from '@/components/ui/alert-dialog';
 import { APIError } from 'better-auth';
 import { SessionWithUser } from '@/lib/auth';
-
 import { useRouter } from '@/i18n/navigation';
-import { AdminPanel } from '@/components/admin/admin-panel';
+import { lazy, Suspense } from 'react';
+import { Skeleton } from '@/components/ui/skeleton';
+
+const AdminPanel = lazy(() =>
+  import('@/components/admin/admin-panel').then((mod) => ({
+    default: mod.AdminPanel,
+  })),
+);
 
 export function SettingsClient({ session }: { session: SessionWithUser }) {
   const router = useRouter();
@@ -334,7 +340,16 @@ export function SettingsClient({ session }: { session: SessionWithUser }) {
                 role='tabpanel'
                 aria-labelledby='admin-tab'
               >
-                <AdminPanel />
+                <Suspense
+                  fallback={
+                    <div className='flex flex-col gap-4'>
+                      <Skeleton className='h-10 w-full' />
+                      <Skeleton className='h-64 w-full' />
+                    </div>
+                  }
+                >
+                  <AdminPanel />
+                </Suspense>
               </TabsContent>
             )}
           </section>

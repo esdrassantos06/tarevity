@@ -71,8 +71,8 @@ export const getColumns = (
       );
     },
     cell: ({ row }) => (
-      <div className='font-mono text-xs'>
-        {`${(row.getValue('id') as string).substring(0, 10)}...`}
+      <div className='font-mono text-xs' title={row.getValue('id') as string}>
+        {`${(row.getValue('id') as string).substring(0, 6)}...`}
       </div>
     ),
   },
@@ -107,6 +107,41 @@ export const getColumns = (
       );
     },
     cell: ({ row }) => <div className='lowercase'>{row.getValue('email')}</div>,
+  },
+  {
+    accessorKey: 'role',
+    id: 'role',
+    header: ({ column }) => {
+      return (
+        <Button
+          variant='ghost'
+          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+          className='h-8'
+        >
+          {t('role')}
+          <Icon icon='lucide:arrow-up-down' className='ml-2 size-4' />
+        </Button>
+      );
+    },
+    cell: ({ row }) => {
+      const role = row.getValue('role') as string | null;
+      const isAdmin = role === 'admin';
+      return (
+        <div className='flex items-center'>
+          {isAdmin ? (
+            <span className='inline-flex items-center gap-1 rounded-full bg-purple-100 px-2 py-1 text-xs font-medium text-purple-700 dark:bg-purple-900/30 dark:text-purple-400'>
+              <Icon icon='lucide:shield-check' className='size-3' />
+              {t('roleAdmin')}
+            </span>
+          ) : (
+            <span className='inline-flex items-center gap-1 rounded-full bg-gray-100 px-2 py-1 text-xs font-medium text-gray-600 dark:bg-gray-800 dark:text-gray-400'>
+              <Icon icon='lucide:user' className='size-3' />
+              {t('roleUser')}
+            </span>
+          )}
+        </div>
+      );
+    },
   },
   {
     accessorKey: 'tasksCount',
@@ -328,6 +363,7 @@ export function UsersDataTable({ data }: UsersDataTableProps) {
                   id: t('id'),
                   name: t('name'),
                   email: t('email'),
+                  role: t('role'),
                   tasks: t('tasks'),
                 };
                 const columnName = columnNames[column.id] || column.id;
