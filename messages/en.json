@@ -747,6 +747,8 @@
           "email": "Email",
           "tasks": "Tasks",
           "role": "Role",
+          "roleUser": "User",
+          "roleAdmin": "Admin",
           "noRole": "No role",
           "status": "Status",
           "banned": "Banned",

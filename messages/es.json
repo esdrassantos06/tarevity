@@ -747,6 +747,8 @@
           "email": "Correo electrónico",
           "tasks": "Tareas",
           "role": "Rol",
+          "roleUser": "Usuario",
+          "roleAdmin": "Administrador",
           "noRole": "Sin rol",
           "status": "Estado",
           "banned": "Baneado",
