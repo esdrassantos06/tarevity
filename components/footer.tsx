@@ -29,10 +29,10 @@ export default function Footer() {
       itemScope
       itemType='https://schema.org/WPFooter'
     >
-      <div className='container mx-auto px-4 py-8'>
+      <div className='mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8'>
         {/* Main Content Grid */}
         <FadeIn direction='up' staggerChildren={0.1} once={true}>
-          <div className='grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4'>
+          <div className='grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4 lg:gap-x-12 lg:gap-y-8'>
             {/* Brand Section */}
             <section
               className='flex flex-col items-center gap-3 sm:items-start'
@@ -48,7 +48,7 @@ export default function Footer() {
                 <Logo className='w-32 fill-black dark:fill-white' />
               </Link>
               <p
-                className='text-center text-sm text-[#77757f] sm:text-left'
+                className='text-center text-xs text-[#77757f] sm:text-left'
                 itemProp='copyrightHolder'
               >
                 &copy; {currentYear} <span itemProp='name'>Tarevity</span>.{' '}
@@ -126,7 +126,7 @@ export default function Footer() {
 
             {/* Contact & Social Section */}
             <section
-              className='flex flex-col items-center gap-6 sm:items-start'
+              className='flex flex-col items-center gap-4 sm:items-start'
               itemScope
               itemType='https://schema.org/ContactPoint'
             >
@@ -199,7 +199,7 @@ export default function Footer() {
           </div>
 
           {/* Bottom Section */}
-          <div className='mt-8 flex items-center justify-center border-t pt-6'>
+          <div className='mt-12 flex w-full items-center justify-center border-t pt-8'>
             <p className='flex items-center gap-1 text-sm text-[#0f0d15] dark:text-white'>
               {t('madeWith')}{' '}
               <Icon

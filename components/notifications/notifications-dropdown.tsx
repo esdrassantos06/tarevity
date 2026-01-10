@@ -81,7 +81,7 @@ export function NotificationsDropdown() {
         >
           <Icon icon='akar-icons:bell' className='size-5' aria-hidden='true' />
           {notifications.length > 0 && (
-            <span className='absolute -top-1 -right-1 flex size-5 items-center justify-center rounded-full bg-red-500 text-xs font-semibold text-white ring-2 ring-white dark:ring-[#1d1929]'>
+            <span className='absolute -top-1 -right-1 flex size-5 items-center justify-center rounded-full bg-red-500 text-xs font-semibold text-white ring-2 ring-white select-none dark:ring-[#1d1929]'>
               {notifications.length > 9 ? '9+' : notifications.length}
             </span>
           )}
