@@ -6,6 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Link } from '@/i18n/navigation';
 import { Icon } from '@iconify/react';
 import { FadeIn } from '@/components/fade-in';
+import { routing } from '@/i18n/routing';
+import { getOpenGraphLocale } from '@/utils/variables';
 
 type Props = {
   params: Promise<{ locale: string }>;
@@ -15,17 +17,23 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'HomePage.metadata' });
 
+  const baseUrl = 'https://tarevity.pt';
+  const localeUrl = `${baseUrl}/${locale}`;
+
   return {
     title: t('title'),
     description: t('description'),
     keywords: t.raw('keywords'),
     alternates: {
-      canonical: 'https://tarevity.pt',
+      canonical: localeUrl,
+      languages: Object.fromEntries(
+        routing.locales.map((loc) => [loc, `${baseUrl}/${loc}`]),
+      ),
     },
     openGraph: {
       title: t('openGraph.title'),
       description: t('openGraph.description'),
-      url: 'https://tarevity.pt',
+      url: localeUrl,
       siteName: 'Tarevity',
       images: [
         {
@@ -35,7 +43,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
           alt: t('openGraph.alt'),
         },
       ],
-      locale: 'en_US',
+      locale: getOpenGraphLocale(locale),
+      alternateLocale: routing.locales
+        .filter((loc) => loc !== locale)
+        .map((loc) => getOpenGraphLocale(loc)),
       type: 'website',
     },
     twitter: {
@@ -121,7 +132,11 @@ export default async function Home({ params }: Props) {
         type='application/ld+json'
         dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
       />
-      <main className='flex flex-1 flex-col items-center justify-center px-4 py-20 sm:px-6 lg:px-8'>
+      <main
+        id='main-content'
+        role='main'
+        className='flex flex-1 flex-col items-center justify-center px-4 py-20 sm:px-6 lg:px-8'
+      >
         {/* Hero Section */}
         <section
           className='mx-auto w-full max-w-7xl'

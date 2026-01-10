@@ -90,8 +90,9 @@ export function SettingsClient({ session }: { session: SessionWithUser }) {
 
   return (
     <main
-      className='flex flex-1 flex-col items-center justify-start gap-10 px-4 py-20 sm:px-6 lg:px-8'
+      id='main-content'
       role='main'
+      className='flex flex-1 flex-col items-center justify-start gap-10 px-4 py-20 sm:px-6 lg:px-8'
     >
       <section className='flex w-full max-w-7xl flex-col items-center justify-center p-6'>
         <h1 className='mb-2 text-start text-3xl font-bold text-gray-900 md:text-4xl dark:text-white'>
@@ -132,7 +133,7 @@ export function SettingsClient({ session }: { session: SessionWithUser }) {
           <section className='flex-1 overflow-auto p-4 pb-6 sm:p-6'>
             <TabsContent
               value='appearance'
-              className='mt-0 flex flex-col gap-6'
+              className='mt-0 flex min-h-[500px] flex-col gap-6'
               role='tabpanel'
               aria-labelledby='appearance-tab'
             >
@@ -210,7 +211,7 @@ export function SettingsClient({ session }: { session: SessionWithUser }) {
                   </Button>
                 </div>
 
-                <p className='text-muted-foreground mt-2 text-xs'>
+                <p className='text-muted-foreground mt-4 text-sm'>
                   {tAppearance('themeDescription')}
                 </p>
               </section>
@@ -218,7 +219,7 @@ export function SettingsClient({ session }: { session: SessionWithUser }) {
 
             <TabsContent
               value='account'
-              className='mt-0 flex flex-col gap-6'
+              className='mt-0 flex min-h-[500px] flex-col gap-6'
               role='tabpanel'
               aria-labelledby='account-tab'
             >
@@ -329,7 +330,7 @@ export function SettingsClient({ session }: { session: SessionWithUser }) {
             {isAdmin && (
               <TabsContent
                 value='admin'
-                className='mt-0 flex flex-col gap-6'
+                className='mt-0 flex min-h-[500px] flex-col gap-6'
                 role='tabpanel'
                 aria-labelledby='admin-tab'
               >

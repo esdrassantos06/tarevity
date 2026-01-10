@@ -117,7 +117,11 @@ export function DashboardClient({ session }: { session: SessionWithUser }) {
   }, [setFilter, setPriorityFilter, setSortBy, setSortOrder, setSearchQuery]);
 
   return (
-    <main className='flex min-h-screen w-full flex-1 flex-col items-center px-4 py-20 sm:px-6 lg:px-8'>
+    <main
+      id='main-content'
+      role='main'
+      className='flex min-h-screen w-full flex-1 flex-col items-center px-4 py-20 sm:px-6 lg:px-8'
+    >
       <nav className='flex w-full flex-col items-center justify-center gap-4 py-4 sm:gap-6'>
         <div className='flex w-full max-w-7xl flex-col items-start justify-between gap-4 sm:flex-row sm:items-center'>
           <h1 className='text-2xl font-bold sm:text-3xl md:text-4xl'>

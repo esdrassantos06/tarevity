@@ -227,7 +227,11 @@ export function ProfileClient() {
   ];
 
   return (
-    <main className='flex flex-1 flex-col items-center justify-center gap-6 px-4 py-8 sm:gap-8 sm:px-6 sm:py-12 lg:gap-10 lg:px-8 lg:py-20'>
+    <main
+      id='main-content'
+      role='main'
+      className='flex flex-1 flex-col items-center justify-center gap-6 px-4 py-8 sm:gap-8 sm:px-6 sm:py-12 lg:gap-10 lg:px-8 lg:py-20'
+    >
       <section className='flex w-full max-w-7xl flex-col items-center justify-center p-4 sm:p-6'>
         <h1 className='mb-2 w-full text-center text-2xl font-bold text-gray-900 sm:text-3xl md:text-4xl dark:text-white'>
           {t('title')}

@@ -9,8 +9,13 @@ import { hasLocale, NextIntlClientProvider } from 'next-intl';
 import { getMessages, getTranslations } from 'next-intl/server';
 import { routing } from '@/i18n/routing';
 import { notFound } from 'next/navigation';
-
-const inter = Inter({ subsets: ['latin'] });
+import { getOpenGraphLocale } from '@/utils/variables';
+const inter = Inter({
+  subsets: ['latin', 'latin-ext'],
+  display: 'swap',
+  variable: '--font-inter',
+  preload: true,
+});
 
 type Props = {
   children: React.ReactNode;
@@ -21,8 +26,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'Layout.metadata' });
 
+  const baseUrl = 'https://tarevity.pt';
+  const localeUrl = `${baseUrl}/${locale}`;
+
+  const languages: Record<string, string> = {};
+  routing.locales.forEach((loc) => {
+    languages[loc] = `${baseUrl}/${loc}`;
+  });
+
   return {
-    metadataBase: new URL('https://tarevity.pt'),
+    metadataBase: new URL(baseUrl),
 
     title: {
       template: '%s | Tarevity',
@@ -49,12 +62,20 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       },
     },
 
+    alternates: {
+      canonical: localeUrl,
+      languages,
+    },
+
     openGraph: {
       title: t('openGraph.title'),
       description: t('openGraph.description'),
-      url: 'https://tarevity.pt',
+      url: localeUrl,
       siteName: 'Tarevity',
-      locale: 'pt-PT',
+      locale: getOpenGraphLocale(locale),
+      alternateLocale: routing.locales
+        .filter((loc) => loc !== locale)
+        .map((loc) => getOpenGraphLocale(loc)),
       type: 'website',
     },
 
@@ -86,7 +107,7 @@ export default async function RootLayout({ children, params }: Props) {
         <meta name='apple-mobile-web-app-title' content='Tarevity' />
       </head>
       <body
-        className={`${inter.className} flex min-h-screen w-full flex-col overflow-x-hidden antialiased`}
+        className={`${inter.variable} ${inter.className} flex min-h-screen w-full flex-col overflow-x-hidden font-sans antialiased`}
       >
         <NextIntlClientProvider messages={messages} locale={locale}>
           <QueryProvider>
@@ -96,6 +117,9 @@ export default async function RootLayout({ children, params }: Props) {
               enableSystem
               disableTransitionOnChange
             >
+              <a href='#main-content' className='skip-link'>
+                Skip to main content
+              </a>
               {children}
               <Toaster richColors closeButton position='top-right' />
               <CookieBanner />

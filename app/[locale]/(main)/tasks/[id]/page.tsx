@@ -126,7 +126,11 @@ export default async function TaskPage({ params }: TaskPageProps) {
   });
 
   return (
-    <main className='flex flex-1 flex-col items-center justify-center px-4 py-8 sm:px-6 sm:py-12 lg:px-8 lg:py-20'>
+    <main
+      id='main-content'
+      role='main'
+      className='flex flex-1 flex-col items-center justify-center px-4 py-8 sm:px-6 sm:py-12 lg:px-8 lg:py-20'
+    >
       <div className='flex w-full max-w-7xl items-center justify-between gap-3 py-4'>
         <BackButton
           href='/dashboard'

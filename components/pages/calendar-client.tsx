@@ -160,7 +160,11 @@ export function CalendarClient({ session }: { session: SessionWithUser }) {
 
   if (isLoading || (isFetching && !tasks)) {
     return (
-      <main className='flex flex-1 flex-col items-center justify-center p-4 py-12 sm:px-6 lg:px-8'>
+      <main
+        id='main-content'
+        role='main'
+        className='flex flex-1 flex-col items-center justify-center px-4 py-20 sm:px-6 lg:px-8'
+      >
         <div className='flex w-full max-w-7xl items-center justify-between py-4'>
           <Skeleton className='h-10 w-40' />
           <Skeleton className='h-10 w-24' />
@@ -185,7 +189,11 @@ export function CalendarClient({ session }: { session: SessionWithUser }) {
   }
 
   return (
-    <main className='flex flex-1 flex-col items-center justify-center p-4 py-12 sm:px-6 lg:px-8'>
+    <main
+      id='main-content'
+      role='main'
+      className='flex flex-1 flex-col items-center justify-center p-4 py-12 sm:px-6 lg:px-8'
+    >
       <div className='flex w-full max-w-7xl items-center justify-between py-4'>
         <Button asChild variant={'ghost'}>
           <Link
