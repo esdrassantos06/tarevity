@@ -46,7 +46,7 @@ export const LoginForm = () => {
     defaultValues: {
       email: '',
       password: '',
-      rememberMe: false,
+      rememberMe: true,
     },
   });
 
@@ -73,6 +73,7 @@ export const LoginForm = () => {
         }
       } else {
         toast.success(t('success'));
+        router.refresh();
         router.push('/dashboard');
       }
     } catch {

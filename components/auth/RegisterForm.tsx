@@ -13,7 +13,6 @@ import {
 import { BackButton } from '@/components/back-button';
 import { Input } from '../ui/input';
 import { Separator } from '../ui/separator';
-import { Checkbox } from '../ui/checkbox';
 import { toast } from 'sonner';
 import AuthButtons from './AuthButtons';
 import { SignUpEmailActions } from '@/actions/sign-up-email-actions';
@@ -81,7 +80,8 @@ export const RegisterForm = () => {
         }
       } else {
         toast.success(t('success'));
-        router.push('/auth/login');
+        router.refresh();
+        router.push('/dashboard');
       }
     } catch {
       toast.error(t('error'));
@@ -308,19 +308,15 @@ export const RegisterForm = () => {
                 control={form.control}
                 name='acceptTerms'
                 render={({ field }) => (
-                  <FormItem className='flex flex-row items-center space-y-0 space-x-1'>
+                  <FormItem className='flex flex-row items-start space-y-0 space-x-2 sm:space-x-2'>
                     <FormControl>
-                      <Checkbox
+                      <input
                         id='acceptTerms'
+                        type='checkbox'
                         checked={field.value}
-                        onCheckedChange={(checked) => {
-                          if (typeof checked === 'boolean') {
-                            field.onChange(checked);
-                          } else {
-                            field.onChange(false);
-                          }
-                        }}
+                        onChange={(e) => field.onChange(e.target.checked)}
                         disabled={isPending}
+                        className='mt-0.5 size-4 accent-blue-600'
                         aria-required='true'
                         aria-invalid={!!form.formState.errors.acceptTerms}
                         aria-describedby={
@@ -330,30 +326,37 @@ export const RegisterForm = () => {
                         }
                       />
                     </FormControl>
-                    <div className='space-y-1 leading-none'>
-                      <FormLabel htmlFor='acceptTerms' className='text-sm'>
-                        {t('acceptTerms')}{' '}
-                        <Link
-                          href='/terms'
-                          className='text-blue-600 hover:underline'
-                          aria-label={t('termsOfUse')}
-                          title={t('termsOfUse')}
-                          target='_blank'
-                          rel='noopener noreferrer'
-                        >
-                          {t('termsOfUse')}
-                        </Link>{' '}
-                        {t('and')}{' '}
-                        <Link
-                          href='/privacy'
-                          className='text-blue-600 hover:underline'
-                          aria-label={t('privacyPolicy')}
-                          title={t('privacyPolicy')}
-                          target='_blank'
-                          rel='noopener noreferrer'
-                        >
-                          {t('privacyPolicy')}
-                        </Link>
+                    <div className='min-w-0 flex-1 space-y-1'>
+                      <FormLabel
+                        htmlFor='acceptTerms'
+                        className='block cursor-pointer text-xs leading-relaxed sm:text-sm'
+                      >
+                        <span className='break-words whitespace-normal'>
+                          {t('acceptTerms')}{' '}
+                          <Link
+                            href='/terms'
+                            className='break-words text-blue-600 hover:underline'
+                            aria-label={t('termsOfUse')}
+                            title={t('termsOfUse')}
+                            target='_blank'
+                            rel='noopener noreferrer'
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            {t('termsOfUse')}
+                          </Link>{' '}
+                          {t('and')}{' '}
+                          <Link
+                            href='/privacy'
+                            className='break-words text-blue-600 hover:underline'
+                            aria-label={t('privacyPolicy')}
+                            title={t('privacyPolicy')}
+                            target='_blank'
+                            rel='noopener noreferrer'
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            {t('privacyPolicy')}
+                          </Link>
+                        </span>
                       </FormLabel>
                       <FormMessage id='acceptTerms-error' />
                     </div>
