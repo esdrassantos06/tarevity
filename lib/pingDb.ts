@@ -12,17 +12,18 @@ export async function pingDb(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    await prisma.dbKeepAliveLog.create({
-      data: { note: 'Database pinged' },
-    });
-
-    await prisma.dbKeepAliveLog.deleteMany({
-      where: {
-        createdAt: {
-          lt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 7),
+    await prisma.$transaction([
+      prisma.dbKeepAliveLog.create({
+        data: { note: 'Database pinged' },
+      }),
+      prisma.dbKeepAliveLog.deleteMany({
+        where: {
+          createdAt: {
+            lt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 7),
+          },
         },
-      },
-    });
+      }),
+    ]);
 
     const pong = await redis.ping();
 
