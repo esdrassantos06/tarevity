@@ -1,9 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Task } from '@/lib/generated/prisma/client';
+import { Task } from '@/lib/generated/prisma/browser';
 import { TaskStatus, TaskPriority } from '@/lib/generated/prisma/enums';
-import { getTaskCounts } from '@/actions/profile-actions';
 import { TaskCounts } from '@/types/TaskCount';
-import { CACHE_TTL } from '@/lib/cache';
+import { CACHE_TTL } from '@/lib/cache-constants';
 
 type FilterStatus = 'ALL' | keyof typeof TaskStatus;
 type FilterPriority = 'ALL' | keyof typeof TaskPriority;
@@ -89,7 +88,11 @@ export function useTaskCounts(enabled: boolean = true) {
   return useQuery<TaskCounts>({
     queryKey: ['task-counts'],
     queryFn: async () => {
-      return await getTaskCounts();
+      const res = await fetch('/api/tasks/counts');
+      if (!res.ok) {
+        throw new Error('Failed to fetch task counts');
+      }
+      return res.json();
     },
     enabled,
     staleTime: CACHE_TTL.SHORT * 1000,
