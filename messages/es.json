@@ -699,6 +699,9 @@
         "id": "ID",
         "name": "Nombre",
         "email": "Correo electrónico",
+        "role": "Rol",
+        "roleUser": "Usuario",
+        "roleAdmin": "Administrador",
         "tasks": "Tareas",
         "filterEmails": "Filtrar correos...",
         "columns": "Columnas",
@@ -985,11 +988,11 @@
   },
   "ServerActions": {
     "cannotDeleteYourself": "No puedes eliminarte a ti mismo",
+    "cannotModifyAdmin": "No se pueden modificar usuarios administradores",
     "unauthorized": "No autorizado.",
     "unknownError": "Error desconocido",
     "internalServerError": "Error interno del servidor",
     "userNotFound": "Usuario no encontrado",
-    "cannotModifyAdmin": "No se pueden modificar usuarios administradores",
     "emailAlreadyExists": "El correo electrónico ya existe",
     "cannotDeleteAdmin": "No se pueden eliminar usuarios administradores",
     "updateUser": {
@@ -1006,7 +1009,8 @@
       "noProfileImage": "No hay imagen de perfil para eliminar.",
       "invalidImageUrlFormat": "Formato de URL de imagen inválido.",
       "couldNotDeterminePath": "No se pudo determinar la ruta del archivo desde la URL.",
-      "failedToDelete": "Error al eliminar la imagen del almacenamiento."
+      "failedToDelete": "Error al eliminar la imagen del almacenamiento.",
+      "storageNotConfigured": "Almacenamiento no configurado."
     },
     "signUp": {
       "unexpectedError": "Ocurrió un error inesperado. Por favor, inténtalo de nuevo."

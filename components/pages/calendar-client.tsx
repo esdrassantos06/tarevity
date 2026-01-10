@@ -35,8 +35,8 @@ export function CalendarClient({ session }: { session: SessionWithUser }) {
         `/api/tasks/calendar?month=${month}&year=${year}`,
       );
       if (!res.ok) throw new Error(tErrors('loadingTasks'));
-      const data = await res.json();
-      return data.tasks;
+      const json = await res.json();
+      return json.data.tasks;
     },
     enabled: !!session,
   });

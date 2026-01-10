@@ -26,12 +26,13 @@ export function NotificationsDropdown() {
     isLoading: notificationsLoading,
     isFetching: notificationsFetching,
     refetch,
-  } = useQuery<{ notifications: Notification[] }>({
+  } = useQuery<{ notifications: Notification[]; count: number }>({
     queryKey: ['notifications'],
     queryFn: async () => {
       const res = await fetch('/api/notifications');
       if (!res.ok) throw new Error(t('errors.fetchError'));
-      return res.json();
+      const json = await res.json();
+      return json.data;
     },
     enabled: !!session,
     staleTime: 60 * 1000,

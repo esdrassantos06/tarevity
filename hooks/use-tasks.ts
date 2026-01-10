@@ -21,6 +21,10 @@ interface UseTasksParams {
 }
 
 interface TasksResponse {
+  user?: {
+    id: string;
+    name: string | null;
+  };
   tasks: Task[];
   pagination: {
     page: number;
@@ -78,7 +82,8 @@ export function useTasks({
       if (!res.ok) {
         throw new Error('Failed to fetch tasks');
       }
-      return res.json();
+      const json = await res.json();
+      return json.data as TasksResponse;
     },
     enabled,
   });
@@ -92,7 +97,8 @@ export function useTaskCounts(enabled: boolean = true) {
       if (!res.ok) {
         throw new Error('Failed to fetch task counts');
       }
-      return res.json();
+      const json = await res.json();
+      return json.data as TaskCounts;
     },
     enabled,
     staleTime: CACHE_TTL.SHORT * 1000,

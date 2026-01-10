@@ -53,7 +53,8 @@ export const DeleteTaskButton = ({
         method: 'DELETE',
       });
       if (!response.ok) throw new Error(t('toast.error'));
-      return response.json();
+      const json = await response.json();
+      return json.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({

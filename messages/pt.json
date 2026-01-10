@@ -699,6 +699,9 @@
         "id": "ID",
         "name": "Nome",
         "email": "E-mail",
+        "role": "Função",
+        "roleUser": "Usuário",
+        "roleAdmin": "Administrador",
         "tasks": "Tarefas",
         "filterEmails": "Filtrar e-mails...",
         "columns": "Colunas",
@@ -1006,7 +1009,8 @@
       "noProfileImage": "Nenhuma imagem de perfil para remover.",
       "invalidImageUrlFormat": "Formato de URL de imagem inválido.",
       "couldNotDeterminePath": "Não foi possível determinar o caminho do arquivo a partir da URL.",
-      "failedToDelete": "Falha ao excluir imagem do armazenamento."
+      "failedToDelete": "Falha ao excluir imagem do armazenamento.",
+      "storageNotConfigured": "Armazenamento não configurado."
     },
     "signUp": {
       "unexpectedError": "Ocorreu um erro inesperado. Por favor, tente novamente."

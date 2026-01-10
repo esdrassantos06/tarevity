@@ -30,8 +30,9 @@ export function TasksDonutChart({ userId }: TasksDonutChartProps) {
     queryKey: ['tasks-stats'],
     queryFn: async () => {
       const res = await fetch('/api/tasks/stats');
-      if (res.ok) return res.json();
-      throw new Error('Failed to fetch task stats');
+      if (!res.ok) throw new Error('Failed to fetch task stats');
+      const json = await res.json();
+      return json.data;
     },
     staleTime: CACHE_TTL.MEDIUM,
     enabled: !!userId,

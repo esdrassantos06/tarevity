@@ -58,7 +58,8 @@ export const CreateTask = () => {
         body: JSON.stringify(data),
       });
       if (!response.ok) throw new Error(tToast('error'));
-      return response.json();
+      const json = await response.json();
+      return json.data;
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({

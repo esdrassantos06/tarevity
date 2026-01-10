@@ -77,7 +77,8 @@ export const EditTask = ({ taskId }: EditTaskProps) => {
     queryFn: async () => {
       const response = await fetch(`/api/tasks/${taskId}`);
       if (!response.ok) throw new Error(tToast('loadError'));
-      return response.json();
+      const json = await response.json();
+      return json.data;
     },
   });
 
@@ -112,7 +113,8 @@ export const EditTask = ({ taskId }: EditTaskProps) => {
         body: JSON.stringify(data),
       });
       if (!response.ok) throw new Error(tToast('error'));
-      return response.json();
+      const json = await response.json();
+      return json.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
