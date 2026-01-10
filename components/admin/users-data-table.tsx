@@ -14,7 +14,7 @@ import {
   useReactTable,
 } from '@tanstack/react-table';
 import { Icon } from '@iconify/react';
-import { Button } from '@/components/ui/button';
+import { Button, buttonVariants } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -49,6 +49,8 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { RemoveUserAction } from '@/actions/admin-actions';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import type { ListUsersResult } from '@/types/Admin';
 
 export const getColumns = (
   t: (key: string) => string,
@@ -212,6 +214,7 @@ interface UsersDataTableProps {
 
 export function UsersDataTable({ data }: UsersDataTableProps) {
   const t = useTranslations('SettingsPage.admin.table');
+  const queryClient = useQueryClient();
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     [],
@@ -227,10 +230,51 @@ export function UsersDataTable({ data }: UsersDataTableProps) {
   const [isEditDialogOpen, setIsEditDialogOpen] = React.useState(false);
   const [deleteUser, setDeleteUser] = React.useState<AdminUser | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = React.useState(false);
-  const [isDeleting, setIsDeleting] = React.useState(false);
+
+  const deleteUserMutation = useMutation({
+    mutationFn: async (userId: string) => {
+      const result = await RemoveUserAction(userId);
+      if (result.error) {
+        throw new Error(result.error);
+      }
+      return userId;
+    },
+    onMutate: async (userId) => {
+      await queryClient.cancelQueries({ queryKey: ['admin-users'] });
+
+      const previousData = queryClient.getQueryData<ListUsersResult>([
+        'admin-users',
+      ]);
+
+      if (previousData) {
+        queryClient.setQueryData<ListUsersResult>(['admin-users'], {
+          ...previousData,
+          users: previousData.users.filter((user) => user.id !== userId),
+          total: previousData.total - 1,
+        });
+      }
+
+      return { previousData };
+    },
+    onError: (err, _, context) => {
+      if (context?.previousData) {
+        queryClient.setQueryData(['admin-users'], context.previousData);
+      }
+      const errorMessage =
+        err instanceof Error ? err.message : t('deleteDialog.error');
+      toast.error(errorMessage);
+    },
+    onSuccess: () => {
+      toast.success(t('deleteDialog.success'));
+      setIsDeleteDialogOpen(false);
+      setDeleteUser(null);
+      queryClient.invalidateQueries({ queryKey: ['admin-users'] });
+    },
+  });
 
   const columns = React.useMemo(() => getColumns((key: string) => t(key)), [t]);
 
+  // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
     data,
     columns,
@@ -390,16 +434,20 @@ export function UsersDataTable({ data }: UsersDataTableProps) {
         open={isEditDialogOpen}
         onOpenChange={setIsEditDialogOpen}
         onSuccess={() => {
-          // Refresh the table data
-          window.location.reload();
+          queryClient.invalidateQueries({ queryKey: ['admin-users'] });
         }}
       />
 
       <AlertDialog
         open={isDeleteDialogOpen}
-        onOpenChange={setIsDeleteDialogOpen}
+        onOpenChange={(open) => {
+          setIsDeleteDialogOpen(open);
+          if (!open) {
+            setDeleteUser(null);
+          }
+        }}
       >
-        <AlertDialogContent>
+        <AlertDialogContent className='dark:bg-[#1d1929]'>
           <AlertDialogHeader>
             <AlertDialogTitle className='sr-only'>
               {t('deleteDialog.title')}
@@ -410,36 +458,23 @@ export function UsersDataTable({ data }: UsersDataTableProps) {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={isDeleting}>
+            <AlertDialogCancel
+              disabled={deleteUserMutation.isPending}
+              onClick={() => {
+                setDeleteUser(null);
+              }}
+            >
               {t('deleteDialog.cancel')}
             </AlertDialogCancel>
             <AlertDialogAction
-              onClick={async () => {
+              onClick={() => {
                 if (!deleteUser) return;
-
-                setIsDeleting(true);
-                try {
-                  const result = await RemoveUserAction(deleteUser.id);
-
-                  if (result.error) {
-                    toast.error(result.error);
-                    return;
-                  }
-
-                  toast.success(t('deleteDialog.success'));
-                  setIsDeleteDialogOpen(false);
-                  window.location.reload();
-                } catch (error) {
-                  console.error(error);
-                  toast.error(t('deleteDialog.error'));
-                } finally {
-                  setIsDeleting(false);
-                }
+                deleteUserMutation.mutate(deleteUser.id);
               }}
-              disabled={isDeleting}
-              className='bg-destructive text-destructive-foreground hover:bg-destructive/90'
+              disabled={deleteUserMutation.isPending}
+              className={buttonVariants({ variant: 'destructive' })}
             >
-              {isDeleting
+              {deleteUserMutation.isPending
                 ? t('deleteDialog.deleting')
                 : t('deleteDialog.confirm')}
             </AlertDialogAction>

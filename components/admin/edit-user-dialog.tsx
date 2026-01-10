@@ -169,7 +169,7 @@ export function EditUserDialog({
                         <SelectValue placeholder={t('rolePlaceholder')} />
                       </SelectTrigger>
                     </FormControl>
-                    <SelectContent>
+                    <SelectContent className='dark:bg-[#1d1929]'>
                       <SelectItem value='user'>{t('roleUser')}</SelectItem>
                       <SelectItem value='admin'>{t('roleAdmin')}</SelectItem>
                     </SelectContent>

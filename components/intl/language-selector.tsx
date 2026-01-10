@@ -42,7 +42,7 @@ export function LanguageSelector() {
   };
 
   return (
-    <DropdownMenu modal={false}>
+    <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button
           className='rounded-full'

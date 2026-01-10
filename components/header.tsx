@@ -100,7 +100,7 @@ export default function Header() {
             <NotificationsDropdown />
 
             {/* User Menu */}
-            <DropdownMenu modal={false}>
+            <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
                   variant='ghost'

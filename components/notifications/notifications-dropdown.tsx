@@ -68,7 +68,7 @@ export function NotificationsDropdown() {
   };
 
   return (
-    <DropdownMenu modal={false}>
+    <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button
           size='icon'
@@ -134,16 +134,14 @@ export function NotificationsDropdown() {
           </div>
         ) : notifications.length === 0 ? (
           <div className='flex flex-col items-center justify-center gap-4 py-8'>
-            <div className='flex size-15 items-center justify-center rounded-full bg-gray-800 p-2 dark:bg-gray-700'>
+            <div className='flex size-15 items-center justify-center rounded-full bg-gray-100 p-2 dark:bg-gray-700'>
               <Icon
                 icon='akar-icons:bell'
-                className='size-8 text-gray-400'
+                className='size-8 text-gray-500 dark:text-gray-400'
                 aria-hidden='true'
               />
             </div>
-            <div className='flex flex-col items-center justify-center gap-1'>
-              <p className='text-sm text-gray-400'>{t('empty')}</p>
-            </div>
+            <p className='text-sm text-gray-400'>{t('empty')}</p>
           </div>
         ) : (
           <div className='max-h-96 overflow-x-hidden overflow-y-auto'>
