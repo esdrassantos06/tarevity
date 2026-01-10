@@ -1,13 +1,12 @@
 import { PrismaClient } from './generated/prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
+import { isDevelopment } from '@/utils/variables';
 
 const adapter = new PrismaPg({
   connectionString: process.env.DATABASE_URL!,
 });
 
 const globalForPrisma = global as unknown as { prisma?: PrismaClient };
-
-const isDevelopment = process.env.NODE_ENV === 'development';
 
 const prisma =
   globalForPrisma.prisma ||
