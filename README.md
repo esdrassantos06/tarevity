@@ -116,6 +116,14 @@ Tarevity is a sophisticated task management application built with Next.js 16, R
   - Automatic cache invalidation on mutations
   - Type-safe server actions with Zod validation
 
+### Testing & Quality
+
+- **Test Runner**: Vitest for unit and integration testing
+- **Component Testing**: React Testing Library for component tests
+- **Test Environment**: jsdom for DOM simulation
+- **Code Quality**: ESLint for code linting
+- **Code Formatting**: Prettier for consistent code style
+
 ## 📱 Responsive Design
 
 Tarevity implements a mobile-first approach with:
@@ -271,6 +279,53 @@ Security is a core focus of Tarevity with comprehensive protection measures:
 
    - Access the app at [http://localhost:3000](http://localhost:3000)
 
+## 🧪 Testing
+
+Tarevity uses Vitest for unit and integration testing with React Testing Library for component testing.
+
+### Running Tests
+
+```bash
+# Run tests in watch mode (development)
+npm run test
+
+# Run tests once (useful for CI/CD)
+npm run test -- --run
+
+# Run tests with coverage
+npm run test -- --coverage
+```
+
+### Test Structure
+
+Tests are organized in the `__tests__` directory mirroring the source code structure:
+
+- `__tests__/components/` - Component tests
+- `__tests__/hooks/` - React hook tests
+- `__tests__/lib/` - Utility function tests
+- `__tests__/utils/` - Helper utility tests
+- `__tests__/validation/` - Validation schema tests
+
+### Test Coverage
+
+Current test coverage includes:
+
+- ✅ API response utilities
+- ✅ Error handling utilities
+- ✅ Rate limiting helpers
+- ✅ React hooks (useTasks)
+- ✅ Validation schemas (TaskSchema, SignInSchema, TaskQuerySchema)
+- ✅ Utility functions
+- ✅ Text manipulation utilities
+
+The test setup includes:
+
+- **jsdom** environment for DOM testing
+- **React Testing Library** for component testing
+- **Vitest** as the test runner
+- Mock configurations for Next.js navigation, internationalization, and theme providers
+- Automatic cleanup after each test
+
 ## 📜 Available Scripts
 
 - `npm run dev` - Start the development server with Prisma client generation
@@ -278,6 +333,8 @@ Security is a core focus of Tarevity with comprehensive protection measures:
 - `npm run start` - Start the production server with Prisma client generation
 - `npm run lint` - Run ESLint to check code quality
 - `npm run format` - Format code using Prettier
+- `npm run test` - Run tests with Vitest (watch mode)
+- `npm run test -- --run` - Run tests once (useful for CI/CD)
 
 ## 🗺️ Main Routes
 
@@ -464,6 +521,16 @@ Security is a core focus of Tarevity with comprehensive protection measures:
 /types                # TypeScript type definitions
    - Notification.ts  # Notification types
    - TaskCount.ts     # Task count types
+   - Admin.ts         # Admin types
+   - AppErrors.ts     # Application error types
+/__tests__            # Test files
+   /components        # Component tests
+   /hooks             # React hook tests
+   /lib               # Library/utility tests
+   /utils             # Utility function tests
+   /validation        # Validation schema tests
+/tests                # Test configuration and setup
+   - setup.ts         # Vitest setup file with mocks
 ```
 
 ## 📄 Legal & Compliance
@@ -491,6 +558,7 @@ Tarevity includes comprehensive legal pages for transparency and compliance:
 - [x] Admin panel with user management
 - [x] GitHub Actions CI/CD pipeline
 - [x] Advanced filtering and sorting options
+- [x] Unit and integration tests with Vitest
 - [ ] Mobile application
 
 ## 🚀 Deployment
@@ -502,9 +570,10 @@ The project includes GitHub Actions workflows for automated testing and code qua
 - **CI Pipeline** (`.github/workflows/ci.yml`):
   - Runs on push and pull requests to `main` and `develop` branches
   - Performs linting with ESLint
-  - Type checking with TypeScript
+  - Runs unit and integration tests with Vitest
+  - Type checking with TypeScript (via build process)
   - Builds the application to ensure it compiles correctly
-  - Generates Prisma Client as part of the build process
+  - Generates Prisma Client as part of the test and build processes
 
 - **CodeQL Analysis** (`.github/workflows/codeql.yml`):
   - Security analysis for JavaScript and TypeScript
@@ -560,9 +629,11 @@ This helps us understand and address your issue more effectively.
 
 - Use a clear and descriptive title
 - Follow the [Pull Request template](.github/pull_request_template.md)
-- Ensure all tests pass
+- Ensure all tests pass (`npm run test -- --run`)
+- Ensure linting passes (`npm run lint`)
 - Update documentation if needed
 - Keep PRs focused on a single change
+- Add tests for new features or bug fixes when applicable
 
 Feel free to check the [issues page](https://github.com/esdrassantos06/tarevity/issues) for open issues and discussions.
 
