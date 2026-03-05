@@ -699,6 +699,9 @@
         "id": "ID",
         "name": "Name",
         "email": "Email",
+        "role": "Role",
+        "roleUser": "User",
+        "roleAdmin": "Admin",
         "tasks": "Tasks",
         "filterEmails": "Filter emails...",
         "columns": "Columns",
@@ -724,7 +727,6 @@
           "rolePlaceholder": "Select role",
           "roleUser": "User",
           "roleAdmin": "Admin",
-          "roleSuperadmin": "Superadmin",
           "cancel": "Cancel",
           "save": "Save",
           "saving": "Saving...",
@@ -748,6 +750,8 @@
           "email": "Email",
           "tasks": "Tasks",
           "role": "Role",
+          "roleUser": "User",
+          "roleAdmin": "Admin",
           "noRole": "No role",
           "status": "Status",
           "banned": "Banned",
@@ -984,9 +988,13 @@
   },
   "ServerActions": {
     "cannotDeleteYourself": "Cannot delete yourself",
+    "cannotModifyAdmin": "Cannot modify admin users",
     "unauthorized": "Unauthorized.",
     "unknownError": "Unknown error",
     "internalServerError": "Internal Server Error",
+    "userNotFound": "User not found",
+    "emailAlreadyExists": "Email already exists",
+    "cannotDeleteAdmin": "Cannot delete admin users",
     "updateUser": {
       "invalidData": "Invalid data.",
       "noNewInformation": "No new information to update.",
@@ -1001,7 +1009,8 @@
       "noProfileImage": "No profile image to remove.",
       "invalidImageUrlFormat": "Invalid image URL format.",
       "couldNotDeterminePath": "Could not determine file path from URL.",
-      "failedToDelete": "Failed to delete image from storage."
+      "failedToDelete": "Failed to delete image from storage.",
+      "storageNotConfigured": "Storage not configured."
     },
     "signUp": {
       "unexpectedError": "An unexpected error occurred. Please try again."
@@ -1023,5 +1032,11 @@
     "selectLanguage": "Select language",
     "languageSelectionMenu": "Language selection menu",
     "switchTo": "Switch to {language}"
+  },
+  "BackButton": {
+    "backToDashboard": "Back to dashboard",
+    "backToTask": "Back to task",
+    "backToHome": "Back to home",
+    "backToLogin": "Back to Login"
   }
 }

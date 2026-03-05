@@ -7,6 +7,8 @@ import { getTranslations } from 'next-intl/server';
 import prisma from '@/lib/prisma';
 import { Prisma } from '@/lib/generated/prisma/client';
 import type { ListUsersResult, AdminUser } from '@/types/Admin';
+import { logger } from '@/lib/logger';
+import { handleError } from '@/lib/error-handler';
 
 export async function ListUsersAction(
   searchValue?: string,
@@ -26,8 +28,7 @@ export async function ListUsersAction(
     return { error: t('unauthorized') };
   }
 
-  const isAdmin =
-    session.user.role === 'admin' || session.user.role === 'superadmin';
+  const isAdmin = session.user.role === 'admin';
 
   if (!isAdmin) {
     return { error: t('unauthorized') };
@@ -97,8 +98,15 @@ export async function ListUsersAction(
       },
     };
   } catch (err) {
-    console.error('ListUsersAction error:', err);
-    return { error: t('internalServerError') };
+    const error = handleError(err);
+    logger.error(
+      'ListUsersAction error',
+      err instanceof Error ? err : new Error(String(err)),
+      {
+        userId: session.user.id,
+      },
+    );
+    return { error: error.error || t('internalServerError') };
   }
 }
 
@@ -117,8 +125,7 @@ export async function UpdateUserAdminAction(
   }
 
   const currentUserRole = session.user.role;
-  const isAdmin =
-    currentUserRole === 'admin' || currentUserRole === 'superadmin';
+  const isAdmin = currentUserRole === 'admin';
 
   if (!isAdmin) {
     return { error: t('unauthorized') };
@@ -135,15 +142,8 @@ export async function UpdateUserAdminAction(
     }
 
     if (currentUserRole === 'admin') {
-      if (targetUser.role === 'admin' || targetUser.role === 'superadmin') {
+      if (targetUser.role === 'admin') {
         return { error: t('cannotModifyAdmin') || 'Cannot modify admin users' };
-      }
-    } else if (currentUserRole === 'superadmin') {
-      if (targetUser.role === 'superadmin') {
-        return {
-          error:
-            t('cannotModifySuperadmin') || 'Cannot modify superadmin users',
-        };
       }
     }
 
@@ -158,11 +158,6 @@ export async function UpdateUserAdminAction(
     }
 
     if (data.role !== undefined) {
-      if (data.role === 'superadmin' && currentUserRole !== 'superadmin') {
-        return {
-          error: t('cannotSetSuperadmin') || 'Cannot set superadmin role',
-        };
-      }
       updateData.role = data.role;
     }
 
@@ -178,8 +173,16 @@ export async function UpdateUserAdminAction(
         return { error: t('emailAlreadyExists') || 'Email already exists' };
       }
     }
-    console.error('UpdateUserAdminAction error:', err);
-    return { error: t('internalServerError') };
+    const error = handleError(err);
+    logger.error(
+      'UpdateUserAdminAction error',
+      err instanceof Error ? err : new Error(String(err)),
+      {
+        adminUserId: session.user.id,
+        targetUserId: userId,
+      },
+    );
+    return { error: error.error || t('internalServerError') };
   }
 }
 
@@ -197,8 +200,7 @@ export async function RemoveUserAction(
   }
 
   const currentUserRole = session.user.role;
-  const isAdmin =
-    currentUserRole === 'admin' || currentUserRole === 'superadmin';
+  const isAdmin = currentUserRole === 'admin';
 
   if (!isAdmin) {
     return { error: t('unauthorized') };
@@ -219,15 +221,8 @@ export async function RemoveUserAction(
     }
 
     if (currentUserRole === 'admin') {
-      if (targetUser.role === 'admin' || targetUser.role === 'superadmin') {
+      if (targetUser.role === 'admin') {
         return { error: t('cannotDeleteAdmin') || 'Cannot delete admin users' };
-      }
-    } else if (currentUserRole === 'superadmin') {
-      if (targetUser.role === 'superadmin') {
-        return {
-          error:
-            t('cannotDeleteSuperadmin') || 'Cannot delete superadmin users',
-        };
       }
     }
 
@@ -243,7 +238,15 @@ export async function RemoveUserAction(
     if (err instanceof APIError) {
       return { error: err.message };
     }
-    console.error('RemoveUserAction error:', err);
-    return { error: t('internalServerError') };
+    const error = handleError(err);
+    logger.error(
+      'RemoveUserAction error',
+      err instanceof Error ? err : new Error(String(err)),
+      {
+        adminUserId: session.user.id,
+        targetUserId: userId,
+      },
+    );
+    return { error: error.error || t('internalServerError') };
   }
 }

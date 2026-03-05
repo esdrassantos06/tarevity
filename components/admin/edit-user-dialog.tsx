@@ -72,13 +72,13 @@ export function EditUserDialog({
       form.reset({
         name: user.name,
         email: user.email,
-        role: (user.role || 'user') as 'user' | 'admin' | 'superadmin',
+        role: (user.role || 'user') as 'user' | 'admin',
       });
     }
   }, [user, open, form]);
 
   const currentUserRole = session?.user.role;
-  const isSuperadmin = currentUserRole === 'superadmin';
+  const isAdmin = currentUserRole === 'admin';
 
   const onSubmit = async (data: EditUserFormValues) => {
     if (!user) return;
@@ -162,21 +162,16 @@ export function EditUserDialog({
                     onValueChange={field.onChange}
                     defaultValue={field.value}
                     value={field.value}
-                    disabled={!isSuperadmin}
+                    disabled={!isAdmin}
                   >
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder={t('rolePlaceholder')} />
                       </SelectTrigger>
                     </FormControl>
-                    <SelectContent>
+                    <SelectContent className='dark:bg-[#1d1929]'>
                       <SelectItem value='user'>{t('roleUser')}</SelectItem>
                       <SelectItem value='admin'>{t('roleAdmin')}</SelectItem>
-                      {isSuperadmin && (
-                        <SelectItem value='superadmin'>
-                          {t('roleSuperadmin')}
-                        </SelectItem>
-                      )}
                     </SelectContent>
                   </Select>
                   <FormMessage />

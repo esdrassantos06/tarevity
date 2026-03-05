@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getSessionCookie } from 'better-auth/cookies';
 import { routing } from './i18n/routing';
 import createMiddleware from 'next-intl/middleware';
+import { isDevelopment } from './utils/variables';
 
 const protectedRoutes = ['/profile', '/admin', '/dashboard', '/settings'];
 
@@ -100,7 +101,6 @@ export default async function proxy(req: NextRequest) {
 
 function addSecurityHeaders(response: NextResponse) {
   const nonce = Buffer.from(crypto.randomUUID()).toString('base64');
-  const isDevelopment = process.env.NODE_ENV === 'development';
 
   const scriptSrc = isDevelopment
     ? `'self' 'unsafe-inline' 'unsafe-eval' https:`
@@ -112,7 +112,7 @@ function addSecurityHeaders(response: NextResponse) {
     default-src 'self';
     script-src ${scriptSrc};
     style-src ${styleSrc};
-    img-src 'self' data: blob: https://api.iconify.design https://lh3.googleusercontent.com https://api.simplesvg.com https://api.unisvg.com ${supabaseUrl || ''};
+    img-src 'self' data: blob: https://api.iconify.design https://lh3.googleusercontent.com https://api.simplesvg.com https://api.unisvg.com https://avatars.githubusercontent.com ${supabaseUrl || ''};
     font-src 'self';
     connect-src 'self' https://api.iconify.design https://lh3.googleusercontent.com https://api.simplesvg.com https://api.unisvg.com ${supabaseUrl || ''};
     object-src 'none';

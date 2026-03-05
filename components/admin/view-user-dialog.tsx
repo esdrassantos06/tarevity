@@ -27,6 +27,11 @@ export function ViewUserDialog({
   const t = useTranslations('SettingsPage.admin.table.viewUserDialog');
   const format = useFormatter();
 
+  const UserRoleMap: Record<string, string> = {
+    user: t('roleUser'),
+    admin: t('roleAdmin'),
+  };
+
   if (!user) return null;
 
   return (
@@ -84,7 +89,7 @@ export function ViewUserDialog({
                 {t('role')}
               </span>
               <Badge variant={user.role === 'admin' ? 'default' : 'secondary'}>
-                {user.role || t('noRole')}
+                {UserRoleMap[user.role as keyof typeof UserRoleMap]}
               </Badge>
             </div>
             <Separator />

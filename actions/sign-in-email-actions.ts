@@ -5,6 +5,8 @@ import { headers } from 'next/headers';
 import { APIError } from 'better-auth/api';
 import { signInSchema } from '@/validation/SignInSchema';
 import { getTranslations } from 'next-intl/server';
+import { logger } from '@/lib/logger';
+import { handleError } from '@/lib/error-handler';
 
 export async function SignInEmailActions(formData: FormData) {
   const t = await getTranslations('ServerActions');
@@ -46,8 +48,14 @@ export async function SignInEmailActions(formData: FormData) {
           return { error: err.message };
       }
     }
-    console.error('SignIn error:', err);
+    const error = handleError(err);
+    logger.error(
+      'SignIn error',
+      err instanceof Error ? err : new Error(String(err)),
+      {
+        email,
+      },
+    );
+    return { error: error.error };
   }
-
-  return { error: t('internalServerError') };
 }

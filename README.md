@@ -4,7 +4,7 @@
 
 Tarevity is a sophisticated task management application built with Next.js 16, React 19, TypeScript, and Prisma. It provides an intuitive and secure interface to help users organize their tasks with efficiency and style.
 
-**Current Version: 2.0.0** (November 2025)
+**Current Version: 2.0.4** (January 2026)
 
 > **🚀 Major Update**: This application has been completely refactored from the ground up, featuring a modern tech stack, improved architecture, enhanced security, internationalization support, and a polished user experience.
 
@@ -78,7 +78,7 @@ Tarevity is a sophisticated task management application built with Next.js 16, R
 ### 👥 Admin Panel
 
 - **User Management** with comprehensive user data table
-- **User Roles** (User, Admin, Superadmin) with role-based access control
+- **User Roles** (User, Admin) with role-based access control
 - **User Actions**: View, Edit, and Delete users
 - **User Statistics** showing task counts per user
 - **Email Filtering** for quick user search
@@ -90,6 +90,7 @@ Tarevity is a sophisticated task management application built with Next.js 16, R
 
 - **Framework**: Next.js 16 with App Router
 - **UI Library**: React 19
+- **State Management**: TanStack Query (React Query) for server state management and client-side caching
 - **Styling**: TailwindCSS v4 with custom theming
 - **Type Safety**: TypeScript
 - **Form Validation**: Zod with React Hook Form
@@ -98,17 +99,30 @@ Tarevity is a sophisticated task management application built with Next.js 16, R
 - **Notifications**: Sonner for toast notifications
 - **Internationalization**: next-intl for multi-language support
 - **Date Handling**: date-fns for date manipulation and formatting
+- **Animations**: Motion (Framer Motion) for smooth UI transitions
 
 ### Backend & Database
 
 - **Authentication**: Better Auth with Prisma adapter
 - **Database**: PostgreSQL with Prisma ORM
+- **Caching**: Redis via Upstash for distributed caching and performance optimization
 - **API Architecture**: RESTful with Next.js API routes
 - **Password Hashing**: Argon2 via @node-rs/argon2
 - **Rate Limiting**: Redis via Upstash
 - **Storage**: Supabase Storage (for file uploads)
 - **Email Service**: Resend for transactional emails
-- **Server Actions**: Next.js Server Actions for form handling
+- **Server Actions**: Next.js Server Actions for form handling and server-side data fetching
+  - Cached server actions using React `cache()` function for performance optimization
+  - Automatic cache invalidation on mutations
+  - Type-safe server actions with Zod validation
+
+### Testing & Quality
+
+- **Test Runner**: Vitest for unit and integration testing
+- **Component Testing**: React Testing Library for component tests
+- **Test Environment**: jsdom for DOM simulation
+- **Code Quality**: ESLint for code linting
+- **Code Formatting**: Prettier for consistent code style
 
 ## 📱 Responsive Design
 
@@ -119,6 +133,40 @@ Tarevity implements a mobile-first approach with:
 - Touch-friendly UI elements
 - Optimized forms and task cards
 - Grid and Flex layouts that adapt to screen size
+
+## ⚡ Performance & Caching
+
+Tarevity implements a comprehensive caching strategy using Redis for optimal performance:
+
+- **Distributed Caching**: Redis-based caching system for all data operations
+- **Smart Cache Invalidation**: Efficient cache invalidation using SET-based tracking with SCAN fallback
+- **Cache TTL Management**: Configurable time-to-live (TTL) for different data types:
+  - Short TTL for frequently changing data
+  - Medium TTL for moderately dynamic data
+  - Long TTL for relatively static data
+- **Cache Key Tracking**: Efficient user-specific cache key tracking for rapid invalidation
+- **Non-blocking Operations**: Uses SCAN instead of blocking KEYS() operations
+- **Batch Operations**: Optimized batch deletion for cache invalidation
+- **Graceful Fallback**: Falls back to database queries if cache fails
+
+### Cached Data Types
+
+- Task lists with filters and pagination
+- Task statistics (counts, status breakdown)
+- Calendar view data
+- User statistics
+- Notifications
+- Individual task details
+
+### Database Performance
+
+The application includes optimized database indexes for fast query execution:
+
+- **Task Indexes**: Composite indexes on `(userId, status, dueDate)`, `(userId, status, createdAt)`, `(userId, priority)` for efficient filtering and sorting
+- **User Indexes**: Indexed email and creation date for quick user lookups
+- **Session Indexes**: Indexed token, userId, and expiration date for fast session validation
+- **Account Indexes**: Composite index on `(providerId, accountId)` for OAuth account lookups
+- **Verification Indexes**: Indexed identifier and expiration date for quick token validation
 
 ## 🔒 Security Features
 
@@ -231,6 +279,53 @@ Security is a core focus of Tarevity with comprehensive protection measures:
 
    - Access the app at [http://localhost:3000](http://localhost:3000)
 
+## 🧪 Testing
+
+Tarevity uses Vitest for unit and integration testing with React Testing Library for component testing.
+
+### Running Tests
+
+```bash
+# Run tests in watch mode (development)
+npm run test
+
+# Run tests once (useful for CI/CD)
+npm run test -- --run
+
+# Run tests with coverage
+npm run test -- --coverage
+```
+
+### Test Structure
+
+Tests are organized in the `__tests__` directory mirroring the source code structure:
+
+- `__tests__/components/` - Component tests
+- `__tests__/hooks/` - React hook tests
+- `__tests__/lib/` - Utility function tests
+- `__tests__/utils/` - Helper utility tests
+- `__tests__/validation/` - Validation schema tests
+
+### Test Coverage
+
+Current test coverage includes:
+
+- ✅ API response utilities
+- ✅ Error handling utilities
+- ✅ Rate limiting helpers
+- ✅ React hooks (useTasks)
+- ✅ Validation schemas (TaskSchema, SignInSchema, TaskQuerySchema)
+- ✅ Utility functions
+- ✅ Text manipulation utilities
+
+The test setup includes:
+
+- **jsdom** environment for DOM testing
+- **React Testing Library** for component testing
+- **Vitest** as the test runner
+- Mock configurations for Next.js navigation, internationalization, and theme providers
+- Automatic cleanup after each test
+
 ## 📜 Available Scripts
 
 - `npm run dev` - Start the development server with Prisma client generation
@@ -238,6 +333,8 @@ Security is a core focus of Tarevity with comprehensive protection measures:
 - `npm run start` - Start the production server with Prisma client generation
 - `npm run lint` - Run ESLint to check code quality
 - `npm run format` - Format code using Prettier
+- `npm run test` - Run tests with Vitest (watch mode)
+- `npm run test -- --run` - Run tests once (useful for CI/CD)
 
 ## 🗺️ Main Routes
 
@@ -267,13 +364,43 @@ Security is a core focus of Tarevity with comprehensive protection measures:
 
 ### API Routes
 
-- `/api/auth/[...all]` - Better Auth authentication endpoints
+- `/api/auth/[...all]` - Better Auth authentication endpoints (POST, GET)
 - `/api/tasks` - Task CRUD operations
+  - `GET` - List tasks with advanced filtering, sorting, and pagination
+    - Query parameters: `page`, `limit`, `search`, `status` (ALL, ACTIVE, REVIEW, COMPLETED), `priority` (ALL, LOW, MEDIUM, HIGH), `sortBy`, `sortOrder` (asc, desc)
+    - Returns paginated results with metadata (page, limit, total, totalPages)
+    - Redis caching with automatic cache key tracking
+    - Case-insensitive search by title or description
+  - `POST` - Create a new task with validation and automatic cache invalidation
+    - Supports: title, description, dueDate (optional), priority (LOW, MEDIUM, HIGH)
+    - Automatically invalidates user stats, notifications, and task stats caches
 - `/api/tasks/[id]` - Individual task operations
-- `/api/tasks/calendar` - Calendar view data endpoint
-- `/api/notifications` - User notifications endpoint
-- `/api/admin` - Admin panel endpoints (admin only)
-- `/api/ping` - Health check endpoint
+  - `GET` - Get task details by ID with Redis caching and cache key tracking
+  - `PATCH` - Update task with partial updates (supports updating title, description, dueDate, priority, status)
+    - Automatically invalidates related caches (user stats, notifications, task stats, task cache)
+  - `DELETE` - Delete task with automatic cache invalidation
+    - Ensures user ownership validation before deletion
+- `/api/tasks/calendar` - Calendar view data endpoint (GET)
+  - Query parameters: `month`, `year` (optional, defaults to current month/year)
+  - Returns tasks with due dates for the specified month
+  - Redis caching with automatic cache key tracking
+  - Filters tasks with non-null due dates and orders by due date
+- `/api/tasks/counts` - Task counts endpoint (GET)
+  - Returns: created (total tasks), completed (completed tasks count), pending (total - completed)
+  - Redis caching with short TTL for frequently accessed data
+- `/api/tasks/stats` - Task statistics endpoint (GET)
+  - Returns: active, completed, review, and total task counts by status
+  - Redis caching with medium TTL for performance optimization
+- `/api/notifications` - User notifications endpoint (GET)
+  - Returns task notifications for tasks due within 7 days
+  - Urgency levels: overdue (past due), high (≤3 days), medium (≤7 days)
+  - Sorted by urgency and days until due date
+  - Filters out completed tasks
+  - Redis caching with short TTL for frequently accessed data
+  - Returns notifications array and count
+- `/api/ping` - Health check endpoint (GET)
+  - Database connectivity check
+  - Used for monitoring and keep-alive purposes
 
 ## 📁 Project Structure
 
@@ -321,6 +448,7 @@ Security is a core focus of Tarevity with comprehensive protection measures:
    /tasks             # Task-related components
       - create-task.tsx
       - edit-task.tsx
+      - task-card.tsx # Task card component with priority indicators and status visualization
       - complete-task-button.tsx
       - complete-task-checkbox.tsx
       - delete-task-button.tsx
@@ -329,13 +457,25 @@ Security is a core focus of Tarevity with comprehensive protection measures:
    /notifications     # Notification components
       - notifications-dropdown.tsx
    /ui                # Reusable UI components (shadcn/ui)
+   /pages             # Page client components
+      - dashboard-client.tsx # Dashboard client component with task management
+      - calendar-client.tsx # Calendar view client component
+      - profile-client.tsx # Profile page client component
+      - settings-client.tsx # Settings page client component
    - header.tsx       # Main navigation header
    - footer.tsx       # Footer component
    - cookie-banner.tsx # GDPR cookie consent
    - search-component.tsx # Global search component
    - theme-provider.tsx # Theme context provider
+   - query-provider.tsx # TanStack Query provider for React Query
+   - back-button.tsx  # Back navigation button component
+   - fade-in.tsx      # Fade-in animation component
+   /logo              # Logo components
+      - full-logo.tsx # Full logo component
+      - icon.tsx      # Icon logo component
 /actions              # Server actions
    - admin-actions.ts # Admin panel server actions
+   - tasks-actions.ts # Task server actions (cached getTasks function)
    - sign-in-email-actions.ts
    - sign-up-email-actions.ts
    - update-user-actions.ts
@@ -352,12 +492,13 @@ Security is a core focus of Tarevity with comprehensive protection measures:
    - auth-client.ts   # Client-side auth utilities
    - prisma.ts        # Prisma client instance
    - redis.ts         # Redis/Upstash configuration
+   - cache.ts         # Redis caching utilities
+   - cache-constants.ts # Cache key constants and TTL configuration
    - supabase-server.ts # Supabase server utilities
    - email.ts         # Email sending utilities
    - argon2.ts        # Password hashing utilities
    - utils.ts         # General utilities
    - api-locale.ts    # API locale utilities
-   - logger.ts        # Logging utilities
    - pingDb.ts        # Database health check
 /messages             # Internationalization message files
    - en.json          # English translations
@@ -380,6 +521,16 @@ Security is a core focus of Tarevity with comprehensive protection measures:
 /types                # TypeScript type definitions
    - Notification.ts  # Notification types
    - TaskCount.ts     # Task count types
+   - Admin.ts         # Admin types
+   - AppErrors.ts     # Application error types
+/__tests__            # Test files
+   /components        # Component tests
+   /hooks             # React hook tests
+   /lib               # Library/utility tests
+   /utils             # Utility function tests
+   /validation        # Validation schema tests
+/tests                # Test configuration and setup
+   - setup.ts         # Vitest setup file with mocks
 ```
 
 ## 📄 Legal & Compliance
@@ -407,6 +558,7 @@ Tarevity includes comprehensive legal pages for transparency and compliance:
 - [x] Admin panel with user management
 - [x] GitHub Actions CI/CD pipeline
 - [x] Advanced filtering and sorting options
+- [x] Unit and integration tests with Vitest
 - [ ] Mobile application
 
 ## 🚀 Deployment
@@ -418,9 +570,10 @@ The project includes GitHub Actions workflows for automated testing and code qua
 - **CI Pipeline** (`.github/workflows/ci.yml`):
   - Runs on push and pull requests to `main` and `develop` branches
   - Performs linting with ESLint
-  - Type checking with TypeScript
+  - Runs unit and integration tests with Vitest
+  - Type checking with TypeScript (via build process)
   - Builds the application to ensure it compiles correctly
-  - Generates Prisma Client as part of the build process
+  - Generates Prisma Client as part of the test and build processes
 
 - **CodeQL Analysis** (`.github/workflows/codeql.yml`):
   - Security analysis for JavaScript and TypeScript
@@ -476,9 +629,11 @@ This helps us understand and address your issue more effectively.
 
 - Use a clear and descriptive title
 - Follow the [Pull Request template](.github/pull_request_template.md)
-- Ensure all tests pass
+- Ensure all tests pass (`npm run test -- --run`)
+- Ensure linting passes (`npm run lint`)
 - Update documentation if needed
 - Keep PRs focused on a single change
+- Add tests for new features or bug fixes when applicable
 
 Feel free to check the [issues page](https://github.com/esdrassantos06/tarevity/issues) for open issues and discussions.
 

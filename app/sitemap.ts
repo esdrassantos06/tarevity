@@ -1,28 +1,48 @@
 import { MetadataRoute } from 'next';
+import { routing } from '@/i18n/routing';
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = 'https://tarevity.pt';
+  const currentDate = new Date();
 
-  const routes = [
+  const publicRoutes = [
     {
-      url: baseUrl,
-      lastModified: new Date(),
+      path: '',
       changeFrequency: 'weekly' as const,
-      priority: 1,
+      priority: 1.0,
     },
     {
-      url: `${baseUrl}/privacy`,
-      lastModified: new Date(),
+      path: '/privacy',
       changeFrequency: 'monthly' as const,
       priority: 0.5,
     },
     {
-      url: `${baseUrl}/terms`,
-      lastModified: new Date(),
+      path: '/terms',
       changeFrequency: 'monthly' as const,
       priority: 0.5,
     },
   ];
+
+  const routes: MetadataRoute.Sitemap = [];
+
+  routing.locales.forEach((locale) => {
+    publicRoutes.forEach((route) => {
+      routes.push({
+        url: `${baseUrl}/${locale}${route.path}`,
+        lastModified: currentDate,
+        changeFrequency: route.changeFrequency,
+        priority: route.priority,
+        alternates: {
+          languages: Object.fromEntries(
+            routing.locales.map((loc) => [
+              loc,
+              `${baseUrl}/${loc}${route.path}`,
+            ]),
+          ),
+        },
+      });
+    });
+  });
 
   return routes;
 }

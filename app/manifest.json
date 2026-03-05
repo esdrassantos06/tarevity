@@ -1,6 +1,9 @@
 {
-  "name": "Tarevity",
+  "name": "Tarevity - Task Management Made Simple",
   "short_name": "Tarevity",
+  "description": "Organize your tasks, set priorities, and never forget important deadlines again. Tarevity is a simple and efficient task management platform to boost your productivity.",
+  "start_url": "/",
+  "scope": "/",
   "icons": [
     {
       "src": "/web-app-manifest-192x192.png",
@@ -17,5 +20,6 @@
   ],
   "theme_color": "#ffffff",
   "background_color": "#ffffff",
-  "display": "standalone"
+  "display": "standalone",
+  "orientation": "portrait-primary"
 }

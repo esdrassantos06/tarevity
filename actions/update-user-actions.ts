@@ -6,8 +6,11 @@ import { APIError } from 'better-auth/api';
 import { supabase } from '@/lib/supabase-server';
 import { updateUserSchema } from '@/validation/updateUserSchema';
 import { getTranslations } from 'next-intl/server';
+import { logger } from '@/lib/logger';
+import { handleError } from '@/lib/error-handler';
 
 const BUCKET_NAME = 'avatars';
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 
 export async function UpdateUserAction(formData: FormData) {
   const t = await getTranslations('ServerActions');
@@ -52,9 +55,24 @@ export async function UpdateUserAction(formData: FormData) {
 
   try {
     if (newImageFile) {
-      const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+      if (!supabase) {
+        return {
+          error:
+            t('updateUser.storageNotConfigured') || 'Storage not configured',
+        };
+      }
+
       if (newImageFile.size > MAX_FILE_SIZE) {
+        logger.warn('File size exceeded limit', {
+          userId,
+          fileSize: newImageFile.size,
+          maxSize: MAX_FILE_SIZE,
+        });
         return { error: t('updateUser.fileSizeExceeded') };
+      }
+
+      if (newImageFile.size === 0) {
+        return { error: t('updateUser.invalidFileType') };
       }
 
       const ALLOWED_MIME_TYPES = [
@@ -71,7 +89,7 @@ export async function UpdateUserAction(formData: FormData) {
       }
 
       const currentImageUrl = session.user.image;
-      if (currentImageUrl) {
+      if (currentImageUrl && supabase) {
         try {
           const url = new URL(currentImageUrl);
           const pathSegments = url.pathname.split('/');
@@ -88,12 +106,24 @@ export async function UpdateUserAction(formData: FormData) {
                 deleteError &&
                 deleteError.message !== 'The object was not found'
               ) {
-                console.error('ErrorDeletingOldUserImage:', deleteError);
+                logger.warn('Error deleting old user image', {
+                  userId,
+                  filePath,
+                  error:
+                    deleteError instanceof Error
+                      ? deleteError.message
+                      : String(deleteError),
+                });
               }
             }
           }
         } catch (urlError) {
-          console.error('ErrorParsingOldImageUrl:', urlError);
+          logger.warn('Error parsing old image URL', {
+            userId,
+            currentImageUrl,
+            error:
+              urlError instanceof Error ? urlError.message : String(urlError),
+          });
         }
       }
 
@@ -118,6 +148,13 @@ export async function UpdateUserAction(formData: FormData) {
         return { error: t('updateUser.invalidFilePath') };
       }
 
+      if (!supabase) {
+        return {
+          error:
+            t('updateUser.storageNotConfigured') || 'Storage not configured',
+        };
+      }
+
       const { data: uploadData, error: uploadError } = await supabase.storage
         .from(BUCKET_NAME)
         .upload(filePath, newImageFile, {
@@ -126,7 +163,17 @@ export async function UpdateUserAction(formData: FormData) {
         });
 
       if (uploadError) {
-        console.error('ErrorUploadingUserImage:', uploadError);
+        logger.error(
+          'Error uploading user image',
+          uploadError instanceof Error
+            ? uploadError
+            : new Error(String(uploadError)),
+          {
+            userId,
+            filePath,
+            fileSize: newImageFile.size,
+          },
+        );
         return { error: t('updateUser.errorUploadingImage') };
       }
 
@@ -155,7 +202,14 @@ export async function UpdateUserAction(formData: FormData) {
     if (err instanceof APIError) {
       return { error: err.message };
     }
-    console.error('UpdateUserAction error:', err);
-    return { error: t('internalServerError') };
+    const error = handleError(err);
+    logger.error(
+      'UpdateUserAction error',
+      err instanceof Error ? err : new Error(String(err)),
+      {
+        userId,
+      },
+    );
+    return { error: error.error || t('internalServerError') };
   }
 }

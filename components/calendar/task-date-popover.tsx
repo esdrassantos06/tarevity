@@ -10,7 +10,7 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
-import type { Task } from '@/lib/generated/prisma/client';
+import type { Task } from '@/lib/generated/prisma/browser';
 
 interface TaskDatePopoverProps {
   date: Date;

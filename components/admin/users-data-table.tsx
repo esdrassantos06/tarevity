@@ -1,6 +1,5 @@
 'use client';
 
-import * as React from 'react';
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -14,7 +13,7 @@ import {
   useReactTable,
 } from '@tanstack/react-table';
 import { Icon } from '@iconify/react';
-import { Button } from '@/components/ui/button';
+import { Button, buttonVariants } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -49,6 +48,9 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { RemoveUserAction } from '@/actions/admin-actions';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import type { ListUsersResult } from '@/types/Admin';
+import { useMemo, useState } from 'react';
 
 export const getColumns = (
   t: (key: string) => string,
@@ -69,8 +71,8 @@ export const getColumns = (
       );
     },
     cell: ({ row }) => (
-      <div className='font-mono text-xs'>
-        {`${(row.getValue('id') as string).substring(0, 10)}...`}
+      <div className='font-mono text-xs' title={row.getValue('id') as string}>
+        {`${(row.getValue('id') as string).substring(0, 6)}...`}
       </div>
     ),
   },
@@ -105,6 +107,41 @@ export const getColumns = (
       );
     },
     cell: ({ row }) => <div className='lowercase'>{row.getValue('email')}</div>,
+  },
+  {
+    accessorKey: 'role',
+    id: 'role',
+    header: ({ column }) => {
+      return (
+        <Button
+          variant='ghost'
+          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+          className='h-8'
+        >
+          {t('role')}
+          <Icon icon='lucide:arrow-up-down' className='ml-2 size-4' />
+        </Button>
+      );
+    },
+    cell: ({ row }) => {
+      const role = row.getValue('role') as string | null;
+      const isAdmin = role === 'admin';
+      return (
+        <div className='flex items-center'>
+          {isAdmin ? (
+            <span className='inline-flex items-center gap-1 rounded-full bg-purple-100 px-2 py-1 text-xs font-medium text-purple-700 dark:bg-purple-900/30 dark:text-purple-400'>
+              <Icon icon='lucide:shield-check' className='size-3' />
+              {t('roleAdmin')}
+            </span>
+          ) : (
+            <span className='inline-flex items-center gap-1 rounded-full bg-gray-100 px-2 py-1 text-xs font-medium text-gray-600 dark:bg-gray-800 dark:text-gray-400'>
+              <Icon icon='lucide:user' className='size-3' />
+              {t('roleUser')}
+            </span>
+          )}
+        </div>
+      );
+    },
   },
   {
     accessorKey: 'tasksCount',
@@ -171,7 +208,7 @@ export const getColumns = (
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant='ghost' className='h-8 w-8 p-0'>
+            <Button variant='ghost' className='size-8 p-0'>
               <span className='sr-only'>{t('openMenu')}</span>
               <Icon icon='lucide:more-horizontal' className='size-4' />
             </Button>
@@ -212,25 +249,62 @@ interface UsersDataTableProps {
 
 export function UsersDataTable({ data }: UsersDataTableProps) {
   const t = useTranslations('SettingsPage.admin.table');
-  const [sorting, setSorting] = React.useState<SortingState>([]);
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    [],
-  );
-  const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({});
-  const [rowSelection, setRowSelection] = React.useState({});
-  const [selectedUser, setSelectedUser] = React.useState<AdminUser | null>(
-    null,
-  );
-  const [isViewDialogOpen, setIsViewDialogOpen] = React.useState(false);
-  const [editUser, setEditUser] = React.useState<AdminUser | null>(null);
-  const [isEditDialogOpen, setIsEditDialogOpen] = React.useState(false);
-  const [deleteUser, setDeleteUser] = React.useState<AdminUser | null>(null);
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = React.useState(false);
-  const [isDeleting, setIsDeleting] = React.useState(false);
+  const queryClient = useQueryClient();
+  const [sorting, setSorting] = useState<SortingState>([]);
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
+  const [rowSelection, setRowSelection] = useState({});
+  const [selectedUser, setSelectedUser] = useState<AdminUser | null>(null);
+  const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
+  const [editUser, setEditUser] = useState<AdminUser | null>(null);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [deleteUser, setDeleteUser] = useState<AdminUser | null>(null);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
-  const columns = React.useMemo(() => getColumns((key: string) => t(key)), [t]);
+  const deleteUserMutation = useMutation({
+    mutationFn: async (userId: string) => {
+      const result = await RemoveUserAction(userId);
+      if (result.error) {
+        throw new Error(result.error);
+      }
+      return userId;
+    },
+    onMutate: async (userId) => {
+      await queryClient.cancelQueries({ queryKey: ['admin-users'] });
 
+      const previousData = queryClient.getQueryData<ListUsersResult>([
+        'admin-users',
+      ]);
+
+      if (previousData) {
+        queryClient.setQueryData<ListUsersResult>(['admin-users'], {
+          ...previousData,
+          users: previousData.users.filter((user) => user.id !== userId),
+          total: previousData.total - 1,
+        });
+      }
+
+      return { previousData };
+    },
+    onError: (err, _, context) => {
+      if (context?.previousData) {
+        queryClient.setQueryData(['admin-users'], context.previousData);
+      }
+      const errorMessage =
+        err instanceof Error ? err.message : t('deleteDialog.error');
+      toast.error(errorMessage);
+    },
+    onSuccess: () => {
+      toast.success(t('deleteDialog.success'));
+      setIsDeleteDialogOpen(false);
+      setDeleteUser(null);
+      queryClient.invalidateQueries({ queryKey: ['admin-users'] });
+    },
+  });
+
+  const columns = useMemo(() => getColumns((key: string) => t(key)), [t]);
+
+  // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
     data,
     columns,
@@ -289,6 +363,7 @@ export function UsersDataTable({ data }: UsersDataTableProps) {
                   id: t('id'),
                   name: t('name'),
                   email: t('email'),
+                  role: t('role'),
                   tasks: t('tasks'),
                 };
                 const columnName = columnNames[column.id] || column.id;
@@ -390,16 +465,20 @@ export function UsersDataTable({ data }: UsersDataTableProps) {
         open={isEditDialogOpen}
         onOpenChange={setIsEditDialogOpen}
         onSuccess={() => {
-          // Refresh the table data
-          window.location.reload();
+          queryClient.invalidateQueries({ queryKey: ['admin-users'] });
         }}
       />
 
       <AlertDialog
         open={isDeleteDialogOpen}
-        onOpenChange={setIsDeleteDialogOpen}
+        onOpenChange={(open) => {
+          setIsDeleteDialogOpen(open);
+          if (!open) {
+            setDeleteUser(null);
+          }
+        }}
       >
-        <AlertDialogContent>
+        <AlertDialogContent className='dark:bg-[#1d1929]'>
           <AlertDialogHeader>
             <AlertDialogTitle className='sr-only'>
               {t('deleteDialog.title')}
@@ -410,36 +489,23 @@ export function UsersDataTable({ data }: UsersDataTableProps) {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={isDeleting}>
+            <AlertDialogCancel
+              disabled={deleteUserMutation.isPending}
+              onClick={() => {
+                setDeleteUser(null);
+              }}
+            >
               {t('deleteDialog.cancel')}
             </AlertDialogCancel>
             <AlertDialogAction
-              onClick={async () => {
+              onClick={() => {
                 if (!deleteUser) return;
-
-                setIsDeleting(true);
-                try {
-                  const result = await RemoveUserAction(deleteUser.id);
-
-                  if (result.error) {
-                    toast.error(result.error);
-                    return;
-                  }
-
-                  toast.success(t('deleteDialog.success'));
-                  setIsDeleteDialogOpen(false);
-                  window.location.reload();
-                } catch (error) {
-                  console.error(error);
-                  toast.error(t('deleteDialog.error'));
-                } finally {
-                  setIsDeleting(false);
-                }
+                deleteUserMutation.mutate(deleteUser.id);
               }}
-              disabled={isDeleting}
-              className='bg-destructive text-destructive-foreground hover:bg-destructive/90'
+              disabled={deleteUserMutation.isPending}
+              className={buttonVariants({ variant: 'destructive' })}
             >
-              {isDeleting
+              {deleteUserMutation.isPending
                 ? t('deleteDialog.deleting')
                 : t('deleteDialog.confirm')}
             </AlertDialogAction>

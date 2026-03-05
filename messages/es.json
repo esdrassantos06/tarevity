@@ -699,6 +699,9 @@
         "id": "ID",
         "name": "Nombre",
         "email": "Correo electrónico",
+        "role": "Rol",
+        "roleUser": "Usuario",
+        "roleAdmin": "Administrador",
         "tasks": "Tareas",
         "filterEmails": "Filtrar correos...",
         "columns": "Columnas",
@@ -724,7 +727,6 @@
           "rolePlaceholder": "Seleccione el rol",
           "roleUser": "Usuario",
           "roleAdmin": "Administrador",
-          "roleSuperadmin": "Superadministrador",
           "cancel": "Cancelar",
           "save": "Guardar",
           "saving": "Guardando...",
@@ -748,6 +750,8 @@
           "email": "Correo electrónico",
           "tasks": "Tareas",
           "role": "Rol",
+          "roleUser": "Usuario",
+          "roleAdmin": "Administrador",
           "noRole": "Sin rol",
           "status": "Estado",
           "banned": "Baneado",
@@ -984,16 +988,13 @@
   },
   "ServerActions": {
     "cannotDeleteYourself": "No puedes eliminarte a ti mismo",
+    "cannotModifyAdmin": "No se pueden modificar usuarios administradores",
     "unauthorized": "No autorizado.",
     "unknownError": "Error desconocido",
     "internalServerError": "Error interno del servidor",
     "userNotFound": "Usuario no encontrado",
-    "cannotModifyAdmin": "No se pueden modificar usuarios administradores",
-    "cannotModifySuperadmin": "No se pueden modificar usuarios superadministradores",
-    "cannotSetSuperadmin": "No se puede establecer el rol de superadministrador",
     "emailAlreadyExists": "El correo electrónico ya existe",
     "cannotDeleteAdmin": "No se pueden eliminar usuarios administradores",
-    "cannotDeleteSuperadmin": "No se pueden eliminar usuarios superadministradores",
     "updateUser": {
       "invalidData": "Datos inválidos.",
       "noNewInformation": "No hay información nueva para actualizar.",
@@ -1008,7 +1009,8 @@
       "noProfileImage": "No hay imagen de perfil para eliminar.",
       "invalidImageUrlFormat": "Formato de URL de imagen inválido.",
       "couldNotDeterminePath": "No se pudo determinar la ruta del archivo desde la URL.",
-      "failedToDelete": "Error al eliminar la imagen del almacenamiento."
+      "failedToDelete": "Error al eliminar la imagen del almacenamiento.",
+      "storageNotConfigured": "Almacenamiento no configurado."
     },
     "signUp": {
       "unexpectedError": "Ocurrió un error inesperado. Por favor, inténtalo de nuevo."
@@ -1030,5 +1032,11 @@
     "selectLanguage": "Seleccionar idioma",
     "languageSelectionMenu": "Menú de selección de idioma",
     "switchTo": "Cambiar a {language}"
+  },
+  "BackButton": {
+    "backToDashboard": "Volver al panel",
+    "backToTask": "Volver a la tarea",
+    "backToHome": "Volver al inicio",
+    "backToLogin": "Volver a Iniciar Sesión"
   }
 }

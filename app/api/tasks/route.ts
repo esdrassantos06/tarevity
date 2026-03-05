@@ -2,29 +2,64 @@ import { auth } from '@/lib/auth';
 import prisma from '@/lib/prisma';
 import { taskSchema } from '@/validation/TaskSchema';
 import { taskQuerySchema } from '@/validation/TaskQuerySchema';
-import { NextRequest, NextResponse } from 'next/server';
-import { Prisma } from '@/lib/generated/prisma';
+import { NextRequest } from 'next/server';
+import { Prisma } from '@/lib/generated/prisma/client';
 import { TaskPriority, TaskStatus } from '@/lib/generated/prisma/client';
 import { getLocaleFromRequest } from '@/lib/api-locale';
 import { getTranslations } from 'next-intl/server';
 import {
   invalidateCacheKeys,
+  invalidateUserTasksCache,
   cacheKeys,
   getCached,
   CACHE_TTL,
+  registerTaskCacheKey,
 } from '@/lib/cache';
 import { headers } from 'next/headers';
+import { logger } from '@/lib/logger';
+import { createErrorResponse } from '@/lib/error-handler';
+import { errorResponse, successResponse } from '@/lib/api-response';
+import {
+  getRateLimitIp,
+  rateLimiters,
+  getRateLimitIdentifier,
+  checkRateLimit,
+} from '@/lib/rate-limit';
+
+export const dynamic = 'force-dynamic';
+export const revalidate = 60;
 
 export async function GET(req: NextRequest) {
   const headersList = await headers();
   const session = await auth.api.getSession({
     headers: headersList,
   });
+  const locale = await getLocaleFromRequest();
 
   if (!session) {
-    const locale = await getLocaleFromRequest();
     const t = await getTranslations({ locale, namespace: 'ApiErrors' });
-    return NextResponse.json({ error: t('notAuthenticated') }, { status: 401 });
+    return errorResponse(t('notAuthenticated'), 401, 'AUTHENTICATION_ERROR');
+  }
+
+  const ip = getRateLimitIp(req);
+  const identifier = getRateLimitIdentifier(ip, session.user.id);
+  const rateLimitResult = await checkRateLimit(rateLimiters.tasks, identifier);
+
+  if (!rateLimitResult.success) {
+    const retryAfter = Math.ceil((rateLimitResult.reset - Date.now()) / 1000);
+    const response = errorResponse(
+      'Rate limit exceeded. Please try again later.',
+      429,
+      'RATE_LIMIT_ERROR',
+    );
+    response.headers.set('Retry-After', retryAfter.toString());
+    response.headers.set('X-RateLimit-Limit', rateLimitResult.limit.toString());
+    response.headers.set(
+      'X-RateLimit-Remaining',
+      rateLimitResult.remaining.toString(),
+    );
+    response.headers.set('X-RateLimit-Reset', rateLimitResult.reset.toString());
+    return response;
   }
 
   const { searchParams } = new URL(req.url);
@@ -42,14 +77,15 @@ export async function GET(req: NextRequest) {
   const parseResult = taskQuerySchema.safeParse(queryParams);
 
   if (!parseResult.success) {
-    const locale = await getLocaleFromRequest();
     const t = await getTranslations({ locale, namespace: 'Errors' });
-    return NextResponse.json(
-      {
-        error: t('invalidQueryParams'),
-        details: parseResult.error.issues,
-      },
-      { status: 400 },
+    const errorRes = createErrorResponse(parseResult.error, {
+      userId: session.user.id,
+    });
+    return errorResponse(
+      errorRes.error || t('invalidQueryParams'),
+      400,
+      'VALIDATION_ERROR',
+      parseResult.error.issues,
     );
   }
 
@@ -63,6 +99,7 @@ export async function GET(req: NextRequest) {
     sortBy,
     sortOrder,
   });
+
   const cacheKey = cacheKeys.tasks(session.user.id, page, filters);
 
   const result = await getCached(
@@ -141,7 +178,9 @@ export async function GET(req: NextRequest) {
     CACHE_TTL.MEDIUM,
   );
 
-  return NextResponse.json(result);
+  await registerTaskCacheKey(session.user.id, cacheKey);
+
+  return successResponse(result);
 }
 
 export async function POST(req: NextRequest) {
@@ -149,11 +188,35 @@ export async function POST(req: NextRequest) {
   const session = await auth.api.getSession({
     headers: headersList,
   });
+  const locale = await getLocaleFromRequest();
 
   if (!session) {
-    const locale = await getLocaleFromRequest();
     const t = await getTranslations({ locale, namespace: 'ApiErrors' });
-    return NextResponse.json({ error: t('notAuthenticated') }, { status: 401 });
+    return errorResponse(t('notAuthenticated'), 401, 'AUTHENTICATION_ERROR');
+  }
+
+  const ip = getRateLimitIp(req);
+  const identifier = getRateLimitIdentifier(ip, session.user.id);
+  const rateLimitResult = await checkRateLimit(
+    rateLimiters.taskCreate,
+    identifier,
+  );
+
+  if (!rateLimitResult.success) {
+    const retryAfter = Math.ceil((rateLimitResult.reset - Date.now()) / 1000);
+    const response = errorResponse(
+      'Rate limit exceeded. Please try again later.',
+      429,
+      'RATE_LIMIT_ERROR',
+    );
+    response.headers.set('Retry-After', retryAfter.toString());
+    response.headers.set('X-RateLimit-Limit', rateLimitResult.limit.toString());
+    response.headers.set(
+      'X-RateLimit-Remaining',
+      rateLimitResult.remaining.toString(),
+    );
+    response.headers.set('X-RateLimit-Reset', rateLimitResult.reset.toString());
+    return response;
   }
 
   try {
@@ -176,11 +239,26 @@ export async function POST(req: NextRequest) {
       cacheKeys.taskStats(session.user.id),
     ]);
 
-    return NextResponse.json({ task });
+    await invalidateUserTasksCache(session.user.id);
+
+    return successResponse({ task }, 201);
   } catch (error) {
-    console.error(error);
-    const locale = await getLocaleFromRequest();
+    const errorRes = createErrorResponse(error, {
+      userId: session.user.id,
+    });
+    logger.error(
+      'Error creating task',
+      error instanceof Error ? error : new Error(String(error)),
+      {
+        userId: session.user.id,
+      },
+    );
     const t = await getTranslations({ locale, namespace: 'Errors' });
-    return NextResponse.json({ error: t('creatingTask') }, { status: 500 });
+    return errorResponse(
+      errorRes.error || t('creatingTask'),
+      errorRes.statusCode,
+      errorRes.code,
+      errorRes.details,
+    );
   }
 }

@@ -6,22 +6,16 @@ import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Icon } from '@iconify/react';
 import { useFormatter, useTranslations } from 'next-intl';
-import type { Task } from '@/lib/generated/prisma/client';
+import type { Task } from '@/lib/generated/prisma/browser';
 import { translatePriority } from '@/utils/text';
 import { CompleteTaskCheckbox } from './complete-task-checkbox';
 import { DeleteTaskButton } from './delete-task-button';
 
 interface TaskCardProps {
   task: Task;
-  onStatusChange: (taskId: string, newStatus: Task['status']) => void;
-  onDelete: (taskId: string) => void;
 }
 
-export const TaskCard = memo(function TaskCard({
-  task,
-  onStatusChange,
-  onDelete,
-}: TaskCardProps) {
+export const TaskCard = memo(function TaskCard({ task }: TaskCardProps) {
   const format = useFormatter();
   const t = useTranslations('DashboardPage');
   const tForm = useTranslations('EditTaskPage.form');
@@ -93,11 +87,7 @@ export const TaskCard = memo(function TaskCard({
           </div>
         </Link>
         <div className='flex items-start'>
-          <CompleteTaskCheckbox
-            taskId={task.id}
-            currentStatus={task.status}
-            onStatusChange={onStatusChange}
-          />
+          <CompleteTaskCheckbox taskId={task.id} currentStatus={task.status} />
         </div>
       </CardContent>
       <div>
@@ -115,7 +105,6 @@ export const TaskCard = memo(function TaskCard({
               className='cursor-pointer bg-transparent text-red-500 hover:bg-transparent hover:text-red-500/80'
               variant='default'
               taskId={task.id}
-              onDelete={() => onDelete(task.id)}
             />
           </div>
         </CardFooter>

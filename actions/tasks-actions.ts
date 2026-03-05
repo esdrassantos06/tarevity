@@ -4,8 +4,8 @@ import { auth } from '@/lib/auth';
 import prisma from '@/lib/prisma';
 import { headers } from 'next/headers';
 import { cache } from 'react';
-import { Prisma } from '@/lib/generated/prisma';
-import { TaskPriority, TaskStatus } from '@/lib/generated/prisma/client';
+import { Prisma } from '@/lib/generated/prisma/client';
+import { TaskPriority, TaskStatus } from '@/lib/generated/prisma/enums';
 import { getCached, cacheKeys, CACHE_TTL } from '@/lib/cache';
 import { getTranslations } from 'next-intl/server';
 
