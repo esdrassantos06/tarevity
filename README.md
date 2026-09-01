@@ -1,20 +1,20 @@
-# Tarevity - Modern Task Management System
+# Tarevity
 
 ![Tarevity Logo](public/logo.png)
 
-Tarevity is a sophisticated task management application built with Next.js 16, React 19, TypeScript, and Prisma. It provides an intuitive and secure interface to help users organize their tasks with efficiency and style.
+Task manager on Next.js 16, React 19, TypeScript and Prisma. Tasks carry a priority, a status and a due date; there is a calendar view, an analytics donut, due-date notifications, and the whole interface speaks English, Portuguese and Spanish.
 
-**Current Version: 2.0.4** (January 2026)
+**Current version: 2.0.4** (January 2026)
 
-> **🚀 Major Update**: This application has been completely refactored from the ground up, featuring a modern tech stack, improved architecture, enhanced security, internationalization support, and a polished user experience.
+Version 2 is a rewrite rather than an upgrade. The stack, the auth layer and the data access all changed, so treat 1.x notes as historical.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-## ✨ Key Features
+## Key Features
 
-### 📋 Task Management
+### Task Management
 
-- **Create, Edit & Complete** tasks with a user-friendly interface
+- **Create, edit and complete** tasks
 - **Priority Levels** (Low, Medium, High) with visual indicators
 - **Status Workflow** (Active, Review, Completed) for organized task progression
 - **Due Date Management** with date picker integration
@@ -24,7 +24,7 @@ Tarevity is a sophisticated task management application built with Next.js 16, R
 - **Calendar View** with interactive calendar showing tasks by due date
 - **Task Statistics** on profile page showing created, completed, and pending tasks
 
-### 🛡️ Enterprise-Grade Security
+### Security
 
 - **Password Security**: Argon2 hashing algorithm for secure password storage
 - **Session Management** with configurable expiration and cookie caching
@@ -36,21 +36,21 @@ Tarevity is a sophisticated task management application built with Next.js 16, R
 - **Rate Limiting** on sensitive endpoints to prevent brute force attacks
 - **Admin Role System** with role-based access control
 
-### 📊 Analytics Dashboard
+### Analytics Dashboard
 
 - **Task Statistics** with visual donut chart representation
 - **Distribution Charts** showing task status breakdown
 - **Real-time Updates** for task completion metrics
 - **Profile Statistics** displaying user task metrics
 
-### 🔔 Smart Notifications
+### Notifications
 
 - **Due Date Alerts** to keep users informed of approaching deadlines
 - **Scheduled Notifications** for timely task management
 - **Email Notifications** for password reset and important task reminders
 - **In-app Notifications** with dropdown interface
 
-### 🌍 Internationalization (i18n)
+### Internationalization (i18n)
 
 - **Multi-language Support** with next-intl integration
 - **Supported Languages**: English (en), Portuguese (pt), Spanish (es)
@@ -63,7 +63,7 @@ Tarevity is a sophisticated task management application built with Next.js 16, R
   - Admin panel interface
 - **SEO-friendly** URL structure with locale prefixes
 
-### 🎨 Polished UX/UI
+### Interface
 
 - **Light & Dark Mode** support with system preference detection
 - **Theme Customization** in settings (Light, Dark, System)
@@ -75,16 +75,16 @@ Tarevity is a sophisticated task management application built with Next.js 16, R
 - **Profile Management** with avatar upload and user information editing
 - **Account Settings** with theme preferences and account management
 
-### 👥 Admin Panel
+### Admin Panel
 
-- **User Management** with comprehensive user data table
+- **User Management** with a user data table
 - **User Roles** (User, Admin) with role-based access control
 - **User Actions**: View, Edit, and Delete users
 - **User Statistics** showing task counts per user
 - **Email Filtering** for quick user search
 - **Bulk Operations** support for user management
 
-## 🚀 Technology Stack
+## Technology Stack
 
 ### Frontend
 
@@ -124,7 +124,7 @@ Tarevity is a sophisticated task management application built with Next.js 16, R
 - **Code Quality**: ESLint for code linting
 - **Code Formatting**: Prettier for consistent code style
 
-## 📱 Responsive Design
+## Responsive Design
 
 Tarevity implements a mobile-first approach with:
 
@@ -134,9 +134,9 @@ Tarevity implements a mobile-first approach with:
 - Optimized forms and task cards
 - Grid and Flex layouts that adapt to screen size
 
-## ⚡ Performance & Caching
+## Performance & Caching
 
-Tarevity implements a comprehensive caching strategy using Redis for optimal performance:
+Redis caches the expensive reads:
 
 - **Distributed Caching**: Redis-based caching system for all data operations
 - **Smart Cache Invalidation**: Efficient cache invalidation using SET-based tracking with SCAN fallback
@@ -168,9 +168,9 @@ The application includes optimized database indexes for fast query execution:
 - **Account Indexes**: Composite index on `(providerId, accountId)` for OAuth account lookups
 - **Verification Indexes**: Indexed identifier and expiration date for quick token validation
 
-## 🔒 Security Features
+## Security Features
 
-Security is a core focus of Tarevity with comprehensive protection measures:
+Security is layered:
 
 - **Content Security Policy (CSP)**: Strict CSP implementation via middleware with:
   - Nonce-based script execution in production for XSS prevention
@@ -196,7 +196,7 @@ Security is a core focus of Tarevity with comprehensive protection measures:
 - **Role-Based Access Control** (RBAC) for admin features
 - **User Banning System** with expiration tracking
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 
@@ -279,7 +279,7 @@ Security is a core focus of Tarevity with comprehensive protection measures:
 
    - Access the app at [http://localhost:3000](http://localhost:3000)
 
-## 🧪 Testing
+## Testing
 
 Tarevity uses Vitest for unit and integration testing with React Testing Library for component testing.
 
@@ -310,13 +310,13 @@ Tests are organized in the `__tests__` directory mirroring the source code struc
 
 Current test coverage includes:
 
-- ✅ API response utilities
-- ✅ Error handling utilities
-- ✅ Rate limiting helpers
-- ✅ React hooks (useTasks)
-- ✅ Validation schemas (TaskSchema, SignInSchema, TaskQuerySchema)
-- ✅ Utility functions
-- ✅ Text manipulation utilities
+- API response utilities
+- Error handling utilities
+- Rate limiting helpers
+- React hooks (useTasks)
+- Validation schemas (TaskSchema, SignInSchema, TaskQuerySchema)
+- Utility functions
+- Text manipulation utilities
 
 The test setup includes:
 
@@ -326,7 +326,7 @@ The test setup includes:
 - Mock configurations for Next.js navigation, internationalization, and theme providers
 - Automatic cleanup after each test
 
-## 📜 Available Scripts
+## Available Scripts
 
 - `npm run dev` - Start the development server with Prisma client generation
 - `npm run build` - Build the application for production with Prisma client generation
@@ -336,7 +336,7 @@ The test setup includes:
 - `npm run test` - Run tests with Vitest (watch mode)
 - `npm run test -- --run` - Run tests once (useful for CI/CD)
 
-## 🗺️ Main Routes
+## Main Routes
 
 ### Public Routes
 
@@ -402,7 +402,7 @@ The test setup includes:
   - Database connectivity check
   - Used for monitoring and keep-alive purposes
 
-## 📁 Project Structure
+## Project Structure
 
 ```bash
 /app                   # Next.js App Router routes
@@ -533,16 +533,16 @@ The test setup includes:
    - setup.ts         # Vitest setup file with mocks
 ```
 
-## 📄 Legal & Compliance
+## Legal & Compliance
 
-Tarevity includes comprehensive legal pages for transparency and compliance:
+Legal pages:
 
 - **Privacy Policy** (`/privacy`) - Detailed information about data collection, usage, and user rights
 - **Terms of Use** (`/terms`) - Terms and conditions for using the application
 - **Cookie Consent** - GDPR-compliant cookie consent banner
 - **Data Security** - Industry-standard security measures for user data protection
 
-## 🔮 Future Enhancements
+## Future Enhancements
 
 - [x] Task status workflow (Active, Review, Completed)
 - [x] Priority levels
@@ -561,7 +561,7 @@ Tarevity includes comprehensive legal pages for transparency and compliance:
 - [x] Unit and integration tests with Vitest
 - [ ] Mobile application
 
-## 🚀 Deployment
+## Deployment
 
 ### GitHub Actions CI/CD
 
@@ -597,15 +597,15 @@ Make sure to set all required environment variables in your hosting platform:
 
 **Important**: Never commit `.env` files to version control. Use environment variable management provided by your hosting platform.
 
-## 📄 License
+## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 👨‍💻 Author
+## Author
 
 - **Esdras Santos** - [GitHub](https://github.com/esdrassantos06)
 
-## 🤝 Contributing
+## Contributing
 
 Contributions, issues, and feature requests are welcome! We appreciate your help in making Tarevity better.
 
@@ -620,8 +620,8 @@ Contributions, issues, and feature requests are welcome! We appreciate your help
 
 When reporting bugs or requesting features, please use our issue templates:
 
-- 🐛 [Bug Report](https://github.com/esdrassantos06/tarevity/issues/new?template=bug_report.yml) - For reporting bugs or unexpected behavior
-- ✨ [Feature Request](https://github.com/esdrassantos06/tarevity/issues/new?template=feature_request.yml) - For suggesting new features or enhancements
+- [Bug Report](https://github.com/esdrassantos06/tarevity/issues/new?template=bug_report.yml) - For reporting bugs or unexpected behavior
+- [Feature Request](https://github.com/esdrassantos06/tarevity/issues/new?template=feature_request.yml) - For suggesting new features or enhancements
 
 This helps us understand and address your issue more effectively.
 
@@ -637,7 +637,7 @@ This helps us understand and address your issue more effectively.
 
 Feel free to check the [issues page](https://github.com/esdrassantos06/tarevity/issues) for open issues and discussions.
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
 - [Next.js](https://nextjs.org/) - The React Framework
 - [shadcn/ui](https://ui.shadcn.com/) - Beautiful UI components
@@ -647,4 +647,4 @@ Feel free to check the [issues page](https://github.com/esdrassantos06/tarevity/
 
 ---
 
-Star ⭐ this repository if you find it helpful!
+Built by [Esdras Santos](https://github.com/esdrassantos06).
