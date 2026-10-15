@@ -2,7 +2,6 @@
 
 import { Button } from '../ui/button';
 import { authClient } from '@/lib/auth-client';
-import { Loader } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { Icon } from '@iconify/react';
@@ -43,7 +42,6 @@ export default function AuthButtons({
   }
 
   const providerName = provider === 'google' ? t('google') : t('github');
-  const signText = signUp ? t('signUpWith') : t('signInWith');
   const ariaLabel = signUp
     ? t('ariaLabelSignUp', { provider: providerName })
     : t('ariaLabelSignIn', { provider: providerName });
@@ -52,40 +50,38 @@ export default function AuthButtons({
     : t('titleSignIn', { provider: providerName });
 
   return (
-    <div className='space-y-3'>
-      <Button
-        variant={'outline'}
-        className='w-full'
-        disabled={isPending}
-        onClick={handleClick}
-        aria-label={ariaLabel}
-        title={title}
-        type='button'
-      >
-        {isPending ? (
-          <>
-            <Loader size={12} className='animate-spin' aria-hidden='true' />
-            <span aria-live='polite'>{t('loading')}</span>
-          </>
-        ) : (
-          <>
-            {provider === 'github' ? (
-              <>
-                <Icon icon={'mdi:github'} className='w-3' aria-hidden='true' />
-              </>
-            ) : (
-              <>
-                <Icon
-                  icon={'devicon:google'}
-                  className='w-3'
-                  aria-hidden='true'
-                />
-              </>
-            )}
-            {signText} {providerName}
-          </>
-        )}
-      </Button>
-    </div>
+    <Button
+      variant='outline'
+      size='lg'
+      className='w-full text-sm'
+      disabled={isPending}
+      onClick={handleClick}
+      aria-label={ariaLabel}
+      title={title}
+      type='button'
+    >
+      {isPending ? (
+        <>
+          <Icon
+            icon='tabler:loader-2'
+            className='animate-spin'
+            aria-hidden='true'
+          />
+          <span aria-live='polite'>{t('loading')}</span>
+        </>
+      ) : (
+        <>
+          <Icon
+            icon={
+              provider === 'github'
+                ? 'tabler:brand-github'
+                : 'tabler:brand-google'
+            }
+            aria-hidden='true'
+          />
+          {providerName}
+        </>
+      )}
+    </Button>
   );
 }

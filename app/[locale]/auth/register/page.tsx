@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
-import { RegisterForm } from '@/components/auth/RegisterForm';
+import { RegisterForm } from '@/components/auth/register-form';
 
 type Props = {
   params: Promise<{ locale: string }>;
