@@ -1,6 +1,6 @@
 {
   "name": "tarevity",
-  "version": "2.0.4",
+  "version": "2.1.0",
   "description": "Task manager with a review step: every task moves Active, Review, Completed on a kanban board. Next.js 16, React 19, Prisma, Better Auth.",
   "private": true,
   "scripts": {
