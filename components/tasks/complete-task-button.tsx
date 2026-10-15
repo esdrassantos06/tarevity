@@ -64,20 +64,16 @@ export const CompleteTaskButton = ({
       onClick={handleComplete}
       disabled={isLoading}
       variant={currentStatus === 'COMPLETED' ? 'outline' : 'default'}
-      className={
-        currentStatus === 'COMPLETED'
-          ? 'border-green-500 text-green-500 hover:bg-green-50 dark:hover:bg-green-500'
-          : 'bg-green-500 text-white hover:bg-green-600'
-      }
       aria-label={ariaLabel}
       title={buttonText}
       type='button'
     >
       <Icon
         icon={
-          currentStatus === 'COMPLETED' ? 'mdi:check-outline' : 'mdi:check-bold'
+          currentStatus === 'COMPLETED'
+            ? 'tabler:arrow-back-up'
+            : 'tabler:check'
         }
-        className='mr-2 size-4'
         aria-hidden='true'
       />
       {isLoading ? <span aria-live='polite'>{buttonText}</span> : buttonText}
