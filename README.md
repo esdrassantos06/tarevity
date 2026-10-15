@@ -280,8 +280,8 @@ Security is layered:
    **Running everything locally instead.** `docker-compose.dev.yml` starts Postgres 17 on port 5433, Redis, and `serverless-redis-http`, which speaks the Upstash REST protocol on port 8079. With it the only variables you need are:
 
    ```bash
-   DATABASE_URL="postgresql://tarevity:tarevity@localhost:5433/tarevity"
-   DIRECT_URL="postgresql://tarevity:tarevity@localhost:5433/tarevity"
+   DATABASE_URL="postgresql://tarevity@localhost:5433/tarevity"
+   DIRECT_URL="postgresql://tarevity@localhost:5433/tarevity"
    REDIS_URL="http://localhost:8079"
    REDIS_TOKEN="local_dev_token"
    BETTER_AUTH_SECRET="any-long-random-string"

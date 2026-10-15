@@ -3,10 +3,11 @@ services:
     image: postgres:17-alpine
     environment:
       POSTGRES_USER: tarevity
-      POSTGRES_PASSWORD: tarevity
       POSTGRES_DB: tarevity
+      # Local-only database bound to 127.0.0.1, so it accepts connections without a password.
+      POSTGRES_HOST_AUTH_METHOD: trust
     ports:
-      - '5433:5432'
+      - '127.0.0.1:5433:5432'
     volumes:
       - tarevity-pg:/var/lib/postgresql/data
 
@@ -20,7 +21,7 @@ services:
       SRH_TOKEN: local_dev_token
       SRH_CONNECTION_STRING: redis://redis:6379
     ports:
-      - '8079:80'
+      - '127.0.0.1:8079:80'
     depends_on:
       - redis
 
