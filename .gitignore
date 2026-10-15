@@ -45,3 +45,4 @@ next-env.d.ts
 .impeccable/brand/
 .impeccable/mocks/
 .impeccable/direction-payload.json
+.impeccable/questions/

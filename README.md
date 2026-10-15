@@ -2,11 +2,23 @@
 
 ![Tarevity Logo](public/logo.png)
 
-Task manager on Next.js 16, React 19, TypeScript and Prisma. Tasks carry a priority, a status and a due date; there is a calendar view, an analytics donut, due-date notifications, and the whole interface speaks English, Portuguese and Spanish.
+Task manager on Next.js 16, React 19, TypeScript and Prisma. Every task is a numbered form that only closes after review: it moves from Active to Review to Completed across a three-column kanban, and the status shows up as a rubber stamp wherever the task appears. There's a calendar, due-date notifications, autosaved drafts, and the whole interface speaks English, Portuguese and Spanish.
 
-**Current version: 2.0.4** (January 2026)
+![Tarevity landing page](public/og-image.png)
+
+**Current version: 2.1.0** (October 2026)
 
 Version 2 is a rewrite rather than an upgrade. The stack, the auth layer and the data access all changed, so treat 1.x notes as historical.
+
+### What changed in 2.1
+
+- New interface across every page, built from paper requisition forms and rubber stamps (see `DESIGN.md`), plus a new logo, favicon, app icons and social preview image
+- The dashboard is a kanban board: drag a task between In tray, For review and Filed to change its status, or use the arrow buttons on each card
+- Create and edit forms autosave a per-user draft once you stop typing and when you leave the page
+- Signing in or registering now updates the header straight away; before, it kept showing "Sign in" until a reload
+- Every dependency moved to its latest stable release (Next.js 16.4, better-auth 1.7, TanStack Table 9, react-day-picker 10, ESLint 10, Vitest 5). Prisma stays on 7.10 because 8 is still a release candidate, and TypeScript on 6.0 until `typescript-eslint` supports TS 7
+- Local development runs on Docker (`docker-compose.dev.yml`) with Postgres and an Upstash-compatible Redis
+- Source files follow kebab-case throughout
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
@@ -14,9 +26,11 @@ Version 2 is a rewrite rather than an upgrade. The stack, the auth layer and the
 
 ### Task Management
 
+- **Kanban board** with one tray per status (In tray, For review, Filed). Drag a card to another tray to change its status; the arrow buttons on each card do the same from the keyboard or a phone
 - **Create, edit and complete** tasks
-- **Priority Levels** (Low, Medium, High) with visual indicators
-- **Status Workflow** (Active, Review, Completed) for organized task progression
+- **Autosaved drafts**: the create and edit forms save to localStorage about a second after you stop typing, and again when you leave the page. Drafts are keyed by user id, so switching accounts never shows someone else's text, and they're wiped on sign-out
+- **Priority Levels** (Low, Medium, High); high priority gets a red "Urgent" stamp
+- **Status Workflow** (Active, Review, Completed)
 - **Due Date Management** with date picker integration
 - **Sorting & Filtering** capabilities with fully translated filter options (All, Active, Completed, Review) and priority filters (All, High, Medium, Low) for better organization
 - **Visual Indicators** showing task priority and status at a glance
@@ -38,8 +52,7 @@ Version 2 is a rewrite rather than an upgrade. The stack, the auth layer and the
 
 ### Analytics Dashboard
 
-- **Task Statistics** with visual donut chart representation
-- **Distribution Charts** showing task status breakdown
+- **Task Statistics** as a ledger on the profile page: one bar per status with typed counts
 - **Real-time Updates** for task completion metrics
 - **Profile Statistics** displaying user task metrics
 
@@ -65,10 +78,14 @@ Version 2 is a rewrite rather than an upgrade. The stack, the auth layer and the
 
 ### Interface
 
+The visual language comes from paper requisition forms. Field captions are printed in one blue ink, filled values look typewritten, and status is a rubber stamp: blue for in progress, violet for review, green for filed. The kanban trays use the white, canary and pink of carbon copies, and dark mode is the carbon sheet itself.
+
+- **Type**: Archivo for headings, labels and stamps, Public Sans for body text, Courier Prime for anything that's been "filled in" (titles, dates, form numbers)
+- **Tokens** live in `app/globals.css`; `DESIGN.md` documents them
 - **Light & Dark Mode** support with system preference detection
 - **Theme Customization** in settings (Light, Dark, System)
 - **Responsive Design** optimized for all screen sizes
-- **Animated Transitions** for a smooth user experience
+- **One animation that matters**: the stamp presses down when a task changes status. It's switched off under `prefers-reduced-motion`
 - **Interactive Components** with accessibility features
 - **Cookie Consent Banner** for GDPR compliance
 - **Toast Notifications** for user feedback
@@ -95,7 +112,7 @@ Version 2 is a rewrite rather than an upgrade. The stack, the auth layer and the
 - **Type Safety**: TypeScript
 - **Form Validation**: Zod with React Hook Form
 - **UI Components**: shadcn/ui (Radix UI primitives)
-- **Icons**: Lucide React & Iconify
+- **Icons**: Iconify (Tabler set); Lucide remains inside a few shadcn/ui primitives
 - **Notifications**: Sonner for toast notifications
 - **Internationalization**: next-intl for multi-language support
 - **Date Handling**: date-fns for date manipulation and formatting
@@ -128,11 +145,9 @@ Version 2 is a rewrite rather than an upgrade. The stack, the auth layer and the
 
 Tarevity implements a mobile-first approach with:
 
-- Fluid layouts for all screen sizes
-- Adaptive navigation with collapsible menus
-- Touch-friendly UI elements
-- Optimized forms and task cards
-- Grid and Flex layouts that adapt to screen size
+- The kanban shows three columns on desktop and turns into a horizontal swipe between trays on phones
+- On the landing page the sign-up stub sits right under the headline on small screens, so the action is in the first viewport
+- Card actions (move, edit, delete) appear on hover or focus on desktop and stay visible on touch screens
 
 ## Performance & Caching
 
@@ -200,7 +215,8 @@ Security is layered:
 
 ### Prerequisites
 
-- Node.js 18.x or higher
+- Node.js 20.9 or higher (Next.js 16 requirement)
+- Docker, if you want the local Postgres and Redis described below
 - npm, yarn, or pnpm
 - PostgreSQL database
 - Redis instance (for rate limiting) - Upstash recommended
@@ -244,9 +260,9 @@ Security is layered:
    GOOGLE_CLIENT_ID="your-google-client-id"
    GOOGLE_SECRET="your-google-client-secret"
 
-   # Redis (for rate limiting)
-   UPSTASH_REDIS_REST_URL="your-upstash-redis-url"
-   UPSTASH_REDIS_REST_TOKEN="your-upstash-redis-token"
+   # Redis over the Upstash REST API (rate limiting and caching)
+   REDIS_URL="your-upstash-redis-rest-url"
+   REDIS_TOKEN="your-upstash-redis-rest-token"
 
    # Supabase (optional, for file storage)
    NEXT_PUBLIC_SUPABASE_URL="your-supabase-url"
@@ -259,6 +275,21 @@ Security is layered:
 
    # Environment
    NODE_ENV="development"
+   ```
+
+   **Running everything locally instead.** `docker-compose.dev.yml` starts Postgres 17 on port 5433, Redis, and `serverless-redis-http`, which speaks the Upstash REST protocol on port 8079. With it the only variables you need are:
+
+   ```bash
+   DATABASE_URL="postgresql://tarevity:tarevity@localhost:5433/tarevity"
+   DIRECT_URL="postgresql://tarevity:tarevity@localhost:5433/tarevity"
+   REDIS_URL="http://localhost:8079"
+   REDIS_TOKEN="local_dev_token"
+   BETTER_AUTH_SECRET="any-long-random-string"
+   BETTER_AUTH_URL="http://localhost:3000"
+   ```
+
+   ```bash
+   docker compose -f docker-compose.dev.yml up -d
    ```
 
 4. Set up the database
@@ -313,8 +344,10 @@ Current test coverage includes:
 - API response utilities
 - Error handling utilities
 - Rate limiting helpers
-- React hooks (useTasks)
-- Validation schemas (TaskSchema, SignInSchema, TaskQuerySchema)
+- React hooks (`useTasks`, `useFormDraft`: debounce, restore, discard, flush on unmount and `pagehide`)
+- Draft storage (`lib/drafts.ts`): per-user keys, corrupt or blocked storage, sign-out cleanup
+- Board helpers (`utils/board.ts`): grouping by status, calendar-day countdown, form numbers
+- Validation schemas (task, sign-in, task query)
 - Utility functions
 - Text manipulation utilities
 
@@ -335,6 +368,10 @@ The test setup includes:
 - `npm run format` - Format code using Prettier
 - `npm run test` - Run tests with Vitest (watch mode)
 - `npm run test -- --run` - Run tests once (useful for CI/CD)
+
+## Conventions
+
+Every source file uses kebab-case (`login-form.tsx`, `task-query-schema.ts`); exported components stay PascalCase inside the file. Run `npm run format` before committing.
 
 ## Main Routes
 
@@ -436,11 +473,12 @@ The test setup includes:
       - edit-user-dialog.tsx
       - view-user-dialog.tsx
    /auth              # Authentication components
-      - LoginForm.tsx
-      - RegisterForm.tsx
-      - ForgotPasswordForm.tsx
-      - ResetPasswordForm.tsx
-      - AuthButtons.tsx
+      - auth-sheet.tsx # Shared form-sheet shell for every auth page
+      - login-form.tsx
+      - register-form.tsx
+      - forgot-password-form.tsx
+      - reset-password-form.tsx
+      - auth-buttons.tsx
    /calendar          # Calendar-related components
       - task-date-popover.tsx
    /intl              # Internationalization components
@@ -448,17 +486,18 @@ The test setup includes:
    /tasks             # Task-related components
       - create-task.tsx
       - edit-task.tsx
-      - task-card.tsx # Task card component with priority indicators and status visualization
+      - task-card.tsx # Kanban card: form number, typed title, due stub, status stamp
+      - task-form-sheet.tsx # Shared sheet parts for the task detail, create and edit pages
       - complete-task-button.tsx
       - complete-task-checkbox.tsx
       - delete-task-button.tsx
       - submit-to-review-button.tsx
-      - tasks-donut-chart.tsx
+      - tasks-donut-chart.tsx # Status ledger (kept its old file name)
    /notifications     # Notification components
       - notifications-dropdown.tsx
    /ui                # Reusable UI components (shadcn/ui)
    /pages             # Page client components
-      - dashboard-client.tsx # Dashboard client component with task management
+      - dashboard-client.tsx # Kanban board with drag-and-drop between trays
       - calendar-client.tsx # Calendar view client component
       - profile-client.tsx # Profile page client component
       - settings-client.tsx # Settings page client component
@@ -470,9 +509,11 @@ The test setup includes:
    - query-provider.tsx # TanStack Query provider for React Query
    - back-button.tsx  # Back navigation button component
    - fade-in.tsx      # Fade-in animation component
-   /logo              # Logo components
-      - full-logo.tsx # Full logo component
-      - icon.tsx      # Icon logo component
+   /forms             # Pieces of the form language
+      - stamp.tsx     # Rubber stamp used for every status and urgency mark
+      - draft-notice.tsx # "Draft restored / saved at" line in task forms
+   /logo
+      - wordmark.tsx  # Stamped T seal plus the TAREVITY wordmark
 /actions              # Server actions
    - admin-actions.ts # Admin panel server actions
    - tasks-actions.ts # Task server actions (cached getTasks function)
@@ -499,7 +540,8 @@ The test setup includes:
    - argon2.ts        # Password hashing utilities
    - utils.ts         # General utilities
    - api-locale.ts    # API locale utilities
-   - pingDb.ts        # Database health check
+   - ping-db.ts       # Database health check
+   - drafts.ts        # Per-user form drafts in localStorage
 /messages             # Internationalization message files
    - en.json          # English translations
    - pt.json          # Portuguese translations
@@ -508,16 +550,21 @@ The test setup includes:
    - schema.prisma    # Database schema
    /migrations        # Database migration files
 /validation           # Zod validation schemas
-   - SignInSchema.ts
-   - SignUpSchema.ts
-   - TaskSchema.ts
-   - TaskQuerySchema.ts
-   - updateUserSchema.ts
-   - ForgotPasswordSchema.ts
-   - ResetPasswordSchema.ts
+   - sign-in-schema.ts
+   - sign-up-schema.ts
+   - task-schema.ts
+   - task-query-schema.ts
+   - update-user-schema.ts
+   - forgot-password-schema.ts
+   - reset-password-schema.ts
    - schemas.ts       # Shared validation schemas
 /utils                # Helper utilities
    - text.ts          # Text manipulation utilities
+   - board.ts         # Kanban grouping, due-date countdown, form numbers
+/hooks                # Client hooks
+   - use-tasks.ts     # TanStack Query hooks for tasks, counts and status changes
+   - use-form-draft.ts # Autosave and restore for react-hook-form drafts
+   - use-is-client.ts # Hydration-safe flag for client-only values
 /types                # TypeScript type definitions
    - Notification.ts  # Notification types
    - TaskCount.ts     # Task count types
