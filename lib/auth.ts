@@ -47,7 +47,7 @@ export const auth = betterAuth({
       prompt: 'select_account consent',
       clientId: process.env.GITHUB_CLIENT_ID!,
       clientSecret: process.env.GITHUB_CLIENT_SECRET!,
-      scopes: [`read:user`, `user:email`],
+      scope: [`read:user`, `user:email`],
     },
     google: {
       prompt: 'select_account consent',
@@ -94,6 +94,13 @@ export const auth = betterAuth({
     delete: async (key) => {
       await redis.del(key);
     },
+    getAndDelete: async (key) => redis.getdel(key),
+    increment: async (key, ttl) =>
+      redis.eval<[number], number>(
+        "local v = redis.call('INCR', KEYS[1]) if v == 1 then redis.call('EXPIRE', KEYS[1], ARGV[1]) end return v",
+        [key],
+        [ttl],
+      ),
   },
   rateLimit: {
     enabled: true,
