@@ -2,7 +2,7 @@ import { MetadataRoute } from 'next';
 import { routing } from '@/i18n/routing';
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = 'https://tarevity.pt';
+  const baseUrl = 'https://tarevity.me';
   const currentDate = new Date();
 
   const publicRoutes = [

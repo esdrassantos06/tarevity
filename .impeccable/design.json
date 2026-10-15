@@ -1,0 +1,564 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-15T18:06:20+00:00",
+  "title": "Design System: Tarevity",
+  "extensions": {
+    "colorMeta": {
+      "print": {
+        "role": "primary",
+        "displayName": "Print Blue",
+        "canonical": "#2742a0",
+        "tonalRamp": [
+          "#030822",
+          "#101f53",
+          "#21398a",
+          "#3a58b8",
+          "#587bdf",
+          "#799fff",
+          "#a3c6ff",
+          "#d3eeff"
+        ],
+        "darkValue": "#93a9f2"
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Carbon Black Ink",
+        "canonical": "#1b2130",
+        "tonalRamp": [
+          "#090b10",
+          "#21252e",
+          "#3c4250",
+          "#5a6173",
+          "#7a8295",
+          "#9da5b9",
+          "#c2c9da",
+          "#e9eefb"
+        ],
+        "darkValue": "#e5e8f1"
+      },
+      "paper": {
+        "role": "neutral",
+        "displayName": "Desk Paper",
+        "canonical": "#f6f6f1",
+        "tonalRamp": [
+          "#0b0b08",
+          "#252522",
+          "#42423e",
+          "#61615d",
+          "#83837e",
+          "#a5a5a1",
+          "#c9c9c5",
+          "#efefea"
+        ],
+        "darkValue": "#10141e"
+      },
+      "sheet": {
+        "role": "neutral",
+        "displayName": "Form Stock",
+        "canonical": "#ffffff",
+        "tonalRamp": [
+          "#0b0b0b",
+          "#252525",
+          "#424242",
+          "#616161",
+          "#828282",
+          "#a5a5a5",
+          "#c9c9c9",
+          "#eeeeee"
+        ],
+        "darkValue": "#181e2c"
+      },
+      "rule": {
+        "role": "neutral",
+        "displayName": "Hairline Rule",
+        "canonical": "#c5cce0",
+        "tonalRamp": [
+          "#090b10",
+          "#22252e",
+          "#3d4250",
+          "#5b6172",
+          "#7b8294",
+          "#9ea5b8",
+          "#c3c9da",
+          "#eaeefa"
+        ],
+        "darkValue": "#33405f"
+      },
+      "field-rule": {
+        "role": "neutral",
+        "displayName": "Field Rule",
+        "canonical": "#aeb7d0",
+        "tonalRamp": [
+          "#090b11",
+          "#212530",
+          "#3b4154",
+          "#596177",
+          "#798299",
+          "#9ca4bd",
+          "#c1c9de",
+          "#e9eefe"
+        ],
+        "darkValue": "#3d4b6e"
+      },
+      "muted-ink": {
+        "role": "neutral",
+        "displayName": "Faded Ink",
+        "canonical": "#4a5576",
+        "tonalRamp": [
+          "#080b14",
+          "#1e2436",
+          "#38415d",
+          "#556082",
+          "#7581a5",
+          "#97a4c9",
+          "#bdc8e9",
+          "#e6eeff"
+        ],
+        "darkValue": "#a6b0cc"
+      },
+      "tint": {
+        "role": "neutral",
+        "displayName": "Tint",
+        "canonical": "#eceef5",
+        "tonalRamp": [
+          "#0a0b0f",
+          "#23252a",
+          "#404247",
+          "#5f6167",
+          "#808288",
+          "#a3a5ab",
+          "#c7c9d0",
+          "#eceef5"
+        ],
+        "darkValue": "#222a3d"
+      },
+      "hover-tint": {
+        "role": "neutral",
+        "displayName": "Hover Tint",
+        "canonical": "#e3e7f3",
+        "tonalRamp": [
+          "#090b12",
+          "#22252d",
+          "#3f424b",
+          "#5e616b",
+          "#7e828d",
+          "#a1a5b0",
+          "#c5c9d4",
+          "#eaeefa"
+        ],
+        "darkValue": "#26304a"
+      },
+      "stamp-violet": {
+        "role": "secondary",
+        "displayName": "Stamp Violet",
+        "canonical": "#5a3aa6",
+        "tonalRamp": [
+          "#0d0521",
+          "#281651",
+          "#472b87",
+          "#6648b5",
+          "#866bdb",
+          "#a98fff",
+          "#cbb8ff",
+          "#efe3ff"
+        ],
+        "darkValue": "#b8a2f7"
+      },
+      "stamp-red": {
+        "role": "tertiary",
+        "displayName": "Stamp Red",
+        "canonical": "#c2302a",
+        "tonalRamp": [
+          "#200000",
+          "#4f0000",
+          "#830001",
+          "#b21d1b",
+          "#db493f",
+          "#ff6f61",
+          "#ff9e90",
+          "#ffd3c7"
+        ],
+        "darkValue": "#ff8a7d"
+      },
+      "stamp-green": {
+        "role": "secondary",
+        "displayName": "Stamp Green",
+        "canonical": "#2c6a46",
+        "tonalRamp": [
+          "#020f06",
+          "#0a2d19",
+          "#174e30",
+          "#32704b",
+          "#54926c",
+          "#77b68e",
+          "#a3d8b5",
+          "#d4f9e0"
+        ],
+        "darkValue": "#84cfa1"
+      },
+      "via-white": {
+        "role": "neutral",
+        "displayName": "White Copy",
+        "canonical": "#ffffff",
+        "tonalRamp": [
+          "#0b0b0b",
+          "#252525",
+          "#424242",
+          "#616161",
+          "#828282",
+          "#a5a5a5",
+          "#c9c9c9",
+          "#eeeeee"
+        ],
+        "darkValue": "#1b2233"
+      },
+      "via-canary": {
+        "role": "neutral",
+        "displayName": "Canary Copy",
+        "canonical": "#fbf1b8",
+        "tonalRamp": [
+          "#0e0b01",
+          "#2a2508",
+          "#4b4214",
+          "#6b622d",
+          "#8d834e",
+          "#b0a670",
+          "#d3cb9c",
+          "#f5f0cf"
+        ],
+        "darkValue": "#262618"
+      },
+      "via-pink": {
+        "role": "neutral",
+        "displayName": "Pink Copy",
+        "canonical": "#f9dce2",
+        "tonalRamp": [
+          "#0f090b",
+          "#2e2124",
+          "#503c40",
+          "#725a5f",
+          "#947a80",
+          "#b89da3",
+          "#dac2c7",
+          "#fbe9ed"
+        ],
+        "darkValue": "#2b1e27"
+      },
+      "carbon-paper": {
+        "role": "neutral",
+        "displayName": "Carbon Paper",
+        "canonical": "#10141e",
+        "tonalRamp": [
+          "#0a0b0e",
+          "#22252c",
+          "#3d424c",
+          "#5c616e",
+          "#7d8290",
+          "#9fa5b3",
+          "#c4c9d5",
+          "#ebeef7"
+        ]
+      },
+      "carbon-sheet": {
+        "role": "neutral",
+        "displayName": "Carbon Form Stock",
+        "canonical": "#181e2c",
+        "tonalRamp": [
+          "#090b0f",
+          "#21252e",
+          "#3c4250",
+          "#5a6172",
+          "#7a8294",
+          "#9da5b8",
+          "#c2c9da",
+          "#e9eefa"
+        ]
+      },
+      "carbon-ink": {
+        "role": "neutral",
+        "displayName": "Carbon Impression",
+        "canonical": "#e5e8f1",
+        "tonalRamp": [
+          "#090b11",
+          "#23252b",
+          "#3f4249",
+          "#5e6169",
+          "#7f828a",
+          "#a2a5ad",
+          "#c6c9d2",
+          "#ebeef7"
+        ]
+      },
+      "carbon-print": {
+        "role": "primary",
+        "displayName": "Carbon Print",
+        "canonical": "#93a9f2",
+        "tonalRamp": [
+          "#060a1b",
+          "#192245",
+          "#2f3d75",
+          "#4a5c9f",
+          "#6a7ec4",
+          "#8ba1ea",
+          "#b2c7ff",
+          "#deedff"
+        ]
+      },
+      "carbon-rule": {
+        "role": "neutral",
+        "displayName": "Carbon Rule",
+        "canonical": "#33405f",
+        "tonalRamp": [
+          "#070b14",
+          "#1d2536",
+          "#36415d",
+          "#526182",
+          "#7382a5",
+          "#95a5c9",
+          "#bbc9e9",
+          "#e4efff"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "Page titles and landing section headings."
+      },
+      "headline-typed": {
+        "displayName": "Typed Headline",
+        "purpose": "Task subject typed into the Subject field on the landing and task detail."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Tray names, dialog titles, definition-list terms."
+      },
+      "typed-title": {
+        "displayName": "Typed Title",
+        "purpose": "Task titles on board forms."
+      },
+      "typed-value": {
+        "displayName": "Typed Value",
+        "purpose": "Filled field values: dates, form numbers, counts."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Descriptions and prose, 46ch to 62ch."
+      },
+      "label": {
+        "displayName": "Field Label",
+        "purpose": "Uppercase print-blue label naming a field value (.field-label)."
+      },
+      "stamp": {
+        "displayName": "Stamp",
+        "purpose": "Rubber-stamp status text; size set per placement."
+      },
+      "button": {
+        "displayName": "Button",
+        "purpose": "Button text."
+      },
+      "nav": {
+        "displayName": "Navigation",
+        "purpose": "Uppercase header nav links."
+      }
+    },
+    "shadows": [
+      {
+        "name": "contact",
+        "value": "0 1px 2px rgb(27 33 48 / 0.08)",
+        "purpose": "Board forms and landing sample copies at rest."
+      },
+      {
+        "name": "handled",
+        "value": "0 8px 20px -10px rgb(27 33 48 / 0.35)",
+        "purpose": "Draggable form on hover, with a 1px lift."
+      },
+      {
+        "name": "floating",
+        "value": "0 10px 30px -12px rgb(27 33 48 / 0.35)",
+        "purpose": "Popover, select, dropdown, dialog, alert dialog."
+      },
+      {
+        "name": "key-press",
+        "value": "inset 0 -2px 0 rgb(0 0 0 / 0.18)",
+        "purpose": "Bottom lip on the primary button."
+      }
+    ],
+    "motion": [
+      {
+        "name": "stamp-press",
+        "value": "360ms cubic-bezier(0.16, 1, 0.3, 1) both; from scale(1.15) blur(2px) opacity 0.35 to scale(1) blur(0) opacity 1, rotation held via --stamp-rotate",
+        "purpose": "Stamp landing on status change and on landing load."
+      },
+      {
+        "name": "state",
+        "value": "150ms to 200ms, default ease",
+        "purpose": "Color, border, outline and shadow transitions on buttons, fields, trays and forms."
+      },
+      {
+        "name": "press",
+        "value": "translateY(1px) on :active",
+        "purpose": "Buttons and the CTA stub."
+      },
+      {
+        "name": "reduced-motion",
+        "value": "animation and transition durations forced to 1ms",
+        "purpose": "prefers-reduced-motion: reduce."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "sm",
+        "value": "640px"
+      },
+      {
+        "name": "md",
+        "value": "768px"
+      },
+      {
+        "name": "lg",
+        "value": "1024px"
+      }
+    ],
+    "devices": {
+      "perforation": "radial-gradient(circle at center, paper 2.5px, field-rule 3px, transparent 3.5px); 10px track, 12px pitch; .perforation-x / .perforation-y",
+      "double-rule": "2px border plus 1px outline offset 2px in the same ink; stamps, wordmark frame, app mark",
+      "header-rule": "3px double print blue under the site header",
+      "frame-rule": "2px solid print blue under every form, tray and dialog header band",
+      "tear-line": "1px dashed hairline above a board form footer",
+      "stamp-blend": "mix-blend-mode multiply on light, normal on dark"
+    }
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Main action on a form or page: print-blue fill with a bottom lip.",
+      "html": "<button class=\"ds-btn-primary\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M14 3v4a1 1 0 0 0 1 1h4\"/><path d=\"M17 21H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7l5 5v11a2 2 0 0 1-2 2z\"/><path d=\"M12 11v6M9 14h6\"/></svg>New form</button>",
+      "css": ".ds-btn-primary { font-family: var(--font-archivo, Archivo, system-ui, sans-serif); display:inline-flex; align-items:center; gap:8px; height:36px; padding:0 16px; border-radius:3px; font-size:0.875rem; font-weight:600; letter-spacing:0.02em; cursor:pointer; transition: background-color .15s, color .15s, border-color .15s, transform .15s; border:none; background:var(--print, #2742a0); color:#fff; box-shadow: inset 0 -2px 0 rgb(0 0 0 / 0.18); } .ds-btn-primary:hover { background: color-mix(in srgb, var(--print, #2742a0) 90%, transparent); } .ds-btn-primary:active { transform: translateY(1px); } .ds-btn-primary:focus-visible { outline:2px solid var(--print, #2742a0); outline-offset:2px; }"
+    },
+    {
+      "name": "Outline Button",
+      "kind": "button",
+      "refersTo": "button-outline",
+      "description": "Secondary action: form stock with a field-rule stroke that turns print blue on hover.",
+      "html": "<button class=\"ds-btn-outline\">Filters</button>",
+      "css": ".ds-btn-outline { font-family: var(--font-archivo, Archivo, system-ui, sans-serif); display:inline-flex; align-items:center; gap:8px; height:36px; padding:0 16px; border-radius:3px; font-size:0.875rem; font-weight:600; letter-spacing:0.02em; cursor:pointer; transition: background-color .15s, color .15s, border-color .15s, transform .15s; background:var(--card, #fff); color:var(--foreground, #1b2130); border:1px solid var(--input, #aeb7d0); } .ds-btn-outline:hover { border-color:var(--print, #2742a0); color:var(--print, #2742a0); } .ds-btn-outline:active { transform: translateY(1px); } .ds-btn-outline:focus-visible { outline:2px solid var(--print, #2742a0); outline-offset:2px; }"
+    },
+    {
+      "name": "Ghost Button",
+      "kind": "button",
+      "refersTo": "button-ghost",
+      "description": "Low-emphasis action and icon buttons.",
+      "html": "<button class=\"ds-btn-ghost\">Cancel</button>",
+      "css": ".ds-btn-ghost { font-family: var(--font-archivo, Archivo, system-ui, sans-serif); display:inline-flex; align-items:center; gap:8px; height:36px; padding:0 16px; border-radius:3px; font-size:0.875rem; font-weight:600; letter-spacing:0.02em; cursor:pointer; transition: background-color .15s, color .15s, border-color .15s, transform .15s; background:transparent; border:none; color:var(--foreground, #1b2130); } .ds-btn-ghost:hover { background:var(--accent, #e3e7f3); color:var(--print, #2742a0); } .ds-btn-ghost:focus-visible { outline:2px solid var(--print, #2742a0); outline-offset:2px; }"
+    },
+    {
+      "name": "Labelled Field",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "A form field: print-blue condensed caps label over a hairline-stroked input.",
+      "html": "<label class=\"ds-field\"><span class=\"ds-field-label\">Subject</span><input class=\"ds-input\" placeholder=\"What needs doing\" /></label>",
+      "css": ".ds-field { display:flex; flex-direction:column; gap:6px; width:280px; } .ds-field-label { font-family: var(--font-archivo, Archivo, system-ui, sans-serif); font-stretch:85%; font-size:0.6875rem; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:var(--print, #2742a0); } .ds-input { font-family: var(--font-public-sans, 'Public Sans', system-ui, sans-serif); height:40px; padding:4px 12px; border:1px solid var(--input, #aeb7d0); border-radius:3px; background:var(--card, #fff); color:var(--foreground, #1b2130); font-size:0.875rem; outline:none; transition:border-color .15s; } .ds-input::placeholder { color:var(--muted-foreground, #4a5576); } .ds-input:focus-visible { border-color:var(--print, #2742a0); outline:2px solid var(--print, #2742a0); outline-offset:2px; }"
+    },
+    {
+      "name": "Header Navigation",
+      "kind": "nav",
+      "refersTo": "nav",
+      "description": "Sticky header closed by a 3px double print-blue rule; active link carries a 3px bar.",
+      "html": "<nav class=\"ds-nav\"><span class=\"ds-mark\">T</span><span class=\"ds-word\">Tarevity</span><a class=\"ds-nav-link ds-active\" href=\"#\">Boards</a><a class=\"ds-nav-link\" href=\"#\">Calendar</a></nav>",
+      "css": ".ds-nav { display:flex; align-items:center; height:64px; gap:4px; padding:0 24px; background:var(--background, #f6f6f1); border-bottom:3px double var(--print, #2742a0); } .ds-mark { font-family: var(--font-archivo, Archivo, system-ui, sans-serif); font-stretch:70%; display:grid; place-items:center; width:32px; height:32px; border:2px solid var(--print, #2742a0); outline:1px solid var(--print, #2742a0); outline-offset:2px; border-radius:3px; color:var(--print, #2742a0); font-weight:800; font-size:1.125rem; } .ds-word { font-family: var(--font-archivo, Archivo, system-ui, sans-serif); font-stretch:125%; font-weight:700; font-size:1.05rem; letter-spacing:0.14em; text-transform:uppercase; margin:0 28px 0 10px; color:var(--foreground, #1b2130); } .ds-nav-link { font-family: var(--font-archivo, Archivo, system-ui, sans-serif); position:relative; display:inline-flex; align-items:center; height:64px; padding:0 12px; font-size:0.875rem; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; text-decoration:none; color:var(--muted-foreground, #4a5576); transition:color .15s; } .ds-nav-link:hover { color:var(--foreground, #1b2130); } .ds-nav-link:focus-visible { outline:2px solid var(--print, #2742a0); outline-offset:2px; } .ds-active { color:var(--print, #2742a0); } .ds-active::after { content:\"\"; position:absolute; left:12px; right:12px; bottom:-3px; height:3px; background:var(--print, #2742a0); }"
+    },
+    {
+      "name": "Status Stamps",
+      "kind": "chip",
+      "refersTo": "stamp-review",
+      "description": "The only status vocabulary: double-ruled rotated rubber stamps that press in on change.",
+      "html": "<div class=\"ds-stamps\"><span class=\"ds-stamp\" style=\"color:#2742a0;--r:-7deg\">In progress</span><span class=\"ds-stamp\" style=\"color:#5a3aa6;--r:-7deg\">For review</span><span class=\"ds-stamp\" style=\"color:#2c6a46;--r:-7deg\">Filed</span><span class=\"ds-stamp\" style=\"color:#c2302a;--r:3deg;font-size:0.65rem\">Urgent</span></div>",
+      "css": ".ds-stamps { display:flex; gap:24px; align-items:center; padding:16px; background:#fff; } .ds-stamp { --r:-6deg; display:inline-flex; align-items:center; padding:0.2em 0.55em; font-family: var(--font-archivo, Archivo, system-ui, sans-serif); font-stretch:70%; font-weight:800; letter-spacing:0.06em; text-transform:uppercase; line-height:1; font-size:0.875rem; border:2px solid currentColor; outline:1px solid currentColor; outline-offset:2px; border-radius:3px; transform:rotate(var(--r)); mix-blend-mode:multiply; opacity:.92; white-space:nowrap; animation: ds-stamp-press 360ms cubic-bezier(0.16,1,0.3,1) both; } @keyframes ds-stamp-press { from { opacity:.35; transform:rotate(var(--r)) scale(1.15); filter:blur(2px);} to { opacity:.92; transform:rotate(var(--r)) scale(1); filter:blur(0);} }"
+    },
+    {
+      "name": "Task Form",
+      "kind": "card",
+      "refersTo": "task-form",
+      "description": "A board card as a numbered requisition form with typed title, due field and status stamp over its faded predecessor.",
+      "html": "<article class=\"ds-form\"><header class=\"ds-form-head\"><span class=\"ds-num\">Nº 0000T1</span><span class=\"ds-stamp\" style=\"color:#c2302a;--r:3deg;font-size:0.65rem\">Urgent</span></header><div class=\"ds-form-body\"><h3 class=\"ds-form-title\">Review the Lumen proposal</h3><p class=\"ds-form-desc\">Compare the quote with the March version and send notes.</p></div><footer class=\"ds-form-foot\"><div><p class=\"ds-lbl\">Due</p><p class=\"ds-typed\">16/10 <span class=\"ds-left\">1 day left</span></p></div><div class=\"ds-stamp-slot\"><span class=\"ds-stamp ds-prev\" style=\"color:#2742a0;--r:4deg;font-size:0.7rem\">In progress</span><span class=\"ds-stamp\" style=\"color:#5a3aa6;--r:-7deg\">For review</span></div></footer></article>",
+      "css": ".ds-form { width:320px; display:flex; flex-direction:column; background:var(--card, #fff); color:var(--foreground, #1b2130); border:1px solid var(--rule, #c5cce0); box-shadow:0 1px 2px rgb(27 33 48 / 0.08); transition: box-shadow .2s, transform .2s; cursor:grab; } .ds-form:hover { transform:translateY(-1px); box-shadow:0 8px 20px -10px rgb(27 33 48 / 0.35); } .ds-form-head { display:flex; align-items:center; justify-content:space-between; min-height:40px; padding:6px 8px 6px 16px; border-bottom:1px solid var(--rule, #c5cce0); } .ds-num { font-family: var(--font-courier-prime, 'Courier Prime', ui-monospace, monospace); font-size:0.75rem; font-weight:700; color:var(--print, #2742a0); } .ds-form-body { padding:12px 16px 16px; } .ds-form-title { font-family: var(--font-courier-prime, 'Courier Prime', ui-monospace, monospace); margin:0; font-size:1.05rem; line-height:1.375; font-weight:700; } .ds-form-desc { font-family: var(--font-public-sans, 'Public Sans', system-ui, sans-serif); margin:6px 0 0; font-size:0.875rem; line-height:1.625; color:var(--muted-foreground, #4a5576); } .ds-form-foot { display:flex; align-items:flex-end; justify-content:space-between; gap:12px; padding:12px 16px; border-top:1px dashed var(--rule, #c5cce0); } .ds-lbl { font-family: var(--font-archivo, Archivo, system-ui, sans-serif); margin:0; font-stretch:85%; font-size:0.6875rem; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:var(--print, #2742a0); } .ds-typed { font-family: var(--font-courier-prime, 'Courier Prime', ui-monospace, monospace); margin:2px 0 0; font-size:0.875rem; } .ds-left { font-size:0.75rem; color:var(--muted-foreground, #4a5576); } .ds-stamp-slot { position:relative; padding-right:4px; } .ds-prev { position:absolute; top:-12px; right:24px; opacity:.2 !important; animation:none !important; } .ds-stamp { --r:-6deg; display:inline-flex; align-items:center; padding:0.2em 0.55em; font-family: var(--font-archivo, Archivo, system-ui, sans-serif); font-stretch:70%; font-weight:800; letter-spacing:0.06em; text-transform:uppercase; line-height:1; font-size:0.875rem; border:2px solid currentColor; outline:1px solid currentColor; outline-offset:2px; border-radius:3px; transform:rotate(var(--r)); mix-blend-mode:multiply; opacity:.92; white-space:nowrap; animation: ds-stamp-press 360ms cubic-bezier(0.16,1,0.3,1) both; } @keyframes ds-stamp-press { from { opacity:.35; transform:rotate(var(--r)) scale(1.15); filter:blur(2px);} to { opacity:.92; transform:rotate(var(--r)) scale(1); filter:blur(0);} }"
+    },
+    {
+      "name": "Desk Tray",
+      "kind": "custom",
+      "refersTo": "tray-review",
+      "description": "A kanban column printed on a carbon copy: canary for review, with frame-ruled header and typed count.",
+      "html": "<section class=\"ds-tray\"><header class=\"ds-tray-head\"><div><h2 class=\"ds-tray-title\">For review</h2><p class=\"ds-tray-hint\">Waiting for sign-off</p></div><span class=\"ds-tray-count\">03</span></header><ul class=\"ds-tray-list\"><li class=\"ds-slot\">Drop a form here</li></ul></section>",
+      "css": ".ds-tray { width:300px; min-height:240px; display:flex; flex-direction:column; background:var(--via-canary, #fbf1b8); border:1px solid var(--rule, #c5cce0); } .ds-tray:hover { outline:2px dashed var(--print, #2742a0); outline-offset:2px; } .ds-tray-head { display:flex; align-items:baseline; justify-content:space-between; gap:12px; padding:16px 16px 12px; border-bottom:2px solid var(--print, #2742a0); } .ds-tray-title { font-family: var(--font-archivo, Archivo, system-ui, sans-serif); font-stretch:85%; margin:0; font-size:1.25rem; line-height:1; font-weight:700; color:var(--foreground, #1b2130); } .ds-tray-hint { font-family: var(--font-public-sans, 'Public Sans', system-ui, sans-serif); margin:4px 0 0; font-size:0.75rem; color:var(--muted-foreground, #4a5576); } .ds-tray-count { font-family: var(--font-courier-prime, 'Courier Prime', ui-monospace, monospace); font-size:1.5rem; font-weight:700; color:var(--print, #2742a0); } .ds-tray-list { list-style:none; margin:0; padding:12px; flex:1; display:flex; } .ds-slot { font-family: var(--font-public-sans, 'Public Sans', system-ui, sans-serif); flex:1; display:grid; place-items:center; padding:24px; border:1px dashed var(--rule, #c5cce0); font-size:0.875rem; color:var(--muted-foreground, #4a5576); }"
+    },
+    {
+      "name": "Perforated Stub",
+      "kind": "custom",
+      "refersTo": "button-primary",
+      "description": "Detachable CTA stub on the canary copy, marked by a column of punched holes.",
+      "html": "<div class=\"ds-stub\"><span class=\"ds-perf\" aria-hidden=\"true\"></span><p class=\"ds-lbl2\">Stub</p><a class=\"ds-stub-cta\" href=\"#\"><span><span class=\"ds-stub-small\">Submit</span><span class=\"ds-stub-big\">Create account</span></span><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M5 12h14M13 18l6-6M13 6l6 6\"/></svg></a></div>",
+      "css": ".ds-stub { position:relative; width:240px; padding:24px 24px 24px 32px; background:var(--via-canary, #fbf1b8); border-left:1px solid var(--rule, #c5cce0); } .ds-perf { position:absolute; top:0; bottom:0; left:-5px; width:10px; background-image:radial-gradient(circle at center, var(--background, #f6f6f1) 2.5px, var(--input, #aeb7d0) 3px, transparent 3.5px); background-size:10px 12px; background-repeat:repeat-y; } .ds-lbl2 { font-family: var(--font-archivo, Archivo, system-ui, sans-serif); margin:0 0 16px; font-stretch:85%; font-size:0.6875rem; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:var(--print, #2742a0); } .ds-stub-cta { display:flex; align-items:flex-end; justify-content:space-between; gap:12px; padding:12px 16px; border-radius:3px; background:var(--print, #2742a0); color:#fff; text-decoration:none; outline:1px solid var(--print, #2742a0); outline-offset:2px; transition:transform .15s; } .ds-stub-cta > span { display:flex; flex-direction:column; } .ds-stub-small { font-family: var(--font-archivo, Archivo, system-ui, sans-serif); font-size:0.7rem; font-weight:600; letter-spacing:0.12em; text-transform:uppercase; opacity:.8; } .ds-stub-big { font-family: var(--font-archivo, Archivo, system-ui, sans-serif); font-size:1.125rem; line-height:1.25; font-weight:700; } .ds-stub-cta svg { transition:transform .3s; } .ds-stub-cta:hover svg { transform:translateX(4px); } .ds-stub-cta:active { transform:translateY(1px); } .ds-stub-cta:focus-visible { outline:2px solid var(--print, #2742a0); outline-offset:2px; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Repartição",
+    "overview": "**Creative North Star: \"The Repartição\"**\n\nTarevity is a public office's paperwork, run honestly. Every task is a numbered requisition form printed in one spot color on white stock: ruled fields, small condensed field labels, a heavy frame rule under the header band, perforated stubs. What the user writes is typed onto the form in a carbon typewriter face. State is never a pill or a colored dot. It is a rubber stamp, double-ruled, rotated, inked, and pressed onto the sheet when the task changes hands.\n\nThe board is a desk with three trays. Each tray is a carbon copy of a different color: the white copy for work in progress, the canary copy for work waiting on review, the pink copy for the archive. The dark theme is not an inverted light theme. It is the carbon sheet itself: blue-black paper with pale impressions of the same print blue, violet, red and green.\n\nDensity is that of a well-designed form: hairline rules divide fields, labels are tiny and exact, values are large enough to read across a desk. Decoration earns its place only when a real form would carry it (a form number, a date, a perforation, a stamp). The landing page and the app share the same paper; the landing simply shows one filled form at full size.",
+    "keyCharacteristics": [
+      "One spot color (print blue) carries every printed element: labels, frame rules, links, focus, primary actions.",
+      "User content is typed (Courier Prime); system furniture is printed (Archivo, condensed via the `wdth` axis); running prose is Public Sans.",
+      "Status is a stamp, one per state, identical in every place a task appears.",
+      "Hairline rules and near-square corners (2px to 3px). Paper sits flat on the desk.",
+      "Carbon copies (white, canary, pink) tint whole trays, never individual widgets."
+    ],
+    "rules": [
+      {
+        "name": "The One Spot Color Rule",
+        "body": "Everything printed on the form is print blue. No second interface accent exists; violet, green and red are stamp inks and appear only as stamps, or red for urgency and loss.",
+        "section": "colors"
+      },
+      {
+        "name": "The Copy Tints the Tray Rule",
+        "body": "Canary and pink belong to whole trays (and the landing's copies and stub). They never fill a button, badge, or individual field.",
+        "section": "colors"
+      },
+      {
+        "name": "The Typed Versus Printed Rule",
+        "body": "If the user wrote it, it is Courier Prime. If the form printed it, it is Archivo. Never set a user's task title in Archivo or a field label in Courier.",
+        "section": "typography"
+      },
+      {
+        "name": "The Field Label Rule",
+        "body": "A field label names the value directly beneath or beside it, the way a printed form does. It never floats alone above a section headline as an eyebrow.",
+        "section": "typography"
+      },
+      {
+        "name": "The Flat Desk Rule",
+        "body": "A sheet at rest never carries more than the contact shadow. Bigger shadows are for handling and floating layers only.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "**Do** print every label, frame rule, link and focus ring in print blue, and nothing else in a second accent.",
+      "**Do** type user content in Courier Prime and print form furniture in condensed Archivo.",
+      "**Do** show status only as a stamp from the four tones, and show the same stamp wherever the task appears.",
+      "**Do** press the stamp (`stamp-press`, 360ms) when status changes, and keep the faded previous stamp under it.",
+      "**Do** draw empty and loading states as blank ruled or dashed fields.",
+      "**Do** separate fields with 1px hairlines and close each header band with the 2px print-blue rule.",
+      "**Do** mark detachable parts (CTA stub, form footer) with a perforation.",
+      "**Do** keep corners at 3px (2px for checkboxes and small targets)."
+    ],
+    "donts": [
+      "**Don't** use colored pills, dots or toggles for task status.",
+      "**Don't** fill buttons, badges or fields with canary or pink; those tints belong to trays.",
+      "**Don't** use stamp violet or stamp green outside their stamps.",
+      "**Don't** give a sheet at rest more than the contact shadow, and don't use rounded-card SaaS surfaces.",
+      "**Don't** use grey skeleton blocks for loading.",
+      "**Don't** put a field label above a section headline as an eyebrow.",
+      "**Don't** round avatars or buttons into circles or pills.",
+      "**Don't** set the dark theme by inverting light values; it is the carbon sheet with its own paper, rule and lifted inks."
+    ]
+  }
+}

@@ -7,14 +7,14 @@ import {
   DropdownMenu,
   DropdownMenuTrigger,
   DropdownMenuContent,
-  DropdownMenuSeparator,
   DropdownMenuItem,
 } from '@/components/ui/dropdown-menu';
 import { authClient } from '@/lib/auth-client';
 import { Icon } from '@iconify/react';
 import { Link } from '@/i18n/navigation';
 import { useQuery } from '@tanstack/react-query';
-import { NotificationUrgency, Notification } from '@/types/Notification';
+import { NotificationUrgency, Notification } from '@/types/notification';
+import { cn } from '@/lib/utils';
 
 export function NotificationsDropdown() {
   const { data: session } = authClient.useSession();
@@ -55,17 +55,10 @@ export function NotificationsDropdown() {
     }
   };
 
-  const getUrgencyColor = (urgency: NotificationUrgency): string => {
-    switch (urgency) {
-      case 'overdue':
-        return 'text-red-500 bg-red-50 dark:bg-red-900/20 dark:text-red-400';
-      case 'high':
-        return 'text-orange-500 bg-orange-50 dark:bg-orange-900/20 dark:text-orange-400';
-      case 'medium':
-        return 'text-yellow-500 bg-yellow-50 dark:bg-yellow-900/20 dark:text-yellow-400';
-      default:
-        return 'text-gray-500 bg-gray-50 dark:bg-gray-900/20 dark:text-gray-400';
-    }
+  const urgencyTone: Record<NotificationUrgency, string> = {
+    overdue: 'text-stamp-red',
+    high: 'text-stamp-violet',
+    medium: 'text-print',
   };
 
   return (
@@ -73,16 +66,16 @@ export function NotificationsDropdown() {
       <DropdownMenuTrigger asChild>
         <Button
           size='icon'
-          variant='outline'
+          variant='ghost'
           aria-label={t('ariaLabel')}
           aria-haspopup='true'
           aria-expanded='false'
           title={t('title')}
-          className='relative overflow-visible rounded-full'
+          className='relative overflow-visible'
         >
-          <Icon icon='akar-icons:bell' className='size-5' aria-hidden='true' />
+          <Icon icon='tabler:bell' className='size-5' aria-hidden='true' />
           {notifications.length > 0 && (
-            <span className='absolute -top-1 -right-1 flex size-5 items-center justify-center rounded-full bg-red-500 text-xs font-semibold text-white ring-2 ring-white select-none dark:ring-[#1d1929]'>
+            <span className='bg-stamp-red typed dark:text-background absolute -top-0.5 -right-0.5 flex h-4 min-w-4 items-center justify-center rounded-[3px] px-0.5 text-[10px] leading-none font-bold text-white select-none'>
               {notifications.length > 9 ? '9+' : notifications.length}
             </span>
           )}
@@ -90,17 +83,17 @@ export function NotificationsDropdown() {
       </DropdownMenuTrigger>
       <DropdownMenuContent
         align='end'
-        sideOffset={4}
-        className='z-999 w-[calc(100vw-2rem)] max-w-sm overflow-x-hidden border border-white/20 bg-white/80 backdrop-blur-md md:min-w-80 dark:border-white/10 dark:bg-[#1d1929]/80'
+        sideOffset={6}
+        className='sheet z-999 w-[calc(100vw-2rem)] max-w-sm overflow-x-hidden rounded-[3px] p-0 md:min-w-80'
         role='menu'
         aria-label={t('menuAriaLabel')}
       >
-        <div className='flex items-center justify-between p-2'>
-          <h2 className='text-sm font-semibold'>{t('header')}</h2>
+        <div className='border-rule flex items-center justify-between border-b px-3 py-2'>
+          <h2 className='field-label'>{t('header')}</h2>
           <Button
-            variant={'ghost'}
-            size={'sm'}
-            className='group text-xs'
+            variant='ghost'
+            size='sm'
+            className='h-7 text-xs'
             aria-label={t('refreshAriaLabel')}
             title={t('refreshTitle')}
             onClick={(e) => {
@@ -110,79 +103,70 @@ export function NotificationsDropdown() {
             disabled={notificationsFetching}
           >
             <Icon
-              icon={'material-symbols:refresh'}
-              className={`size-5 transition-all duration-1000 ${
-                notificationsFetching && 'animate-spin'
-              }`}
+              icon='tabler:refresh'
+              className={cn(notificationsFetching && 'animate-spin')}
               aria-hidden='true'
             />
             {t('refresh')}
           </Button>
         </div>
-        <DropdownMenuSeparator />
         {notificationsLoading ||
         (notificationsFetching && notifications.length === 0) ? (
-          <div className='flex flex-col gap-2 p-4'>
+          <div className='flex flex-col'>
             {[...Array(3)].map((_, i) => (
-              <div key={i} className='flex items-center gap-3'>
-                <Skeleton className='size-2 rounded-full' />
-                <div className='flex-1 space-y-2'>
-                  <Skeleton className='h-4 w-3/4' />
-                  <Skeleton className='h-3 w-1/2' />
-                </div>
+              <div
+                key={i}
+                className='border-rule flex flex-col gap-2 border-b px-3 py-3 last:border-b-0'
+              >
+                <Skeleton className='h-4 w-3/4' />
+                <Skeleton className='h-3 w-1/2' />
               </div>
             ))}
           </div>
         ) : notifications.length === 0 ? (
-          <div className='flex flex-col items-center justify-center gap-4 py-8'>
-            <div className='flex size-15 items-center justify-center rounded-full bg-gray-100 p-2 dark:bg-gray-700'>
-              <Icon
-                icon='akar-icons:bell'
-                className='size-8 text-gray-500 dark:text-gray-400'
-                aria-hidden='true'
-              />
-            </div>
-            <p className='text-sm text-gray-400'>{t('empty')}</p>
+          <div className='flex flex-col items-start gap-1 px-3 py-6'>
+            <span className='border-rule block h-px w-full border-b border-dashed' />
+            <p className='text-muted-foreground pt-3 text-sm'>{t('empty')}</p>
           </div>
         ) : (
           <div className='max-h-96 overflow-x-hidden overflow-y-auto'>
-            {notifications.map((notification, index) => (
-              <div key={notification.taskId}>
-                <DropdownMenuItem
-                  asChild
-                  className='cursor-pointer'
-                  role='menuitem'
+            {notifications.map((notification) => (
+              <DropdownMenuItem
+                key={notification.taskId}
+                asChild
+                className='border-rule cursor-pointer rounded-none border-b last:border-b-0'
+                role='menuitem'
+              >
+                <Link
+                  href={`/tasks/${notification.taskId}`}
+                  className='flex flex-col items-start gap-1 px-3 py-2.5'
                 >
-                  <Link
-                    href={`/tasks/${notification.taskId}`}
-                    className='flex flex-col items-start gap-1 p-3'
-                  >
-                    <div className='flex w-full min-w-0 items-start justify-between gap-2'>
-                      <h3 className='line-clamp-1 min-w-0 flex-1 text-sm font-medium'>
-                        {notification.title}
-                      </h3>
-                      <span
-                        className={`flex-shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${getUrgencyColor(
-                          notification.urgency,
-                        )}`}
-                      >
-                        {t(`urgency.${notification.urgency}`)}
-                      </span>
-                    </div>
-                    <p className='text-xs break-words text-gray-500 dark:text-gray-400'>
-                      {getUrgencyMessage(notification)}
-                    </p>
-                    <p className='text-xs text-gray-400 dark:text-gray-500'>
+                  <div className='flex w-full min-w-0 items-baseline justify-between gap-3'>
+                    <h3 className='typed line-clamp-1 min-w-0 flex-1 text-sm'>
+                      {notification.title}
+                    </h3>
+                    <span
+                      className={cn(
+                        'field-label shrink-0',
+                        urgencyTone[notification.urgency],
+                      )}
+                    >
+                      {t(`urgency.${notification.urgency}`)}
+                    </span>
+                  </div>
+                  <p className='text-muted-foreground text-xs wrap-break-word'>
+                    {getUrgencyMessage(notification)}
+                    {' · '}
+                    <span className='typed'>
                       {format.dateTime(new Date(notification.dueDate), {
                         year: 'numeric',
                         month: 'short',
                         day: 'numeric',
                       })}
-                    </p>
-                  </Link>
-                </DropdownMenuItem>
-                {index < notifications.length - 1 && <DropdownMenuSeparator />}
-              </div>
+                    </span>
+                  </p>
+                </Link>
+              </DropdownMenuItem>
             ))}
           </div>
         )}

@@ -58,12 +58,7 @@ export const SubmitReviewButton = ({
     <Button
       onClick={handleSubmitReview}
       disabled={isLoading || currentStatus === 'COMPLETED'}
-      variant={currentStatus === 'REVIEW' ? 'outline' : 'default'}
-      className={
-        currentStatus === 'REVIEW'
-          ? 'border-yellow-500 text-yellow-500 hover:bg-yellow-50 dark:hover:bg-yellow-500/20'
-          : 'bg-yellow-500 text-white hover:bg-yellow-600'
-      }
+      variant='outline'
       aria-label={ariaLabel}
       title={buttonText}
       type='button'
@@ -72,10 +67,9 @@ export const SubmitReviewButton = ({
       <Icon
         icon={
           currentStatus === 'REVIEW'
-            ? 'mdi:arrow-left-bold'
-            : 'mdi:file-document-check'
+            ? 'tabler:arrow-back-up'
+            : 'tabler:rubber-stamp'
         }
-        className='mr-2 size-4'
         aria-hidden='true'
       />
       {isLoading ? <span aria-live='polite'>{buttonText}</span> : buttonText}

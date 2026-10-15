@@ -38,7 +38,7 @@ export const CompleteTaskCheckbox = ({
       checked={checked}
       onCheckedChange={(val) => handleToggle(!!val)}
       disabled={updateTaskStatusMutation.isPending}
-      className='data-[state=checked]:border-green-500 data-[state=checked]:bg-green-500 dark:data-[state=checked]:bg-green-500'
+      className='border-print data-[state=checked]:border-print data-[state=checked]:bg-print dark:data-[state=checked]:bg-print data-[state=checked]:text-primary-foreground rounded-[3px] border-2 bg-transparent shadow-none dark:bg-transparent'
       aria-label={
         checked
           ? t('ariaLabel.completed', { taskId })

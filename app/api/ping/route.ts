@@ -1,4 +1,4 @@
-import { pingDb } from '@/lib/pingDb';
+import { pingDb } from '@/lib/ping-db';
 import { NextRequest } from 'next/server';
 
 export const dynamic = 'force-dynamic';

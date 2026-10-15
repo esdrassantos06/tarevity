@@ -1,13 +1,15 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
+import { Button, buttonVariants } from '@/components/ui/button';
 import { useFormatter, useTranslations } from 'next-intl';
+import { cn } from '@/lib/utils';
 import { authClient } from '@/lib/auth-client';
+import { clearUserDrafts } from '@/lib/drafts';
 import { Icon } from '@iconify/react';
 import { Link } from '@/i18n/navigation';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useTheme } from 'next-themes';
-import { Separator } from '@/components/ui/separator';
+import { useIsClient } from '@/hooks/use-is-client';
 import { toast } from 'sonner';
 import {
   AlertDialog,
@@ -35,6 +37,7 @@ const AdminPanel = lazy(() =>
 export function SettingsClient({ session }: { session: SessionWithUser }) {
   const router = useRouter();
   const { theme, setTheme } = useTheme();
+  const isClient = useIsClient();
   const format = useFormatter();
   const t = useTranslations('SettingsPage');
   const tAppearance = useTranslations('SettingsPage.appearance');
@@ -57,14 +60,13 @@ export function SettingsClient({ session }: { session: SessionWithUser }) {
     try {
       const { error } = await promise;
       if (!error) {
+        clearUserDrafts(session.user.id);
         router.push('/');
       }
     } catch (err) {
       console.error('Error deleting account:', err);
     }
   };
-
-  if (typeof window === 'undefined') return null;
 
   if (!session) {
     router.push('/auth/login');
@@ -77,12 +79,12 @@ export function SettingsClient({ session }: { session: SessionWithUser }) {
     {
       label: t('tabs.appearance'),
       value: 'appearance',
-      icon: 'mdi:palette',
+      icon: 'tabler:palette',
     },
     {
       label: t('tabs.account'),
       value: 'account',
-      icon: 'mdi:account',
+      icon: 'tabler:user',
     },
   ];
 
@@ -90,270 +92,253 @@ export function SettingsClient({ session }: { session: SessionWithUser }) {
     tabs.push({
       label: t('tabs.admin'),
       value: 'admin',
-      icon: 'mdi:shield-crown',
+      icon: 'tabler:shield',
     });
   }
+
+  const themeOptions = [
+    { value: 'light', label: tAppearance('light') },
+    { value: 'dark', label: tAppearance('dark') },
+    { value: 'system', label: tAppearance('system') },
+  ];
+
+  const infoRows = [
+    { label: tAccount('name'), value: session?.user.name },
+    { label: tAccount('email'), value: session?.user.email },
+    {
+      label: tAccount('createdAt'),
+      value: session?.user.createdAt
+        ? format.dateTime(new Date(session.user.createdAt), {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: 'numeric',
+            minute: 'numeric',
+          })
+        : '-',
+    },
+  ];
 
   return (
     <main
       id='main-content'
       role='main'
-      className='flex flex-1 flex-col items-center justify-start gap-10 px-4 py-20 sm:px-6 lg:px-8'
+      className='mx-auto flex w-full max-w-360 flex-1 flex-col gap-8 px-4 py-10 sm:px-6 lg:px-10'
     >
-      <section className='flex w-full max-w-7xl flex-col items-center justify-center p-6'>
-        <h1 className='mb-2 text-start text-3xl font-bold text-gray-900 md:text-4xl dark:text-white'>
+      <header className='flex flex-col gap-1'>
+        <h1
+          className='font-display text-[clamp(2rem,3.4vw,3rem)] leading-none font-extrabold'
+          style={{ fontStretch: '80%' }}
+        >
           {t('title')}
         </h1>
-      </section>
+        <p className='typed text-muted-foreground text-sm'>
+          {session.user.email}
+        </p>
+      </header>
 
-      <Tabs
-        defaultValue='appearance'
-        orientation='vertical'
-        className='container mb-8 w-full max-w-7xl rounded-lg bg-white shadow-sm dark:bg-[#1d1929]'
-      >
-        <div className='flex flex-col md:flex-row'>
-          <nav
-            className='w-full border-b border-gray-200 pb-0 md:w-56 md:border-r md:border-b-0 md:pb-6 md:dark:border-gray-700'
-            aria-label={t('navigation.ariaLabel')}
+      <Tabs defaultValue='appearance' className='sheet gap-0 rounded-[3px]'>
+        <nav
+          className='overflow-x-auto px-4 pt-2 sm:px-6'
+          aria-label={t('navigation.ariaLabel')}
+        >
+          <TabsList className='w-full'>
+            {tabs.map((tab) => (
+              <TabsTrigger
+                key={tab.value}
+                value={tab.value}
+                className='flex-none'
+              >
+                <Icon icon={tab.icon} aria-hidden='true' />
+                {tab.label}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        </nav>
+
+        <TabsContent
+          value='appearance'
+          className='flex min-h-125 flex-col p-4 sm:p-6'
+          role='tabpanel'
+          aria-labelledby='appearance-tab'
+        >
+          <header className='border-rule flex flex-col gap-1 border-b pb-4'>
+            <h2 className='font-display text-lg font-bold'>
+              {tAppearance('title')}
+            </h2>
+            <p className='text-muted-foreground text-sm'>
+              {tAppearance('description')}
+            </p>
+          </header>
+
+          <section
+            aria-labelledby='theme-selection'
+            className='flex flex-col gap-3 py-5'
           >
-            <TabsList className='flex h-auto w-full flex-row gap-1 overflow-x-auto border-0 bg-transparent p-2 md:flex-col md:items-start'>
-              {tabs.map((tab) => (
-                <TabsTrigger
-                  key={tab.value}
-                  value={tab.value}
-                  className='relative h-auto min-w-0 flex-1 justify-center rounded-md px-3 py-2.5 text-sm transition-all duration-200 hover:bg-gray-100 data-[state=active]:rounded-b-none data-[state=active]:border-b-2 data-[state=active]:border-b-blue-500 data-[state=active]:bg-blue-50 md:min-w-full md:justify-start md:px-4 data-[state=active]:md:rounded-l-md data-[state=active]:md:rounded-r-md data-[state=active]:md:border-b-0 data-[state=active]:md:border-l-4 data-[state=active]:md:border-l-blue-500 data-[state=active]:md:pl-3 dark:hover:bg-gray-800/50 data-[state=active]:dark:bg-blue-900/30'
-                >
-                  <Icon
-                    icon={tab.icon}
-                    className='mr-2 size-4 flex-shrink-0 md:mr-3 md:size-5'
-                    aria-hidden='true'
-                  />
-                  <span className='truncate text-xs whitespace-nowrap sm:text-sm'>
-                    {tab.label}
-                  </span>
-                </TabsTrigger>
-              ))}
-            </TabsList>
-          </nav>
-
-          <section className='flex-1 overflow-auto p-4 pb-6 sm:p-6'>
-            <TabsContent
-              value='appearance'
-              className='mt-0 flex min-h-[500px] flex-col gap-6'
-              role='tabpanel'
-              aria-labelledby='appearance-tab'
+            <h3 id='theme-selection' className='field-label'>
+              {tAppearance('theme')}
+            </h3>
+            <div
+              role='radiogroup'
+              aria-labelledby='theme-selection'
+              className='flex flex-col gap-3 sm:flex-row sm:gap-8'
             >
-              <header>
-                <h2 className='text-lg font-bold'>{tAppearance('title')}</h2>
-                <p className='text-muted-foreground text-sm'>
-                  {tAppearance('description')}
-                </p>
-              </header>
-
-              <section aria-labelledby='theme-selection'>
-                <h3 id='theme-selection' className='text-sm font-medium'>
-                  {tAppearance('theme')}
-                </h3>
-
-                <div className='mt-2 flex flex-col gap-3 sm:flex-row'>
-                  <Button
-                    size='lg'
-                    variant={theme === 'light' ? 'default' : 'outline'}
-                    className={`flex items-center justify-center ${
-                      theme === 'light'
-                        ? 'border border-blue-500 bg-transparent text-black hover:bg-transparent dark:text-white'
-                        : ''
-                    }`}
-                    onClick={() => setTheme('light')}
+              {themeOptions.map((option) => {
+                const checked = isClient && theme === option.value;
+                return (
+                  <label
+                    key={option.value}
+                    className='group flex cursor-pointer items-center gap-2.5'
                   >
-                    <Icon
-                      icon='mdi:weather-sunny'
-                      className={`mr-2 size-5 ${
-                        theme === 'light' ? 'text-blue-500' : ''
-                      }`}
-                      aria-hidden='true'
+                    <input
+                      type='radio'
+                      name='theme'
+                      value={option.value}
+                      checked={checked}
+                      onChange={() => setTheme(option.value)}
+                      className='peer sr-only'
                     />
-                    {tAppearance('light')}
-                  </Button>
-
-                  <Button
-                    size='lg'
-                    variant={theme === 'dark' ? 'default' : 'outline'}
-                    className={`flex items-center justify-center ${
-                      theme === 'dark'
-                        ? 'border border-blue-500 bg-transparent text-black hover:bg-transparent dark:text-white'
-                        : ''
-                    }`}
-                    onClick={() => setTheme('dark')}
-                  >
-                    <Icon
-                      icon='mdi:weather-night'
-                      className={`mr-2 size-5 ${
-                        theme === 'dark' ? 'text-blue-500' : ''
-                      }`}
+                    <span
+                      className={cn(
+                        'border-print peer-focus-visible:outline-ring flex size-5 items-center justify-center rounded-[2px] border-[1.5px] peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2',
+                        checked && 'bg-print text-primary-foreground',
+                      )}
                       aria-hidden='true'
-                    />
-                    {tAppearance('dark')}
-                  </Button>
-
-                  <Button
-                    size='lg'
-                    variant={theme === 'system' ? 'default' : 'outline'}
-                    className={`flex items-center justify-center ${
-                      theme === 'system'
-                        ? 'border border-blue-500 bg-transparent text-black hover:bg-transparent dark:text-white'
-                        : ''
-                    }`}
-                    onClick={() => setTheme('system')}
-                  >
-                    <Icon
-                      icon='mdi:monitor'
-                      className={`mr-2 size-5 ${
-                        theme === 'system' ? 'text-blue-500' : ''
-                      }`}
-                      aria-hidden='true'
-                    />
-                    {tAppearance('system')}
-                  </Button>
-                </div>
-
-                <p className='text-muted-foreground mt-4 text-sm'>
-                  {tAppearance('themeDescription')}
-                </p>
-              </section>
-            </TabsContent>
-
-            <TabsContent
-              value='account'
-              className='mt-0 flex min-h-[500px] flex-col gap-6'
-              role='tabpanel'
-              aria-labelledby='account-tab'
-            >
-              <header>
-                <h2 className='text-lg font-bold'>{tAccount('title')}</h2>
-                <p className='text-muted-foreground text-sm'>
-                  {tAccount('description')}
-                </p>
-              </header>
-
-              <section aria-labelledby='basic-info'>
-                <h3 id='basic-info' className='mb-2 font-semibold'>
-                  {tAccount('basicInfo')}
-                </h3>
-                <dl className='mb-4 flex flex-col'>
-                  <dt className='text-muted-foreground text-sm'>
-                    {tAccount('name')}
-                  </dt>
-                  <dd className='text-foreground text-sm'>
-                    {session?.user.name}
-                  </dd>
-                </dl>
-                <dl className='mb-4 flex flex-col'>
-                  <dt className='text-muted-foreground text-sm'>
-                    {tAccount('email')}
-                  </dt>
-                  <dd className='text-foreground text-sm'>
-                    {session?.user.email}
-                  </dd>
-                </dl>
-                <dl>
-                  <dt className='text-muted-foreground text-sm'>
-                    {tAccount('createdAt')}
-                  </dt>
-                  <dd className='text-foreground text-sm'>
-                    {session?.user.createdAt
-                      ? format.dateTime(new Date(session.user.createdAt), {
-                          year: 'numeric',
-                          month: 'long',
-                          day: 'numeric',
-                          hour: 'numeric',
-                          minute: 'numeric',
-                        })
-                      : '—'}
-                  </dd>
-                </dl>
-              </section>
-              <Separator />
-
-              <section
-                className='flex flex-col gap-4'
-                aria-labelledby='account-management'
-              >
-                <div className='flex'>
-                  <h3 className='font-semibold'>{tAccount('management')}</h3>
-                </div>
-                <div className='flex flex-col items-start gap-4'>
-                  <Button
-                    asChild
-                    variant={'ghost'}
-                    size={'sm'}
-                    className='text-blue-accent hover:text-blue-accent'
-                  >
-                    <Link href={'/profile'} className='text-sm font-semibold'>
-                      {tAccount('editProfile')}
-                    </Link>
-                  </Button>
-
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <Button
-                        variant={'destructive'}
-                        size={'sm'}
-                        className='text-sm font-semibold'
-                      >
-                        {tAccount('deleteAccount')}
-                      </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent className='dark:bg-[#1d1929]'>
-                      <AlertDialogTitle className='sr-only'>
-                        {tDeleteDialog('title')}
-                      </AlertDialogTitle>
-
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>
-                          {tDeleteDialog('title')}
-                        </AlertDialogTitle>
-                        <AlertDialogDescription>
-                          {tDeleteDialog.rich('description', {
-                            strong: (chunks) => <strong>{chunks}</strong>,
-                          })}
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>
-                          {tDeleteDialog('cancel')}
-                        </AlertDialogCancel>
-                        <AlertDialogAction onClick={handleDeleteAccount}>
-                          {tDeleteDialog('confirm')}
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
-                </div>
-              </section>
-            </TabsContent>
-
-            {isAdmin && (
-              <TabsContent
-                value='admin'
-                className='mt-0 flex min-h-[500px] flex-col gap-6'
-                role='tabpanel'
-                aria-labelledby='admin-tab'
-              >
-                <Suspense
-                  fallback={
-                    <div className='flex flex-col gap-4'>
-                      <Skeleton className='h-10 w-full' />
-                      <Skeleton className='h-64 w-full' />
-                    </div>
-                  }
-                >
-                  <AdminPanel />
-                </Suspense>
-              </TabsContent>
-            )}
+                    >
+                      {checked && (
+                        <Icon icon='tabler:check' className='size-3.5' />
+                      )}
+                    </span>
+                    <span className='group-hover:text-print text-sm font-medium'>
+                      {option.label}
+                    </span>
+                  </label>
+                );
+              })}
+            </div>
+            <p className='text-muted-foreground max-w-prose text-sm'>
+              {tAppearance('themeDescription')}
+            </p>
           </section>
-        </div>
+        </TabsContent>
+
+        <TabsContent
+          value='account'
+          className='flex min-h-125 flex-col p-4 sm:p-6'
+          role='tabpanel'
+          aria-labelledby='account-tab'
+        >
+          <header className='border-rule flex flex-col gap-1 border-b pb-4'>
+            <h2 className='font-display text-lg font-bold'>
+              {tAccount('title')}
+            </h2>
+            <p className='text-muted-foreground text-sm'>
+              {tAccount('description')}
+            </p>
+          </header>
+
+          <section
+            aria-labelledby='basic-info'
+            className='border-rule flex flex-col gap-2 border-b py-5'
+          >
+            <h3 id='basic-info' className='field-label'>
+              {tAccount('basicInfo')}
+            </h3>
+            <dl className='flex flex-col'>
+              {infoRows.map((row) => (
+                <div
+                  key={row.label}
+                  className='border-rule grid grid-cols-1 gap-1 border-b py-2.5 last:border-b-0 sm:grid-cols-[12rem_1fr] sm:items-baseline sm:gap-4'
+                >
+                  <dt className='text-muted-foreground text-xs font-semibold tracking-wide uppercase'>
+                    {row.label}
+                  </dt>
+                  <dd className='typed min-w-0 text-sm wrap-break-word'>
+                    {row.value}
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          </section>
+
+          <section
+            className='flex flex-col gap-3 py-5'
+            aria-labelledby='account-management'
+          >
+            <h3 id='account-management' className='field-label'>
+              {tAccount('management')}
+            </h3>
+            <Button asChild variant='outline' size='sm' className='w-fit'>
+              <Link href={'/profile'}>
+                <Icon icon='tabler:pencil' aria-hidden='true' />
+                {tAccount('editProfile')}
+              </Link>
+            </Button>
+          </section>
+
+          <section
+            className='border-stamp-red flex flex-col gap-3 rounded-[3px] border p-4 sm:flex-row sm:items-center sm:justify-between'
+            aria-labelledby='danger-zone'
+          >
+            <div className='flex flex-col gap-1'>
+              <h3 id='danger-zone' className='field-label text-stamp-red'>
+                {tAccount('dangerZone')}
+              </h3>
+              <p className='text-muted-foreground text-sm'>
+                {tAccount('dangerHint')}
+              </p>
+            </div>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant='destructive' size='sm' className='w-fit'>
+                  <Icon icon='tabler:trash' aria-hidden='true' />
+                  {tAccount('deleteAccount')}
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>{tDeleteDialog('title')}</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    {tDeleteDialog.rich('description', {
+                      strong: (chunks) => <strong>{chunks}</strong>,
+                    })}
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>
+                    {tDeleteDialog('cancel')}
+                  </AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={handleDeleteAccount}
+                    className={buttonVariants({ variant: 'destructive' })}
+                  >
+                    {tDeleteDialog('confirm')}
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </section>
+        </TabsContent>
+
+        {isAdmin && (
+          <TabsContent
+            value='admin'
+            className='flex min-h-125 flex-col gap-6 p-4 sm:p-6'
+            role='tabpanel'
+            aria-labelledby='admin-tab'
+          >
+            <Suspense
+              fallback={
+                <div className='flex flex-col gap-4'>
+                  <Skeleton className='h-10 w-full' />
+                  <Skeleton className='h-64 w-full' />
+                </div>
+              }
+            >
+              <AdminPanel />
+            </Suspense>
+          </TabsContent>
+        )}
       </Tabs>
     </main>
   );

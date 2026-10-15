@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { taskSchema } from '@/validation/TaskSchema';
+import { taskSchema } from '@/validation/task-schema';
 
 describe('TaskSchema', () => {
   it('should validate a valid task', () => {

@@ -1,9 +1,8 @@
 'use client';
 
 import { Icon } from '@iconify/react';
-import { Button, buttonVariants } from './ui/button';
+import { Button } from './ui/button';
 import { useEffect, useRef, useState } from 'react';
-import { cn } from '@/lib/utils';
 import { useTranslations } from 'next-intl';
 
 type SearchComponentProps = {
@@ -19,12 +18,14 @@ export default function SearchComponent({
 }: SearchComponentProps) {
   const [openSearch, setOpenSearch] = useState(false);
   const [internalValue, setInternalValue] = useState(value);
+  const [syncedValue, setSyncedValue] = useState(value);
   const inputRef = useRef<HTMLInputElement>(null);
   const t = useTranslations('SearchComponent');
 
-  useEffect(() => {
+  if (value !== syncedValue) {
+    setSyncedValue(value);
     setInternalValue(value);
-  }, [value]);
+  }
 
   useEffect(() => {
     if (internalValue !== value) {
@@ -69,10 +70,10 @@ export default function SearchComponent({
         <label htmlFor='search-input' className='sr-only'>
           {t('label')}
         </label>
-        <div className='pointer-events-none absolute top-0 left-2 flex h-full items-center'>
+        <div className='pointer-events-none absolute top-0 left-0 flex h-full items-center'>
           <Icon
-            icon={'mdi:magnify'}
-            className='size-5 text-gray-400'
+            icon='tabler:search'
+            className='text-print size-4'
             aria-hidden='true'
           />
         </div>
@@ -89,10 +90,7 @@ export default function SearchComponent({
           aria-label={t('ariaLabel')}
           aria-describedby='search-description'
           autoComplete='off'
-          className={cn(
-            buttonVariants({ variant: 'outline' }),
-            'h-10 w-full pr-3 pl-9',
-          )}
+          className='typed border-rule placeholder:text-muted-foreground focus-visible:border-print h-9 w-full rounded-none border-0 border-b bg-transparent pr-1 pl-6 text-sm outline-none focus-visible:border-b-2 focus-visible:outline-none'
         />
         <span id='search-description' className='sr-only'>
           {t('description')}
@@ -103,18 +101,14 @@ export default function SearchComponent({
 
   return (
     <Button
-      variant={'outline'}
+      variant='ghost'
       size={'icon'}
       onClick={() => setOpenSearch(true)}
       aria-label={t('openSearch')}
       title={t('title')}
       type='button'
     >
-      <Icon
-        icon={'mdi:magnify'}
-        className='size-5 text-gray-400'
-        aria-hidden='true'
-      />
+      <Icon icon='tabler:search' className='size-5' aria-hidden='true' />
     </Button>
   );
 }

@@ -3,7 +3,7 @@
 import { useTranslations } from 'next-intl';
 import { UsersDataTable } from './users-data-table';
 import { ListUsersAction } from '@/actions/admin-actions';
-import type { ListUsersResult } from '@/types/Admin';
+import type { ListUsersResult } from '@/types/admin';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useQuery } from '@tanstack/react-query';
 
@@ -27,19 +27,29 @@ export function AdminPanel() {
 
   return (
     <>
-      <header>
-        <h2 className='text-lg font-bold'>{t('title')}</h2>
-        <p className='text-muted-foreground text-sm'>{t('description')}</p>
+      <header className='border-print border-b-2 pb-3 text-left'>
+        <h2
+          className='font-display text-2xl leading-tight font-bold'
+          style={{ fontStretch: '80%' }}
+        >
+          {t('title')}
+        </h2>
+        <p className='text-muted-foreground mt-1 text-sm'>{t('description')}</p>
       </header>
 
       <section className='flex flex-col gap-4'>
         {isLoading || (isFetching && !usersData?.users) ? (
-          <div className='flex flex-col gap-4'>
-            <Skeleton className='h-10 w-full' />
-            <Skeleton className='h-64 w-full' />
+          <div className='flex flex-col gap-3'>
+            <Skeleton className='h-10 w-full max-w-sm' />
+            <Skeleton className='h-9 w-full' />
+            <Skeleton className='h-9 w-full' />
+            <Skeleton className='h-9 w-full' />
+            <Skeleton className='h-9 w-full' />
           </div>
         ) : error ? (
-          <div className='text-destructive text-sm'>{error?.message}</div>
+          <p role='alert' className='text-destructive text-sm'>
+            {error?.message}
+          </p>
         ) : (
           <UsersDataTable data={usersData?.users || []} />
         )}

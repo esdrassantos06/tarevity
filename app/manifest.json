@@ -1,7 +1,7 @@
 {
-  "name": "Tarevity - Task Management Made Simple",
+  "name": "Tarevity",
   "short_name": "Tarevity",
-  "description": "Organize your tasks, set priorities, and never forget important deadlines again. Tarevity is a simple and efficient task management platform to boost your productivity.",
+  "description": "Task manager with a review step: tasks move from Active to Review to Completed on a kanban board.",
   "start_url": "/",
   "scope": "/",
   "icons": [
@@ -18,8 +18,8 @@
       "purpose": "maskable"
     }
   ],
-  "theme_color": "#ffffff",
-  "background_color": "#ffffff",
+  "theme_color": "#2742a0",
+  "background_color": "#f6f6f1",
   "display": "standalone",
   "orientation": "portrait-primary"
 }

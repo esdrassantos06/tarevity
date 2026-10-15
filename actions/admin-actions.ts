@@ -6,7 +6,7 @@ import { APIError } from 'better-auth/api';
 import { getTranslations } from 'next-intl/server';
 import prisma from '@/lib/prisma';
 import { Prisma } from '@/lib/generated/prisma/client';
-import type { ListUsersResult, AdminUser } from '@/types/Admin';
+import type { ListUsersResult, AdminUser } from '@/types/admin';
 import { logger } from '@/lib/logger';
 import { handleError } from '@/lib/error-handler';
 

@@ -1,5 +1,5 @@
 import { isDevelopment } from '@/utils/variables';
-import type { LoggerContext } from '@/types/AppErrors';
+import type { LoggerContext } from '@/types/app-errors';
 
 type LogLevel = 'error' | 'warn' | 'info' | 'debug';
 

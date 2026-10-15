@@ -29,7 +29,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import type { AdminUser } from '@/types/Admin';
+import type { AdminUser } from '@/types/admin';
 import { UpdateUserAdminAction } from '@/actions/admin-actions';
 import { toast } from 'sonner';
 import { createAdminUpdateUserSchema } from '@/validation/schemas';
@@ -112,7 +112,7 @@ export function EditUserDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className='dark:bg-[#1d1929]'>
+      <DialogContent>
         <DialogHeader>
           <DialogTitle>{t('title')}</DialogTitle>
           <DialogDescription>{t('description')}</DialogDescription>
@@ -165,11 +165,11 @@ export function EditUserDialog({
                     disabled={!isAdmin}
                   >
                     <FormControl>
-                      <SelectTrigger>
+                      <SelectTrigger className='w-full'>
                         <SelectValue placeholder={t('rolePlaceholder')} />
                       </SelectTrigger>
                     </FormControl>
-                    <SelectContent className='dark:bg-[#1d1929]'>
+                    <SelectContent>
                       <SelectItem value='user'>{t('roleUser')}</SelectItem>
                       <SelectItem value='admin'>{t('roleAdmin')}</SelectItem>
                     </SelectContent>
@@ -179,7 +179,7 @@ export function EditUserDialog({
               )}
             />
 
-            <div className='flex justify-end gap-2 pt-4'>
+            <div className='border-rule flex justify-end gap-2 border-t pt-4'>
               <Button
                 type='button'
                 variant='outline'

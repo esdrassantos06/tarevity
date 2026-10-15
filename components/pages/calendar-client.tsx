@@ -1,25 +1,55 @@
 'use client';
 
-import { useState, useMemo, useCallback } from 'react';
-import { Calendar, CalendarDayButton } from '@/components/ui/calendar';
+import { useState, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { TaskDatePopover } from '@/components/calendar/task-date-popover';
 import { Icon } from '@iconify/react';
 import { Link } from '@/i18n/navigation';
-import { startOfToday, isBefore, format } from 'date-fns';
-import { DayButton } from 'react-day-picker';
+import {
+  addDays,
+  addMonths,
+  endOfMonth,
+  endOfWeek,
+  format,
+  isBefore,
+  isSameMonth,
+  isToday,
+  startOfMonth,
+  startOfToday,
+  startOfWeek,
+} from 'date-fns';
 import { cn } from '@/lib/utils';
 import type { Task } from '@/lib/generated/prisma/browser';
-import { useTranslations } from 'next-intl';
+import { useFormatter, useLocale, useTranslations } from 'next-intl';
 import { useQuery } from '@tanstack/react-query';
 import { SessionWithUser } from '@/lib/auth';
+
+const statusSquare: Record<Task['status'], string> = {
+  ACTIVE: 'bg-print',
+  REVIEW: 'bg-stamp-violet',
+  COMPLETED: 'bg-stamp-green',
+};
+
+const MAX_LINES = 3;
+
+function buildMonthGrid(month: Date, weekStartsOn: 0 | 1): Date[] {
+  const start = startOfWeek(startOfMonth(month), { weekStartsOn });
+  const end = endOfWeek(endOfMonth(month), { weekStartsOn });
+  const days: Date[] = [];
+  for (let day = start; !isBefore(end, day); day = addDays(day, 1)) {
+    days.push(day);
+  }
+  return days;
+}
 
 export function CalendarClient({ session }: { session: SessionWithUser }) {
   const t = useTranslations('CalendarPage');
   const tErrors = useTranslations('Errors');
+  const formatter = useFormatter();
+  const locale = useLocale();
   const [currentMonth, setCurrentMonth] = useState<Date>(new Date());
+  const weekStartsOn = locale === 'en' ? 0 : 1;
 
   const {
     data: tasks,
@@ -59,192 +89,205 @@ export function CalendarClient({ session }: { session: SessionWithUser }) {
     return grouped;
   }, [tasks]);
 
-  const getTasksForDate = useCallback(
-    (date: Date): Task[] => {
-      const dateKey = format(date, 'yyyy-MM-dd');
-      return tasksByDate[dateKey] || [];
-    },
-    [tasksByDate],
+  const days = useMemo(
+    () => buildMonthGrid(currentMonth, weekStartsOn),
+    [currentMonth, weekStartsOn],
   );
 
-  const isPastDate = (date: Date): boolean => {
-    return isBefore(date, startOfToday());
-  };
+  const monthLabel = formatter.dateTime(currentMonth, {
+    month: 'long',
+    year: 'numeric',
+  });
 
-  const CustomDayButton = (props: React.ComponentProps<typeof DayButton>) => {
-    const { day } = props;
-    const dateTasks = getTasksForDate(day.date);
-    const hasTasks = dateTasks.length > 0;
-    const isPast = isPastDate(day.date);
-
-    const dayButton = (
-      <div className={cn('relative size-full', isPast && 'opacity-60')}>
-        <CalendarDayButton {...props} />
-        {hasTasks && (
-          <>
-            {dateTasks.length === 1 ? (
-              <div className='absolute bottom-0.5 left-1/2 z-10 flex size-full -translate-x-1/2 items-end justify-center gap-1.5 px-1 pb-1'>
-                <div
-                  className={cn(
-                    'size-2 flex-shrink-0 rounded-full',
-                    dateTasks[0].priority === 'HIGH'
-                      ? 'bg-red-500'
-                      : dateTasks[0].priority === 'MEDIUM'
-                        ? 'bg-yellow-500'
-                        : 'bg-green-500',
-                  )}
-                  aria-hidden='true'
-                />
-                <span className='text-foreground truncate text-[10px] leading-tight font-medium'>
-                  {dateTasks[0].title}
-                </span>
-              </div>
-            ) : (
-              <div className='absolute bottom-1 left-1/2 z-10 flex size-full -translate-x-1/2 items-end justify-center gap-0.5 pb-1'>
-                {dateTasks.slice(0, 3).map((task) => (
-                  <div
-                    key={task.id}
-                    className={cn(
-                      'size-1.5 rounded-full',
-                      task.priority === 'HIGH'
-                        ? 'bg-red-500'
-                        : task.priority === 'MEDIUM'
-                          ? 'bg-yellow-500'
-                          : 'bg-green-500',
-                    )}
-                    aria-hidden='true'
-                  />
-                ))}
-                {dateTasks.length > 3 && (
-                  <div
-                    className='size-1.5 rounded-full bg-gray-500'
-                    aria-label={t('moreTasks', {
-                      count: dateTasks.length - 3,
-                    })}
-                  />
-                )}
-              </div>
-            )}
-          </>
-        )}
+  const header = (
+    <header className='flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between'>
+      <div className='flex flex-col gap-1'>
+        <h1
+          className='font-display text-[clamp(2rem,3.4vw,3rem)] leading-none font-extrabold'
+          style={{ fontStretch: '80%' }}
+        >
+          {t('metadata.title')}
+        </h1>
+        <p className='typed text-muted-foreground text-sm first-letter:uppercase'>
+          {monthLabel}
+        </p>
       </div>
-    );
+      <div className='flex items-center gap-1'>
+        <Button asChild variant='ghost' size='sm'>
+          <Link
+            href={'/dashboard'}
+            aria-label={t('backToDashboard')}
+            title={t('backToDashboard')}
+          >
+            <Icon icon='tabler:arrow-left' aria-hidden='true' />
+            {t('backToDashboard')}
+          </Link>
+        </Button>
+        <Button
+          variant='ghost'
+          size='icon-sm'
+          onClick={() => setCurrentMonth((m) => addMonths(m, -1))}
+          aria-label={t('previousMonth')}
+          title={t('previousMonth')}
+        >
+          <Icon icon='tabler:chevron-left' aria-hidden='true' />
+        </Button>
+        <Button
+          onClick={() => setCurrentMonth(new Date())}
+          variant='outline'
+          size='sm'
+          aria-label={t('today')}
+          title={t('today')}
+        >
+          {t('today')}
+        </Button>
+        <Button
+          variant='ghost'
+          size='icon-sm'
+          onClick={() => setCurrentMonth((m) => addMonths(m, 1))}
+          aria-label={t('nextMonth')}
+          title={t('nextMonth')}
+        >
+          <Icon icon='tabler:chevron-right' aria-hidden='true' />
+        </Button>
+      </div>
+    </header>
+  );
 
-    if (hasTasks) {
-      return (
-        <TaskDatePopover date={day.date} tasks={dateTasks}>
-          {dayButton}
-        </TaskDatePopover>
-      );
-    }
-
-    return dayButton;
-  };
-
-  const modifiers = useMemo(() => {
-    const modifiersObj: Record<string, (date: Date) => boolean> = {
-      hasTasks: (date: Date) => getTasksForDate(date).length > 0,
-      pastDate: (date: Date) => isPastDate(date),
-    };
-    return modifiersObj;
-  }, [getTasksForDate]);
-
-  const modifiersClassNames = {
-    hasTasks: 'relative',
-    pastDate: 'opacity-60 text-muted-foreground',
-  };
-
-  const handleGoToToday = () => {
-    setCurrentMonth(new Date());
-  };
+  const weekdayRow = (
+    <div className='border-rule grid grid-cols-7 border-b' aria-hidden='true'>
+      {days.slice(0, 7).map((day) => (
+        <div key={day.toISOString()} className='field-label px-2 py-2'>
+          {formatter.dateTime(day, { weekday: 'short' })}
+        </div>
+      ))}
+    </div>
+  );
 
   if (isLoading || (isFetching && !tasks)) {
     return (
       <main
         id='main-content'
         role='main'
-        className='flex flex-1 flex-col items-center justify-center px-4 py-20 sm:px-6 lg:px-8'
+        className='mx-auto flex w-full max-w-360 flex-1 flex-col gap-8 px-4 py-10 sm:px-6 lg:px-10'
       >
-        <div className='flex w-full max-w-7xl items-center justify-between py-4'>
-          <Skeleton className='h-10 w-40' />
-          <Skeleton className='h-10 w-24' />
+        {header}
+        <div className='sheet rounded-[3px]'>
+          {weekdayRow}
+          <div className='grid grid-cols-7 gap-px p-px'>
+            {days.map((day) => (
+              <Skeleton key={day.toISOString()} className='h-20 sm:h-28' />
+            ))}
+          </div>
         </div>
-        <Card
-          className='w-full max-w-7xl bg-white dark:bg-[#1d1929]'
-          role='main'
-        >
-          <CardContent className='p-6'>
-            <div className='flex flex-col gap-4'>
-              <Skeleton className='mx-auto h-8 w-48' />
-              <div className='grid grid-cols-7 gap-2'>
-                {Array.from({ length: 35 }).map((_, i) => (
-                  <Skeleton key={i} className='h-16 w-full' />
-                ))}
-              </div>
-            </div>
-          </CardContent>
-        </Card>
       </main>
     );
   }
+
+  const today = startOfToday();
 
   return (
     <main
       id='main-content'
       role='main'
-      className='flex flex-1 flex-col items-center justify-center p-4 py-12 sm:px-6 lg:px-8'
+      className='mx-auto flex w-full max-w-360 flex-1 flex-col gap-8 px-4 py-10 sm:px-6 lg:px-10'
     >
-      <div className='flex w-full max-w-7xl items-center justify-between py-4'>
-        <Button asChild variant={'ghost'}>
-          <Link
-            className='flex items-center justify-center gap-2'
-            href={'/dashboard'}
-            aria-label={t('backToDashboard')}
-            title={t('backToDashboard')}
-          >
-            <Icon icon={'tabler:arrow-left'} aria-hidden='true' />
-            {t('backToDashboard')}
-          </Link>
-        </Button>
-        <div className='flex items-center gap-2'>
-          <Button
-            onClick={handleGoToToday}
-            variant='outline'
-            aria-label={t('today')}
-            title={t('today')}
-          >
-            <Icon
-              icon='material-symbols:calendar-today-rounded'
-              className='mr-2 size-4'
-            />
-            {t('today')}
-          </Button>
+      {header}
+      <div className='sheet rounded-[3px]'>
+        {weekdayRow}
+        <div className='grid grid-cols-7'>
+          {days.map((day, index) => {
+            const dateTasks = tasksByDate[format(day, 'yyyy-MM-dd')] ?? [];
+            const inMonth = isSameMonth(day, currentMonth);
+            const isPast = isBefore(day, today);
+
+            const cell = (
+              <div
+                className={cn(
+                  'flex h-full min-h-20 flex-col gap-1 p-1.5 sm:min-h-28 sm:p-2',
+                  !inMonth && 'bg-accent/40',
+                )}
+              >
+                <span
+                  className={cn(
+                    'typed text-sm leading-none',
+                    !inMonth && 'text-muted-foreground opacity-60',
+                    inMonth && isPast && 'text-muted-foreground',
+                    isToday(day) && 'text-print font-bold',
+                  )}
+                >
+                  {format(day, 'd')}
+                </span>
+                {dateTasks.length > 0 && (
+                  <ul className='flex min-w-0 flex-col gap-0.5'>
+                    {dateTasks.slice(0, MAX_LINES).map((task) => {
+                      const overdue =
+                        isPast &&
+                        task.priority === 'HIGH' &&
+                        task.status !== 'COMPLETED';
+                      return (
+                        <li
+                          key={task.id}
+                          className={cn(
+                            'typed flex min-w-0 items-center gap-1 text-[11px] leading-tight',
+                            overdue && 'text-stamp-red',
+                            task.status === 'COMPLETED' &&
+                              'text-muted-foreground line-through',
+                          )}
+                        >
+                          <span
+                            className={cn(
+                              'size-1.5 shrink-0',
+                              statusSquare[task.status],
+                            )}
+                            aria-hidden='true'
+                          />
+                          <span className='hidden truncate sm:inline'>
+                            {task.title}
+                          </span>
+                        </li>
+                      );
+                    })}
+                    {dateTasks.length > MAX_LINES && (
+                      <li className='typed text-muted-foreground text-[11px] leading-tight'>
+                        <span aria-hidden='true'>
+                          +{dateTasks.length - MAX_LINES}
+                        </span>
+                        <span className='sr-only'>
+                          {t('moreTasks', {
+                            count: dateTasks.length - MAX_LINES,
+                          })}
+                        </span>
+                      </li>
+                    )}
+                  </ul>
+                )}
+              </div>
+            );
+
+            return (
+              <div
+                key={day.toISOString()}
+                className={cn(
+                  'border-rule min-w-0',
+                  index % 7 !== 6 && 'border-r',
+                  index < days.length - 7 && 'border-b',
+                  isToday(day) &&
+                    'outline-print relative z-10 outline-2 -outline-offset-1',
+                )}
+              >
+                {dateTasks.length > 0 ? (
+                  <TaskDatePopover date={day} tasks={dateTasks}>
+                    {cell}
+                  </TaskDatePopover>
+                ) : (
+                  cell
+                )}
+              </div>
+            );
+          })}
         </div>
       </div>
-      <Card
-        className='w-full max-w-7xl bg-white shadow-lg dark:bg-[#1d1929]'
-        role='main'
-      >
-        <CardContent className='p-6 md:p-10 lg:p-12'>
-          <div className='flex w-full justify-center'>
-            <Calendar
-              mode='single'
-              month={currentMonth}
-              onMonthChange={setCurrentMonth}
-              modifiers={modifiers}
-              modifiersClassNames={modifiersClassNames}
-              components={{
-                DayButton: CustomDayButton,
-              }}
-              className='w-full'
-              classNames={{
-                caption_label: 'text-xl font-bold mt-10',
-                month_caption: 'mb-20 text-center',
-              }}
-            />
-          </div>
-        </CardContent>
-      </Card>
     </main>
   );
 }

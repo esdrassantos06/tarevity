@@ -2,7 +2,7 @@
 
 import { useRouter } from '@/i18n/navigation';
 import { toast } from 'sonner';
-import { Button } from '@/components/ui/button';
+import { Button, buttonVariants } from '@/components/ui/button';
 import { Icon } from '@iconify/react';
 import { useTranslations } from 'next-intl';
 import {
@@ -21,12 +21,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 interface DeleteTaskButtonProps {
   taskId: string;
   variant?:
-    | 'default'
-    | 'destructive'
-    | 'outline'
-    | 'secondary'
-    | 'ghost'
-    | 'link';
+    'default' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link';
   size?: 'default' | 'sm' | 'lg' | 'icon' | 'icon-sm';
   className?: string;
   icon?: string;
@@ -39,7 +34,7 @@ export const DeleteTaskButton = ({
   variant = 'destructive',
   size = 'icon-sm',
   className = '',
-  icon = 'bxs:trash',
+  icon = 'tabler:trash',
   label,
   iconSize = 'size-4',
 }: DeleteTaskButtonProps) => {
@@ -102,12 +97,11 @@ export const DeleteTaskButton = ({
           title={label || t('button.title')}
           type='button'
         >
-          <Icon icon={icon} className={`${iconSize}`} aria-hidden='true' />
-          {label && <span className='ml-2'>{label}</span>}
+          <Icon icon={icon} className={iconSize} aria-hidden='true' />
+          {label && <span>{label}</span>}
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent
-        className='dark:bg-[#1d1929]'
         role='alertdialog'
         aria-labelledby='delete-dialog-title'
         aria-describedby='delete-dialog-description'
@@ -133,7 +127,7 @@ export const DeleteTaskButton = ({
           <AlertDialogAction
             onClick={handleDelete}
             disabled={mutation.isPending}
-            className='bg-red-500 hover:bg-red-600 dark:text-white'
+            className={buttonVariants({ variant: 'destructive' })}
             aria-label={t('dialog.confirmAriaLabel', { taskId })}
           >
             {mutation.isPending ? (

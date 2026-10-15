@@ -40,3 +40,9 @@ yarn-error.log*
 next-env.d.ts
 
 /lib/generated/prisma
+# impeccable working files
+.impeccable/review/
+.impeccable/brand/
+.impeccable/mocks/
+.impeccable/direction-payload.json
+.impeccable/questions/

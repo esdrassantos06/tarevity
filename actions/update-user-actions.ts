@@ -4,7 +4,7 @@ import { auth } from '@/lib/auth';
 import { headers } from 'next/headers';
 import { APIError } from 'better-auth/api';
 import { supabase } from '@/lib/supabase-server';
-import { updateUserSchema } from '@/validation/updateUserSchema';
+import { updateUserSchema } from '@/validation/update-user-schema';
 import { getTranslations } from 'next-intl/server';
 import { logger } from '@/lib/logger';
 import { handleError } from '@/lib/error-handler';

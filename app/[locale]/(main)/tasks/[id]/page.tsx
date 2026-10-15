@@ -1,26 +1,26 @@
 import { notFound } from 'next/navigation';
 import { auth } from '@/lib/auth';
 import prisma from '@/lib/prisma';
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardFooter,
-} from '@/components/ui/card';
 import { getFormatter, getTranslations } from 'next-intl/server';
 import { headers } from 'next/headers';
 import { Button } from '@/components/ui/button';
 import { Link } from '@/i18n/navigation';
 import { Icon } from '@iconify/react';
 import { DeleteTaskButton } from '@/components/tasks/delete-task-button';
-import { Separator } from '@/components/ui/separator';
-import { translatePriority, translateStatus } from '@/utils/text';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { CompleteTaskButton } from '@/components/tasks/complete-task-button';
 import { SubmitReviewButton } from '@/components/tasks/submit-to-review-button';
 import { BackButton } from '@/components/back-button';
+import { Stamp, statusTone } from '@/components/forms/stamp';
+import {
+  FormSheet,
+  FormSheetHeader,
+  StubStrip,
+  sheetCell,
+} from '@/components/tasks/task-form-sheet';
+import { daysUntil, formNumber } from '@/utils/board';
+import { cn } from '@/lib/utils';
+import type { TaskStatus } from '@/lib/generated/prisma/enums';
 import type { Metadata } from 'next';
 import { cache } from 'react';
 
@@ -89,7 +89,7 @@ export async function generateMetadata({
       title: ogTitle,
       description,
       type: 'article',
-      url: `https://tarevity.pt/tasks/${id}`,
+      url: `https://tarevity.me/tasks/${id}`,
     },
     twitter: {
       card: 'summary',
@@ -98,6 +98,18 @@ export async function generateMetadata({
     },
   };
 }
+
+const previousStatus: Record<TaskStatus, TaskStatus | null> = {
+  ACTIVE: null,
+  REVIEW: 'ACTIVE',
+  COMPLETED: 'REVIEW',
+};
+
+const typedDate = {
+  year: 'numeric',
+  month: 'short',
+  day: '2-digit',
+} as const;
 
 export default async function TaskPage({ params }: TaskPageProps) {
   const { id, locale } = await params;
@@ -120,251 +132,195 @@ export default async function TaskPage({ params }: TaskPageProps) {
 
   const format = await getFormatter();
   const t = await getTranslations({ locale, namespace: 'TaskPage' });
-  const tForm = await getTranslations({
+  const tF = await getTranslations({ locale, namespace: 'Forms' });
+  const tDelete = await getTranslations({
     locale,
-    namespace: 'EditTaskPage.form',
+    namespace: 'DeleteTaskButton',
   });
+
+  const days = task.status === 'COMPLETED' ? null : daysUntil(task.dueDate);
+  const daysOpen =
+    task.status === 'COMPLETED' ? null : -(daysUntil(task.createdAt) ?? 0);
+  const previous = previousStatus[task.status];
 
   return (
     <main
       id='main-content'
       role='main'
-      className='flex flex-1 flex-col items-center justify-center px-4 py-8 sm:px-6 sm:py-12 lg:px-8 lg:py-20'
+      className='flex flex-1 flex-col items-center px-4 py-8 sm:px-6 sm:py-12'
     >
-      <div className='flex w-full max-w-7xl items-center justify-between gap-3 py-4'>
+      <div className='flex w-full max-w-240 flex-col gap-4'>
         <BackButton
           href='/dashboard'
           translationKey='backToDashboard'
           namespace='TaskPage'
         />
-        <div className='flex items-center gap-2'>
-          <Button
-            asChild
-            size={'icon-sm'}
-            variant={'default'}
-            className='bg-blue-accent hover:bg-blue-accent/80 dark:text-white'
-          >
-            <Link
-              className='flex items-center justify-center gap-2'
-              href={`/tasks/${id}/edit`}
-              aria-label={t('editTask')}
-              title={t('editTask')}
+        <FormSheet>
+          <FormSheetHeader
+            label={`Tarevity · ${tF('formNumber')}`}
+            number={formNumber(task.id)}
+            date={format.dateTime(task.createdAt, typedDate)}
+          />
+
+          <section className={sheetCell}>
+            <h2 className='field-label'>{tF('subject')}</h2>
+            <h1
+              className='typed mt-1 leading-tight font-bold wrap-break-word'
+              style={{ fontSize: 'clamp(1.75rem, 4vw, 3rem)' }}
             >
-              <Icon icon={'uil:edit'} className='size-4' aria-hidden='true' />
-            </Link>
-          </Button>
-          <DeleteTaskButton taskId={id} />
-        </div>
-      </div>
-      <Card
-        className={`w-full max-w-7xl ${
-          task.status === 'REVIEW' &&
-          'border-l-4 border-l-yellow-500 sm:border-l-6'
-        } bg-white dark:bg-[#1d1929]`}
-      >
-        <CardHeader className='flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between'>
-          <div className='flex items-start gap-3 sm:gap-4'>
-            <div
-              className={`flex size-10 shrink-0 items-center justify-center rounded-lg sm:size-12 ${
-                task.priority === 'HIGH'
-                  ? 'bg-red-500'
-                  : task.priority === 'MEDIUM'
-                    ? 'bg-yellow-500'
-                    : 'bg-green-500'
-              }`}
+              {task.title}
+            </h1>
+          </section>
+
+          <section className={sheetCell}>
+            <h2 className='field-label'>{tF('notes')}</h2>
+            <p
+              className={cn(
+                'mt-1.5 leading-7 wrap-break-word whitespace-pre-line',
+                !task.description && 'text-muted-foreground',
+              )}
             >
-              <Icon
-                icon={'material-symbols:flag-rounded'}
-                className='size-4 text-white sm:size-5'
-              />
-            </div>
-
-            <div className='flex min-w-0 flex-1 flex-col gap-1'>
-              <CardTitle
-                className={`text-xl font-bold break-words sm:text-2xl ${
-                  task.status === 'COMPLETED' && 'line-through'
-                }`}
-              >
-                {task.title}
-              </CardTitle>
-              <CardDescription className='flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1.5 text-xs sm:text-sm'>
-                <div className='flex min-w-0 items-center gap-1'>
-                  <Icon
-                    icon={'mdi:clock'}
-                    className='size-3 shrink-0 sm:size-4'
-                    aria-hidden='true'
-                  />
-                  <span className='hidden shrink-0 sm:inline'>
-                    {t('created')}{' '}
-                  </span>
-                  <span className='min-w-0 break-words'>
-                    {format.dateTime(task.createdAt, {
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric',
-                    })}
-                  </span>
-                </div>
-                <div className='flex shrink-0 items-center gap-1 whitespace-nowrap'>
-                  <Icon
-                    icon={'mdi:flag'}
-                    className={`size-3 shrink-0 sm:size-4 ${
-                      task.priority === 'HIGH'
-                        ? 'text-red-500'
-                        : task.priority === 'MEDIUM'
-                          ? 'text-yellow-500'
-                          : 'text-green-500'
-                    }`}
-                    aria-hidden='true'
-                  />
-                  <span className='hidden sm:inline'>
-                    {translatePriority(task.priority, tForm)} {t('priority')}
-                  </span>
-                  <span className='sm:hidden'>
-                    {translatePriority(task.priority, tForm)}
-                  </span>
-                </div>
-                <div
-                  className={`flex shrink-0 items-center gap-1 whitespace-nowrap ${
-                    task.status === 'ACTIVE'
-                      ? 'text-blue-500'
-                      : task.status === 'REVIEW'
-                        ? 'text-yellow-500'
-                        : 'text-green-500'
-                  }`}
-                >
-                  <Icon
-                    icon={'material-symbols:check-rounded'}
-                    className='size-3 shrink-0 sm:size-4'
-                    aria-hidden='true'
-                  />
-                  {translateStatus(task.status, tForm)}
-                </div>
-              </CardDescription>
-            </div>
-          </div>
-
-          <div className='flex justify-end sm:shrink-0'>
-            <CompleteTaskButton taskId={task.id} currentStatus={task.status} />
-          </div>
-        </CardHeader>
-        <Separator />
-
-        <CardContent className='space-y-4 p-4 sm:p-6'>
-          <h3 className='text-base font-semibold sm:text-lg'>
-            {t('description')}
-          </h3>
-          {task.description ? (
-            <div className='flex flex-col gap-4'>
-              <p className='text-muted-foreground text-sm break-words sm:text-base'>
-                {task.description}
-              </p>
-            </div>
-          ) : (
-            <p className='text-muted-foreground text-xs italic sm:text-sm'>
-              {t('noDescription')}
+              {task.description || tF('blank')}
             </p>
-          )}
+          </section>
 
-          {task.status === 'REVIEW' && (
-            <div className='flex w-full items-start gap-2 rounded-md bg-yellow-200/80 p-3 sm:p-4 dark:bg-yellow-800/20'>
-              <Icon
-                icon={'material-symbols:info-rounded'}
-                className='size-4 shrink-0 self-center text-yellow-600 sm:size-5 dark:text-yellow-500'
-                aria-hidden='true'
-              />
-              <div className='flex min-w-0 flex-1 flex-col items-start gap-2'>
-                <h4 className='text-xs font-semibold text-yellow-700 sm:text-sm dark:text-yellow-300'>
-                  {t('review.title')}
-                </h4>
-                <p className='text-xs break-words text-yellow-600 sm:text-sm dark:text-yellow-400'>
+          <dl className='divide-rule ruled grid divide-y sm:grid-cols-3 sm:divide-x sm:divide-y-0'>
+            <div className='px-5 py-4 sm:px-8'>
+              <dt className='field-label'>{tF('due')}</dt>
+              <dd className='mt-1'>
+                {task.dueDate ? (
+                  <>
+                    <span className='typed block text-base'>
+                      {format.dateTime(new Date(task.dueDate), typedDate)}
+                    </span>
+                    {days !== null && (
+                      <span
+                        className={cn(
+                          'text-xs',
+                          days < 0
+                            ? 'text-stamp-red font-semibold'
+                            : 'text-muted-foreground',
+                        )}
+                      >
+                        {days < 0
+                          ? tF('overdue', { count: -days })
+                          : tF('daysLeft', { count: days })}
+                      </span>
+                    )}
+                  </>
+                ) : (
+                  <span className='typed text-muted-foreground'>
+                    {tF('noDue')}
+                  </span>
+                )}
+              </dd>
+            </div>
+            <div className='px-5 py-4 sm:px-8'>
+              <dt className='field-label'>{t('priority')}</dt>
+              <dd className='mt-1 flex items-center gap-3'>
+                <span className='typed text-base'>
+                  {tF(`priority.${task.priority}`)}
+                </span>
+                {task.priority === 'HIGH' && (
+                  <Stamp tone='red' rotate={-8} className='text-xs'>
+                    {tF('urgent')}
+                  </Stamp>
+                )}
+              </dd>
+            </div>
+            <div className='px-5 py-4 sm:px-8'>
+              <dt className='field-label'>{tF('created')}</dt>
+              <dd className='typed mt-1 text-base'>
+                {format.dateTime(task.createdAt, typedDate)}
+              </dd>
+              {daysOpen !== null && (
+                <p className='text-muted-foreground mt-1 text-xs'>
+                  {tF('inProgress', { count: daysOpen })}
+                </p>
+              )}
+            </div>
+          </dl>
+
+          <div className='divide-rule ruled grid divide-y sm:grid-cols-[1.4fr_1fr] sm:divide-x sm:divide-y-0'>
+            <section className='px-5 py-4 sm:px-8'>
+              <h2 className='field-label'>{t('status')}</h2>
+              <div className='relative flex min-h-36 items-end justify-center py-4'>
+                {previous && (
+                  <span
+                    className='absolute top-2 left-1/2 -translate-x-[85%] opacity-[0.16]'
+                    aria-hidden='true'
+                  >
+                    <Stamp
+                      tone={statusTone[previous]}
+                      rotate={5}
+                      className='text-xl sm:text-2xl'
+                    >
+                      {tF(`status.${previous}`)}
+                    </Stamp>
+                  </span>
+                )}
+                <Stamp
+                  tone={statusTone[task.status]}
+                  rotate={-7}
+                  animate
+                  className='relative text-3xl sm:text-4xl'
+                >
+                  {tF(`status.${task.status}`)}
+                </Stamp>
+              </div>
+              {task.status === 'REVIEW' && (
+                <p className='text-muted-foreground text-xs'>
                   {t('review.message')}
                 </p>
+              )}
+            </section>
+            <dl className='divide-rule grid divide-y'>
+              <div className='px-5 py-4 sm:px-8'>
+                <dt className='field-label'>{t('lastUpdated')}</dt>
+                <dd className='typed mt-1 text-base'>
+                  {format.dateTime(task.updatedAt, typedDate)}
+                </dd>
               </div>
-            </div>
-          )}
-
-          <div className='flex flex-col gap-4'>
-            <h3 className='text-base font-semibold sm:text-lg'>
-              {t('details')}
-            </h3>
-            <div className='grid w-full grid-cols-1 gap-3 sm:gap-4 md:grid-cols-2'>
-              <div className='flex flex-col justify-center gap-2 rounded-lg p-3 shadow sm:p-4 dark:bg-gray-800'>
-                <h4 className='text-xs text-gray-400 sm:text-sm'>
-                  {t('status')}
-                </h4>
-                <div className='flex items-center gap-2 text-xs sm:text-sm'>
-                  <div
-                    className={`size-2 shrink-0 rounded-full sm:size-3 ${
-                      task.status === 'ACTIVE'
-                        ? 'bg-blue-500'
-                        : task.status === 'REVIEW'
-                          ? 'bg-yellow-500'
-                          : 'bg-green-500'
-                    }`}
-                    aria-hidden='true'
-                  />
-                  <span className='truncate'>
-                    {translateStatus(task.status, tForm)}
-                  </span>
-                </div>
-              </div>
-
-              <div className='flex flex-col justify-center gap-2 rounded-lg p-3 shadow sm:p-4 dark:bg-gray-800'>
-                <h4 className='text-xs text-gray-400 sm:text-sm'>
-                  {t('lastUpdated')}
-                </h4>
-                <div className='flex items-center gap-2 text-xs sm:text-sm'>
-                  <span className='break-words'>
-                    {format.dateTime(task.updatedAt, {
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric',
-                    })}
-                  </span>
-                </div>
-              </div>
-
-              <div className='flex flex-col justify-center gap-2 rounded-lg p-3 shadow sm:p-4 dark:bg-gray-800'>
-                <h4 className='text-xs text-gray-400 sm:text-sm'>
-                  {t('dueDate')}
-                </h4>
-
-                {task.dueDate ? (
-                  <p className='text-xs break-words sm:text-sm'>
-                    {format.dateTime(new Date(task.dueDate), {
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric',
-                    })}
-                  </p>
-                ) : (
-                  <p className='text-xs sm:text-sm'>{t('noDueDate')}</p>
-                )}
-              </div>
-
-              <div className='flex flex-col justify-center gap-2 rounded-lg p-3 shadow sm:p-4 dark:bg-gray-800'>
-                <h4 className='text-xs text-gray-400 sm:text-sm'>
-                  {t('assignedTo')}
-                </h4>
-                <div className='flex items-center gap-2 text-xs sm:text-sm'>
-                  <Avatar className='size-6 shrink-0 sm:size-8'>
+              <div className='px-5 py-4 sm:px-8'>
+                <dt className='field-label'>{t('assignedTo')}</dt>
+                <dd className='mt-1 flex items-center gap-2'>
+                  <Avatar className='size-6 shrink-0'>
                     <AvatarImage src={task.user.image ?? undefined} />
-                    <AvatarFallback className='text-xs select-none sm:text-sm'>
+                    <AvatarFallback className='text-xs select-none'>
                       {task.user.name.charAt(0)}
                     </AvatarFallback>
                   </Avatar>
-                  <span className='truncate'>{task.user.name}</span>
-                </div>
+                  <span className='typed truncate text-base'>
+                    {task.user.name}
+                  </span>
+                </dd>
               </div>
-            </div>
+            </dl>
           </div>
-        </CardContent>
-        <Separator />
-        <CardFooter className='p-4 sm:p-6'>
-          <SubmitReviewButton taskId={task.id} currentStatus={task.status} />
-        </CardFooter>
-      </Card>
+
+          <StubStrip>
+            <CompleteTaskButton taskId={task.id} currentStatus={task.status} />
+            <SubmitReviewButton taskId={task.id} currentStatus={task.status} />
+            <Button asChild variant='outline'>
+              <Link
+                href={`/tasks/${id}/edit`}
+                aria-label={t('editTask')}
+                title={t('editTask')}
+              >
+                <Icon icon='tabler:edit' aria-hidden='true' />
+                {t('editTask')}
+              </Link>
+            </Button>
+            <DeleteTaskButton
+              taskId={id}
+              variant='ghost'
+              size='default'
+              label={tDelete('button.label')}
+              className='text-stamp-red hover:text-stamp-red sm:ml-auto'
+            />
+          </StubStrip>
+        </FormSheet>
+      </div>
     </main>
   );
 }

@@ -2,113 +2,178 @@
 
 import { memo } from 'react';
 import { Link } from '@/i18n/navigation';
-import { Card, CardContent, CardFooter } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
 import { Icon } from '@iconify/react';
 import { useFormatter, useTranslations } from 'next-intl';
 import type { Task } from '@/lib/generated/prisma/browser';
-import { translatePriority } from '@/utils/text';
-import { CompleteTaskCheckbox } from './complete-task-checkbox';
+import type { TaskStatus } from '@/lib/generated/prisma/enums';
+import { Stamp, statusTone } from '@/components/forms/stamp';
+import { BOARD_STATUSES, daysUntil, formNumber } from '@/utils/board';
+import { cn } from '@/lib/utils';
 import { DeleteTaskButton } from './delete-task-button';
+
+const previousStatus: Record<TaskStatus, TaskStatus | null> = {
+  ACTIVE: null,
+  REVIEW: 'ACTIVE',
+  COMPLETED: 'REVIEW',
+};
 
 interface TaskCardProps {
   task: Task;
+  justStamped?: boolean;
+  onMove?: (task: Task, status: TaskStatus) => void;
+  draggable?: boolean;
 }
 
-export const TaskCard = memo(function TaskCard({ task }: TaskCardProps) {
+export const TaskCard = memo(function TaskCard({
+  task,
+  justStamped = false,
+  onMove,
+  draggable = false,
+}: TaskCardProps) {
   const format = useFormatter();
-  const t = useTranslations('DashboardPage');
-  const tForm = useTranslations('EditTaskPage.form');
+  const t = useTranslations('Forms');
+  const tBoard = useTranslations('DashboardPage.board');
+
+  const days = daysUntil(task.dueDate);
+  const overdue = days !== null && days < 0 && task.status !== 'COMPLETED';
+  const index = BOARD_STATUSES.indexOf(task.status);
+  const prev = previousStatus[task.status];
+  const neighbours = [BOARD_STATUSES[index - 1], BOARD_STATUSES[index + 1]];
 
   return (
-    <Card
-      className={`flex h-70 flex-col justify-between pb-2 dark:bg-[#1d1929] ${
-        task.status === 'REVIEW' && 'border-l-6 border-l-yellow-500'
-      }`}
+    <article
+      draggable={draggable}
+      onDragStart={(event) => {
+        event.dataTransfer.setData('text/task-id', task.id);
+        event.dataTransfer.effectAllowed = 'move';
+      }}
+      className={cn(
+        'group bg-card border-rule relative flex flex-col border shadow-[0_1px_2px_rgb(27_33_48/0.08)] transition-[box-shadow,transform] duration-200',
+        draggable &&
+          'cursor-grab hover:-translate-y-px hover:shadow-[0_8px_20px_-10px_rgb(27_33_48/0.35)] active:cursor-grabbing',
+      )}
     >
-      <CardContent className='flex h-full justify-between'>
-        <Link
-          href={`/tasks/${task.id}`}
-          className='flex h-full flex-col justify-between'
-        >
-          <div className='flex flex-col gap-2'>
-            <div className='flex items-center gap-2'>
-              <div
-                className={`size-4 rounded-full ${
-                  task.priority === 'HIGH'
-                    ? 'bg-red-500'
-                    : task.priority === 'MEDIUM'
-                      ? 'bg-yellow-500'
-                      : 'bg-green-500'
-                }`}
-              />
-              <h2
-                className={`font-semibold ${
-                  task.status === 'COMPLETED' && 'text-gray-500 line-through'
-                }`}
-              >
-                {task.title.length > 20
-                  ? `${task.title.slice(0, 20)}...`
-                  : task.title}
-              </h2>
-            </div>
-            <p className='text-sm text-gray-500'>
-              {task.description
-                ? `${task.description?.slice(0, 20)} ${
-                    task.description?.length > 20 ? '...' : ''
-                  }`
-                : t('task.noDescription')}
-            </p>
-          </div>
-          <div className='flex flex-col gap-2'>
-            <span className='flex items-center gap-1 text-xs text-gray-500'>
-              <Icon
-                icon={'mdi:flag'}
-                className={`size-4 ${
-                  task.priority === 'HIGH'
-                    ? 'text-red-500'
-                    : task.priority === 'MEDIUM'
-                      ? 'text-yellow-500'
-                      : 'text-green-500'
-                }`}
-              />
-              {t('task.priority')} {translatePriority(task.priority, tForm)}
-            </span>
-            {task.dueDate && (
-              <p className='flex items-center gap-1 text-xs text-gray-500'>
-                {t('task.dueDate')}{' '}
-                {format.dateTime(new Date(task.dueDate), {
-                  year: 'numeric',
-                  month: 'short',
-                  day: 'numeric',
-                })}
-              </p>
+      <header className='border-rule flex min-h-10 items-center gap-2 border-b py-1.5 pr-2 pl-4'>
+        <span className='typed text-print text-xs font-bold whitespace-nowrap'>
+          Nº {formNumber(task.id)}
+        </span>
+        <div className='relative z-10 ml-auto flex items-center opacity-0 transition-opacity group-focus-within:opacity-100 group-hover:opacity-100 max-md:opacity-100'>
+          {onMove &&
+            neighbours.map((status, i) =>
+              status ? (
+                <button
+                  key={status}
+                  type='button'
+                  onClick={() => onMove(task, status)}
+                  className='text-muted-foreground hover:text-print grid size-7 cursor-pointer place-items-center max-md:size-10'
+                  aria-label={t('moveTo', { tray: t(`trays.${status}`) })}
+                  title={t('moveTo', { tray: t(`trays.${status}`) })}
+                >
+                  <Icon
+                    icon={i === 0 ? 'tabler:arrow-left' : 'tabler:arrow-right'}
+                    className='size-4'
+                    aria-hidden='true'
+                  />
+                </button>
+              ) : null,
             )}
-          </div>
-        </Link>
-        <div className='flex items-start'>
-          <CompleteTaskCheckbox taskId={task.id} currentStatus={task.status} />
-        </div>
-      </CardContent>
-      <div>
-        <Separator />
-        <CardFooter className='flex items-center justify-end gap-2 pt-2'>
           <Link
-            className='text-blue-accent hover:text-blue-accent/80 flex items-center justify-center gap-2 transition-all duration-300'
             href={`/tasks/${task.id}/edit`}
+            className='text-muted-foreground hover:text-print grid size-7 place-items-center max-md:size-10'
+            aria-label={tBoard('edit')}
+            title={tBoard('edit')}
           >
-            <Icon icon={'uil:edit'} className='size-4.5' />
+            <Icon icon='tabler:pencil' className='size-4' aria-hidden='true' />
           </Link>
-          <div className='flex items-center'>
-            <DeleteTaskButton
-              iconSize='size-4.5'
-              className='cursor-pointer bg-transparent text-red-500 hover:bg-transparent hover:text-red-500/80'
-              variant='default'
-              taskId={task.id}
-            />
-          </div>
-        </CardFooter>
+          <DeleteTaskButton
+            taskId={task.id}
+            variant='ghost'
+            size='icon-sm'
+            icon='tabler:trash'
+            iconSize='size-4'
+            className='text-muted-foreground hover:text-stamp-red size-7 hover:bg-transparent max-md:size-10'
+          />
+        </div>
+        {task.priority === 'HIGH' ? (
+          <Stamp tone='red' rotate={3} className='text-[0.65rem]'>
+            {t('urgent')}
+          </Stamp>
+        ) : (
+          <span className='field-label text-muted-foreground'>
+            {t(`priority.${task.priority}`)}
+          </span>
+        )}
+      </header>
+
+      <div className='px-4 pt-3 pb-4'>
+        <h3 className='typed text-[1.05rem] leading-snug font-bold'>
+          <Link
+            href={`/tasks/${task.id}`}
+            draggable={false}
+            className='hover:text-print after:absolute after:inset-0 focus-visible:outline-none'
+          >
+            {task.title}
+          </Link>
+        </h3>
+        {task.description && (
+          <p className='text-muted-foreground mt-1.5 line-clamp-2 text-sm leading-relaxed'>
+            {task.description}
+          </p>
+        )}
       </div>
-    </Card>
+
+      <footer className='border-rule mt-auto flex items-end justify-between gap-3 border-t border-dashed px-4 py-3'>
+        <div className='min-w-0'>
+          <p className='field-label'>{t('due')}</p>
+          {task.dueDate ? (
+            <p className='typed mt-0.5 text-sm'>
+              {format.dateTime(new Date(task.dueDate), {
+                day: '2-digit',
+                month: '2-digit',
+              })}{' '}
+              <span
+                className={cn(
+                  'text-xs',
+                  overdue
+                    ? 'text-stamp-red font-bold'
+                    : 'text-muted-foreground',
+                )}
+              >
+                {task.status === 'COMPLETED'
+                  ? ''
+                  : overdue
+                    ? t('overdue', { count: Math.abs(days ?? 0) })
+                    : t('daysLeft', { count: days ?? 0 })}
+              </span>
+            </p>
+          ) : (
+            <p className='typed text-muted-foreground mt-0.5 text-sm'>
+              {t('noDue')}
+            </p>
+          )}
+        </div>
+        <div className='relative shrink-0 pr-1'>
+          {prev && (
+            <Stamp
+              tone={statusTone[prev]}
+              rotate={4}
+              className='absolute -top-3 right-6 text-[0.7rem] opacity-20'
+            >
+              <span className='sr-only'>{t('previous')}: </span>
+              {t(`status.${prev}`)}
+            </Stamp>
+          )}
+          <Stamp
+            key={`${task.id}-${task.status}`}
+            tone={statusTone[task.status]}
+            rotate={-7}
+            animate={justStamped}
+            className='text-sm'
+          >
+            {t(`status.${task.status}`)}
+          </Stamp>
+        </div>
+      </footer>
+    </article>
   );
 });

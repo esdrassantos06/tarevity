@@ -5,7 +5,6 @@ import { Link, useRouter } from '@/i18n/navigation';
 import { FormProvider, useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import z from 'zod';
-import { Card, CardContent } from '../ui/card';
 import { BackButton } from '@/components/back-button';
 import {
   FormControl,
@@ -14,28 +13,33 @@ import {
   FormLabel,
   FormMessage,
 } from '../ui/form';
-import { Input } from '../ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { Button } from '../ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Icon } from '@iconify/react';
+import { useFormDraft } from '@/hooks/use-form-draft';
+import { authClient } from '@/lib/auth-client';
+import { DraftNotice } from '@/components/forms/draft-notice';
 import { Skeleton } from '../ui/skeleton';
-import { Calendar } from '../ui/calendar';
-import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
-import { cn } from '@/lib/utils';
-import { format as dateFnsFormat, isBefore, startOfToday } from 'date-fns';
 import { useFormatter, useTranslations } from 'next-intl';
-import { translatePriority, translateStatus } from '@/utils/text';
 import { createTaskSchema } from '@/validation/schemas';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Task } from '@/lib/generated/prisma/browser';
 import { useEffect } from 'react';
+import { formNumber } from '@/utils/board';
+import {
+  DueDateField,
+  FormSheet,
+  FormSheetHeader,
+  StubStrip,
+  TickBoxGroup,
+  fieldCell,
+  sheetCell,
+  sheetDescriptionInput,
+  SheetTitleInput,
+} from './task-form-sheet';
+
+const PRIORITIES = ['LOW', 'MEDIUM', 'HIGH'] as const;
+const STATUSES = ['ACTIVE', 'REVIEW', 'COMPLETED'] as const;
 
 interface EditTaskProps {
   taskId: string;
@@ -46,6 +50,7 @@ export const EditTask = ({ taskId }: EditTaskProps) => {
   const tForm = useTranslations('EditTaskPage.form');
   const tToast = useTranslations('EditTaskPage.toast');
   const tValidation = useTranslations('Validation');
+  const tF = useTranslations('Forms');
 
   const taskFormSchema = createTaskSchema(tValidation);
 
@@ -150,72 +155,113 @@ export const EditTask = ({ taskId }: EditTaskProps) => {
     },
   });
 
+  const { data: session } = authClient.useSession();
+  const draft = useFormDraft({
+    form,
+    scope: `edit:${taskId}`,
+    userId: session?.user.id,
+    ready: !!task,
+  });
+
   const handleSubmit = (data: TaskFormValues) => {
-    mutation.mutate(data);
+    mutation.mutate(data, { onSuccess: draft.clear });
   };
+
+  const sheetLabel = `Tarevity · ${tF('formNumber')}`;
 
   if (isTaskLoading || (isTaskFetching && !task)) {
     return (
-      <div className='flex w-full flex-1 flex-col items-center justify-center px-4 py-12 sm:px-6 lg:px-8'>
-        <div className='w-full max-w-7xl space-y-4'>
-          <Skeleton className='h-8 w-1/3' aria-label={t('loading')} />
-
-          <div className='w-full rounded-lg bg-white p-4 shadow dark:bg-[#1d1929]'>
-            <div
-              className='space-y-4'
-              role='status'
-              aria-live='polite'
-              aria-label={t('loadingForm')}
-            >
-              <Skeleton className='h-10 w-full' />
-              <Skeleton className='h-24 w-full' />
-              <div className='flex gap-4'>
-                <Skeleton className='h-10 flex-1' />
-                <Skeleton className='h-10 flex-1' />
-                <Skeleton className='h-10 flex-1' />
+      <main
+        id='main-content'
+        className='flex w-full flex-1 flex-col items-center px-4 py-8 sm:px-6 sm:py-12'
+      >
+        <div className='flex w-full max-w-[60rem] flex-col gap-4'>
+          <Skeleton className='h-9 w-40' aria-label={t('loading')} />
+          <FormSheet>
+            <div role='status' aria-live='polite' aria-label={t('loadingForm')}>
+              <FormSheetHeader
+                label={sheetLabel}
+                number={formNumber(taskId)}
+                date=''
+              />
+              <div className={sheetCell}>
+                <span className='field-label'>{tF('subject')}</span>
+                <Skeleton className='mt-1.5 h-12 w-3/4' />
               </div>
-              <div className='flex justify-end gap-4'>
-                <Skeleton className='h-10 w-24' />
-                <Skeleton className='h-10 w-32' />
+              <div className={sheetCell}>
+                <span className='field-label'>{tF('notes')}</span>
+                <Skeleton className='mt-1.5 h-28 w-full' />
               </div>
+              <div className='ruled grid gap-4 px-5 py-4 sm:grid-cols-3 sm:px-8'>
+                <Skeleton className='h-10' />
+                <Skeleton className='h-10' />
+                <Skeleton className='h-10' />
+              </div>
+              <StubStrip className='justify-end'>
+                <Skeleton className='h-9 w-24' />
+                <Skeleton className='h-9 w-36' />
+              </StubStrip>
             </div>
-          </div>
+          </FormSheet>
         </div>
-      </div>
+      </main>
     );
   }
 
   return (
-    <div className='flex w-full flex-col items-center justify-center px-4 py-12 sm:px-6 lg:px-8'>
-      <div className='flex w-full max-w-7xl flex-col gap-3 py-4 sm:flex-row sm:items-center sm:justify-between'>
-        <BackButton
-          href={`/tasks/${taskId}`}
-          translationKey='backToTask'
-          namespace='EditTaskPage'
-        />
-        <h1 className='text-xl font-bold sm:text-2xl' id='edit-task-title'>
-          {t('title')}
-        </h1>
-      </div>
-      <Card className='w-full max-w-7xl bg-white dark:bg-[#1d1929]' role='main'>
-        <CardContent className='space-y-4'>
+    <main
+      id='main-content'
+      className='flex w-full flex-1 flex-col items-center px-4 py-8 sm:px-6 sm:py-12'
+    >
+      <div className='flex w-full max-w-[60rem] flex-col gap-4'>
+        <div className='flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between'>
+          <BackButton
+            href={`/tasks/${taskId}`}
+            translationKey='backToTask'
+            namespace='EditTaskPage'
+          />
+          <h1
+            className='font-display text-2xl font-bold'
+            style={{ fontStretch: '80%' }}
+            id='edit-task-title'
+          >
+            {t('title')}
+          </h1>
+        </div>
+        <FormSheet>
           <FormProvider {...form}>
             <form
               onSubmit={form.handleSubmit(handleSubmit)}
-              className='space-y-4'
               aria-labelledby='edit-task-title'
               noValidate
             >
+              <FormSheetHeader
+                label={sheetLabel}
+                number={formNumber(taskId)}
+                date={
+                  task
+                    ? format.dateTime(new Date(task.task.createdAt), {
+                        year: 'numeric',
+                        month: 'short',
+                        day: '2-digit',
+                      })
+                    : ''
+                }
+              />
+
               <FormField
                 control={form.control}
                 name='title'
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel htmlFor='edit-task-title-input'>
-                      {tForm('title')}
+                  <FormItem className={sheetCell}>
+                    <FormLabel
+                      htmlFor='edit-task-title-input'
+                      className='field-label'
+                    >
+                      {tF('subject')}
                     </FormLabel>
                     <FormControl>
-                      <Input
+                      <SheetTitleInput
                         {...field}
                         id='edit-task-title-input'
                         placeholder={tForm('titlePlaceholder')}
@@ -239,15 +285,19 @@ export const EditTask = ({ taskId }: EditTaskProps) => {
                 control={form.control}
                 name='description'
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel htmlFor='edit-task-description'>
-                      {tForm('description')}
+                  <FormItem className={sheetCell}>
+                    <FormLabel
+                      htmlFor='edit-task-description'
+                      className='field-label'
+                    >
+                      {tF('notes')}
                     </FormLabel>
                     <FormControl>
                       <Textarea
                         id='edit-task-description'
                         rows={5}
                         {...field}
+                        className={sheetDescriptionInput}
                         placeholder={tForm('descriptionPlaceholder')}
                         disabled={mutation.isPending}
                         aria-invalid={!!form.formState.errors.description}
@@ -263,97 +313,27 @@ export const EditTask = ({ taskId }: EditTaskProps) => {
                 )}
               />
 
-              <div className='flex w-full flex-col items-start gap-4 sm:flex-row'>
+              <div className='divide-rule ruled grid divide-y md:grid-cols-3 md:divide-x md:divide-y-0'>
                 <FormField
                   control={form.control}
                   name='dueDate'
                   render={({ field }) => (
-                    <FormItem className='flex w-full flex-col sm:flex-1'>
+                    <FormItem className={fieldCell}>
                       <FormLabel
                         htmlFor='edit-task-due-date'
-                        className='flex items-center gap-2'
+                        className='field-label'
                       >
-                        <Icon
-                          icon='tabler:calendar'
-                          className='text-blue-accent size-4'
-                          aria-hidden='true'
-                        />
-                        {tForm('dueDate')}
+                        {tF('due')}
                       </FormLabel>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <FormControl>
-                            <Button
-                              id='edit-task-due-date'
-                              variant={'outline'}
-                              className={cn(
-                                'w-full pl-3 text-left font-normal',
-                                !field.value && 'text-muted-foreground',
-                              )}
-                              disabled={mutation.isPending}
-                              type='button'
-                              aria-label={
-                                field.value
-                                  ? `${tForm('dueDate')}: ${format.dateTime(
-                                      new Date(field.value + 'T00:00:00'),
-                                      {
-                                        year: 'numeric',
-                                        month: 'long',
-                                        day: 'numeric',
-                                      },
-                                    )}`
-                                  : tForm('selectDueDateAria')
-                              }
-                              aria-haspopup='dialog'
-                            >
-                              {field.value ? (
-                                format.dateTime(
-                                  new Date(field.value + 'T00:00:00'),
-                                  {
-                                    year: 'numeric',
-                                    month: 'long',
-                                    day: 'numeric',
-                                  },
-                                )
-                              ) : (
-                                <span>{tForm('pickDate')}</span>
-                              )}
-                              <Icon
-                                icon='tabler:calendar-event'
-                                className='ml-auto h-4 w-4 opacity-50'
-                                aria-hidden='true'
-                              />
-                            </Button>
-                          </FormControl>
-                        </PopoverTrigger>
-                        <PopoverContent
-                          className='w-auto p-0 dark:bg-[#1d1929]'
-                          align='start'
-                          role='dialog'
-                          aria-label={tForm('selectDueDateAria')}
-                        >
-                          <Calendar
-                            mode='single'
-                            selected={
-                              field.value
-                                ? new Date(field.value + 'T00:00:00')
-                                : undefined
-                            }
-                            onSelect={(date) => {
-                              field.onChange(
-                                date ? dateFnsFormat(date, 'yyyy-MM-dd') : '',
-                              );
-                            }}
-                            disabled={(date) => {
-                              return (
-                                mutation.isPending ||
-                                isBefore(date, startOfToday())
-                              );
-                            }}
-                            autoFocus
-                          />
-                        </PopoverContent>
-                      </Popover>
+                      <DueDateField
+                        id='edit-task-due-date'
+                        value={field.value ?? ''}
+                        onChange={field.onChange}
+                        disabled={mutation.isPending}
+                        label={tForm('dueDate')}
+                        pickLabel={tForm('pickDate')}
+                        selectAria={tForm('selectDueDateAria')}
+                      />
                       <FormMessage />
                     </FormItem>
                   )}
@@ -363,49 +343,30 @@ export const EditTask = ({ taskId }: EditTaskProps) => {
                   control={form.control}
                   name='priority'
                   render={({ field }) => (
-                    <FormItem className='w-full sm:flex-1'>
+                    <FormItem className={fieldCell}>
                       <FormLabel
-                        htmlFor='edit-task-priority'
-                        className='flex items-center gap-2'
+                        id='edit-task-priority-label'
+                        className='field-label'
                       >
-                        <Icon
-                          icon='tabler:flag'
-                          className='text-blue-accent size-4'
-                          aria-hidden='true'
-                        />
                         {tForm('priority')}
                       </FormLabel>
-                      <Select
-                        disabled={mutation.isPending}
-                        onValueChange={(value) => {
-                          if (!value || value.trim() === '') return;
-                          field.onChange(value.toUpperCase());
-                        }}
-                        value={
-                          (field.value as string) ||
-                          task?.task?.priority ||
-                          'MEDIUM'
-                        }
-                      >
-                        <SelectTrigger
-                          id='edit-task-priority'
-                          className='w-full'
-                          aria-label={tForm('selectPriorityAria')}
-                        >
-                          <SelectValue placeholder={tForm('selectPriority')} />
-                        </SelectTrigger>
-                        <SelectContent className='dark:bg-[#1d1929]'>
-                          <SelectItem value='LOW'>
-                            {translatePriority('LOW', tForm)}
-                          </SelectItem>
-                          <SelectItem value='MEDIUM'>
-                            {translatePriority('MEDIUM', tForm)}
-                          </SelectItem>
-                          <SelectItem value='HIGH'>
-                            {translatePriority('HIGH', tForm)}
-                          </SelectItem>
-                        </SelectContent>
-                      </Select>
+                      <FormControl>
+                        <TickBoxGroup
+                          name={field.name}
+                          value={
+                            (field.value as string) ||
+                            task?.task?.priority ||
+                            'MEDIUM'
+                          }
+                          onChange={field.onChange}
+                          disabled={mutation.isPending}
+                          labelledBy='edit-task-priority-label'
+                          options={PRIORITIES.map((value) => ({
+                            value,
+                            label: tF(`priority.${value}`),
+                          }))}
+                        />
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -415,101 +376,69 @@ export const EditTask = ({ taskId }: EditTaskProps) => {
                   control={form.control}
                   name='status'
                   render={({ field }) => (
-                    <FormItem className='w-full sm:flex-1'>
+                    <FormItem className={fieldCell}>
                       <FormLabel
-                        htmlFor='edit-task-status'
-                        className='flex items-center gap-2'
+                        id='edit-task-status-label'
+                        className='field-label'
                       >
-                        <Icon
-                          icon='tabler:alert-circle'
-                          className='text-blue-accent size-4'
-                          aria-hidden='true'
-                        />
                         {tForm('status')}
                       </FormLabel>
-                      <Select
-                        disabled={mutation.isPending}
-                        onValueChange={(value) => {
-                          if (!value || value.trim() === '') return;
-                          field.onChange(value.toUpperCase());
-                        }}
-                        value={
-                          (field.value as string) ||
-                          task?.task?.status ||
-                          'ACTIVE'
-                        }
-                      >
-                        <SelectTrigger
-                          id='edit-task-status'
-                          className='w-full'
-                          aria-label={tForm('selectStatusAria')}
-                        >
-                          <SelectValue placeholder={tForm('selectStatus')} />
-                        </SelectTrigger>
-                        <SelectContent className='dark:bg-[#1d1929]'>
-                          <SelectItem value='ACTIVE'>
-                            {translateStatus('ACTIVE', tForm)}
-                          </SelectItem>
-                          <SelectItem value='REVIEW'>
-                            {translateStatus('REVIEW', tForm)}
-                          </SelectItem>
-                          <SelectItem value='COMPLETED'>
-                            {translateStatus('COMPLETED', tForm)}
-                          </SelectItem>
-                        </SelectContent>
-                      </Select>
+                      <FormControl>
+                        <TickBoxGroup
+                          name={field.name}
+                          value={
+                            (field.value as string) ||
+                            task?.task?.status ||
+                            'ACTIVE'
+                          }
+                          onChange={field.onChange}
+                          disabled={mutation.isPending}
+                          labelledBy='edit-task-status-label'
+                          options={STATUSES.map((value) => ({
+                            value,
+                            label: tF(`status.${value}`),
+                          }))}
+                        />
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
               </div>
 
-              <div className='flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-end'>
-                <Button
-                  variant={'outline'}
-                  asChild
-                  className='w-full sm:w-auto'
-                >
+              <StubStrip className='justify-end'>
+                <DraftNotice
+                  restored={draft.restored}
+                  savedAt={draft.savedAt}
+                  onDiscard={draft.discard}
+                />
+                <Button variant='ghost' asChild>
                   <Link
                     href={`/tasks/${taskId}`}
-                    className='flex items-center justify-center gap-2'
                     aria-label={tForm('cancelAria')}
                     title={tForm('cancel')}
                   >
-                    <Icon
-                      icon={'material-symbols:close'}
-                      className='size-4 sm:size-5'
-                      aria-hidden='true'
-                    />
-                    <span className='text-sm sm:text-base'>
-                      {tForm('cancel')}
-                    </span>
+                    <Icon icon='tabler:x' aria-hidden='true' />
+                    {tForm('cancel')}
                   </Link>
                 </Button>
                 <Button
                   type='submit'
-                  className='bg-blue-accent hover:bg-blue-accent/80 w-full sm:w-auto dark:text-white'
                   disabled={mutation.isPending}
                   aria-label={tForm('saveAria')}
                 >
-                  <Icon
-                    icon={'material-symbols:save'}
-                    className='size-4 sm:size-5'
-                    aria-hidden='true'
-                  />
-                  <span className='text-sm sm:text-base'>
-                    {mutation.isPending ? (
-                      <span aria-live='polite'>{tForm('saving')}</span>
-                    ) : (
-                      tForm('save')
-                    )}
-                  </span>
+                  <Icon icon='tabler:device-floppy' aria-hidden='true' />
+                  {mutation.isPending ? (
+                    <span aria-live='polite'>{tForm('saving')}</span>
+                  ) : (
+                    tForm('save')
+                  )}
                 </Button>
-              </div>
+              </StubStrip>
             </form>
           </FormProvider>
-        </CardContent>
-      </Card>
-    </div>
+        </FormSheet>
+      </div>
+    </main>
   );
 };

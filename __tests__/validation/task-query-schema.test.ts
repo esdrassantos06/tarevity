@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { taskQuerySchema } from '@/validation/TaskQuerySchema';
+import { taskQuerySchema } from '@/validation/task-query-schema';
 
 describe('TaskQuerySchema', () => {
   it('should validate valid query parameters', () => {
