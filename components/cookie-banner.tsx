@@ -1,15 +1,11 @@
 'use client';
 
-import { useTheme } from 'next-themes';
 import CookieConsent from 'react-cookie-consent';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 
 export default function CookieBanner() {
-  const { resolvedTheme } = useTheme();
   const t = useTranslations('CookieBanner');
-
-  const isDark = resolvedTheme === 'dark';
 
   return (
     <CookieConsent
@@ -21,31 +17,30 @@ export default function CookieBanner() {
       aria-label={t('ariaLabel')}
       aria-modal='false'
       style={{
-        background: isDark ? '#1d1929' : '#ffffff',
-        color: isDark ? '#ffffff' : '#000000',
-        padding: '1em',
-        borderTop: `1px solid ${
-          isDark ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.2)'
-        }`,
+        background: 'var(--card)',
+        color: 'var(--foreground)',
+        padding: '0.75rem 1rem',
+        borderTop: '3px double var(--print)',
+        alignItems: 'center',
+        fontSize: '14px',
       }}
       buttonStyle={{
-        color: '#ffffff',
+        fontFamily: 'var(--font-archivo)',
         fontSize: '14px',
-        fontWeight: '500',
+        fontWeight: '600',
         padding: '0.5rem 1rem',
-        borderRadius: '9999px',
+        borderRadius: '3px',
         border: 'none',
         cursor: 'pointer',
       }}
       declineButtonStyle={{
-        color: isDark ? '#ffffff' : '#000000',
+        color: 'var(--foreground)',
+        fontFamily: 'var(--font-archivo)',
         fontSize: '14px',
-        fontWeight: '500',
+        fontWeight: '600',
         padding: '0.5rem 1rem',
-        borderRadius: '9999px',
-        border: `1px solid ${
-          isDark ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.2)'
-        }`,
+        borderRadius: '3px',
+        border: '1px solid var(--input)',
         cursor: 'pointer',
       }}
       expires={365}
@@ -54,7 +49,7 @@ export default function CookieBanner() {
         {t('message')}{' '}
         <Link
           href='/privacy'
-          style={{ color: isDark ? '#bbbbbb' : '#0070f3' }}
+          style={{ color: 'var(--print)', textDecoration: 'underline' }}
           aria-label={t('learnMoreAriaLabel')}
           title={t('privacyPolicyTitle')}
         >

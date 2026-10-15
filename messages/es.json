@@ -20,7 +20,8 @@
         "title": "Tarevity - Gestión de Tareas Simplificada",
         "description": "Organiza tus tareas, establece prioridades y nunca más olvides plazos importantes."
       }
-    }
+    },
+    "skipToContent": "Saltar al contenido"
   },
   "HomePage": {
     "metadata": {
@@ -56,39 +57,53 @@
       ],
       "organizationDescription": "Plataforma de gestión de tareas para organizar tus tareas y aumentar la productividad"
     },
-    "hero": {
-      "title": "Gestiona tus tareas de manera eficiente",
-      "description": "Organiza tus tareas, establece prioridades y nunca más olvides plazos importantes. Una forma simple y eficiente de aumentar tu productividad.",
-      "dashboardButton": "Panel",
-      "getStartedButton": "Comenzar"
-    },
-    "features": {
-      "label": "Características",
-      "title": "Todo lo que necesitas para mantenerte organizado",
-      "items": {
-        "simpleTaskManagement": {
-          "title": "Gestión simple de tareas",
-          "description": "Añade, edita y marca tareas como completadas con facilidad. Interfaz intuitiva y fácil de usar."
+    "landing": {
+      "formTitle": "Solicitud de tarea",
+      "number": "Nº 0001",
+      "dateLabel": "Fecha",
+      "headline": "Ninguna tarea se cierra sin visto bueno.",
+      "notes": "Tarevity es una lista de tareas con un paso más. Antes de archivarse, cada tarea pasa por revisión: la entregas, la compruebas y solo entonces le das el visto bueno. Con prioridad, plazo, calendario y avisos por correo.",
+      "priorityValue": "Alta",
+      "statusLabel": "Estado",
+      "dueValue": "en 3 días",
+      "stubLabel": "Recorta y entrega",
+      "cta": "Crear cuenta gratis",
+      "ctaSession": "Abrir mis tableros",
+      "login": "Ya tengo cuenta",
+      "free": "Gratis. Entra con correo, GitHub o Google.",
+      "circuitTitle": "Tres bandejas, un circuito.",
+      "circuitBody": "Cada tarea es un formulario que pasa de la entrada a revisión, y de revisión al archivo. Arrástralo entre bandejas y el sello cambia.",
+      "sampleTask": "Revisar la propuesta del cliente",
+      "steps": {
+        "ACTIVE": "Se rellena el formulario. Está en curso.",
+        "REVIEW": "Entregado para comprobar. Aún no está cerrado.",
+        "COMPLETED": "Comprobado y archivado. Queda en el registro."
+      },
+      "detailsTitle": "Cómo rellenarlo",
+      "details": {
+        "deadlines": {
+          "t": "Plazo",
+          "d": "Escribe una fecha en el campo Plazo. Cuando se acerque, Tarevity te avisa en la aplicación y por correo."
         },
-        "neverMissDeadline": {
-          "title": "Nunca pierdas un plazo",
-          "description": "Establece fechas de vencimiento para tus tareas y mantén el control de tus compromisos."
+        "calendar": {
+          "t": "Calendario",
+          "d": "Cada formulario con plazo aparece el día en que vence, así ves la semana entera de un vistazo."
         },
-        "secureAndPrivate": {
-          "title": "Seguro y privado",
-          "description": "Tus tareas se almacenan de forma segura. Inicia sesión con GitHub y Google para mayor comodidad."
+        "languages": {
+          "t": "Idioma",
+          "d": "El mismo formulario existe en español, portugués e inglés. Cámbialo en la esquina superior derecha."
         },
-        "accessFromAnywhere": {
-          "title": "Acceso desde cualquier lugar",
-          "description": "Diseño responsivo que funciona en todos los dispositivos. Tus tareas siempre están al alcance."
+        "account": {
+          "t": "Firma",
+          "d": "Entra con correo y contraseña, GitHub o Google. Las contraseñas se guardan con Argon2."
         }
-      }
-    },
-    "cta": {
-      "title": "¿Listo para organizarte?",
-      "titleLine2": "Comienza a usar Tarevity hoy.",
-      "description": "Regístrate gratis y prueba todas las características de Tarevity.",
-      "button": "Comenzar Gratis"
+      },
+      "closeTitle": "Abre tu primer formulario.",
+      "closeBody": "El formulario Nº 0001 te está esperando.",
+      "receivedBy": "Recibido por",
+      "signature": "Firma",
+      "deliver": "Entregar",
+      "closeTitleSession": "Tu bandeja de Entrada te espera."
     }
   },
   "LoginPage": {
@@ -232,7 +247,9 @@
     "viewTask": "Ver tarea: {title}",
     "tasksOnDate": "{count} tareas el {date}",
     "tasksForDate": "Tareas para {date}",
-    "underReview": "En revisión"
+    "underReview": "En revisión",
+    "previousMonth": "Mes anterior",
+    "nextMonth": "Mes siguiente"
   },
   "DashboardPage": {
     "metadata": {
@@ -278,7 +295,18 @@
       "next": "Siguiente",
       "page": "Página {current} de {total}"
     },
-    "addNewTask": "Agregar Nueva Tarea"
+    "addNewTask": "Agregar Nueva Tarea",
+    "board": {
+      "title": "Tableros",
+      "registry": "{count, plural, =0 {Ningún formulario} one {# formulario} other {# formularios}} en circulación",
+      "newForm": "Nuevo formulario",
+      "moveError": "No se pudo mover el formulario. Inténtalo de nuevo.",
+      "moved": "Movido a {tray}",
+      "edit": "Editar formulario",
+      "emptyAction": "Rellenar el primer formulario",
+      "emptyTitle": "Aún no hay formularios.",
+      "emptyBody": "Crea una tarea y entrará en la bandeja de Entrada."
+    }
   },
   "PrivacyPage": {
     "metadata": {
@@ -688,7 +716,9 @@
         "loading": "Eliminando cuenta…",
         "success": "Cuenta eliminada con éxito",
         "error": "Error al eliminar cuenta: {error}"
-      }
+      },
+      "dangerZone": "Zona de peligro",
+      "dangerHint": "Elimina tu cuenta y todas sus tareas. No se puede deshacer."
     },
     "admin": {
       "title": "Panel de Administración",
@@ -870,7 +900,8 @@
     "authorAriaLabel": "Visitar perfil de GitHub de Esdras (se abre en nueva pestaña)",
     "authorTitle": "Esdras Santos - Desarrollador",
     "homepageAriaLabel": "Ir a la página de inicio de Tarevity",
-    "homepageTitle": "Tarevity - Plataforma de Gestión de Tareas"
+    "homepageTitle": "Tarevity - Plataforma de Gestión de Tareas",
+    "imprint": "Modelo TRV-2 · Diseñado y desarrollado por"
   },
   "Header": {
     "dashboardAriaLabel": "Ir al panel de Tarevity",
@@ -922,6 +953,11 @@
       "loggingOut": "Cerrando sesión…",
       "loggedOut": "Sesión cerrada con éxito",
       "logoutFailed": "Error al cerrar sesión"
+    },
+    "nav": {
+      "boards": "Tableros",
+      "calendar": "Calendario",
+      "register": "Crear cuenta"
     }
   },
   "SearchComponent": {
@@ -936,7 +972,8 @@
     "title": "404",
     "heading": "Página no encontrada",
     "description": "Lo sentimos, no pudimos encontrar la página que estás buscando.",
-    "goHome": "Ir al Inicio"
+    "goHome": "Ir al Inicio",
+    "stamp": "Devuelto"
   },
   "Validation": {
     "email": {
@@ -1003,7 +1040,8 @@
       "invalidFileExtension": "Extensión de archivo inválida. Solo se permiten .jpg, .jpeg, .png, .webp y .gif.",
       "invalidFilePath": "Ruta de archivo inválida.",
       "errorUploadingImage": "Error al subir la imagen. Por favor, inténtalo de nuevo.",
-      "couldNotRetrieveUrl": "No se pudo recuperar la URL pública de la imagen."
+      "couldNotRetrieveUrl": "No se pudo recuperar la URL pública de la imagen.",
+      "storageNotConfigured": "El almacenamiento de imágenes no está configurado. Define las claves de Supabase para subir fotos."
     },
     "deleteUserImage": {
       "noProfileImage": "No hay imagen de perfil para eliminar.",
@@ -1038,5 +1076,60 @@
     "backToTask": "Volver a la tarea",
     "backToHome": "Volver al inicio",
     "backToLogin": "Volver a Iniciar Sesión"
+  },
+  "Forms": {
+    "status": {
+      "ACTIVE": "En curso",
+      "REVIEW": "Para revisión",
+      "COMPLETED": "Archivado"
+    },
+    "urgent": "Urgente",
+    "priority": {
+      "HIGH": "Alta",
+      "MEDIUM": "Normal",
+      "LOW": "Baja"
+    },
+    "formNumber": "Formulario Nº",
+    "subject": "Asunto",
+    "notes": "Observaciones",
+    "due": "Plazo",
+    "created": "Registrado el",
+    "daysLeft": "{count, plural, =0 {vence hoy} one {queda # día} other {quedan # días}}",
+    "overdue": "{count, plural, one {# día de retraso} other {# días de retraso}}",
+    "noDue": "Sin plazo",
+    "blank": "-",
+    "trays": {
+      "ACTIVE": "Entrada",
+      "REVIEW": "Para revisión",
+      "COMPLETED": "Archivo"
+    },
+    "trayHint": {
+      "ACTIVE": "Trabajo en curso",
+      "REVIEW": "Esperando el visto bueno",
+      "COMPLETED": "Hecho y archivado"
+    },
+    "emptyTray": "Nada en esta bandeja.",
+    "dropHere": "Suelta un formulario aquí",
+    "moveTo": "Mover a {tray}",
+    "copy": "Copia carbón",
+    "previous": "Sello anterior",
+    "draft": {
+      "restored": "Borrador restaurado.",
+      "discard": "Descartar",
+      "saved": "Borrador guardado a las {time}"
+    },
+    "inProgress": "{count, plural, =0 {en curso desde hoy} one {# día en curso} other {# días en curso}}"
+  },
+  "AuthSheet": {
+    "model": "Mod. {number}",
+    "names": {
+      "login": "Acceso",
+      "register": "Registro",
+      "forgot": "Recuperación de contraseña",
+      "reset": "Nueva contraseña"
+    }
+  },
+  "TasksLedger": {
+    "total": "Total"
   }
 }

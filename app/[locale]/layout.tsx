@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
+import { Archivo, Courier_Prime, Public_Sans } from 'next/font/google';
 import { ThemeProvider } from '@/components/theme-provider';
 import { QueryProvider } from '@/components/query-provider';
 import '../globals.css';
@@ -10,11 +10,24 @@ import { getMessages, getTranslations } from 'next-intl/server';
 import { routing } from '@/i18n/routing';
 import { notFound } from 'next/navigation';
 import { getOpenGraphLocale } from '@/utils/variables';
-const inter = Inter({
+const publicSans = Public_Sans({
   subsets: ['latin', 'latin-ext'],
   display: 'swap',
-  variable: '--font-inter',
-  preload: true,
+  variable: '--font-public-sans',
+});
+
+const archivo = Archivo({
+  subsets: ['latin', 'latin-ext'],
+  display: 'swap',
+  axes: ['wdth'],
+  variable: '--font-archivo',
+});
+
+const courierPrime = Courier_Prime({
+  subsets: ['latin', 'latin-ext'],
+  weight: ['400', '700'],
+  display: 'swap',
+  variable: '--font-courier-prime',
 });
 
 type Props = {
@@ -26,7 +39,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'Layout.metadata' });
 
-  const baseUrl = 'https://tarevity.pt';
+  const baseUrl = 'https://tarevity.me';
   const localeUrl = `${baseUrl}/${locale}`;
 
   const languages: Record<string, string> = {};
@@ -100,6 +113,7 @@ export default async function RootLayout({ children, params }: Props) {
   }
 
   const messages = await getMessages();
+  const tLayout = await getTranslations({ locale, namespace: 'Layout' });
 
   return (
     <html lang={locale} suppressHydrationWarning>
@@ -107,7 +121,7 @@ export default async function RootLayout({ children, params }: Props) {
         <meta name='apple-mobile-web-app-title' content='Tarevity' />
       </head>
       <body
-        className={`${inter.variable} ${inter.className} flex min-h-screen w-full flex-col overflow-x-hidden font-sans antialiased`}
+        className={`${publicSans.variable} ${archivo.variable} ${courierPrime.variable} flex min-h-screen w-full flex-col overflow-x-hidden font-sans antialiased`}
       >
         <NextIntlClientProvider messages={messages} locale={locale}>
           <QueryProvider>
@@ -118,10 +132,10 @@ export default async function RootLayout({ children, params }: Props) {
               disableTransitionOnChange
             >
               <a href='#main-content' className='skip-link'>
-                Skip to main content
+                {tLayout('skipToContent')}
               </a>
               {children}
-              <Toaster richColors closeButton position='top-right' />
+              <Toaster richColors closeButton position='bottom-right' />
               <CookieBanner />
             </ThemeProvider>
           </QueryProvider>

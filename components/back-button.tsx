@@ -10,12 +10,7 @@ interface BackButtonProps {
   href: string;
   translationKey: string;
   variant?:
-    | 'default'
-    | 'destructive'
-    | 'outline'
-    | 'secondary'
-    | 'ghost'
-    | 'link';
+    'default' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link';
   className?: string;
   namespace?: string;
 }
@@ -41,12 +36,8 @@ export function BackButton({
         aria-label={t(translationKey)}
         title={t(translationKey)}
       >
-        <Icon
-          icon={'tabler:arrow-left'}
-          className='size-4 sm:size-5'
-          aria-hidden='true'
-        />
-        <span className='text-sm'>{t(translationKey)}</span>
+        <Icon icon='tabler:arrow-left' className='size-4' aria-hidden='true' />
+        <span>{t(translationKey)}</span>
       </Link>
     </Button>
   );
