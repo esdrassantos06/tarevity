@@ -17,6 +17,6 @@ export default function robots(): MetadataRoute.Robots {
         ],
       },
     ],
-    sitemap: 'https://tarevity.pt/sitemap.xml',
+    sitemap: 'https://tarevity.me/sitemap.xml',
   };
 }
