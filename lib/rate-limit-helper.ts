@@ -6,7 +6,7 @@ import {
   checkRateLimit,
 } from './rate-limit';
 import { errorResponse } from './api-response';
-import type { ErrorResponse } from '@/types/AppErrors';
+import type { ErrorResponse } from '@/types/app-errors';
 
 /**
  * Helper function to check rate limit and return error response if exceeded

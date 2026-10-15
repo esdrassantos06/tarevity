@@ -2,7 +2,7 @@
 
 import { auth, ErrorCode } from '@/lib/auth';
 import { APIError } from 'better-auth/api';
-import { signUpSchema } from '@/validation/SignUpSchema';
+import { signUpSchema } from '@/validation/sign-up-schema';
 import { getTranslations } from 'next-intl/server';
 import { logger } from '@/lib/logger';
 import { handleError } from '@/lib/error-handler';

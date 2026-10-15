@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { signInSchema } from '@/validation/SignInSchema';
+import { signInSchema } from '@/validation/sign-in-schema';
 
 describe('SignInSchema', () => {
   it('should validate valid sign-in data', () => {

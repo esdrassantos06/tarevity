@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Task } from '@/lib/generated/prisma/browser';
 import { TaskStatus, TaskPriority } from '@/lib/generated/prisma/enums';
-import { TaskCounts } from '@/types/TaskCount';
+import { TaskCounts } from '@/types/task-count';
 import { CACHE_TTL } from '@/lib/cache-constants';
 
 type FilterStatus = 'ALL' | keyof typeof TaskStatus;

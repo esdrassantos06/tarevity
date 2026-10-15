@@ -3,7 +3,7 @@
 import { auth, ErrorCode } from '@/lib/auth';
 import { headers } from 'next/headers';
 import { APIError } from 'better-auth/api';
-import { resetPasswordSchema } from '@/validation/ResetPasswordSchema';
+import { resetPasswordSchema } from '@/validation/reset-password-schema';
 import { getTranslations } from 'next-intl/server';
 import { logger } from '@/lib/logger';
 import { handleError } from '@/lib/error-handler';

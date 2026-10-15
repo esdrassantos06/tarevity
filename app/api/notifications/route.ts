@@ -1,6 +1,6 @@
 import { auth } from '@/lib/auth';
 import prisma from '@/lib/prisma';
-import { NotificationUrgency, Notification } from '@/types/Notification';
+import { NotificationUrgency, Notification } from '@/types/notification';
 import { getLocaleFromRequest } from '@/lib/api-locale';
 import { getTranslations } from 'next-intl/server';
 import { getCached, cacheKeys, CACHE_TTL } from '@/lib/cache';

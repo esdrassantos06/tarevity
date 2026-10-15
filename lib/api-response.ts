@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import type { ErrorResponse } from '@/types/AppErrors';
+import type { ErrorResponse } from '@/types/app-errors';
 
 /**
  * Standardized API response helpers

@@ -1,7 +1,7 @@
 import { NextRequest } from 'next/server';
 import { auth } from '@/lib/auth';
 import prisma from '@/lib/prisma';
-import { taskSchema } from '@/validation/TaskSchema';
+import { taskSchema } from '@/validation/task-schema';
 import { z } from 'zod';
 import { getLocaleFromRequest } from '@/lib/api-locale';
 import { getTranslations } from 'next-intl/server';

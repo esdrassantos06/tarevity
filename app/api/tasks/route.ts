@@ -1,7 +1,7 @@
 import { auth } from '@/lib/auth';
 import prisma from '@/lib/prisma';
-import { taskSchema } from '@/validation/TaskSchema';
-import { taskQuerySchema } from '@/validation/TaskQuerySchema';
+import { taskSchema } from '@/validation/task-schema';
+import { taskQuerySchema } from '@/validation/task-query-schema';
 import { NextRequest } from 'next/server';
 import { Prisma } from '@/lib/generated/prisma/client';
 import { TaskPriority, TaskStatus } from '@/lib/generated/prisma/client';

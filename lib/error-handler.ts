@@ -5,7 +5,7 @@ import type {
   ErrorCode,
   ErrorResponse,
   ValidationError,
-} from '@/types/AppErrors';
+} from '@/types/app-errors';
 import { ZodError } from 'zod';
 
 /**
