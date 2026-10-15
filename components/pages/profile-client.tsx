@@ -1,9 +1,8 @@
 'use client';
 
+import { useIsClient } from '@/hooks/use-is-client';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
 import { authClient } from '@/lib/auth-client';
 import { Icon } from '@iconify/react';
@@ -27,7 +26,8 @@ import { toast } from 'sonner';
 import { UpdateUserAction } from '@/actions/update-user-actions';
 import { RemoveUserImageAction } from '@/actions/delete-user-image-action';
 import { useTaskCounts } from '@/hooks/use-tasks';
-import { TaskCounts } from '@/types/TaskCount';
+import { TaskCounts } from '@/types/task-count';
+import { TasksDonutChart } from '@/components/tasks/tasks-donut-chart';
 
 type ProfileFormValues = {
   name: string;
@@ -36,12 +36,14 @@ type ProfileFormValues = {
 
 export function ProfileClient() {
   const { data: session, isPending, refetch } = authClient.useSession();
+  const isClient = useIsClient();
   const router = useRouter();
   const t = useTranslations('ProfilePage');
   const tForm = useTranslations('ProfilePage.form');
   const tToast = useTranslations('ProfilePage.toast');
   const tStats = useTranslations('ProfilePage.statistics');
   const tErrors = useTranslations('ProfilePage.errors');
+  const tAccount = useTranslations('SettingsPage.account');
 
   const profileFormSchema = z.object({
     name: z.string().min(2, tForm('nameMinLength')),
@@ -87,14 +89,15 @@ export function ProfileClient() {
     },
   });
 
+  const [syncedImage, setSyncedImage] = useState(session?.user.image);
+  if (session?.user.image && session.user.image !== syncedImage) {
+    setSyncedImage(session.user.image);
+    setImagePreview(session.user.image);
+  }
+
   useEffect(() => {
-    if (session) {
-      if (session.user.image) {
-        setImagePreview(session.user.image);
-      }
-      if (session.user.name) {
-        form.reset({ name: session.user.name, image: undefined });
-      }
+    if (session?.user.name) {
+      form.reset({ name: session.user.name, image: undefined });
     }
   }, [session, form]);
 
@@ -202,323 +205,290 @@ export function ProfileClient() {
     }
   };
 
-  const cards = [
-    {
-      title: tStats('created'),
-      colorClass: 'bg-blue-50 dark:bg-blue-900/30',
-      titleColor: 'text-blue-600 dark:text-blue-400',
-      icon: 'mdi:clipboard-plus',
-      key: 'created' as keyof TaskCounts,
-    },
-    {
-      title: tStats('completed'),
-      colorClass: 'bg-green-50 dark:bg-green-900/30',
-      titleColor: 'text-green-600 dark:text-green-400',
-      icon: 'mdi:check-circle',
-      key: 'completed' as keyof TaskCounts,
-    },
-    {
-      title: tStats('pending'),
-      colorClass: 'bg-yellow-50 dark:bg-yellow-900/30',
-      titleColor: 'text-yellow-600 dark:text-yellow-400',
-      icon: 'mdi:clock-outline',
-      key: 'pending' as keyof TaskCounts,
-    },
+  const countFields: { key: keyof TaskCounts; label: string }[] = [
+    { key: 'created', label: tStats('created') },
+    { key: 'completed', label: tStats('completed') },
+    { key: 'pending', label: tStats('pending') },
   ];
+
+  const loading =
+    !isClient || isPending || loadingTasks || (fetchingTasks && !taskCounts);
+
+  const fieldRow = (label: string, value: React.ReactNode) => (
+    <div
+      key={label}
+      className='border-rule grid grid-cols-1 gap-1 border-b py-3 sm:grid-cols-[12rem_1fr] sm:items-baseline sm:gap-4'
+    >
+      <dt className='field-label'>{label}</dt>
+      <dd className='typed min-w-0 text-base wrap-break-word'>{value}</dd>
+    </div>
+  );
+
+  const resetEditing = () => {
+    setEditing(false);
+    form.reset({
+      name: session?.user.name,
+      image: undefined,
+    });
+    setImagePreview(session?.user.image ?? undefined);
+  };
+
+  const photoSlot = editing ? (
+    <div className='relative w-fit'>
+      <FormField
+        control={form.control}
+        name='image'
+        render={({ field: { onChange, onBlur, name, ref } }) => (
+          <FormItem className='hidden'>
+            <FormControl>
+              <Input
+                type='file'
+                accept='image/png, image/jpeg, image/webp'
+                disabled={isPendingUpdate}
+                name={name}
+                onBlur={onBlur}
+                ref={(e) => {
+                  ref(e);
+                  fileInputRef.current = e;
+                }}
+                onChange={(e) => {
+                  onChange(e.target.files);
+                  if (e.target.files && e.target.files.length > 0) {
+                    const file = e.target.files[0];
+                    const reader = new FileReader();
+                    reader.onloadend = () => {
+                      setImagePreview(reader.result as string);
+                    };
+                    reader.readAsDataURL(file);
+                  } else {
+                    setImagePreview(session?.user.image ?? undefined);
+                  }
+                }}
+              />
+            </FormControl>
+          </FormItem>
+        )}
+      />
+      <label
+        className='border-print group relative flex size-32 cursor-pointer rounded-[3px] border p-1'
+        onClick={() => fileInputRef.current?.click()}
+      >
+        <Avatar className='size-full'>
+          <AvatarImage
+            src={imagePreview ? imagePreview : undefined}
+            alt={form.getValues('name') ?? 'User'}
+            className='object-cover'
+          />
+          <AvatarFallback className='text-4xl select-none'>
+            {form.getValues('name')?.charAt(0) ??
+              session?.user.name?.charAt(0) ??
+              'U'}
+          </AvatarFallback>
+        </Avatar>
+        <span className='bg-print/70 absolute inset-1 flex items-center justify-center opacity-0 transition-opacity group-hover:opacity-100'>
+          <Icon
+            icon='tabler:pencil'
+            className='text-primary-foreground size-7'
+            aria-hidden='true'
+          />
+        </span>
+      </label>
+      {imagePreview && (
+        <Button
+          type='button'
+          variant='destructive'
+          size='icon-sm'
+          onClick={handleRemoveImage}
+          disabled={isPendingUpdate}
+          className='absolute -right-2 -bottom-2 z-10 size-7'
+          aria-label={tForm('removeImage')}
+          title={tForm('removeImage')}
+        >
+          <Icon icon='tabler:x' aria-hidden='true' />
+        </Button>
+      )}
+      <FormMessage className='mt-2 text-xs'>
+        {form.formState.errors.image?.message}
+      </FormMessage>
+    </div>
+  ) : (
+    <div className='border-print flex size-32 rounded-[3px] border p-1'>
+      <Avatar className='size-full'>
+        <AvatarImage
+          src={session?.user.image ?? undefined}
+          alt={session?.user.name ?? 'User'}
+          key={session?.user.image}
+          className='object-cover'
+        />
+        <AvatarFallback className='text-4xl select-none'>
+          {session?.user.name?.charAt(0) ?? 'U'}
+        </AvatarFallback>
+      </Avatar>
+    </div>
+  );
+
+  const record = (
+    <>
+      <div className='border-rule flex flex-col gap-4 border-b p-6 lg:border-r lg:border-b-0'>
+        {photoSlot}
+        <div className='flex min-w-0 flex-col gap-1'>
+          <h2
+            className='font-display truncate text-2xl leading-tight font-extrabold'
+            style={{ fontStretch: '80%' }}
+          >
+            {session?.user.name}
+          </h2>
+          <p className='typed text-muted-foreground truncate text-sm'>
+            {session?.user.email}
+          </p>
+        </div>
+        {editing ? (
+          <div className='flex flex-col gap-2'>
+            <Button type='submit' disabled={isPendingUpdate}>
+              {isPendingUpdate ? (
+                <>
+                  <Icon
+                    icon='tabler:loader-2'
+                    className='animate-spin'
+                    aria-hidden='true'
+                  />
+                  {tForm('saving')}
+                </>
+              ) : (
+                <>
+                  <Icon icon='tabler:check' aria-hidden='true' />
+                  {tForm('save')}
+                </>
+              )}
+            </Button>
+            <Button
+              type='button'
+              variant='ghost'
+              onClick={resetEditing}
+              disabled={isPendingUpdate}
+            >
+              {tForm('cancel')}
+            </Button>
+          </div>
+        ) : (
+          <Button
+            variant='outline'
+            onClick={() => setEditing(true)}
+            className='w-full sm:w-fit'
+          >
+            <Icon icon='tabler:pencil' aria-hidden='true' />
+            {t('edit')}
+          </Button>
+        )}
+      </div>
+
+      <div className='flex min-w-0 flex-col gap-8 p-6'>
+        <dl className='border-rule flex flex-col border-t'>
+          {editing ? (
+            <FormField
+              control={form.control}
+              name='name'
+              render={({ field }) => (
+                <FormItem className='border-rule grid grid-cols-1 gap-1 border-b py-3 sm:grid-cols-[12rem_1fr] sm:items-baseline sm:gap-4'>
+                  <FormLabel className='field-label'>{tForm('name')}</FormLabel>
+                  <div className='flex flex-col gap-1'>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        placeholder={tForm('namePlaceholder')}
+                        disabled={isPendingUpdate}
+                        autoComplete='name'
+                        className='typed w-full'
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </div>
+                </FormItem>
+              )}
+            />
+          ) : (
+            fieldRow(tForm('name'), session?.user.name)
+          )}
+          {fieldRow(tAccount('email'), session?.user.email)}
+          {countFields.map((field) =>
+            fieldRow(field.label, taskCounts ? taskCounts[field.key] : 0),
+          )}
+        </dl>
+        {editing && form.formState.errors.root && (
+          <p className='text-destructive text-sm'>
+            {form.formState.errors.root.message}
+          </p>
+        )}
+        {taskCountsError && (
+          <p className='text-destructive text-sm'>
+            {tErrors('fetchingTaskCounts')}
+          </p>
+        )}
+
+        <section
+          aria-labelledby='profile-ledger'
+          className='flex flex-col gap-2'
+        >
+          <h3 id='profile-ledger' className='field-label'>
+            {tStats('title')}
+          </h3>
+          <TasksDonutChart userId={session?.user.id} />
+        </section>
+      </div>
+    </>
+  );
+
+  const sheetClass = 'sheet grid w-full rounded-[3px] lg:grid-cols-[20rem_1fr]';
 
   return (
     <main
       id='main-content'
       role='main'
-      className='flex flex-1 flex-col items-center justify-center gap-6 px-4 py-8 sm:gap-8 sm:px-6 sm:py-12 lg:gap-10 lg:px-8 lg:py-20'
+      className='mx-auto flex w-full max-w-360 flex-1 flex-col gap-8 px-4 py-10 sm:px-6 lg:px-10'
     >
-      <section className='flex w-full max-w-7xl flex-col items-center justify-center p-4 sm:p-6'>
-        <h1 className='mb-2 w-full text-center text-2xl font-bold text-gray-900 sm:text-3xl md:text-4xl dark:text-white'>
+      <header className='flex flex-col gap-1'>
+        <h1
+          className='font-display text-[clamp(2rem,3.4vw,3rem)] leading-none font-extrabold'
+          style={{ fontStretch: '80%' }}
+        >
           {t('title')}
         </h1>
-      </section>
+        <p className='typed text-muted-foreground min-h-5 text-sm'>
+          {isClient ? session?.user.email : null}
+        </p>
+      </header>
 
-      <section className='flex w-full max-w-7xl flex-col gap-4 rounded-lg shadow dark:bg-[#1d1929]'>
-        {isPending || loadingTasks || (fetchingTasks && !taskCounts) ? (
-          <>
-            <div className='bg-blue-accent h-24 rounded-t-lg sm:h-32' />
-            <div className='flex items-center justify-between gap-4 px-4 py-4 sm:px-6 md:px-10'>
-              <div className='flex w-full items-center gap-3 sm:gap-4'>
-                <Skeleton className='size-16 rounded-full sm:size-20' />
-                <div className='flex min-w-0 flex-1 flex-col gap-2'>
-                  <Skeleton className='h-6 w-32 sm:h-8 sm:w-48' />
-                  <Skeleton className='h-4 w-40 sm:h-5 sm:w-64' />
-                </div>
-              </div>
-            </div>
-
-            <Separator />
-            <div className='flex flex-col gap-4 p-4 sm:p-6'>
-              <Skeleton className='mb-2 h-5 w-28 sm:h-6 sm:w-32' />
-              <div className='grid grid-cols-1 gap-2 sm:grid-cols-2 md:grid-cols-3'>
-                {Array(3)
-                  .fill(0)
-                  .map((_, i) => (
-                    <Card key={i} className='gap-0 p-4'>
-                      <Skeleton className='mb-2 h-8 w-12' />
-                      <Skeleton className='h-4 w-20' />
-                    </Card>
-                  ))}
-              </div>
-            </div>
-          </>
-        ) : (
-          <>
-            <div className='bg-blue-accent h-24 rounded-t-lg sm:h-32' />
-
-            {/* User section */}
-            {!editing ? (
-              <div className='flex flex-col items-start justify-between gap-4 px-4 py-4 sm:flex-row sm:items-center sm:px-6 md:px-10'>
-                <div className='flex w-full min-w-0 items-center gap-3 sm:gap-4'>
-                  <Avatar className='size-16 shrink-0 sm:size-20'>
-                    <AvatarImage
-                      src={session?.user.image ?? undefined}
-                      alt={session?.user.name ?? 'User'}
-                      key={session?.user.image}
-                    />
-                    <AvatarFallback className='select-none'>
-                      {session?.user.name?.charAt(0) ?? 'U'}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className='flex min-w-0 flex-1 flex-col gap-1 sm:gap-2'>
-                    <h2 className='truncate text-xl font-bold text-gray-900 sm:text-2xl dark:text-white'>
-                      {session?.user.name}
-                    </h2>
-                    <h3 className='flex min-w-0 items-center gap-2 text-sm text-gray-600 sm:text-base dark:text-gray-400'>
-                      <Icon
-                        icon={'ic:baseline-mail'}
-                        className='size-4 shrink-0 sm:size-5'
-                        aria-hidden='true'
-                      />
-                      <span className='truncate'>{session?.user.email}</span>
-                    </h3>
-                  </div>
-                </div>
-                <div className='w-full sm:w-auto'>
-                  <Button
-                    variant={'ghost'}
-                    onClick={() => setEditing(true)}
-                    className='w-full sm:w-auto'
-                  >
-                    <Icon
-                      icon={'mingcute:pencil-fill'}
-                      className='text-blue-accent'
-                      aria-hidden='true'
-                    />
-                    {t('edit')}
-                  </Button>
-                </div>
-              </div>
-            ) : (
-              <Form {...form}>
-                <form
-                  onSubmit={form.handleSubmit(onSubmit)}
-                  className='flex flex-col items-start justify-between gap-6 px-4 py-4 sm:px-6 md:flex-row md:items-center md:px-10'
+      {loading ? (
+        <section className={sheetClass}>
+          <div className='border-rule flex flex-col gap-4 border-b p-6 lg:border-r lg:border-b-0'>
+            <Skeleton className='size-32' />
+            <Skeleton className='h-7 w-40' />
+            <Skeleton className='h-4 w-52' />
+            <Skeleton className='h-9 w-28' />
+          </div>
+          <div className='flex flex-col gap-8 p-6'>
+            <div className='border-rule flex flex-col border-t'>
+              {Array.from({ length: 5 }).map((_, i) => (
+                <div
+                  key={i}
+                  className='border-rule grid grid-cols-1 gap-2 border-b py-3 sm:grid-cols-[12rem_1fr] sm:gap-4'
                 >
-                  <div className='flex w-full flex-1 flex-col gap-4 sm:flex-row sm:items-center'>
-                    <div className='flex flex-col items-center sm:items-start'>
-                      <FormField
-                        control={form.control}
-                        name='image'
-                        render={({
-                          field: { onChange, onBlur, name, ref },
-                        }) => (
-                          <FormItem className='hidden'>
-                            <FormControl>
-                              <Input
-                                type='file'
-                                accept='image/png, image/jpeg, image/webp'
-                                disabled={isPendingUpdate}
-                                name={name}
-                                onBlur={onBlur}
-                                ref={(e) => {
-                                  ref(e);
-                                  fileInputRef.current = e;
-                                }}
-                                onChange={(e) => {
-                                  onChange(e.target.files);
-                                  if (
-                                    e.target.files &&
-                                    e.target.files.length > 0
-                                  ) {
-                                    const file = e.target.files[0];
-                                    const reader = new FileReader();
-                                    reader.onloadend = () => {
-                                      setImagePreview(reader.result as string);
-                                    };
-                                    reader.readAsDataURL(file);
-                                  } else {
-                                    setImagePreview(
-                                      session?.user.image ?? undefined,
-                                    );
-                                  }
-                                }}
-                              />
-                            </FormControl>
-                          </FormItem>
-                        )}
-                      />
-
-                      <div className='relative'>
-                        <label
-                          className='flex size-16 cursor-pointer sm:size-20'
-                          onClick={() => fileInputRef.current?.click()}
-                        >
-                          <Avatar className='size-16 sm:size-20'>
-                            <AvatarImage
-                              src={imagePreview ? imagePreview : undefined}
-                              alt={form.getValues('name') ?? 'User'}
-                              className='object-cover'
-                            />
-                            <AvatarFallback className='select-none'>
-                              {form.getValues('name')?.charAt(0) ??
-                                session?.user.name?.charAt(0) ??
-                                'U'}
-                            </AvatarFallback>
-                          </Avatar>
-
-                          <div className='absolute inset-0 flex items-center justify-center rounded-full bg-black/40 opacity-0 transition-opacity hover:opacity-100'>
-                            <Icon
-                              icon='mingcute:pencil-fill'
-                              className='size-6 text-white sm:size-8'
-                              aria-hidden='true'
-                            />
-                          </div>
-                        </label>
-
-                        {imagePreview && (
-                          <button
-                            type='button'
-                            onClick={handleRemoveImage}
-                            disabled={isPendingUpdate}
-                            className='absolute -right-1 -bottom-1 z-10 rounded-full bg-red-600 p-1 text-white transition-colors hover:bg-red-700'
-                            aria-label={tForm('removeImage')}
-                            title={tForm('removeImage')}
-                          >
-                            <Icon
-                              icon='mdi:close'
-                              className='size-3 sm:size-4'
-                              aria-hidden='true'
-                            />
-                          </button>
-                        )}
-                      </div>
-                      <FormMessage className='mt-2 text-center text-xs sm:text-left sm:text-sm'>
-                        {form.formState.errors.image?.message}
-                      </FormMessage>
-                    </div>
-
-                    <div className='flex w-full min-w-0 flex-1 flex-col gap-4'>
-                      <FormField
-                        control={form.control}
-                        name='name'
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>{tForm('name')}</FormLabel>
-                            <FormControl>
-                              <Input
-                                {...field}
-                                placeholder={tForm('namePlaceholder')}
-                                disabled={isPendingUpdate}
-                                autoComplete='name'
-                                className='w-full'
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                  </div>
-
-                  <div className='flex w-full flex-col gap-2 sm:w-auto'>
-                    <Button
-                      type='submit'
-                      disabled={isPendingUpdate}
-                      className='w-full sm:w-auto'
-                    >
-                      {isPendingUpdate ? (
-                        <>
-                          <Icon
-                            icon='ri:loader-fill'
-                            className='animate-spin'
-                            aria-hidden='true'
-                          />
-                          {tForm('saving')}
-                        </>
-                      ) : (
-                        <>
-                          <Icon
-                            icon='mdi:check'
-                            className='hidden sm:inline'
-                            aria-hidden='true'
-                          />
-                          {tForm('save')}
-                        </>
-                      )}
-                    </Button>
-                    <Button
-                      type='button'
-                      variant={'ghost'}
-                      onClick={() => {
-                        setEditing(false);
-                        form.reset({
-                          name: session?.user.name,
-                          image: undefined,
-                        });
-                        setImagePreview(session?.user.image ?? undefined);
-                      }}
-                      disabled={isPendingUpdate}
-                      className='w-full sm:w-auto'
-                    >
-                      {tForm('cancel')}
-                    </Button>
-                  </div>
-                </form>
-                {form.formState.errors.root && (
-                  <div className='px-4 pb-4 text-center text-sm text-red-600 sm:px-6 md:px-10'>
-                    {form.formState.errors.root.message}
-                  </div>
-                )}
-              </Form>
-            )}
-
-            <Separator />
-            <div className='flex flex-col gap-4 p-4 sm:p-6'>
-              <h3 className='mb-2 text-base font-medium text-gray-900 sm:text-lg dark:text-white'>
-                {tStats('title')}
-              </h3>
-              <div className='grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-2 md:grid-cols-3'>
-                {cards.map((item) => (
-                  <Card key={item.title} className={`${item.colorClass} gap-0`}>
-                    <CardHeader>
-                      <CardTitle
-                        className={`${item.titleColor} text-xl font-bold sm:text-2xl`}
-                      >
-                        {taskCounts ? taskCounts[item.key] : 0}
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className='flex items-center gap-2 text-xs text-gray-600 sm:text-sm dark:text-gray-400'>
-                      <Icon icon={item.icon} className='size-4 shrink-0' />
-                      <p className='truncate'>{item.title}</p>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-              {taskCountsError && (
-                <div className='px-4 pb-4 text-center text-sm text-red-600 sm:px-6'>
-                  {tErrors('fetchingTaskCounts')}
+                  <Skeleton className='h-3 w-24' />
+                  <Skeleton className='h-5 w-48' />
                 </div>
-              )}
+              ))}
             </div>
-          </>
-        )}
-      </section>
+          </div>
+        </section>
+      ) : editing ? (
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className={sheetClass}>
+            {record}
+          </form>
+        </Form>
+      ) : (
+        <section className={sheetClass}>{record}</section>
+      )}
     </main>
   );
 }

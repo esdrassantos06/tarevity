@@ -1,16 +1,27 @@
 'use client';
 
 import {
-  ColumnDef,
-  ColumnFiltersState,
-  SortingState,
-  VisibilityState,
+  type ColumnDef,
+  type ColumnFiltersState,
+  type ColumnVisibilityState,
+  type RowSelectionState,
+  type SortingState,
+  columnFilteringFeature,
+  columnVisibilityFeature,
+  createFilteredRowModel,
+  createPaginatedRowModel,
+  createSortedRowModel,
+  filterFn_includesString,
   flexRender,
-  getCoreRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
-  useReactTable,
+  rowPaginationFeature,
+  rowSelectionFeature,
+  rowSortingFeature,
+  sortFn_alphanumeric,
+  sortFn_basic,
+  sortFn_datetime,
+  sortFn_text,
+  tableFeatures,
+  useTable,
 } from '@tanstack/react-table';
 import { Icon } from '@iconify/react';
 import { Button, buttonVariants } from '@/components/ui/button';
@@ -33,7 +44,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { useTranslations } from 'next-intl';
-import type { AdminUser } from '@/types/Admin';
+import type { AdminUser } from '@/types/admin';
 import { toast } from 'sonner';
 import { ViewUserDialog } from './view-user-dialog';
 import { EditUserDialog } from './edit-user-dialog';
@@ -49,12 +60,34 @@ import {
 } from '@/components/ui/alert-dialog';
 import { RemoveUserAction } from '@/actions/admin-actions';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import type { ListUsersResult } from '@/types/Admin';
+import type { ListUsersResult } from '@/types/admin';
 import { useMemo, useState } from 'react';
+import { Stamp } from '@/components/forms/stamp';
+
+const features = tableFeatures({
+  columnFilteringFeature,
+  columnVisibilityFeature,
+  rowPaginationFeature,
+  rowSelectionFeature,
+  rowSortingFeature,
+  filteredRowModel: createFilteredRowModel(),
+  sortedRowModel: createSortedRowModel(),
+  paginatedRowModel: createPaginatedRowModel(),
+  filterFns: { includesString: filterFn_includesString },
+  sortFns: {
+    alphanumeric: sortFn_alphanumeric,
+    basic: sortFn_basic,
+    datetime: sortFn_datetime,
+    text: sortFn_text,
+  },
+});
+
+const sortButtonClass =
+  'text-print -ml-2 h-8 px-2 text-[0.6875rem] font-semibold tracking-[0.08em] uppercase';
 
 export const getColumns = (
   t: (key: string) => string,
-): ColumnDef<AdminUser>[] => [
+): ColumnDef<typeof features, AdminUser>[] => [
   {
     accessorKey: 'id',
     id: 'id',
@@ -63,15 +96,15 @@ export const getColumns = (
         <Button
           variant='ghost'
           onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-          className='h-8'
+          className={sortButtonClass}
         >
           {t('id')}
-          <Icon icon='lucide:arrow-up-down' className='ml-2 size-4' />
+          <Icon icon='tabler:arrows-sort' className='size-3.5' />
         </Button>
       );
     },
     cell: ({ row }) => (
-      <div className='font-mono text-xs' title={row.getValue('id') as string}>
+      <div className='typed text-xs' title={row.getValue('id') as string}>
         {`${(row.getValue('id') as string).substring(0, 6)}...`}
       </div>
     ),
@@ -84,9 +117,10 @@ export const getColumns = (
         <Button
           variant='ghost'
           onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+          className={sortButtonClass}
         >
           {t('name')}
-          <Icon icon='lucide:arrow-up-down' className='ml-2 size-4' />
+          <Icon icon='tabler:arrows-sort' className='size-3.5' />
         </Button>
       );
     },
@@ -100,13 +134,16 @@ export const getColumns = (
         <Button
           variant='ghost'
           onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+          className={sortButtonClass}
         >
           {t('email')}
-          <Icon icon='lucide:arrow-up-down' className='ml-2 size-4' />
+          <Icon icon='tabler:arrows-sort' className='size-3.5' />
         </Button>
       );
     },
-    cell: ({ row }) => <div className='lowercase'>{row.getValue('email')}</div>,
+    cell: ({ row }) => (
+      <div className='typed text-sm lowercase'>{row.getValue('email')}</div>
+    ),
   },
   {
     accessorKey: 'role',
@@ -116,10 +153,10 @@ export const getColumns = (
         <Button
           variant='ghost'
           onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-          className='h-8'
+          className={sortButtonClass}
         >
           {t('role')}
-          <Icon icon='lucide:arrow-up-down' className='ml-2 size-4' />
+          <Icon icon='tabler:arrows-sort' className='size-3.5' />
         </Button>
       );
     },
@@ -127,17 +164,20 @@ export const getColumns = (
       const role = row.getValue('role') as string | null;
       const isAdmin = role === 'admin';
       return (
-        <div className='flex items-center'>
+        <div className='flex items-center gap-3'>
           {isAdmin ? (
-            <span className='inline-flex items-center gap-1 rounded-full bg-purple-100 px-2 py-1 text-xs font-medium text-purple-700 dark:bg-purple-900/30 dark:text-purple-400'>
-              <Icon icon='lucide:shield-check' className='size-3' />
+            <Stamp tone='violet' rotate={-3} className='text-[0.7rem]'>
               {t('roleAdmin')}
-            </span>
+            </Stamp>
           ) : (
-            <span className='inline-flex items-center gap-1 rounded-full bg-gray-100 px-2 py-1 text-xs font-medium text-gray-600 dark:bg-gray-800 dark:text-gray-400'>
-              <Icon icon='lucide:user' className='size-3' />
+            <span className='text-muted-foreground text-sm'>
               {t('roleUser')}
             </span>
+          )}
+          {row.original.banned && (
+            <Stamp tone='red' rotate={2} className='text-[0.7rem]'>
+              {t('viewUserDialog.banned')}
+            </Stamp>
           )}
         </div>
       );
@@ -151,16 +191,16 @@ export const getColumns = (
         <Button
           variant='ghost'
           onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-          className='h-8'
+          className={sortButtonClass}
         >
           {t('tasks')}
-          <Icon icon='lucide:arrow-up-down' className='size-4' />
+          <Icon icon='tabler:arrows-sort' className='size-3.5' />
         </Button>
       );
     },
     cell: ({ row }) => {
       const count = row.original.tasksCount;
-      return <div className='ml-4 font-medium'>{count}</div>;
+      return <div className='typed text-sm'>{count}</div>;
     },
   },
   {
@@ -208,16 +248,12 @@ export const getColumns = (
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant='ghost' className='size-8 p-0'>
+            <Button variant='ghost' size='icon-sm'>
               <span className='sr-only'>{t('openMenu')}</span>
-              <Icon icon='lucide:more-horizontal' className='size-4' />
+              <Icon icon='tabler:dots' className='size-4' />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent
-            sideOffset={4}
-            className='dark:bg-[#1d1929]'
-            align='end'
-          >
+          <DropdownMenuContent sideOffset={4} align='end'>
             <DropdownMenuLabel>{t('actions')}</DropdownMenuLabel>
             <DropdownMenuItem onClick={() => getUserId(user.id)}>
               {t('copyUserId')}
@@ -230,10 +266,7 @@ export const getColumns = (
               {t('editUser')}
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem
-              onClick={handleDeleteUser}
-              className='text-destructive focus:text-destructive'
-            >
+            <DropdownMenuItem onClick={handleDeleteUser} variant='destructive'>
               {t('deleteUser')}
             </DropdownMenuItem>
           </DropdownMenuContent>
@@ -252,8 +285,9 @@ export function UsersDataTable({ data }: UsersDataTableProps) {
   const queryClient = useQueryClient();
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
-  const [rowSelection, setRowSelection] = useState({});
+  const [columnVisibility, setColumnVisibility] =
+    useState<ColumnVisibilityState>({});
+  const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
   const [selectedUser, setSelectedUser] = useState<AdminUser | null>(null);
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
   const [editUser, setEditUser] = useState<AdminUser | null>(null);
@@ -304,16 +338,12 @@ export function UsersDataTable({ data }: UsersDataTableProps) {
 
   const columns = useMemo(() => getColumns((key: string) => t(key)), [t]);
 
-  // eslint-disable-next-line react-hooks/incompatible-library
-  const table = useReactTable({
+  const table = useTable({
+    features,
     data,
     columns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
-    getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
     state: {
@@ -334,7 +364,7 @@ export function UsersDataTable({ data }: UsersDataTableProps) {
 
   return (
     <div className='w-full'>
-      <div className='flex items-center py-4'>
+      <div className='flex items-center gap-3 py-4'>
         <Input
           placeholder={t('filterEmails')}
           value={(table.getColumn('email')?.getFilterValue() as string) ?? ''}
@@ -346,15 +376,11 @@ export function UsersDataTable({ data }: UsersDataTableProps) {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant='outline' className='ml-auto'>
-              {t('columns')}{' '}
-              <Icon icon='lucide:chevron-down' className='ml-2 size-4' />
+              {t('columns')}
+              <Icon icon='tabler:chevron-down' className='size-4' />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent
-            sideOffset={4}
-            className='dark:bg-[#1d1929]'
-            align='end'
-          >
+          <DropdownMenuContent sideOffset={4} align='end'>
             {table
               .getAllColumns()
               .filter((column) => column.getCanHide())
@@ -383,7 +409,7 @@ export function UsersDataTable({ data }: UsersDataTableProps) {
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-      <div className='overflow-hidden rounded-md border'>
+      <div className='sheet overflow-hidden rounded-[3px] px-2'>
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
@@ -424,7 +450,7 @@ export function UsersDataTable({ data }: UsersDataTableProps) {
               <TableRow>
                 <TableCell
                   colSpan={getColumns((key: string) => t(key)).length}
-                  className='h-24 text-center'
+                  className='text-muted-foreground h-24 text-center'
                 >
                   {t('noResults')}
                 </TableCell>
@@ -433,8 +459,8 @@ export function UsersDataTable({ data }: UsersDataTableProps) {
           </TableBody>
         </Table>
       </div>
-      <div className='flex items-center justify-end space-x-2 py-4'>
-        <div className='space-x-2'>
+      <div className='flex items-center justify-end py-4'>
+        <div className='flex gap-2'>
           <Button
             variant='outline'
             size='sm'
@@ -478,7 +504,7 @@ export function UsersDataTable({ data }: UsersDataTableProps) {
           }
         }}
       >
-        <AlertDialogContent className='dark:bg-[#1d1929]'>
+        <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle className='sr-only'>
               {t('deleteDialog.title')}

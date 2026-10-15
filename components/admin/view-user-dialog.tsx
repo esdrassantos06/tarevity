@@ -8,9 +8,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import type { AdminUser } from '@/types/Admin';
-import { Separator } from '@/components/ui/separator';
-import { Badge } from '@/components/ui/badge';
+import type { AdminUser } from '@/types/admin';
+import { Stamp } from '@/components/forms/stamp';
 import { useFormatter } from 'next-intl';
 
 interface ViewUserDialogProps {
@@ -34,96 +33,75 @@ export function ViewUserDialog({
 
   if (!user) return null;
 
+  const rows: { label: string; value: React.ReactNode }[] = [
+    { label: t('id'), value: <span className='typed text-xs'>{user.id}</span> },
+    { label: t('name'), value: user.name },
+    {
+      label: t('email'),
+      value: <span className='typed lowercase'>{user.email}</span>,
+    },
+    {
+      label: t('tasks'),
+      value: <span className='typed'>{user.tasksCount}</span>,
+    },
+    {
+      label: t('role'),
+      value:
+        user.role === 'admin' ? (
+          <Stamp tone='violet' rotate={-3} className='text-[0.7rem]'>
+            {UserRoleMap[user.role as keyof typeof UserRoleMap]}
+          </Stamp>
+        ) : (
+          UserRoleMap[user.role as keyof typeof UserRoleMap]
+        ),
+    },
+    {
+      label: t('status'),
+      value: user.banned ? (
+        <Stamp tone='red' rotate={-3} className='text-[0.7rem]'>
+          {t('banned')}
+        </Stamp>
+      ) : (
+        <Stamp tone='print' rotate={-3} className='text-[0.7rem]'>
+          {t('active')}
+        </Stamp>
+      ),
+    },
+    {
+      label: t('createdAt'),
+      value: (
+        <span className='typed'>
+          {format.dateTime(new Date(user.createdAt), {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: 'numeric',
+            minute: 'numeric',
+          })}
+        </span>
+      ),
+    },
+  ];
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className='dark:bg-[#1d1929]'>
+      <DialogContent>
         <DialogHeader>
           <DialogTitle>{t('title')}</DialogTitle>
           <DialogDescription>{t('description')}</DialogDescription>
         </DialogHeader>
 
-        <div className='flex flex-col gap-4 py-4'>
-          <div className='flex flex-col gap-2'>
-            <div className='flex items-center justify-between'>
-              <span className='text-muted-foreground text-sm font-medium'>
-                {t('id')}
-              </span>
-              <span className='font-mono text-xs'>{user.id}</span>
+        <dl className='flex flex-col'>
+          {rows.map(({ label, value }) => (
+            <div
+              key={label}
+              className='border-rule flex items-center justify-between gap-4 border-b py-2.5 last:border-b-0'
+            >
+              <dt className='field-label'>{label}</dt>
+              <dd className='text-right text-sm'>{value}</dd>
             </div>
-            <Separator />
-          </div>
-
-          <div className='flex flex-col gap-2'>
-            <div className='flex items-center justify-between'>
-              <span className='text-muted-foreground text-sm font-medium'>
-                {t('name')}
-              </span>
-              <span className='text-sm'>{user.name}</span>
-            </div>
-            <Separator />
-          </div>
-
-          <div className='flex flex-col gap-2'>
-            <div className='flex items-center justify-between'>
-              <span className='text-muted-foreground text-sm font-medium'>
-                {t('email')}
-              </span>
-              <span className='text-sm lowercase'>{user.email}</span>
-            </div>
-            <Separator />
-          </div>
-
-          <div className='flex flex-col gap-2'>
-            <div className='flex items-center justify-between'>
-              <span className='text-muted-foreground text-sm font-medium'>
-                {t('tasks')}
-              </span>
-              <span className='text-sm font-medium'>{user.tasksCount}</span>
-            </div>
-            <Separator />
-          </div>
-
-          <div className='flex flex-col gap-2'>
-            <div className='flex items-center justify-between'>
-              <span className='text-muted-foreground text-sm font-medium'>
-                {t('role')}
-              </span>
-              <Badge variant={user.role === 'admin' ? 'default' : 'secondary'}>
-                {UserRoleMap[user.role as keyof typeof UserRoleMap]}
-              </Badge>
-            </div>
-            <Separator />
-          </div>
-
-          <div className='flex flex-col gap-2'>
-            <div className='flex items-center justify-between'>
-              <span className='text-muted-foreground text-sm font-medium'>
-                {t('status')}
-              </span>
-              <Badge variant={user.banned ? 'destructive' : 'default'}>
-                {user.banned ? t('banned') : t('active')}
-              </Badge>
-            </div>
-            <Separator />
-          </div>
-
-          <div className='flex flex-col gap-2'>
-            <div className='flex items-center justify-between'>
-              <span className='text-muted-foreground text-sm font-medium'>
-                {t('createdAt')}
-              </span>
-              <span className='text-sm'>
-                {format.dateTime(new Date(user.createdAt), {
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric',
-                  hour: 'numeric',
-                  minute: 'numeric',
-                })}
-              </span>
-            </div>
-          </div>
-        </div>
+          ))}
+        </dl>
       </DialogContent>
     </Dialog>
   );
